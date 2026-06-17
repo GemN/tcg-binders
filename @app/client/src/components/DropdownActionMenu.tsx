@@ -1,0 +1,32 @@
+import { MoreHorizontal } from "lucide-react";
+import type { FC } from "react";
+
+import { Button } from "@/components/ui/Button.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu.tsx";
+
+interface DropdownActionMenuProps {
+  items: React.ReactNode[];
+}
+
+export const DropdownActionMenu: FC<DropdownActionMenuProps> = ({ items }) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {items.map((item, index) => (
+          <DropdownMenuItem key={index}>{item}</DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};

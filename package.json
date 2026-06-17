@@ -1,0 +1,58 @@
+{
+  "name": "boilergem",
+  "projectName": "Boilergem",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "@app/*"
+  ],
+  "scripts": {
+    "dev": "yarn && yarn workspaces foreach --all --verbose --topological --exclude boilergem run codegen && tsc -b && concurrently --kill-others --names \"TSC,WATCH,RUN,TEST\" --prefix \"({name})\" --prefix-colors \"yellow.bold,yellow.bold,cyan.bold,greenBright.bold\" \"tsc -b --watch --preserveWatchOutput\" \"yarn workspaces foreach --all --verbose --parallel --interlaced --exclude boilergem run watch\" \"yarn workspaces foreach --all --verbose --parallel --interlaced --exclude boilergem run dev\"",
+    "eslint": "eslint --ext .js,.jsx,.ts,.tsx,.graphql",
+    "client": "yarn workspace @app/client",
+    "graphql": "yarn workspace @app/graphql",
+    "config": "yarn workspace @app/config",
+    "worker": "yarn workspace @app/worker",
+    "db": "yarn workspace @app/supabase"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "proseWrap": "always",
+    "overrides": [
+      {
+        "files": [
+          "*.yml",
+          "*.yaml"
+        ],
+        "options": {
+          "printWidth": 120
+        }
+      }
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-graphql": "^4.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "graphql": "^15.4.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "supabase": "2.34.3"
+  },
+  "dependencies": {
+    "@types/node": "^24.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "yarn@4.9.4"
+}

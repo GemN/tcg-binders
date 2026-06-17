@@ -1,0 +1,29 @@
+<mjml>
+  <mj-head>
+    <mj-include path="./common_head.mjml" />
+    <mj-preview>Invitation to join [[organizationName]]</mj-preview>
+    <mj-title>Invitation to join [[organizationName]]</mj-title>
+  </mj-head>
+  <mj-body background-color="#f9f9f9">
+    <mj-section background-color="#ffffff" padding-bottom="0px">
+      <mj-column width="100%">
+        <mj-text font-size="20px" font-weight="bold" align="center" color="#333333">
+          Welcome to [[projectName]]
+        </mj-text>
+        <mj-text font-size="16px" align="left" color="#333333" padding-bottom="10px">
+          Hello [[firstname]] [[lastname]],
+        </mj-text>
+        <mj-text font-size="16px" align="left" color="#333333" line-height="24px">
+          You have been invited to join <strong>[[organizationName]]</strong>.
+        </mj-text>
+        <mj-text font-size="16px" align="left" color="#333333" line-height="24px" padding-bottom="20px">
+          Use the button below to finish setting up your account.
+        </mj-text>
+        <mj-button mj-class="button" href="[[ctaUrl]]" width="300px">
+          Accept invitation
+        </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+  <mj-include path="./footer.mjml" />
+</mjml>

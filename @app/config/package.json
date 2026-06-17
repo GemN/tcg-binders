@@ -1,0 +1,27 @@
+{
+  "name": "@app/config",
+  "private": true,
+  "version": "0.0.0",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./env": "./env.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "cross-env": "^7.0.2",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "ok": "Ok",
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "loading": "Chargement...",
+  "next": "Suivant",
+  "previous": "Précédent",
+  "back": "Retour",
+  "no_results": "Pas de résultats",
+  "unselect": "Désélectionner",
+  "submit": "Envoyer",
+  "yes": "Oui",
+  "no": "Non",
+  "not_available": "Non disponible",
+  "nav": {
+    "account": "Compte",
+    "logout": "Déconnexion",
+    "settings": "Paramètres"
+  },
+  "not_found": {
+    "title": "Page non trouvée",
+    "description": "La page que vous recherchez n'existe pas."
+  },
+  "sidenav": {
+    "group": {
+      "workspace": "Espace de travail",
+      "settings": "Paramètres"
+    },
+    "contexts": {
+      "organizations": "Organisations",
+      "select_value": "Sélectionner un espace",
+      "role": {
+        "OWNER": "Propriétaire",
+        "ADMIN": "Admin",
+        "MEMBER": "Membre"
+      }
+    },
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "organization": "Organisation"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Votre espace de démarrage est prêt.",
+    "current_workspace": "Espace courant",
+    "organization": "Organisation",
+    "role": "Rôle"
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Informations utilisateur depuis Supabase Auth.",
+    "details": "Détails du profil",
+    "firstname": "Prénom",
+    "lastname": "Nom"
+  },
+  "organization": {
+    "title": "Organisation",
+    "subtitle": "Le contexte d'organisation actif envoyé à l'API.",
+    "details": "Détails de l'organisation",
+    "name": "Nom",
+    "role": "Rôle"
+  },
+  "days_one": "jour",
+  "days_other": "jours",
+  "months_one": "mois",
+  "months_other": "mois",
+  "remote": "Télétravail",
+  "form": {
+    "required": "Ce champ est requis",
+    "must_be_positive": "La valeur doit être positive",
+    "email_invalid": "Veuillez entrer une adresse e-mail valide",
+    "datepicker_placeholder": "Sélectionner une date",
+    "invalid_phone": "Veuillez entrer un numéro de téléphone valide",
+    "optional": "Optionnel",
+    "no_country": "Pas de pays",
+    "invalid_linkedin": "Veuillez entrer une URL de profil LinkedIn valide",
+    "invalid_github": "Veuillez entrer une URL de profil GitHub valide",
+    "invalid_website": "Veuillez entrer une URL de site web valide",
+    "invalid_country": "Veuillez sélectionner un pays valide"
+  },
+  "nbr_out_of": "{{nbr}} sur {{total}}"
+}

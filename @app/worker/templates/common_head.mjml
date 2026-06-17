@@ -1,0 +1,25 @@
+<mj-attributes>
+  <mj-text padding="8px 40px" color="#333333" font-size="16px" line-height="24px" font-family="Courier, Courier New, Arial, serif" />
+  <mj-class name="card" border="1px dotted #252525" background-color="white" padding="0 0 40px 0" />
+  <mj-class name="background" background-color="#E6FA7F" font-size="13px"  />
+  <mj-class name="small-text" align="center" font-size="13px" font-family="Courier, Courier New, Arial, serif" />
+  <mj-class name="footer-text" align="center" font-size="12px" color="#535353" line-height="18px" font-family="Courier, Courier New, Arial, serif" />
+  <mj-class name="button" align="center" border-radius="0" color="white" background-color="#252525" font-size="14px" line-height="21px" font-family="Courier, Courier New, Arial, serif" inner-padding="12px 32px" border="1px solid #252525" />
+  <mj-class name="email-header" padding="8px" css-class="email-header" font-size="11px" line-height="16px" container-background-color="#252525" color="#D7FF00" font-family="Courier, Courier New, Arial, serif" />
+</mj-attributes>
+<mj-style>
+  .bold { font-weight: 700; }
+  a.a {
+    color: #186FF2;
+    text-decoration: underline;
+  }
+  .email-header {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 0;
+  }
+  .red {
+    color: #F25F25;
+  }
+</mj-style>

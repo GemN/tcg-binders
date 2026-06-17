@@ -1,0 +1,23 @@
+{
+  "logout": "Logout",
+  "auth_ui": {
+    "email_label": "Email",
+    "password_label": "Password"
+  },
+  "set_password": {
+    "title": "Welcome",
+    "description": "Finish your setup by creating a password.",
+    "create_password": "Create password",
+    "confirm_password": "Confirm password",
+    "submit": "Set Password",
+    "success": "Password successfully set.",
+    "error": "Failed to set password. Please try again."
+  },
+  "validation": {
+    "password_required": "Password is required",
+    "password_min_length": "Password must be at least 8 characters",
+    "confirm_password_required": "Confirm password is required",
+    "confirm_password_min_length": "Confirm password must be at least 8 characters",
+    "passwords_must_match": "Passwords don't match"
+  }
+}

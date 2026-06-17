@@ -1,0 +1,9 @@
+query CurrentUserProfile {
+  currentUserProfile: current_user_profile {
+    nodeId
+    id
+    firstname
+    lastname
+    isAdmin: is_admin
+  }
+}

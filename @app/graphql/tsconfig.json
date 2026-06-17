@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": ".",
+    "outDir": ".",
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo",
+    "declarationDir": ".",
+    "lib": ["es2018", "esnext.asynciterable"],
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "Node",
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "@app/graphql": ["./index.ts"],
+    }
+  },
+  "include": ["./index.tsx"]
+}

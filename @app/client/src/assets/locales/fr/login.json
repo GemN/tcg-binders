@@ -1,0 +1,23 @@
+{
+  "logout": "Déconnexion",
+  "auth_ui": {
+    "email_label": "Email",
+    "password_label": "Mot de passe"
+  },
+  "set_password": {
+    "title": "Bienvenue",
+    "description": "Finalisez votre inscription en créant un mot de passe.",
+    "create_password": "Créer un mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "submit": "Définir le mot de passe",
+    "success": "Mot de passe défini avec succès.",
+    "error": "Échec de la définition du mot de passe. Veuillez réessayer."
+  },
+  "validation": {
+    "password_required": "Le mot de passe est requis",
+    "password_min_length": "Le mot de passe doit contenir au moins 8 caractères",
+    "confirm_password_required": "La confirmation du mot de passe est requise",
+    "confirm_password_min_length": "La confirmation du mot de passe doit contenir au moins 8 caractères",
+    "passwords_must_match": "Les mots de passe ne correspondent pas"
+  }
+}

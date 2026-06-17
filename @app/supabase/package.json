@@ -1,0 +1,16 @@
+{
+  "name": "@app/supabase",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "supabase": "supabase",
+    "watch": "nodemon --watch schemas/current.sql --ext sql --exec \"echo 'Running current.sql' && PGOPTIONS='--client-min-messages=warning' psql $(supabase status -o env | sed -n 's/^DB_URL=\"\\(.*\\)\"/\\1/p'\n) -1 -q -v ON_ERROR_STOP=1 -f schemas/current.sql  && echo 'Done'\"",
+    "start": "supabase start",
+    "stop": "supabase stop",
+    "restart": "yarn stop && yarn start",
+    "commit": "node scripts/commit.js"
+  },
+  "dependencies": {
+    "supabase": "2.34.3"
+  }
+}

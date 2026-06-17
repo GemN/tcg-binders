@@ -1,0 +1,82 @@
+{
+  "ok": "Ok",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "loading": "Loading...",
+  "next": "Next",
+  "previous": "Previous",
+  "back": "Back",
+  "no_results": "No results found",
+  "unselect": "Unselect",
+  "submit": "Submit",
+  "yes": "Yes",
+  "no": "No",
+  "not_available": "Not available",
+  "nav": {
+    "account": "Account",
+    "logout": "Log out",
+    "settings": "Settings"
+  },
+  "not_found": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist."
+  },
+  "sidenav": {
+    "group": {
+      "workspace": "Workspace",
+      "settings": "Settings"
+    },
+    "contexts": {
+      "organizations": "Organizations",
+      "select_value": "Select workspace",
+      "role": {
+        "OWNER": "Owner",
+        "ADMIN": "Admin",
+        "MEMBER": "Member"
+      }
+    },
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "organization": "Organization"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Your starter workspace is ready.",
+    "current_workspace": "Current workspace",
+    "organization": "Organization",
+    "role": "Role"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "User details from Supabase Auth.",
+    "details": "Profile details",
+    "firstname": "First name",
+    "lastname": "Last name"
+  },
+  "organization": {
+    "title": "Organization",
+    "subtitle": "The active organization context sent to the API.",
+    "details": "Organization details",
+    "name": "Name",
+    "role": "Role"
+  },
+  "days_one": "day",
+  "days_other": "days",
+  "months_one": "month",
+  "months_other": "months",
+  "remote": "Remote",
+  "form": {
+    "required": "This field is required",
+    "must_be_positive": "The value must be a positive number",
+    "email_invalid": "Please enter a valid email address",
+    "datepicker_placeholder": "Select a date",
+    "invalid_phone": "Please enter a valid phone number",
+    "optional": "Optional",
+    "no_country": "No country",
+    "invalid_linkedin": "Please enter a valid LinkedIn profile URL",
+    "invalid_github": "Please enter a valid GitHub profile URL",
+    "invalid_website": "Please enter a valid website URL",
+    "invalid_country": "Please select a valid country"
+  },
+  "nbr_out_of": "{{nbr}} out of {{total}}"
+}

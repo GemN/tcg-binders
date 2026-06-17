@@ -1,0 +1,14 @@
+<mj-section mj-class="card" border-top="0" padding="24px 0">
+  <mj-column width="100%">
+    <mj-text mj-class="footer-text">
+      If you have any questions or encounter technical issues, please contact us via our <a href="[[urlContact]]" target="_blank" class="a">contact page</a>.
+    </mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0" mj-class="card" border-top="0" text-align="center" background-color="white">
+  <mj-column>
+    <mj-text font-size="10px" color="#A4A2A2" line-height="16px" align="center" padding="8px 0" font-family="Source Code Pro, Courier, Courier New, Arial, serif">
+      [[legalText]]
+    </mj-text>
+  </mj-column>
+</mj-section>
