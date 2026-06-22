@@ -1,0 +1,38 @@
+query CardSearch($query: String!, $first: Int = 8) {
+  cardsCollection(
+    first: $first
+    filter: { tcgId: { eq: "mtg" }, name: { ilike: $query } }
+    orderBy: [{ releasedAt: DescNullsLast }, { name: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        id
+        externalId
+        name
+        collectorNumber
+        rarity
+        finishes
+        imageSmallUrl
+        imageNormalUrl
+        releasedAt
+        cardSet {
+          id
+          code
+          name
+          releaseAt
+        }
+        marketPrices(first: 8, orderBy: [{ source: AscNullsLast }]) {
+          edges {
+            node {
+              source
+              finish
+              amount
+              currency
+              priceDate
+            }
+          }
+        }
+      }
+    }
+  }
+}

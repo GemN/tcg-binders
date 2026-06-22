@@ -13,7 +13,8 @@
     "graphql": "yarn workspace @app/graphql",
     "config": "yarn workspace @app/config",
     "worker": "yarn workspace @app/worker",
-    "db": "yarn workspace @app/supabase"
+    "db": "yarn workspace @app/supabase",
+    "import:mtg": "node scripts/import-mtg-catalog.js"
   },
   "prettier": {
     "trailingComma": "es5",
@@ -47,7 +48,7 @@
     "graphql": "^15.4.0",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
-    "supabase": "2.34.3"
+    "supabase": "2.107.0"
   },
   "dependencies": {
     "@types/node": "^24.3.0",

@@ -11,6 +11,6 @@
     "commit": "node scripts/commit.js"
   },
   "dependencies": {
-    "supabase": "2.34.3"
+    "supabase": "2.107.0"
   }
 }

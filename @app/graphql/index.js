@@ -2,11 +2,71 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {};
+export var BinderVisibility;
+(function (BinderVisibility) {
+    BinderVisibility["Listed"] = "listed";
+    BinderVisibility["Private"] = "private";
+    BinderVisibility["Unlisted"] = "unlisted";
+})(BinderVisibility || (BinderVisibility = {}));
+export var CardCondition;
+(function (CardCondition) {
+    CardCondition["Excellent"] = "excellent";
+    CardCondition["Good"] = "good";
+    CardCondition["LightPlayed"] = "light_played";
+    CardCondition["Mint"] = "mint";
+    CardCondition["NearMint"] = "near_mint";
+    CardCondition["Played"] = "played";
+    CardCondition["Poor"] = "poor";
+})(CardCondition || (CardCondition = {}));
+export var CurrencyCode;
+(function (CurrencyCode) {
+    CurrencyCode["Eur"] = "EUR";
+    CurrencyCode["Gbp"] = "GBP";
+    CurrencyCode["Jpy"] = "JPY";
+    CurrencyCode["Thb"] = "THB";
+    CurrencyCode["Usd"] = "USD";
+})(CurrencyCode || (CurrencyCode = {}));
 export var FilterIs;
 (function (FilterIs) {
     FilterIs["NotNull"] = "NOT_NULL";
     FilterIs["Null"] = "NULL";
 })(FilterIs || (FilterIs = {}));
+export var LanguageCode;
+(function (LanguageCode) {
+    LanguageCode["Ar"] = "ar";
+    LanguageCode["De"] = "de";
+    LanguageCode["En"] = "en";
+    LanguageCode["Es"] = "es";
+    LanguageCode["Fr"] = "fr";
+    LanguageCode["Grc"] = "grc";
+    LanguageCode["He"] = "he";
+    LanguageCode["It"] = "it";
+    LanguageCode["Ja"] = "ja";
+    LanguageCode["Ko"] = "ko";
+    LanguageCode["La"] = "la";
+    LanguageCode["Ph"] = "ph";
+    LanguageCode["Pt"] = "pt";
+    LanguageCode["Qya"] = "qya";
+    LanguageCode["Ru"] = "ru";
+    LanguageCode["Sa"] = "sa";
+    LanguageCode["Zhs"] = "zhs";
+    LanguageCode["Zht"] = "zht";
+})(LanguageCode || (LanguageCode = {}));
+export var MarketPriceSource;
+(function (MarketPriceSource) {
+    MarketPriceSource["Cardkingdom"] = "cardkingdom";
+    MarketPriceSource["Cardmarket"] = "cardmarket";
+    MarketPriceSource["Tcgplayer"] = "tcgplayer";
+})(MarketPriceSource || (MarketPriceSource = {}));
+export var MtgColor;
+(function (MtgColor) {
+    MtgColor["B"] = "B";
+    MtgColor["C"] = "C";
+    MtgColor["G"] = "G";
+    MtgColor["R"] = "R";
+    MtgColor["U"] = "U";
+    MtgColor["W"] = "W";
+})(MtgColor || (MtgColor = {}));
 /** Defines a per-field sorting order */
 export var OrderByDirection;
 (function (OrderByDirection) {
@@ -19,20 +79,85 @@ export var OrderByDirection;
     /** Descending order, nulls last */
     OrderByDirection["DescNullsLast"] = "DescNullsLast";
 })(OrderByDirection || (OrderByDirection = {}));
-export var Organization_Member_Role;
-(function (Organization_Member_Role) {
-    Organization_Member_Role["Admin"] = "ADMIN";
-    Organization_Member_Role["Member"] = "MEMBER";
-    Organization_Member_Role["Owner"] = "OWNER";
-})(Organization_Member_Role || (Organization_Member_Role = {}));
-export const CurrentUserOrganizationContextsDocument = gql `
-    query CurrentUserOrganizationContexts {
-  currentUserOrganizationContexts: current_user_organization_contexts {
+export var OrganizationMemberRole;
+(function (OrganizationMemberRole) {
+    OrganizationMemberRole["Admin"] = "ADMIN";
+    OrganizationMemberRole["Member"] = "MEMBER";
+    OrganizationMemberRole["Owner"] = "OWNER";
+})(OrganizationMemberRole || (OrganizationMemberRole = {}));
+export const CardSearchDocument = gql `
+    query CardSearch($query: String!, $first: Int = 8) {
+  cardsCollection(
+    first: $first
+    filter: {tcgId: {eq: "mtg"}, name: {ilike: $query}}
+    orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
+  ) {
     edges {
       node {
-        organizationId: organization_id
+        id
+        externalId
+        name
+        collectorNumber
+        rarity
+        finishes
+        imageSmallUrl
+        imageNormalUrl
+        releasedAt
+        cardSet {
+          id
+          code
+          name
+          releaseAt
+        }
+        marketPrices(first: 8, orderBy: [{source: AscNullsLast}]) {
+          edges {
+            node {
+              source
+              finish
+              amount
+              currency
+              priceDate
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+/**
+ * __useCardSearchQuery__
+ *
+ * To run a query within a React component, call `useCardSearchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardSearchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardSearchQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *   },
+ * });
+ */
+export function useCardSearchQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardSearchDocument, options);
+}
+export function useCardSearchLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardSearchDocument, options);
+}
+export const CurrentUserOrganizationContextsDocument = gql `
+    query CurrentUserOrganizationContexts {
+  currentUserOrganizationContexts {
+    edges {
+      node {
+        organizationId
         role
-        organizations {
+        organization {
           id
           name
         }
@@ -66,12 +191,12 @@ export function useCurrentUserOrganizationContextsLazyQuery(baseOptions) {
 }
 export const CurrentUserProfileDocument = gql `
     query CurrentUserProfile {
-  currentUserProfile: current_user_profile {
+  currentUserProfile {
     nodeId
     id
     firstname
     lastname
-    isAdmin: is_admin
+    isAdmin
   }
 }
     `;

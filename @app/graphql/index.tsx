@@ -68,6 +68,166 @@ export type BigIntListFilter = {
   overlaps?: Maybe<Array<Scalars['BigInt']>>;
 };
 
+export type BinderCards = Node & {
+  __typename?: 'BinderCards';
+  binder: Maybe<Binders>;
+  binderId: Scalars['UUID'];
+  card: Maybe<Cards>;
+  cardId: Scalars['UUID'];
+  condition: CardCondition;
+  createdAt: Scalars['Datetime'];
+  dynamicPriceRule: Maybe<Scalars['String']>;
+  finish: Scalars['String'];
+  id: Scalars['UUID'];
+  language: LanguageCode;
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  note: Maybe<Scalars['String']>;
+  position: Scalars['Int'];
+  priceAmount: Maybe<Scalars['BigFloat']>;
+  priceCurrency: Maybe<CurrencyCode>;
+  quantity: Scalars['Int'];
+  tcgId: Scalars['String'];
+  updatedAt: Scalars['Datetime'];
+};
+
+export type BinderCardsConnection = {
+  __typename?: 'BinderCardsConnection';
+  edges: Array<BinderCardsEdge>;
+  pageInfo: PageInfo;
+};
+
+export type BinderCardsEdge = {
+  __typename?: 'BinderCardsEdge';
+  cursor: Scalars['String'];
+  node: BinderCards;
+};
+
+export type BinderCardsFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<BinderCardsFilter>>;
+  binderId?: Maybe<UuidFilter>;
+  cardId?: Maybe<UuidFilter>;
+  condition?: Maybe<CardConditionFilter>;
+  createdAt?: Maybe<DatetimeFilter>;
+  dynamicPriceRule?: Maybe<StringFilter>;
+  finish?: Maybe<StringFilter>;
+  id?: Maybe<UuidFilter>;
+  language?: Maybe<LanguageCodeFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<BinderCardsFilter>;
+  note?: Maybe<StringFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<BinderCardsFilter>>;
+  position?: Maybe<IntFilter>;
+  priceAmount?: Maybe<BigFloatFilter>;
+  priceCurrency?: Maybe<CurrencyCodeFilter>;
+  quantity?: Maybe<IntFilter>;
+  tcgId?: Maybe<StringFilter>;
+  updatedAt?: Maybe<DatetimeFilter>;
+};
+
+export type BinderCardsOrderBy = {
+  binderId?: Maybe<OrderByDirection>;
+  cardId?: Maybe<OrderByDirection>;
+  condition?: Maybe<OrderByDirection>;
+  createdAt?: Maybe<OrderByDirection>;
+  dynamicPriceRule?: Maybe<OrderByDirection>;
+  finish?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  language?: Maybe<OrderByDirection>;
+  note?: Maybe<OrderByDirection>;
+  position?: Maybe<OrderByDirection>;
+  priceAmount?: Maybe<OrderByDirection>;
+  priceCurrency?: Maybe<OrderByDirection>;
+  quantity?: Maybe<OrderByDirection>;
+  tcgId?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+};
+
+export enum BinderVisibility {
+  Listed = 'listed',
+  Private = 'private',
+  Unlisted = 'unlisted'
+}
+
+/** Boolean expression comparing fields on type "BinderVisibility" */
+export type BinderVisibilityFilter = {
+  eq?: Maybe<BinderVisibility>;
+  in?: Maybe<Array<BinderVisibility>>;
+  is?: Maybe<FilterIs>;
+  neq?: Maybe<BinderVisibility>;
+};
+
+export type Binders = Node & {
+  __typename?: 'Binders';
+  binderCards: Maybe<BinderCardsConnection>;
+  createdAt: Scalars['Datetime'];
+  id: Scalars['UUID'];
+  name: Scalars['String'];
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  ownerId: Scalars['UUID'];
+  shortId: Scalars['String'];
+  tcg: Maybe<Tcg>;
+  tcgId: Scalars['String'];
+  updatedAt: Scalars['Datetime'];
+  visibility: BinderVisibility;
+};
+
+
+export type BindersBinderCardsArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<BinderCardsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<BinderCardsOrderBy>>;
+};
+
+export type BindersConnection = {
+  __typename?: 'BindersConnection';
+  edges: Array<BindersEdge>;
+  pageInfo: PageInfo;
+};
+
+export type BindersEdge = {
+  __typename?: 'BindersEdge';
+  cursor: Scalars['String'];
+  node: Binders;
+};
+
+export type BindersFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<BindersFilter>>;
+  createdAt?: Maybe<DatetimeFilter>;
+  id?: Maybe<UuidFilter>;
+  name?: Maybe<StringFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<BindersFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<BindersFilter>>;
+  ownerId?: Maybe<UuidFilter>;
+  shortId?: Maybe<StringFilter>;
+  tcgId?: Maybe<StringFilter>;
+  updatedAt?: Maybe<DatetimeFilter>;
+  visibility?: Maybe<BinderVisibilityFilter>;
+};
+
+export type BindersOrderBy = {
+  createdAt?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  name?: Maybe<OrderByDirection>;
+  ownerId?: Maybe<OrderByDirection>;
+  shortId?: Maybe<OrderByDirection>;
+  tcgId?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+  visibility?: Maybe<OrderByDirection>;
+};
+
 /** Boolean expression comparing fields on type "Boolean" */
 export type BooleanFilter = {
   eq?: Maybe<Scalars['Boolean']>;
@@ -81,6 +241,275 @@ export type BooleanListFilter = {
   eq?: Maybe<Array<Scalars['Boolean']>>;
   is?: Maybe<FilterIs>;
   overlaps?: Maybe<Array<Scalars['Boolean']>>;
+};
+
+export enum CardCondition {
+  Excellent = 'excellent',
+  Good = 'good',
+  LightPlayed = 'light_played',
+  Mint = 'mint',
+  NearMint = 'near_mint',
+  Played = 'played',
+  Poor = 'poor'
+}
+
+/** Boolean expression comparing fields on type "CardCondition" */
+export type CardConditionFilter = {
+  eq?: Maybe<CardCondition>;
+  in?: Maybe<Array<CardCondition>>;
+  is?: Maybe<FilterIs>;
+  neq?: Maybe<CardCondition>;
+};
+
+export type CardMarketPrices = Node & {
+  __typename?: 'CardMarketPrices';
+  amount: Scalars['BigFloat'];
+  buyUrl: Maybe<Scalars['String']>;
+  card: Maybe<Cards>;
+  cardId: Scalars['UUID'];
+  createdAt: Scalars['Datetime'];
+  currency: CurrencyCode;
+  finish: Scalars['String'];
+  id: Scalars['UUID'];
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  priceDate: Scalars['Date'];
+  source: MarketPriceSource;
+  tcgId: Scalars['String'];
+  updatedAt: Scalars['Datetime'];
+};
+
+export type CardMarketPricesConnection = {
+  __typename?: 'CardMarketPricesConnection';
+  edges: Array<CardMarketPricesEdge>;
+  pageInfo: PageInfo;
+};
+
+export type CardMarketPricesEdge = {
+  __typename?: 'CardMarketPricesEdge';
+  cursor: Scalars['String'];
+  node: CardMarketPrices;
+};
+
+export type CardMarketPricesFilter = {
+  amount?: Maybe<BigFloatFilter>;
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<CardMarketPricesFilter>>;
+  buyUrl?: Maybe<StringFilter>;
+  cardId?: Maybe<UuidFilter>;
+  createdAt?: Maybe<DatetimeFilter>;
+  currency?: Maybe<CurrencyCodeFilter>;
+  finish?: Maybe<StringFilter>;
+  id?: Maybe<UuidFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<CardMarketPricesFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<CardMarketPricesFilter>>;
+  priceDate?: Maybe<DateFilter>;
+  source?: Maybe<MarketPriceSourceFilter>;
+  tcgId?: Maybe<StringFilter>;
+  updatedAt?: Maybe<DatetimeFilter>;
+};
+
+export type CardMarketPricesOrderBy = {
+  amount?: Maybe<OrderByDirection>;
+  buyUrl?: Maybe<OrderByDirection>;
+  cardId?: Maybe<OrderByDirection>;
+  createdAt?: Maybe<OrderByDirection>;
+  currency?: Maybe<OrderByDirection>;
+  finish?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  priceDate?: Maybe<OrderByDirection>;
+  source?: Maybe<OrderByDirection>;
+  tcgId?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type CardSets = Node & {
+  __typename?: 'CardSets';
+  cards: Maybe<CardsConnection>;
+  code: Maybe<Scalars['String']>;
+  createdAt: Scalars['Datetime'];
+  externalId: Scalars['String'];
+  iconUrl: Maybe<Scalars['String']>;
+  id: Scalars['UUID'];
+  name: Scalars['String'];
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  releaseAt: Maybe<Scalars['Date']>;
+  tcg: Maybe<Tcg>;
+  tcgId: Scalars['String'];
+  updatedAt: Scalars['Datetime'];
+};
+
+
+export type CardSetsCardsArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<CardsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<CardsOrderBy>>;
+};
+
+export type CardSetsConnection = {
+  __typename?: 'CardSetsConnection';
+  edges: Array<CardSetsEdge>;
+  pageInfo: PageInfo;
+};
+
+export type CardSetsEdge = {
+  __typename?: 'CardSetsEdge';
+  cursor: Scalars['String'];
+  node: CardSets;
+};
+
+export type CardSetsFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<CardSetsFilter>>;
+  code?: Maybe<StringFilter>;
+  createdAt?: Maybe<DatetimeFilter>;
+  externalId?: Maybe<StringFilter>;
+  iconUrl?: Maybe<StringFilter>;
+  id?: Maybe<UuidFilter>;
+  name?: Maybe<StringFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<CardSetsFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<CardSetsFilter>>;
+  releaseAt?: Maybe<DateFilter>;
+  tcgId?: Maybe<StringFilter>;
+  updatedAt?: Maybe<DatetimeFilter>;
+};
+
+export type CardSetsOrderBy = {
+  code?: Maybe<OrderByDirection>;
+  createdAt?: Maybe<OrderByDirection>;
+  externalId?: Maybe<OrderByDirection>;
+  iconUrl?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  name?: Maybe<OrderByDirection>;
+  releaseAt?: Maybe<OrderByDirection>;
+  tcgId?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type Cards = Node & {
+  __typename?: 'Cards';
+  binderCards: Maybe<BinderCardsConnection>;
+  cardSet: Maybe<CardSets>;
+  cardSetId: Maybe<Scalars['UUID']>;
+  collectorNumber: Maybe<Scalars['String']>;
+  createdAt: Scalars['Datetime'];
+  externalId: Scalars['String'];
+  finishes: Array<Maybe<Scalars['String']>>;
+  id: Scalars['UUID'];
+  imageNormalUrl: Maybe<Scalars['String']>;
+  imageSmallUrl: Maybe<Scalars['String']>;
+  marketPrices: Maybe<CardMarketPricesConnection>;
+  mtgCardDetail: Maybe<MtgCardDetails>;
+  name: Scalars['String'];
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  rarity: Maybe<Scalars['String']>;
+  releasedAt: Maybe<Scalars['Date']>;
+  syncedAt: Maybe<Scalars['Datetime']>;
+  tcg: Maybe<Tcg>;
+  tcgId: Scalars['String'];
+  updatedAt: Scalars['Datetime'];
+};
+
+
+export type CardsBinderCardsArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<BinderCardsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<BinderCardsOrderBy>>;
+};
+
+
+export type CardsMarketPricesArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<CardMarketPricesFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<CardMarketPricesOrderBy>>;
+};
+
+export type CardsConnection = {
+  __typename?: 'CardsConnection';
+  edges: Array<CardsEdge>;
+  pageInfo: PageInfo;
+};
+
+export type CardsEdge = {
+  __typename?: 'CardsEdge';
+  cursor: Scalars['String'];
+  node: Cards;
+};
+
+export type CardsFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<CardsFilter>>;
+  cardSetId?: Maybe<UuidFilter>;
+  collectorNumber?: Maybe<StringFilter>;
+  createdAt?: Maybe<DatetimeFilter>;
+  externalId?: Maybe<StringFilter>;
+  finishes?: Maybe<StringListFilter>;
+  id?: Maybe<UuidFilter>;
+  imageNormalUrl?: Maybe<StringFilter>;
+  imageSmallUrl?: Maybe<StringFilter>;
+  name?: Maybe<StringFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<CardsFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<CardsFilter>>;
+  rarity?: Maybe<StringFilter>;
+  releasedAt?: Maybe<DateFilter>;
+  syncedAt?: Maybe<DatetimeFilter>;
+  tcgId?: Maybe<StringFilter>;
+  updatedAt?: Maybe<DatetimeFilter>;
+};
+
+export type CardsOrderBy = {
+  cardSetId?: Maybe<OrderByDirection>;
+  collectorNumber?: Maybe<OrderByDirection>;
+  createdAt?: Maybe<OrderByDirection>;
+  externalId?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  imageNormalUrl?: Maybe<OrderByDirection>;
+  imageSmallUrl?: Maybe<OrderByDirection>;
+  name?: Maybe<OrderByDirection>;
+  rarity?: Maybe<OrderByDirection>;
+  releasedAt?: Maybe<OrderByDirection>;
+  syncedAt?: Maybe<OrderByDirection>;
+  tcgId?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+};
+
+export enum CurrencyCode {
+  Eur = 'EUR',
+  Gbp = 'GBP',
+  Jpy = 'JPY',
+  Thb = 'THB',
+  Usd = 'USD'
+}
+
+/** Boolean expression comparing fields on type "CurrencyCode" */
+export type CurrencyCodeFilter = {
+  eq?: Maybe<CurrencyCode>;
+  in?: Maybe<Array<CurrencyCode>>;
+  is?: Maybe<FilterIs>;
+  neq?: Maybe<CurrencyCode>;
 };
 
 
@@ -181,97 +610,139 @@ export type IntListFilter = {
 };
 
 
+export enum LanguageCode {
+  Ar = 'ar',
+  De = 'de',
+  En = 'en',
+  Es = 'es',
+  Fr = 'fr',
+  Grc = 'grc',
+  He = 'he',
+  It = 'it',
+  Ja = 'ja',
+  Ko = 'ko',
+  La = 'la',
+  Ph = 'ph',
+  Pt = 'pt',
+  Qya = 'qya',
+  Ru = 'ru',
+  Sa = 'sa',
+  Zhs = 'zhs',
+  Zht = 'zht'
+}
+
+/** Boolean expression comparing fields on type "LanguageCode" */
+export type LanguageCodeFilter = {
+  eq?: Maybe<LanguageCode>;
+  in?: Maybe<Array<LanguageCode>>;
+  is?: Maybe<FilterIs>;
+  neq?: Maybe<LanguageCode>;
+};
+
+export enum MarketPriceSource {
+  Cardkingdom = 'cardkingdom',
+  Cardmarket = 'cardmarket',
+  Tcgplayer = 'tcgplayer'
+}
+
+/** Boolean expression comparing fields on type "MarketPriceSource" */
+export type MarketPriceSourceFilter = {
+  eq?: Maybe<MarketPriceSource>;
+  in?: Maybe<Array<MarketPriceSource>>;
+  is?: Maybe<FilterIs>;
+  neq?: Maybe<MarketPriceSource>;
+};
+
+export type MtgCardDetails = Node & {
+  __typename?: 'MtgCardDetails';
+  card: Maybe<Cards>;
+  cardId: Scalars['UUID'];
+  colorIdentity: Array<Maybe<MtgColor>>;
+  colors: Array<Maybe<MtgColor>>;
+  createdAt: Scalars['Datetime'];
+  keywords: Array<Maybe<Scalars['String']>>;
+  layout: Maybe<Scalars['String']>;
+  manaCost: Maybe<Scalars['String']>;
+  manaValue: Maybe<Scalars['BigFloat']>;
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  oracleId: Maybe<Scalars['String']>;
+  oracleText: Maybe<Scalars['String']>;
+  typeLine: Maybe<Scalars['String']>;
+  updatedAt: Scalars['Datetime'];
+};
+
+export type MtgCardDetailsConnection = {
+  __typename?: 'MtgCardDetailsConnection';
+  edges: Array<MtgCardDetailsEdge>;
+  pageInfo: PageInfo;
+};
+
+export type MtgCardDetailsEdge = {
+  __typename?: 'MtgCardDetailsEdge';
+  cursor: Scalars['String'];
+  node: MtgCardDetails;
+};
+
+export type MtgCardDetailsFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<MtgCardDetailsFilter>>;
+  cardId?: Maybe<UuidFilter>;
+  createdAt?: Maybe<DatetimeFilter>;
+  keywords?: Maybe<StringListFilter>;
+  layout?: Maybe<StringFilter>;
+  manaCost?: Maybe<StringFilter>;
+  manaValue?: Maybe<BigFloatFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<MtgCardDetailsFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<MtgCardDetailsFilter>>;
+  oracleId?: Maybe<StringFilter>;
+  oracleText?: Maybe<StringFilter>;
+  typeLine?: Maybe<StringFilter>;
+  updatedAt?: Maybe<DatetimeFilter>;
+};
+
+export type MtgCardDetailsOrderBy = {
+  cardId?: Maybe<OrderByDirection>;
+  createdAt?: Maybe<OrderByDirection>;
+  layout?: Maybe<OrderByDirection>;
+  manaCost?: Maybe<OrderByDirection>;
+  manaValue?: Maybe<OrderByDirection>;
+  oracleId?: Maybe<OrderByDirection>;
+  oracleText?: Maybe<OrderByDirection>;
+  typeLine?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+};
+
+export enum MtgColor {
+  B = 'B',
+  C = 'C',
+  G = 'G',
+  R = 'R',
+  U = 'U',
+  W = 'W'
+}
+
+/** Boolean expression comparing fields on type "MtgColor" */
+export type MtgColorFilter = {
+  eq?: Maybe<MtgColor>;
+  in?: Maybe<Array<MtgColor>>;
+  is?: Maybe<FilterIs>;
+  neq?: Maybe<MtgColor>;
+};
+
 /** The root type for creating and mutating data */
 export type Mutation = {
   __typename?: 'Mutation';
-  create_organization: Maybe<Organizations>;
-  /** Deletes zero or more records from the `organization_members` collection */
-  deleteFromorganization_membersCollection: Organization_MembersDeleteResponse;
-  /** Deletes zero or more records from the `organizations` collection */
-  deleteFromorganizationsCollection: OrganizationsDeleteResponse;
-  /** Deletes zero or more records from the `user_profiles` collection */
-  deleteFromuser_profilesCollection: User_ProfilesDeleteResponse;
-  /** Adds one or more `organization_members` records to the collection */
-  insertIntoorganization_membersCollection: Maybe<Organization_MembersInsertResponse>;
-  /** Adds one or more `organizations` records to the collection */
-  insertIntoorganizationsCollection: Maybe<OrganizationsInsertResponse>;
-  /** Adds one or more `user_profiles` records to the collection */
-  insertIntouser_profilesCollection: Maybe<User_ProfilesInsertResponse>;
-  /** Updates zero or more records in the `organization_members` collection */
-  updateorganization_membersCollection: Organization_MembersUpdateResponse;
-  /** Updates zero or more records in the `organizations` collection */
-  updateorganizationsCollection: OrganizationsUpdateResponse;
-  /** Updates zero or more records in the `user_profiles` collection */
-  updateuser_profilesCollection: User_ProfilesUpdateResponse;
+  createOrganization: Maybe<Organizations>;
 };
 
 
 /** The root type for creating and mutating data */
-export type MutationCreate_OrganizationArgs = {
+export type MutationCreateOrganizationArgs = {
   name: Scalars['String'];
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationDeleteFromorganization_MembersCollectionArgs = {
-  atMost?: Scalars['Int'];
-  filter?: Maybe<Organization_MembersFilter>;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationDeleteFromorganizationsCollectionArgs = {
-  atMost?: Scalars['Int'];
-  filter?: Maybe<OrganizationsFilter>;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationDeleteFromuser_ProfilesCollectionArgs = {
-  atMost?: Scalars['Int'];
-  filter?: Maybe<User_ProfilesFilter>;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationInsertIntoorganization_MembersCollectionArgs = {
-  objects: Array<Organization_MembersInsertInput>;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationInsertIntoorganizationsCollectionArgs = {
-  objects: Array<OrganizationsInsertInput>;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationInsertIntouser_ProfilesCollectionArgs = {
-  objects: Array<User_ProfilesInsertInput>;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationUpdateorganization_MembersCollectionArgs = {
-  atMost?: Scalars['Int'];
-  filter?: Maybe<Organization_MembersFilter>;
-  set: Organization_MembersUpdateInput;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationUpdateorganizationsCollectionArgs = {
-  atMost?: Scalars['Int'];
-  filter?: Maybe<OrganizationsFilter>;
-  set: OrganizationsUpdateInput;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationUpdateuser_ProfilesCollectionArgs = {
-  atMost?: Scalars['Int'];
-  filter?: Maybe<User_ProfilesFilter>;
-  set: User_ProfilesUpdateInput;
 };
 
 export type Node = {
@@ -298,6 +769,128 @@ export enum OrderByDirection {
   DescNullsLast = 'DescNullsLast'
 }
 
+export enum OrganizationMemberRole {
+  Admin = 'ADMIN',
+  Member = 'MEMBER',
+  Owner = 'OWNER'
+}
+
+/** Boolean expression comparing fields on type "OrganizationMemberRole" */
+export type OrganizationMemberRoleFilter = {
+  eq?: Maybe<OrganizationMemberRole>;
+  in?: Maybe<Array<OrganizationMemberRole>>;
+  is?: Maybe<FilterIs>;
+  neq?: Maybe<OrganizationMemberRole>;
+};
+
+export type OrganizationMembers = Node & {
+  __typename?: 'OrganizationMembers';
+  createdAt: Scalars['Datetime'];
+  id: Scalars['UUID'];
+  isActive: Scalars['Boolean'];
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  organization: Maybe<Organizations>;
+  organizationId: Scalars['UUID'];
+  role: OrganizationMemberRole;
+  updatedAt: Scalars['Datetime'];
+  userId: Scalars['UUID'];
+};
+
+export type OrganizationMembersConnection = {
+  __typename?: 'OrganizationMembersConnection';
+  edges: Array<OrganizationMembersEdge>;
+  pageInfo: PageInfo;
+};
+
+export type OrganizationMembersEdge = {
+  __typename?: 'OrganizationMembersEdge';
+  cursor: Scalars['String'];
+  node: OrganizationMembers;
+};
+
+export type OrganizationMembersFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<OrganizationMembersFilter>>;
+  createdAt?: Maybe<DatetimeFilter>;
+  id?: Maybe<UuidFilter>;
+  isActive?: Maybe<BooleanFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<OrganizationMembersFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<OrganizationMembersFilter>>;
+  organizationId?: Maybe<UuidFilter>;
+  role?: Maybe<OrganizationMemberRoleFilter>;
+  updatedAt?: Maybe<DatetimeFilter>;
+  userId?: Maybe<UuidFilter>;
+};
+
+export type OrganizationMembersOrderBy = {
+  createdAt?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  isActive?: Maybe<OrderByDirection>;
+  organizationId?: Maybe<OrderByDirection>;
+  role?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+  userId?: Maybe<OrderByDirection>;
+};
+
+export type Organizations = Node & {
+  __typename?: 'Organizations';
+  createdAt: Scalars['Datetime'];
+  id: Scalars['UUID'];
+  name: Scalars['String'];
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  organizationMembersCollection: Maybe<OrganizationMembersConnection>;
+  updatedAt: Scalars['Datetime'];
+};
+
+
+export type OrganizationsOrganizationMembersCollectionArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<OrganizationMembersFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<OrganizationMembersOrderBy>>;
+};
+
+export type OrganizationsConnection = {
+  __typename?: 'OrganizationsConnection';
+  edges: Array<OrganizationsEdge>;
+  pageInfo: PageInfo;
+};
+
+export type OrganizationsEdge = {
+  __typename?: 'OrganizationsEdge';
+  cursor: Scalars['String'];
+  node: Organizations;
+};
+
+export type OrganizationsFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<OrganizationsFilter>>;
+  createdAt?: Maybe<DatetimeFilter>;
+  id?: Maybe<UuidFilter>;
+  name?: Maybe<StringFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<OrganizationsFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<OrganizationsFilter>>;
+  updatedAt?: Maybe<DatetimeFilter>;
+};
+
+export type OrganizationsOrderBy = {
+  createdAt?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  name?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
+};
+
 export type PageInfo = {
   __typename?: 'PageInfo';
   endCursor: Maybe<Scalars['String']>;
@@ -309,28 +902,121 @@ export type PageInfo = {
 /** The root type for querying data */
 export type Query = {
   __typename?: 'Query';
-  current_user_organization_contexts: Maybe<Organization_MembersConnection>;
-  current_user_profile: Maybe<User_Profiles>;
+  binderByShortId: Maybe<Binders>;
+  /** A pagable collection of type `BinderCards` */
+  binderCardsCollection: Maybe<BinderCardsConnection>;
+  /** A pagable collection of type `Binders` */
+  bindersCollection: Maybe<BindersConnection>;
+  /** A pagable collection of type `CardMarketPrices` */
+  cardMarketPricesCollection: Maybe<CardMarketPricesConnection>;
+  /** A pagable collection of type `CardSets` */
+  cardSetsCollection: Maybe<CardSetsConnection>;
+  /** A pagable collection of type `Cards` */
+  cardsCollection: Maybe<CardsConnection>;
+  currentUserOrganizationContexts: Maybe<OrganizationMembersConnection>;
+  currentUserProfile: Maybe<UserProfiles>;
+  /** A pagable collection of type `MtgCardDetails` */
+  mtgCardDetailsCollection: Maybe<MtgCardDetailsConnection>;
   /** Retrieve a record by its `ID` */
   node: Maybe<Node>;
-  /** A pagable collection of type `organization_members` */
-  organization_membersCollection: Maybe<Organization_MembersConnection>;
-  /** A pagable collection of type `organizations` */
+  /** A pagable collection of type `OrganizationMembers` */
+  organizationMembersCollection: Maybe<OrganizationMembersConnection>;
+  /** A pagable collection of type `Organizations` */
   organizationsCollection: Maybe<OrganizationsConnection>;
-  /** A pagable collection of type `user_profiles` */
-  user_profilesCollection: Maybe<User_ProfilesConnection>;
+  /** A pagable collection of type `Tcg` */
+  tcgCollection: Maybe<TcgConnection>;
+  /** A pagable collection of type `UserProfiles` */
+  userProfilesCollection: Maybe<UserProfilesConnection>;
 };
 
 
 /** The root type for querying data */
-export type QueryCurrent_User_Organization_ContextsArgs = {
+export type QueryBinderByShortIdArgs = {
+  binderShortId: Scalars['String'];
+};
+
+
+/** The root type for querying data */
+export type QueryBinderCardsCollectionArgs = {
   after?: Maybe<Scalars['Cursor']>;
   before?: Maybe<Scalars['Cursor']>;
-  filter?: Maybe<Organization_MembersFilter>;
+  filter?: Maybe<BinderCardsFilter>;
   first?: Maybe<Scalars['Int']>;
   last?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<Array<Organization_MembersOrderBy>>;
+  orderBy?: Maybe<Array<BinderCardsOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryBindersCollectionArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<BindersFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<BindersOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryCardMarketPricesCollectionArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<CardMarketPricesFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<CardMarketPricesOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryCardSetsCollectionArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<CardSetsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<CardSetsOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryCardsCollectionArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<CardsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<CardsOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryCurrentUserOrganizationContextsArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<OrganizationMembersFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<OrganizationMembersOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryMtgCardDetailsCollectionArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<MtgCardDetailsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<MtgCardDetailsOrderBy>>;
 };
 
 
@@ -341,14 +1027,14 @@ export type QueryNodeArgs = {
 
 
 /** The root type for querying data */
-export type QueryOrganization_MembersCollectionArgs = {
+export type QueryOrganizationMembersCollectionArgs = {
   after?: Maybe<Scalars['Cursor']>;
   before?: Maybe<Scalars['Cursor']>;
-  filter?: Maybe<Organization_MembersFilter>;
+  filter?: Maybe<OrganizationMembersFilter>;
   first?: Maybe<Scalars['Int']>;
   last?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<Array<Organization_MembersOrderBy>>;
+  orderBy?: Maybe<Array<OrganizationMembersOrderBy>>;
 };
 
 
@@ -365,14 +1051,26 @@ export type QueryOrganizationsCollectionArgs = {
 
 
 /** The root type for querying data */
-export type QueryUser_ProfilesCollectionArgs = {
+export type QueryTcgCollectionArgs = {
   after?: Maybe<Scalars['Cursor']>;
   before?: Maybe<Scalars['Cursor']>;
-  filter?: Maybe<User_ProfilesFilter>;
+  filter?: Maybe<TcgFilter>;
   first?: Maybe<Scalars['Int']>;
   last?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<Array<User_ProfilesOrderBy>>;
+  orderBy?: Maybe<Array<TcgOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryUserProfilesCollectionArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<UserProfilesFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<UserProfilesOrderBy>>;
 };
 
 /** Boolean expression comparing fields on type "String" */
@@ -399,6 +1097,85 @@ export type StringListFilter = {
   eq?: Maybe<Array<Scalars['String']>>;
   is?: Maybe<FilterIs>;
   overlaps?: Maybe<Array<Scalars['String']>>;
+};
+
+export type Tcg = Node & {
+  __typename?: 'Tcg';
+  binders: Maybe<BindersConnection>;
+  cardSets: Maybe<CardSetsConnection>;
+  cards: Maybe<CardsConnection>;
+  createdAt: Scalars['Datetime'];
+  id: Scalars['String'];
+  name: Scalars['String'];
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  updatedAt: Scalars['Datetime'];
+};
+
+
+export type TcgBindersArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<BindersFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<BindersOrderBy>>;
+};
+
+
+export type TcgCardSetsArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<CardSetsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<CardSetsOrderBy>>;
+};
+
+
+export type TcgCardsArgs = {
+  after?: Maybe<Scalars['Cursor']>;
+  before?: Maybe<Scalars['Cursor']>;
+  filter?: Maybe<CardsFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Array<CardsOrderBy>>;
+};
+
+export type TcgConnection = {
+  __typename?: 'TcgConnection';
+  edges: Array<TcgEdge>;
+  pageInfo: PageInfo;
+};
+
+export type TcgEdge = {
+  __typename?: 'TcgEdge';
+  cursor: Scalars['String'];
+  node: Tcg;
+};
+
+export type TcgFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: Maybe<Array<TcgFilter>>;
+  createdAt?: Maybe<DatetimeFilter>;
+  id?: Maybe<StringFilter>;
+  name?: Maybe<StringFilter>;
+  nodeId?: Maybe<IdFilter>;
+  /** Negates a filter */
+  not?: Maybe<TcgFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: Maybe<Array<TcgFilter>>;
+  updatedAt?: Maybe<DatetimeFilter>;
+};
+
+export type TcgOrderBy = {
+  createdAt?: Maybe<OrderByDirection>;
+  id?: Maybe<OrderByDirection>;
+  name?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
 };
 
 
@@ -441,300 +1218,87 @@ export type UuidListFilter = {
   overlaps?: Maybe<Array<Scalars['UUID']>>;
 };
 
-export enum Organization_Member_Role {
-  Admin = 'ADMIN',
-  Member = 'MEMBER',
-  Owner = 'OWNER'
-}
-
-/** Boolean expression comparing fields on type "organization_member_role" */
-export type Organization_Member_RoleFilter = {
-  eq?: Maybe<Organization_Member_Role>;
-  in?: Maybe<Array<Organization_Member_Role>>;
-  is?: Maybe<FilterIs>;
-  neq?: Maybe<Organization_Member_Role>;
-};
-
-export type Organization_Members = Node & {
-  __typename?: 'organization_members';
-  created_at: Scalars['Datetime'];
-  id: Scalars['UUID'];
-  is_active: Scalars['Boolean'];
-  /** Globally Unique Record Identifier */
-  nodeId: Scalars['ID'];
-  organization_id: Scalars['UUID'];
-  organizations: Maybe<Organizations>;
-  role: Organization_Member_Role;
-  updated_at: Scalars['Datetime'];
-  user_id: Scalars['UUID'];
-};
-
-export type Organization_MembersConnection = {
-  __typename?: 'organization_membersConnection';
-  edges: Array<Organization_MembersEdge>;
-  pageInfo: PageInfo;
-};
-
-export type Organization_MembersDeleteResponse = {
-  __typename?: 'organization_membersDeleteResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<Organization_Members>;
-};
-
-export type Organization_MembersEdge = {
-  __typename?: 'organization_membersEdge';
-  cursor: Scalars['String'];
-  node: Organization_Members;
-};
-
-export type Organization_MembersFilter = {
-  /** Returns true only if all its inner filters are true, otherwise returns false */
-  and?: Maybe<Array<Organization_MembersFilter>>;
-  created_at?: Maybe<DatetimeFilter>;
-  id?: Maybe<UuidFilter>;
-  is_active?: Maybe<BooleanFilter>;
-  nodeId?: Maybe<IdFilter>;
-  /** Negates a filter */
-  not?: Maybe<Organization_MembersFilter>;
-  /** Returns true if at least one of its inner filters is true, otherwise returns false */
-  or?: Maybe<Array<Organization_MembersFilter>>;
-  organization_id?: Maybe<UuidFilter>;
-  role?: Maybe<Organization_Member_RoleFilter>;
-  updated_at?: Maybe<DatetimeFilter>;
-  user_id?: Maybe<UuidFilter>;
-};
-
-export type Organization_MembersInsertInput = {
-  created_at?: Maybe<Scalars['Datetime']>;
-  id?: Maybe<Scalars['UUID']>;
-  is_active?: Maybe<Scalars['Boolean']>;
-  organization_id?: Maybe<Scalars['UUID']>;
-  role?: Maybe<Organization_Member_Role>;
-  updated_at?: Maybe<Scalars['Datetime']>;
-  user_id?: Maybe<Scalars['UUID']>;
-};
-
-export type Organization_MembersInsertResponse = {
-  __typename?: 'organization_membersInsertResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<Organization_Members>;
-};
-
-export type Organization_MembersOrderBy = {
-  created_at?: Maybe<OrderByDirection>;
-  id?: Maybe<OrderByDirection>;
-  is_active?: Maybe<OrderByDirection>;
-  organization_id?: Maybe<OrderByDirection>;
-  role?: Maybe<OrderByDirection>;
-  updated_at?: Maybe<OrderByDirection>;
-  user_id?: Maybe<OrderByDirection>;
-};
-
-export type Organization_MembersUpdateInput = {
-  created_at?: Maybe<Scalars['Datetime']>;
-  id?: Maybe<Scalars['UUID']>;
-  is_active?: Maybe<Scalars['Boolean']>;
-  organization_id?: Maybe<Scalars['UUID']>;
-  role?: Maybe<Organization_Member_Role>;
-  updated_at?: Maybe<Scalars['Datetime']>;
-  user_id?: Maybe<Scalars['UUID']>;
-};
-
-export type Organization_MembersUpdateResponse = {
-  __typename?: 'organization_membersUpdateResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<Organization_Members>;
-};
-
-export type Organizations = Node & {
-  __typename?: 'organizations';
-  created_at: Scalars['Datetime'];
-  id: Scalars['UUID'];
-  name: Scalars['String'];
-  /** Globally Unique Record Identifier */
-  nodeId: Scalars['ID'];
-  organization_membersCollection: Maybe<Organization_MembersConnection>;
-  updated_at: Scalars['Datetime'];
-};
-
-
-export type OrganizationsOrganization_MembersCollectionArgs = {
-  after?: Maybe<Scalars['Cursor']>;
-  before?: Maybe<Scalars['Cursor']>;
-  filter?: Maybe<Organization_MembersFilter>;
-  first?: Maybe<Scalars['Int']>;
-  last?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<Array<Organization_MembersOrderBy>>;
-};
-
-export type OrganizationsConnection = {
-  __typename?: 'organizationsConnection';
-  edges: Array<OrganizationsEdge>;
-  pageInfo: PageInfo;
-};
-
-export type OrganizationsDeleteResponse = {
-  __typename?: 'organizationsDeleteResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<Organizations>;
-};
-
-export type OrganizationsEdge = {
-  __typename?: 'organizationsEdge';
-  cursor: Scalars['String'];
-  node: Organizations;
-};
-
-export type OrganizationsFilter = {
-  /** Returns true only if all its inner filters are true, otherwise returns false */
-  and?: Maybe<Array<OrganizationsFilter>>;
-  created_at?: Maybe<DatetimeFilter>;
-  id?: Maybe<UuidFilter>;
-  name?: Maybe<StringFilter>;
-  nodeId?: Maybe<IdFilter>;
-  /** Negates a filter */
-  not?: Maybe<OrganizationsFilter>;
-  /** Returns true if at least one of its inner filters is true, otherwise returns false */
-  or?: Maybe<Array<OrganizationsFilter>>;
-  updated_at?: Maybe<DatetimeFilter>;
-};
-
-export type OrganizationsInsertInput = {
-  created_at?: Maybe<Scalars['Datetime']>;
-  id?: Maybe<Scalars['UUID']>;
-  name?: Maybe<Scalars['String']>;
-  updated_at?: Maybe<Scalars['Datetime']>;
-};
-
-export type OrganizationsInsertResponse = {
-  __typename?: 'organizationsInsertResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<Organizations>;
-};
-
-export type OrganizationsOrderBy = {
-  created_at?: Maybe<OrderByDirection>;
-  id?: Maybe<OrderByDirection>;
-  name?: Maybe<OrderByDirection>;
-  updated_at?: Maybe<OrderByDirection>;
-};
-
-export type OrganizationsUpdateInput = {
-  created_at?: Maybe<Scalars['Datetime']>;
-  id?: Maybe<Scalars['UUID']>;
-  name?: Maybe<Scalars['String']>;
-  updated_at?: Maybe<Scalars['Datetime']>;
-};
-
-export type OrganizationsUpdateResponse = {
-  __typename?: 'organizationsUpdateResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<Organizations>;
-};
-
-export type User_Profiles = Node & {
-  __typename?: 'user_profiles';
-  created_at: Scalars['Datetime'];
+export type UserProfiles = Node & {
+  __typename?: 'UserProfiles';
+  createdAt: Scalars['Datetime'];
   firstname: Scalars['String'];
   id: Scalars['UUID'];
-  is_admin: Scalars['Boolean'];
+  isAdmin: Scalars['Boolean'];
   lastname: Scalars['String'];
   /** Globally Unique Record Identifier */
   nodeId: Scalars['ID'];
-  updated_at: Scalars['Datetime'];
+  updatedAt: Scalars['Datetime'];
 };
 
-export type User_ProfilesConnection = {
-  __typename?: 'user_profilesConnection';
-  edges: Array<User_ProfilesEdge>;
+export type UserProfilesConnection = {
+  __typename?: 'UserProfilesConnection';
+  edges: Array<UserProfilesEdge>;
   pageInfo: PageInfo;
 };
 
-export type User_ProfilesDeleteResponse = {
-  __typename?: 'user_profilesDeleteResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<User_Profiles>;
-};
-
-export type User_ProfilesEdge = {
-  __typename?: 'user_profilesEdge';
+export type UserProfilesEdge = {
+  __typename?: 'UserProfilesEdge';
   cursor: Scalars['String'];
-  node: User_Profiles;
+  node: UserProfiles;
 };
 
-export type User_ProfilesFilter = {
+export type UserProfilesFilter = {
   /** Returns true only if all its inner filters are true, otherwise returns false */
-  and?: Maybe<Array<User_ProfilesFilter>>;
-  created_at?: Maybe<DatetimeFilter>;
+  and?: Maybe<Array<UserProfilesFilter>>;
+  createdAt?: Maybe<DatetimeFilter>;
   firstname?: Maybe<StringFilter>;
   id?: Maybe<UuidFilter>;
-  is_admin?: Maybe<BooleanFilter>;
+  isAdmin?: Maybe<BooleanFilter>;
   lastname?: Maybe<StringFilter>;
   nodeId?: Maybe<IdFilter>;
   /** Negates a filter */
-  not?: Maybe<User_ProfilesFilter>;
+  not?: Maybe<UserProfilesFilter>;
   /** Returns true if at least one of its inner filters is true, otherwise returns false */
-  or?: Maybe<Array<User_ProfilesFilter>>;
-  updated_at?: Maybe<DatetimeFilter>;
+  or?: Maybe<Array<UserProfilesFilter>>;
+  updatedAt?: Maybe<DatetimeFilter>;
 };
 
-export type User_ProfilesInsertInput = {
-  created_at?: Maybe<Scalars['Datetime']>;
-  firstname?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['UUID']>;
-  is_admin?: Maybe<Scalars['Boolean']>;
-  lastname?: Maybe<Scalars['String']>;
-  updated_at?: Maybe<Scalars['Datetime']>;
-};
-
-export type User_ProfilesInsertResponse = {
-  __typename?: 'user_profilesInsertResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<User_Profiles>;
-};
-
-export type User_ProfilesOrderBy = {
-  created_at?: Maybe<OrderByDirection>;
+export type UserProfilesOrderBy = {
+  createdAt?: Maybe<OrderByDirection>;
   firstname?: Maybe<OrderByDirection>;
   id?: Maybe<OrderByDirection>;
-  is_admin?: Maybe<OrderByDirection>;
+  isAdmin?: Maybe<OrderByDirection>;
   lastname?: Maybe<OrderByDirection>;
-  updated_at?: Maybe<OrderByDirection>;
+  updatedAt?: Maybe<OrderByDirection>;
 };
 
-export type User_ProfilesUpdateInput = {
-  created_at?: Maybe<Scalars['Datetime']>;
-  firstname?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['UUID']>;
-  is_admin?: Maybe<Scalars['Boolean']>;
-  lastname?: Maybe<Scalars['String']>;
-  updated_at?: Maybe<Scalars['Datetime']>;
-};
+export type CardSearchQueryVariables = Exact<{
+  query: Scalars['String'];
+  first?: Maybe<Scalars['Int']>;
+}>;
 
-export type User_ProfilesUpdateResponse = {
-  __typename?: 'user_profilesUpdateResponse';
-  /** Count of the records impacted by the mutation */
-  affectedCount: Scalars['Int'];
-  /** Array of records impacted by the mutation */
-  records: Array<User_Profiles>;
-};
+
+export type CardSearchQuery = (
+  { __typename?: 'Query' }
+  & { cardsCollection: Maybe<(
+    { __typename?: 'CardsConnection' }
+    & { edges: Array<(
+      { __typename?: 'CardsEdge' }
+      & { node: (
+        { __typename?: 'Cards' }
+        & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'>
+        & { cardSet: Maybe<(
+          { __typename?: 'CardSets' }
+          & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>
+        )>, marketPrices: Maybe<(
+          { __typename?: 'CardMarketPricesConnection' }
+          & { edges: Array<(
+            { __typename?: 'CardMarketPricesEdge' }
+            & { node: (
+              { __typename?: 'CardMarketPrices' }
+              & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>
+            ) }
+          )> }
+        )> }
+      ) }
+    )> }
+  )> }
+);
 
 export type CurrentUserOrganizationContextsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -742,15 +1306,14 @@ export type CurrentUserOrganizationContextsQueryVariables = Exact<{ [key: string
 export type CurrentUserOrganizationContextsQuery = (
   { __typename?: 'Query' }
   & { currentUserOrganizationContexts: Maybe<(
-    { __typename?: 'organization_membersConnection' }
+    { __typename?: 'OrganizationMembersConnection' }
     & { edges: Array<(
-      { __typename?: 'organization_membersEdge' }
+      { __typename?: 'OrganizationMembersEdge' }
       & { node: (
-        { __typename?: 'organization_members' }
-        & Pick<Organization_Members, 'role'>
-        & { organizationId: Organization_Members['organization_id'] }
-        & { organizations: Maybe<(
-          { __typename?: 'organizations' }
+        { __typename?: 'OrganizationMembers' }
+        & Pick<OrganizationMembers, 'organizationId' | 'role'>
+        & { organization: Maybe<(
+          { __typename?: 'Organizations' }
           & Pick<Organizations, 'id' | 'name'>
         )> }
       ) }
@@ -764,21 +1327,89 @@ export type CurrentUserProfileQueryVariables = Exact<{ [key: string]: never; }>;
 export type CurrentUserProfileQuery = (
   { __typename?: 'Query' }
   & { currentUserProfile: Maybe<(
-    { __typename?: 'user_profiles' }
-    & Pick<User_Profiles, 'nodeId' | 'id' | 'firstname' | 'lastname'>
-    & { isAdmin: User_Profiles['is_admin'] }
+    { __typename?: 'UserProfiles' }
+    & Pick<UserProfiles, 'nodeId' | 'id' | 'firstname' | 'lastname' | 'isAdmin'>
   )> }
 );
 
 
-export const CurrentUserOrganizationContextsDocument = gql`
-    query CurrentUserOrganizationContexts {
-  currentUserOrganizationContexts: current_user_organization_contexts {
+export const CardSearchDocument = gql`
+    query CardSearch($query: String!, $first: Int = 8) {
+  cardsCollection(
+    first: $first
+    filter: {tcgId: {eq: "mtg"}, name: {ilike: $query}}
+    orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
+  ) {
     edges {
       node {
-        organizationId: organization_id
+        id
+        externalId
+        name
+        collectorNumber
+        rarity
+        finishes
+        imageSmallUrl
+        imageNormalUrl
+        releasedAt
+        cardSet {
+          id
+          code
+          name
+          releaseAt
+        }
+        marketPrices(first: 8, orderBy: [{source: AscNullsLast}]) {
+          edges {
+            node {
+              source
+              finish
+              amount
+              currency
+              priceDate
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCardSearchQuery__
+ *
+ * To run a query within a React component, call `useCardSearchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardSearchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardSearchQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *   },
+ * });
+ */
+export function useCardSearchQuery(baseOptions: Apollo.QueryHookOptions<CardSearchQuery, CardSearchQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CardSearchQuery, CardSearchQueryVariables>(CardSearchDocument, options);
+      }
+export function useCardSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardSearchQuery, CardSearchQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CardSearchQuery, CardSearchQueryVariables>(CardSearchDocument, options);
+        }
+export type CardSearchQueryHookResult = ReturnType<typeof useCardSearchQuery>;
+export type CardSearchLazyQueryHookResult = ReturnType<typeof useCardSearchLazyQuery>;
+export type CardSearchQueryResult = Apollo.QueryResult<CardSearchQuery, CardSearchQueryVariables>;
+export const CurrentUserOrganizationContextsDocument = gql`
+    query CurrentUserOrganizationContexts {
+  currentUserOrganizationContexts {
+    edges {
+      node {
+        organizationId
         role
-        organizations {
+        organization {
           id
           name
         }
@@ -816,12 +1447,12 @@ export type CurrentUserOrganizationContextsLazyQueryHookResult = ReturnType<type
 export type CurrentUserOrganizationContextsQueryResult = Apollo.QueryResult<CurrentUserOrganizationContextsQuery, CurrentUserOrganizationContextsQueryVariables>;
 export const CurrentUserProfileDocument = gql`
     query CurrentUserProfile {
-  currentUserProfile: current_user_profile {
+  currentUserProfile {
     nodeId
     id
     firstname
     lastname
-    isAdmin: is_admin
+    isAdmin
   }
 }
     `;
