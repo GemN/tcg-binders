@@ -27,8 +27,8 @@ export const Home = () => {
 
           <div className="mx-auto flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-start">
             <CardSearchPicker
-              className="min-w-0 flex-1"
-              inputClassName="[&_input]:h-12 [&_input]:text-base"
+              containerClassName="min-w-0 flex-1"
+              className="h-12 text-base"
               onSelect={(card) => {
                 addCard(card);
                 navigate("/binder/draft");

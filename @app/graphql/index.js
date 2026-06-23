@@ -123,7 +123,7 @@ export function useAddBinderCardMutation(baseOptions) {
     return Apollo.useMutation(AddBinderCardDocument, options);
 }
 export const BinderByShortIdDocument = gql `
-    query BinderByShortId($shortId: String!, $cardSort: String!, $cardFirst: Int!) {
+    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
   binderByShortId(binderShortId: $shortId) {
     id
     nodeId
@@ -132,11 +132,11 @@ export const BinderByShortIdDocument = gql `
     shortId
     tcgId
   }
+  binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
     binderShortId: $shortId
-    sort: $cardSort
-    resultLimit: 500
     first: $cardFirst
+    orderBy: $cardOrderBy
   ) {
     pageInfo {
       hasNextPage
@@ -178,8 +178,8 @@ export const BinderByShortIdDocument = gql `
  * const { data, loading, error } = useBinderByShortIdQuery({
  *   variables: {
  *      shortId: // value for 'shortId'
- *      cardSort: // value for 'cardSort'
  *      cardFirst: // value for 'cardFirst'
+ *      cardOrderBy: // value for 'cardOrderBy'
  *   },
  * });
  */
@@ -414,5 +414,38 @@ export function useMyBindersQuery(baseOptions) {
 export function useMyBindersLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(MyBindersDocument, options);
+}
+export const RenameBinderDocument = gql `
+    mutation RenameBinder($id: UUID!, $name: String!) {
+  updateBindersCollection(filter: {id: {eq: $id}}, set: {name: $name}, atMost: 1) {
+    affectedCount
+    records {
+      id
+      name
+    }
+  }
+}
+    `;
+/**
+ * __useRenameBinderMutation__
+ *
+ * To run a mutation, you first call `useRenameBinderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRenameBinderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [renameBinderMutation, { data, loading, error }] = useRenameBinderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useRenameBinderMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(RenameBinderDocument, options);
 }
 //# sourceMappingURL=index.js.map

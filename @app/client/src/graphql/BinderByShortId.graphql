@@ -1,7 +1,7 @@
 query BinderByShortId(
   $shortId: String!
-  $cardSort: String!
   $cardFirst: Int!
+  $cardOrderBy: [BinderCardsOrderBy!]!
 ) {
   binderByShortId(binderShortId: $shortId) {
     id
@@ -11,11 +11,11 @@ query BinderByShortId(
     shortId
     tcgId
   }
+  binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
     binderShortId: $shortId
-    sort: $cardSort
-    resultLimit: 500
     first: $cardFirst
+    orderBy: $cardOrderBy
   ) {
     pageInfo {
       hasNextPage

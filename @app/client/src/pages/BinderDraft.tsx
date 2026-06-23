@@ -1,4 +1,5 @@
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -30,8 +31,12 @@ const formatLabel = (value: string): string => {
   return value.replace(/_/g, " ");
 };
 
-const formatPrice = (amount: number, currency: string): string => {
-  return new Intl.NumberFormat("en", {
+const formatPrice = (
+  amount: number,
+  currency: string,
+  locale: string
+): string => {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
@@ -49,8 +54,13 @@ const BinderDraftCardRow = ({
   onUpdate,
   onRemove,
 }: BinderDraftCardRowProps) => {
+  const { i18n, t } = useTranslation(["common"]);
   const finishOptions =
     draftCard.card.finishes.length > 0 ? draftCard.card.finishes : ["normal"];
+  const formatOptionLabel = (
+    scope: "condition" | "finish" | "language",
+    value: string
+  ) => t(`common:card.${scope}.${value}`, { defaultValue: formatLabel(value) });
 
   return (
     <article className="grid gap-4 rounded-md border bg-card p-3 text-card-foreground shadow-xs md:grid-cols-[88px_minmax(180px,1fr)_minmax(360px,2fr)_auto]">
@@ -66,7 +76,9 @@ const BinderDraftCardRow = ({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-xs text-muted-foreground">No image</span>
+          <span className="text-xs text-muted-foreground">
+            {t("common:card_search.no_image")}
+          </span>
         )}
       </div>
 
@@ -90,8 +102,8 @@ const BinderDraftCardRow = ({
               variant="outline"
               className="capitalize"
             >
-              {price.source} {price.finish}:{" "}
-              {formatPrice(price.amount, price.currency)}
+              {price.source} {formatOptionLabel("finish", price.finish)}:{" "}
+              {formatPrice(price.amount, price.currency, i18n.language)}
             </Badge>
           ))}
         </div>
@@ -99,7 +111,7 @@ const BinderDraftCardRow = ({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          Quantity
+          {t("common:draft_binder.quantity")}
           <Input
             type="number"
             min={1}
@@ -111,7 +123,7 @@ const BinderDraftCardRow = ({
         </label>
 
         <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          Finish
+          {t("common:draft_binder.finish")}
           <Select
             value={draftCard.finish}
             onValueChange={(finish) => onUpdate({ finish })}
@@ -122,7 +134,7 @@ const BinderDraftCardRow = ({
             <SelectContent>
               {finishOptions.map((finish) => (
                 <SelectItem key={finish} value={finish}>
-                  {formatLabel(finish)}
+                  {formatOptionLabel("finish", finish)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -130,7 +142,7 @@ const BinderDraftCardRow = ({
         </label>
 
         <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          Condition
+          {t("common:draft_binder.condition")}
           <Select
             value={draftCard.condition}
             onValueChange={(condition) =>
@@ -143,7 +155,7 @@ const BinderDraftCardRow = ({
             <SelectContent>
               {CARD_CONDITION_OPTIONS.map((condition) => (
                 <SelectItem key={condition} value={condition}>
-                  {formatLabel(condition)}
+                  {formatOptionLabel("condition", condition)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -151,7 +163,7 @@ const BinderDraftCardRow = ({
         </label>
 
         <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          Language
+          {t("common:draft_binder.language")}
           <Select
             value={draftCard.language}
             onValueChange={(language) =>
@@ -164,7 +176,7 @@ const BinderDraftCardRow = ({
             <SelectContent>
               {CARD_LANGUAGE_OPTIONS.map((language) => (
                 <SelectItem key={language} value={language}>
-                  {language.toUpperCase()}
+                  {formatOptionLabel("language", language)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -172,7 +184,7 @@ const BinderDraftCardRow = ({
         </label>
 
         <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-1 lg:col-span-2">
-          Manual price
+          {t("common:draft_binder.manual_price")}
           <Input
             type="number"
             min={0}
@@ -190,7 +202,7 @@ const BinderDraftCardRow = ({
         </label>
 
         <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-1 lg:col-span-2">
-          Currency
+          {t("common:draft_binder.currency")}
           <Select
             value={draftCard.priceCurrency || CARD_CURRENCY_OPTIONS[0]}
             onValueChange={(priceCurrency) =>
@@ -211,7 +223,7 @@ const BinderDraftCardRow = ({
         </label>
 
         <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-2 lg:col-span-4">
-          Note
+          {t("common:draft_binder.note")}
           <Textarea
             value={draftCard.note || ""}
             onChange={(event) => onUpdate({ note: event.target.value })}
@@ -223,7 +235,9 @@ const BinderDraftCardRow = ({
       <div className="flex items-start justify-end">
         <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
           <Trash2 className="size-4" />
-          <span className="sr-only">Remove card</span>
+          <span className="sr-only">
+            {t("common:draft_binder.remove_card")}
+          </span>
         </Button>
       </div>
     </article>
@@ -231,6 +245,7 @@ const BinderDraftCardRow = ({
 };
 
 export const BinderDraft = () => {
+  const { t } = useTranslation(["common"]);
   const location = useLocation();
   const navigate = useNavigate();
   const { session } = useSession();
@@ -243,7 +258,7 @@ export const BinderDraft = () => {
       return;
     }
 
-    toast.info("Saving draft binders is not ready yet.");
+    toast.info(t("common:draft_binder.save_not_ready"));
   };
 
   return (
@@ -254,11 +269,15 @@ export const BinderDraft = () => {
             <Button type="button" variant="ghost" size="icon" asChild>
               <Link to="/">
                 <ArrowLeft className="size-4" />
-                <span className="sr-only">Back home</span>
+                <span className="sr-only">
+                  {t("common:draft_binder.back_home")}
+                </span>
               </Link>
             </Button>
             <Input
               value={draftBinder.name}
+              placeholder={t("common:draft_binder.untitled_name")}
+              aria-label={t("common:draft_binder.name_label")}
               onChange={(event) => setName(event.target.value)}
               className="h-11 max-w-md text-lg font-semibold"
             />
@@ -270,15 +289,15 @@ export const BinderDraft = () => {
               variant="outline"
               onClick={() => {
                 clearDraft();
-                toast.success("Draft cleared.");
+                toast.success(t("common:draft_binder.draft_cleared"));
               }}
               disabled={draftBinder.cards.length === 0}
             >
-              Clear
+              {t("common:draft_binder.clear")}
             </Button>
             <Button type="button" onClick={handleSave}>
               <Save className="size-4" />
-              Save / Share
+              {t("common:draft_binder.save_share")}
             </Button>
           </div>
         </div>
@@ -287,16 +306,17 @@ export const BinderDraft = () => {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-xl font-semibold tracking-normal">
-                Binder builder
+                {t("common:draft_binder.title")}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                {draftBinder.cards.length} card
-                {draftBinder.cards.length === 1 ? "" : "s"}
+                {t("common:draft_binder.card_count", {
+                  count: draftBinder.cards.length,
+                })}
               </p>
             </div>
             <CardSearchPicker
-              className="w-full md:max-w-md"
-              placeholder="Add another card"
+              containerClassName="w-full md:max-w-md"
+              placeholder={t("common:draft_binder.add_another_card")}
               onSelect={addCard}
             />
           </div>
@@ -317,7 +337,7 @@ export const BinderDraft = () => {
           <section className="flex min-h-[320px] items-center justify-center rounded-md border border-dashed">
             <div className="w-full max-w-md px-4 text-center">
               <h2 className="text-lg font-medium tracking-normal">
-                No cards yet
+                {t("common:draft_binder.empty")}
               </h2>
               <div className="mt-4">
                 <CardSearchPicker onSelect={addCard} />

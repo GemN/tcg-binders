@@ -14,8 +14,8 @@ export const Navbar = () => {
   const isLoggedIn = !!session;
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-      <nav className="mx-auto flex h-14 w-full max-w-7xl items-center gap-2 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 border-b border-card bg-card/95 text-card-foreground backdrop-blur">
+      <nav className="flex h-14 w-full items-center gap-2 px-4 sm:px-6 lg:px-20">
         <Link
           to="/"
           aria-label={t("common:nav.home")}

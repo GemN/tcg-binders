@@ -53,10 +53,12 @@ export const LanguageSwitcher: FC<LanguageSwitcherProps> = () => {
             key={lang.code}
             onClick={handleLanguageChange(lang)}
             className={`cursor-pointer ${
-              currentLanguage.code === lang.code ? "bg-muted" : ""
+              currentLanguage.code === lang.code
+                ? "bg-primary text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground"
+                : ""
             }`}
           >
-            <span className="mr-2 text-xs text-muted-foreground">
+            <span className="mr-2 text-xs text-current/70">
               {lang.shortLabel}
             </span>
             {lang.label}

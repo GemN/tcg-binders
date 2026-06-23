@@ -82,7 +82,7 @@ export interface DraftBinder {
 }
 
 const emptyDraftBinder: DraftBinder = {
-  name: "Untitled binder",
+  name: "",
   tcgId: "mtg",
   cards: [],
 };

@@ -32,7 +32,9 @@ export const CurrencySwitcher = () => {
             key={currencyOption}
             onClick={() => setCurrency(currencyOption)}
             className={`cursor-pointer ${
-              currency === currencyOption ? "bg-muted" : ""
+              currency === currencyOption
+                ? "bg-primary text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground"
+                : ""
             }`}
           >
             {currencyOption}

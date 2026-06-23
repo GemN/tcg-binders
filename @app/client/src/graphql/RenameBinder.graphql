@@ -1,0 +1,13 @@
+mutation RenameBinder($id: UUID!, $name: String!) {
+  updateBindersCollection(
+    filter: { id: { eq: $id } }
+    set: { name: $name }
+    atMost: 1
+  ) {
+    affectedCount
+    records {
+      id
+      name
+    }
+  }
+}

@@ -72,7 +72,7 @@ export function InputAutocomplete<T>({
         <InputSearch
           isLoading={isLoading}
           placeholder={placeholderSearch}
-          className={"w-full"}
+          containerClassName="w-full"
           onFocus={handleOpen}
           onChange={handleOnSearchChange}
         />

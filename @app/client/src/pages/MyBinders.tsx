@@ -1,6 +1,5 @@
-import { useTranslation } from "react-i18next";
-
 import { useMyBindersQuery } from "@app/graphql";
+import { useTranslation } from "react-i18next";
 
 import { BinderGallery } from "@/components/BinderGallery";
 import { Loading } from "@/components/Loading";

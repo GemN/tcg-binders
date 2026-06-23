@@ -49,9 +49,15 @@
     "search_placeholder": "Add a card",
     "adding_card": "Adding card...",
     "add_card_error": "Failed to add card. Please try again.",
+    "rename_label": "Rename binder",
+    "rename_name_required": "Binder name is required",
+    "rename_error": "Failed to rename binder. Please try again.",
     "empty": "No cards yet.",
     "no_image": "No image",
     "page": "Page {{page}}",
+    "unique_card_count_one": "{{count}} unique card",
+    "unique_card_count_other": "{{count}} unique cards",
+    "page_progress": "{{cardCount}} - Page {{page}}/{{pageCount}}",
     "sort": {
       "seller_order": "Seller order",
       "name": "Name",
@@ -60,6 +66,63 @@
     "view": {
       "grid": "Grid",
       "list": "List"
+    }
+  },
+  "card_search": {
+    "placeholder": "Search a Magic card",
+    "no_image": "No image",
+    "no_cards_found": "No cards found",
+    "minimum_query": "Type at least {{count}} characters"
+  },
+  "draft_binder": {
+    "title": "Binder builder",
+    "untitled_name": "Untitled binder",
+    "name_label": "Binder name",
+    "quantity": "Quantity",
+    "finish": "Finish",
+    "condition": "Condition",
+    "language": "Language",
+    "manual_price": "Manual price",
+    "currency": "Currency",
+    "note": "Note",
+    "remove_card": "Remove card",
+    "save_not_ready": "Saving draft binders is not ready yet.",
+    "back_home": "Back home",
+    "draft_cleared": "Draft cleared.",
+    "clear": "Clear",
+    "save_share": "Save / Share",
+    "card_count_one": "{{count}} card",
+    "card_count_other": "{{count}} cards",
+    "add_another_card": "Add another card",
+    "empty": "No cards yet"
+  },
+  "card": {
+    "condition": {
+      "mint": "Mint",
+      "near_mint": "Near mint",
+      "excellent": "Excellent",
+      "good": "Good",
+      "light_played": "Light played",
+      "played": "Played",
+      "poor": "Poor"
+    },
+    "finish": {
+      "normal": "Normal",
+      "nonfoil": "Nonfoil",
+      "foil": "Foil",
+      "etched": "Etched"
+    },
+    "language": {
+      "en": "English",
+      "fr": "French",
+      "de": "German",
+      "it": "Italian",
+      "es": "Spanish",
+      "pt": "Portuguese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "zhs": "Chinese Simplified",
+      "zht": "Chinese Traditional"
     }
   },
   "my_binders": {

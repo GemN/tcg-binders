@@ -49,9 +49,15 @@
     "search_placeholder": "เพิ่มการ์ด",
     "adding_card": "กำลังเพิ่มการ์ด...",
     "add_card_error": "เพิ่มการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "rename_label": "เปลี่ยนชื่อแฟ้ม",
+    "rename_name_required": "จำเป็นต้องกรอกชื่อแฟ้ม",
+    "rename_error": "เปลี่ยนชื่อแฟ้มไม่สำเร็จ กรุณาลองอีกครั้ง",
     "empty": "ยังไม่มีการ์ด",
     "no_image": "ไม่มีรูปภาพ",
     "page": "หน้า {{page}}",
+    "unique_card_count_one": "{{count}} การ์ดไม่ซ้ำ",
+    "unique_card_count_other": "{{count}} การ์ดไม่ซ้ำ",
+    "page_progress": "{{cardCount}} - หน้า {{page}}/{{pageCount}}",
     "sort": {
       "seller_order": "ลำดับผู้ขาย",
       "name": "ชื่อ",
@@ -60,6 +66,63 @@
     "view": {
       "grid": "ตาราง",
       "list": "รายการ"
+    }
+  },
+  "card_search": {
+    "placeholder": "ค้นหาการ์ด Magic",
+    "no_image": "ไม่มีรูปภาพ",
+    "no_cards_found": "ไม่พบการ์ด",
+    "minimum_query": "พิมพ์อย่างน้อย {{count}} ตัวอักษร"
+  },
+  "draft_binder": {
+    "title": "ตัวสร้างแฟ้ม",
+    "untitled_name": "แฟ้มไม่มีชื่อ",
+    "name_label": "ชื่อแฟ้ม",
+    "quantity": "จำนวน",
+    "finish": "พื้นผิว",
+    "condition": "สภาพ",
+    "language": "ภาษา",
+    "manual_price": "ราคากำหนดเอง",
+    "currency": "สกุลเงิน",
+    "note": "หมายเหตุ",
+    "remove_card": "ลบการ์ด",
+    "save_not_ready": "ยังไม่รองรับการบันทึกแฟ้มฉบับร่าง",
+    "back_home": "กลับหน้าแรก",
+    "draft_cleared": "ล้างฉบับร่างแล้ว",
+    "clear": "ล้าง",
+    "save_share": "บันทึก / แชร์",
+    "card_count_one": "{{count}} ใบ",
+    "card_count_other": "{{count}} ใบ",
+    "add_another_card": "เพิ่มการ์ดอีกใบ",
+    "empty": "ยังไม่มีการ์ด"
+  },
+  "card": {
+    "condition": {
+      "mint": "ใหม่สมบูรณ์",
+      "near_mint": "เกือบใหม่",
+      "excellent": "ยอดเยี่ยม",
+      "good": "ดี",
+      "light_played": "ผ่านการเล่นเล็กน้อย",
+      "played": "ผ่านการเล่น",
+      "poor": "สภาพแย่"
+    },
+    "finish": {
+      "normal": "ปกติ",
+      "nonfoil": "ไม่ฟอยล์",
+      "foil": "ฟอยล์",
+      "etched": "เอทช์"
+    },
+    "language": {
+      "en": "อังกฤษ",
+      "fr": "ฝรั่งเศส",
+      "de": "เยอรมัน",
+      "it": "อิตาลี",
+      "es": "สเปน",
+      "pt": "โปรตุเกส",
+      "ja": "ญี่ปุ่น",
+      "ko": "เกาหลี",
+      "zhs": "จีนตัวย่อ",
+      "zht": "จีนตัวเต็ม"
     }
   },
   "my_binders": {

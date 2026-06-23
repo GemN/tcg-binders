@@ -74,6 +74,8 @@ export type BinderCards = Node & {
     binderId: Scalars['UUID'];
     card: Maybe<Cards>;
     cardId: Scalars['UUID'];
+    cardName: Scalars['String'];
+    cardReleasedAt: Maybe<Scalars['Date']>;
     condition: CardCondition;
     createdAt: Scalars['Datetime'];
     dynamicPriceRule: Maybe<Scalars['String']>;
@@ -112,6 +114,8 @@ export type BinderCardsFilter = {
     and?: Maybe<Array<BinderCardsFilter>>;
     binderId?: Maybe<UuidFilter>;
     cardId?: Maybe<UuidFilter>;
+    cardName?: Maybe<StringFilter>;
+    cardReleasedAt?: Maybe<DateFilter>;
     condition?: Maybe<CardConditionFilter>;
     createdAt?: Maybe<DatetimeFilter>;
     dynamicPriceRule?: Maybe<StringFilter>;
@@ -134,6 +138,8 @@ export type BinderCardsFilter = {
 export type BinderCardsInsertInput = {
     binderId?: Maybe<Scalars['UUID']>;
     cardId?: Maybe<Scalars['UUID']>;
+    cardName?: Maybe<Scalars['String']>;
+    cardReleasedAt?: Maybe<Scalars['Date']>;
     condition?: Maybe<CardCondition>;
     createdAt?: Maybe<Scalars['Datetime']>;
     dynamicPriceRule?: Maybe<Scalars['String']>;
@@ -158,6 +164,8 @@ export type BinderCardsInsertResponse = {
 export type BinderCardsOrderBy = {
     binderId?: Maybe<OrderByDirection>;
     cardId?: Maybe<OrderByDirection>;
+    cardName?: Maybe<OrderByDirection>;
+    cardReleasedAt?: Maybe<OrderByDirection>;
     condition?: Maybe<OrderByDirection>;
     createdAt?: Maybe<OrderByDirection>;
     dynamicPriceRule?: Maybe<OrderByDirection>;
@@ -175,6 +183,8 @@ export type BinderCardsOrderBy = {
 export type BinderCardsUpdateInput = {
     binderId?: Maybe<Scalars['UUID']>;
     cardId?: Maybe<Scalars['UUID']>;
+    cardName?: Maybe<Scalars['String']>;
+    cardReleasedAt?: Maybe<Scalars['Date']>;
     condition?: Maybe<CardCondition>;
     createdAt?: Maybe<Scalars['Datetime']>;
     dynamicPriceRule?: Maybe<Scalars['String']>;
@@ -1385,6 +1395,7 @@ export type PageInfo = {
 export type Query = {
     __typename?: 'Query';
     binderByShortId: Maybe<Binders>;
+    binderCardCountByShortId: Maybe<Scalars['Int']>;
     binderCardsByShortId: Maybe<BinderCardsConnection>;
     /** A pagable collection of type `BinderCards` */
     binderCardsCollection: Maybe<BinderCardsConnection>;
@@ -1416,6 +1427,10 @@ export type QueryBinderByShortIdArgs = {
     binderShortId: Scalars['String'];
 };
 /** The root type for querying data */
+export type QueryBinderCardCountByShortIdArgs = {
+    binderShortId: Scalars['String'];
+};
+/** The root type for querying data */
 export type QueryBinderCardsByShortIdArgs = {
     after?: Maybe<Scalars['Cursor']>;
     before?: Maybe<Scalars['Cursor']>;
@@ -1425,8 +1440,6 @@ export type QueryBinderCardsByShortIdArgs = {
     last?: Maybe<Scalars['Int']>;
     offset?: Maybe<Scalars['Int']>;
     orderBy?: Maybe<Array<BinderCardsOrderBy>>;
-    resultLimit?: Maybe<Scalars['Int']>;
-    sort?: Maybe<Scalars['String']>;
 };
 /** The root type for querying data */
 export type QueryBinderCardsCollectionArgs = {
@@ -1802,12 +1815,12 @@ export type AddBinderCardMutation = ({
 });
 export type BinderByShortIdQueryVariables = Exact<{
     shortId: Scalars['String'];
-    cardSort: Scalars['String'];
     cardFirst: Scalars['Int'];
+    cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
 }>;
 export type BinderByShortIdQuery = ({
     __typename?: 'Query';
-} & {
+} & Pick<Query, 'binderCardCountByShortId'> & {
     binderByShortId: Maybe<({
         __typename?: 'Binders';
     } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'ownerId' | 'shortId' | 'tcgId'>)>;
@@ -1949,6 +1962,21 @@ export type MyBindersQuery = ({
         })>;
     })>;
 });
+export type RenameBinderMutationVariables = Exact<{
+    id: Scalars['UUID'];
+    name: Scalars['String'];
+}>;
+export type RenameBinderMutation = ({
+    __typename?: 'Mutation';
+} & {
+    updateBindersCollection: ({
+        __typename?: 'BindersUpdateResponse';
+    } & Pick<BindersUpdateResponse, 'affectedCount'> & {
+        records: Array<({
+            __typename?: 'Binders';
+        } & Pick<Binders, 'id' | 'name'>)>;
+    });
+});
 export declare const AddBinderCardDocument: Apollo.DocumentNode;
 export type AddBinderCardMutationFn = Apollo.MutationFunction<AddBinderCardMutation, AddBinderCardMutationVariables>;
 /**
@@ -1996,20 +2024,20 @@ export declare const BinderByShortIdDocument: Apollo.DocumentNode;
  * const { data, loading, error } = useBinderByShortIdQuery({
  *   variables: {
  *      shortId: // value for 'shortId'
- *      cardSort: // value for 'cardSort'
  *      cardFirst: // value for 'cardFirst'
+ *      cardOrderBy: // value for 'cardOrderBy'
  *   },
  * });
  */
 export declare function useBinderByShortIdQuery(baseOptions: Apollo.QueryHookOptions<BinderByShortIdQuery, BinderByShortIdQueryVariables>): Apollo.QueryResult<BinderByShortIdQuery, Exact<{
     shortId: Scalars["String"];
-    cardSort: Scalars["String"];
     cardFirst: Scalars["Int"];
+    cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
 }>>;
 export declare function useBinderByShortIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderByShortIdQuery, BinderByShortIdQueryVariables>): Apollo.LazyQueryResultTuple<BinderByShortIdQuery, Exact<{
     shortId: Scalars["String"];
-    cardSort: Scalars["String"];
     cardFirst: Scalars["Int"];
+    cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
 }>>;
 export type BinderByShortIdQueryHookResult = ReturnType<typeof useBinderByShortIdQuery>;
 export type BinderByShortIdLazyQueryHookResult = ReturnType<typeof useBinderByShortIdLazyQuery>;
@@ -2146,4 +2174,31 @@ export declare function useMyBindersLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type MyBindersQueryHookResult = ReturnType<typeof useMyBindersQuery>;
 export type MyBindersLazyQueryHookResult = ReturnType<typeof useMyBindersLazyQuery>;
 export type MyBindersQueryResult = Apollo.QueryResult<MyBindersQuery, MyBindersQueryVariables>;
+export declare const RenameBinderDocument: Apollo.DocumentNode;
+export type RenameBinderMutationFn = Apollo.MutationFunction<RenameBinderMutation, RenameBinderMutationVariables>;
+/**
+ * __useRenameBinderMutation__
+ *
+ * To run a mutation, you first call `useRenameBinderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRenameBinderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [renameBinderMutation, { data, loading, error }] = useRenameBinderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export declare function useRenameBinderMutation(baseOptions?: Apollo.MutationHookOptions<RenameBinderMutation, RenameBinderMutationVariables>): Apollo.MutationTuple<RenameBinderMutation, Exact<{
+    id: Scalars["UUID"];
+    name: Scalars["String"];
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type RenameBinderMutationHookResult = ReturnType<typeof useRenameBinderMutation>;
+export type RenameBinderMutationResult = Apollo.MutationResult<RenameBinderMutation>;
+export type RenameBinderMutationOptions = Apollo.BaseMutationOptions<RenameBinderMutation, RenameBinderMutationVariables>;
 //# sourceMappingURL=index.d.ts.map
