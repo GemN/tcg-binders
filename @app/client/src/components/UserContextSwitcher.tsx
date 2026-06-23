@@ -38,7 +38,7 @@ export const UserContextSwitcher = () => {
     const edges = data?.currentUserOrganizationContexts?.edges || [];
     return edges.map(({ node }) => ({
       organizationId: node.organizationId,
-      organizationName: node.organizations?.name || "",
+      organizationName: node.organization?.name || "",
       role: node.role,
     }));
   }, [data]);

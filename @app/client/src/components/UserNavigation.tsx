@@ -15,22 +15,27 @@ import {
 } from "@/components/ui/DropdownMenu";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useLogOut } from "@/hooks/useLogOut";
+import { useSession } from "@/providers/SessionContext";
 
 export function UserNavigation() {
   const { t } = useTranslation(["common"]);
   const logout = useLogOut();
+  const { session } = useSession();
   const { data } = useCurrentUserProfileQuery({
     fetchPolicy: "cache-and-network",
+    skip: !session,
   });
 
   const profile = data?.currentUserProfile;
-  if (!profile) {
+  if (!session) {
     return null;
   }
 
-  const fullName = [profile.firstname, profile.lastname]
+  const emailName = session.user.email?.split("@")[0] || "";
+  const fullName = [profile?.firstname, profile?.lastname]
     .filter(Boolean)
     .join(" ");
+  const fallbackName = emailName || t("common:nav.account");
 
   return (
     <DropdownMenu>
@@ -38,8 +43,8 @@ export function UserNavigation() {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <UserAvatar
             className="h-8 w-8"
-            firstname={profile.firstname}
-            lastname={profile.lastname}
+            firstname={profile?.firstname || fallbackName}
+            lastname={profile?.lastname}
           />
         </Button>
       </DropdownMenuTrigger>
@@ -47,7 +52,7 @@ export function UserNavigation() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="truncate text-sm font-medium leading-none">
-              {fullName || t("common:nav.account")}
+              {fullName || session.user.email || t("common:nav.account")}
             </p>
           </div>
         </DropdownMenuLabel>

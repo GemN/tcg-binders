@@ -97,6 +97,14 @@ export type BinderCardsConnection = {
   pageInfo: PageInfo;
 };
 
+export type BinderCardsDeleteResponse = {
+  __typename?: 'BinderCardsDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<BinderCards>;
+};
+
 export type BinderCardsEdge = {
   __typename?: 'BinderCardsEdge';
   cursor: Scalars['String'];
@@ -128,6 +136,32 @@ export type BinderCardsFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type BinderCardsInsertInput = {
+  binderId?: Maybe<Scalars['UUID']>;
+  cardId?: Maybe<Scalars['UUID']>;
+  condition?: Maybe<CardCondition>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  dynamicPriceRule?: Maybe<Scalars['String']>;
+  finish?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  language?: Maybe<LanguageCode>;
+  note?: Maybe<Scalars['String']>;
+  position?: Maybe<Scalars['Int']>;
+  priceAmount?: Maybe<Scalars['BigFloat']>;
+  priceCurrency?: Maybe<CurrencyCode>;
+  quantity?: Maybe<Scalars['Int']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type BinderCardsInsertResponse = {
+  __typename?: 'BinderCardsInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<BinderCards>;
+};
+
 export type BinderCardsOrderBy = {
   binderId?: Maybe<OrderByDirection>;
   cardId?: Maybe<OrderByDirection>;
@@ -144,6 +178,32 @@ export type BinderCardsOrderBy = {
   quantity?: Maybe<OrderByDirection>;
   tcgId?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type BinderCardsUpdateInput = {
+  binderId?: Maybe<Scalars['UUID']>;
+  cardId?: Maybe<Scalars['UUID']>;
+  condition?: Maybe<CardCondition>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  dynamicPriceRule?: Maybe<Scalars['String']>;
+  finish?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  language?: Maybe<LanguageCode>;
+  note?: Maybe<Scalars['String']>;
+  position?: Maybe<Scalars['Int']>;
+  priceAmount?: Maybe<Scalars['BigFloat']>;
+  priceCurrency?: Maybe<CurrencyCode>;
+  quantity?: Maybe<Scalars['Int']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type BinderCardsUpdateResponse = {
+  __typename?: 'BinderCardsUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<BinderCards>;
 };
 
 export enum BinderVisibility {
@@ -193,6 +253,14 @@ export type BindersConnection = {
   pageInfo: PageInfo;
 };
 
+export type BindersDeleteResponse = {
+  __typename?: 'BindersDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Binders>;
+};
+
 export type BindersEdge = {
   __typename?: 'BindersEdge';
   cursor: Scalars['String'];
@@ -217,6 +285,25 @@ export type BindersFilter = {
   visibility?: Maybe<BinderVisibilityFilter>;
 };
 
+export type BindersInsertInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['UUID']>;
+  name?: Maybe<Scalars['String']>;
+  ownerId?: Maybe<Scalars['UUID']>;
+  shortId?: Maybe<Scalars['String']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+  visibility?: Maybe<BinderVisibility>;
+};
+
+export type BindersInsertResponse = {
+  __typename?: 'BindersInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Binders>;
+};
+
 export type BindersOrderBy = {
   createdAt?: Maybe<OrderByDirection>;
   id?: Maybe<OrderByDirection>;
@@ -226,6 +313,25 @@ export type BindersOrderBy = {
   tcgId?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
   visibility?: Maybe<OrderByDirection>;
+};
+
+export type BindersUpdateInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['UUID']>;
+  name?: Maybe<Scalars['String']>;
+  ownerId?: Maybe<Scalars['UUID']>;
+  shortId?: Maybe<Scalars['String']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+  visibility?: Maybe<BinderVisibility>;
+};
+
+export type BindersUpdateResponse = {
+  __typename?: 'BindersUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Binders>;
 };
 
 /** Boolean expression comparing fields on type "Boolean" */
@@ -285,6 +391,14 @@ export type CardMarketPricesConnection = {
   pageInfo: PageInfo;
 };
 
+export type CardMarketPricesDeleteResponse = {
+  __typename?: 'CardMarketPricesDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<CardMarketPrices>;
+};
+
 export type CardMarketPricesEdge = {
   __typename?: 'CardMarketPricesEdge';
   cursor: Scalars['String'];
@@ -312,6 +426,28 @@ export type CardMarketPricesFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type CardMarketPricesInsertInput = {
+  amount?: Maybe<Scalars['BigFloat']>;
+  buyUrl?: Maybe<Scalars['String']>;
+  cardId?: Maybe<Scalars['UUID']>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  currency?: Maybe<CurrencyCode>;
+  finish?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  priceDate?: Maybe<Scalars['Date']>;
+  source?: Maybe<MarketPriceSource>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type CardMarketPricesInsertResponse = {
+  __typename?: 'CardMarketPricesInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<CardMarketPrices>;
+};
+
 export type CardMarketPricesOrderBy = {
   amount?: Maybe<OrderByDirection>;
   buyUrl?: Maybe<OrderByDirection>;
@@ -324,6 +460,28 @@ export type CardMarketPricesOrderBy = {
   source?: Maybe<OrderByDirection>;
   tcgId?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type CardMarketPricesUpdateInput = {
+  amount?: Maybe<Scalars['BigFloat']>;
+  buyUrl?: Maybe<Scalars['String']>;
+  cardId?: Maybe<Scalars['UUID']>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  currency?: Maybe<CurrencyCode>;
+  finish?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  priceDate?: Maybe<Scalars['Date']>;
+  source?: Maybe<MarketPriceSource>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type CardMarketPricesUpdateResponse = {
+  __typename?: 'CardMarketPricesUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<CardMarketPrices>;
 };
 
 export type CardSets = Node & {
@@ -360,6 +518,14 @@ export type CardSetsConnection = {
   pageInfo: PageInfo;
 };
 
+export type CardSetsDeleteResponse = {
+  __typename?: 'CardSetsDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<CardSets>;
+};
+
 export type CardSetsEdge = {
   __typename?: 'CardSetsEdge';
   cursor: Scalars['String'];
@@ -385,6 +551,26 @@ export type CardSetsFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type CardSetsInsertInput = {
+  code?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  externalId?: Maybe<Scalars['String']>;
+  iconUrl?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  name?: Maybe<Scalars['String']>;
+  releaseAt?: Maybe<Scalars['Date']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type CardSetsInsertResponse = {
+  __typename?: 'CardSetsInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<CardSets>;
+};
+
 export type CardSetsOrderBy = {
   code?: Maybe<OrderByDirection>;
   createdAt?: Maybe<OrderByDirection>;
@@ -395,6 +581,26 @@ export type CardSetsOrderBy = {
   releaseAt?: Maybe<OrderByDirection>;
   tcgId?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type CardSetsUpdateInput = {
+  code?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  externalId?: Maybe<Scalars['String']>;
+  iconUrl?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  name?: Maybe<Scalars['String']>;
+  releaseAt?: Maybe<Scalars['Date']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type CardSetsUpdateResponse = {
+  __typename?: 'CardSetsUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<CardSets>;
 };
 
 export type Cards = Node & {
@@ -450,6 +656,14 @@ export type CardsConnection = {
   pageInfo: PageInfo;
 };
 
+export type CardsDeleteResponse = {
+  __typename?: 'CardsDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Cards>;
+};
+
 export type CardsEdge = {
   __typename?: 'CardsEdge';
   cursor: Scalars['String'];
@@ -480,6 +694,31 @@ export type CardsFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type CardsInsertInput = {
+  cardSetId?: Maybe<Scalars['UUID']>;
+  collectorNumber?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  externalId?: Maybe<Scalars['String']>;
+  finishes?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['UUID']>;
+  imageNormalUrl?: Maybe<Scalars['String']>;
+  imageSmallUrl?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  rarity?: Maybe<Scalars['String']>;
+  releasedAt?: Maybe<Scalars['Date']>;
+  syncedAt?: Maybe<Scalars['Datetime']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type CardsInsertResponse = {
+  __typename?: 'CardsInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Cards>;
+};
+
 export type CardsOrderBy = {
   cardSetId?: Maybe<OrderByDirection>;
   collectorNumber?: Maybe<OrderByDirection>;
@@ -494,6 +733,31 @@ export type CardsOrderBy = {
   syncedAt?: Maybe<OrderByDirection>;
   tcgId?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type CardsUpdateInput = {
+  cardSetId?: Maybe<Scalars['UUID']>;
+  collectorNumber?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  externalId?: Maybe<Scalars['String']>;
+  finishes?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['UUID']>;
+  imageNormalUrl?: Maybe<Scalars['String']>;
+  imageSmallUrl?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  rarity?: Maybe<Scalars['String']>;
+  releasedAt?: Maybe<Scalars['Date']>;
+  syncedAt?: Maybe<Scalars['Datetime']>;
+  tcgId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type CardsUpdateResponse = {
+  __typename?: 'CardsUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Cards>;
 };
 
 export enum CurrencyCode {
@@ -678,6 +942,14 @@ export type MtgCardDetailsConnection = {
   pageInfo: PageInfo;
 };
 
+export type MtgCardDetailsDeleteResponse = {
+  __typename?: 'MtgCardDetailsDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<MtgCardDetails>;
+};
+
 export type MtgCardDetailsEdge = {
   __typename?: 'MtgCardDetailsEdge';
   cursor: Scalars['String'];
@@ -704,6 +976,29 @@ export type MtgCardDetailsFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type MtgCardDetailsInsertInput = {
+  cardId?: Maybe<Scalars['UUID']>;
+  colorIdentity?: Maybe<Array<Maybe<MtgColor>>>;
+  colors?: Maybe<Array<Maybe<MtgColor>>>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  keywords?: Maybe<Array<Maybe<Scalars['String']>>>;
+  layout?: Maybe<Scalars['String']>;
+  manaCost?: Maybe<Scalars['String']>;
+  manaValue?: Maybe<Scalars['BigFloat']>;
+  oracleId?: Maybe<Scalars['String']>;
+  oracleText?: Maybe<Scalars['String']>;
+  typeLine?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type MtgCardDetailsInsertResponse = {
+  __typename?: 'MtgCardDetailsInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<MtgCardDetails>;
+};
+
 export type MtgCardDetailsOrderBy = {
   cardId?: Maybe<OrderByDirection>;
   createdAt?: Maybe<OrderByDirection>;
@@ -714,6 +1009,29 @@ export type MtgCardDetailsOrderBy = {
   oracleText?: Maybe<OrderByDirection>;
   typeLine?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type MtgCardDetailsUpdateInput = {
+  cardId?: Maybe<Scalars['UUID']>;
+  colorIdentity?: Maybe<Array<Maybe<MtgColor>>>;
+  colors?: Maybe<Array<Maybe<MtgColor>>>;
+  createdAt?: Maybe<Scalars['Datetime']>;
+  keywords?: Maybe<Array<Maybe<Scalars['String']>>>;
+  layout?: Maybe<Scalars['String']>;
+  manaCost?: Maybe<Scalars['String']>;
+  manaValue?: Maybe<Scalars['BigFloat']>;
+  oracleId?: Maybe<Scalars['String']>;
+  oracleText?: Maybe<Scalars['String']>;
+  typeLine?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type MtgCardDetailsUpdateResponse = {
+  __typename?: 'MtgCardDetailsUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<MtgCardDetails>;
 };
 
 export enum MtgColor {
@@ -737,12 +1055,282 @@ export type MtgColorFilter = {
 export type Mutation = {
   __typename?: 'Mutation';
   createOrganization: Maybe<Organizations>;
+  /** Deletes zero or more records from the `BinderCards` collection */
+  deleteFromBinderCardsCollection: BinderCardsDeleteResponse;
+  /** Deletes zero or more records from the `Binders` collection */
+  deleteFromBindersCollection: BindersDeleteResponse;
+  /** Deletes zero or more records from the `CardMarketPrices` collection */
+  deleteFromCardMarketPricesCollection: CardMarketPricesDeleteResponse;
+  /** Deletes zero or more records from the `CardSets` collection */
+  deleteFromCardSetsCollection: CardSetsDeleteResponse;
+  /** Deletes zero or more records from the `Cards` collection */
+  deleteFromCardsCollection: CardsDeleteResponse;
+  /** Deletes zero or more records from the `MtgCardDetails` collection */
+  deleteFromMtgCardDetailsCollection: MtgCardDetailsDeleteResponse;
+  /** Deletes zero or more records from the `OrganizationMembers` collection */
+  deleteFromOrganizationMembersCollection: OrganizationMembersDeleteResponse;
+  /** Deletes zero or more records from the `Organizations` collection */
+  deleteFromOrganizationsCollection: OrganizationsDeleteResponse;
+  /** Deletes zero or more records from the `Tcg` collection */
+  deleteFromTcgCollection: TcgDeleteResponse;
+  /** Deletes zero or more records from the `UserProfiles` collection */
+  deleteFromUserProfilesCollection: UserProfilesDeleteResponse;
+  /** Adds one or more `BinderCards` records to the collection */
+  insertIntoBinderCardsCollection: Maybe<BinderCardsInsertResponse>;
+  /** Adds one or more `Binders` records to the collection */
+  insertIntoBindersCollection: Maybe<BindersInsertResponse>;
+  /** Adds one or more `CardMarketPrices` records to the collection */
+  insertIntoCardMarketPricesCollection: Maybe<CardMarketPricesInsertResponse>;
+  /** Adds one or more `CardSets` records to the collection */
+  insertIntoCardSetsCollection: Maybe<CardSetsInsertResponse>;
+  /** Adds one or more `Cards` records to the collection */
+  insertIntoCardsCollection: Maybe<CardsInsertResponse>;
+  /** Adds one or more `MtgCardDetails` records to the collection */
+  insertIntoMtgCardDetailsCollection: Maybe<MtgCardDetailsInsertResponse>;
+  /** Adds one or more `OrganizationMembers` records to the collection */
+  insertIntoOrganizationMembersCollection: Maybe<OrganizationMembersInsertResponse>;
+  /** Adds one or more `Organizations` records to the collection */
+  insertIntoOrganizationsCollection: Maybe<OrganizationsInsertResponse>;
+  /** Adds one or more `Tcg` records to the collection */
+  insertIntoTcgCollection: Maybe<TcgInsertResponse>;
+  /** Adds one or more `UserProfiles` records to the collection */
+  insertIntoUserProfilesCollection: Maybe<UserProfilesInsertResponse>;
+  /** Updates zero or more records in the `BinderCards` collection */
+  updateBinderCardsCollection: BinderCardsUpdateResponse;
+  /** Updates zero or more records in the `Binders` collection */
+  updateBindersCollection: BindersUpdateResponse;
+  /** Updates zero or more records in the `CardMarketPrices` collection */
+  updateCardMarketPricesCollection: CardMarketPricesUpdateResponse;
+  /** Updates zero or more records in the `CardSets` collection */
+  updateCardSetsCollection: CardSetsUpdateResponse;
+  /** Updates zero or more records in the `Cards` collection */
+  updateCardsCollection: CardsUpdateResponse;
+  /** Updates zero or more records in the `MtgCardDetails` collection */
+  updateMtgCardDetailsCollection: MtgCardDetailsUpdateResponse;
+  /** Updates zero or more records in the `OrganizationMembers` collection */
+  updateOrganizationMembersCollection: OrganizationMembersUpdateResponse;
+  /** Updates zero or more records in the `Organizations` collection */
+  updateOrganizationsCollection: OrganizationsUpdateResponse;
+  /** Updates zero or more records in the `Tcg` collection */
+  updateTcgCollection: TcgUpdateResponse;
+  /** Updates zero or more records in the `UserProfiles` collection */
+  updateUserProfilesCollection: UserProfilesUpdateResponse;
 };
 
 
 /** The root type for creating and mutating data */
 export type MutationCreateOrganizationArgs = {
   name: Scalars['String'];
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromBinderCardsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<BinderCardsFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromBindersCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<BindersFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromCardMarketPricesCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<CardMarketPricesFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromCardSetsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<CardSetsFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromCardsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<CardsFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromMtgCardDetailsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<MtgCardDetailsFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromOrganizationMembersCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<OrganizationMembersFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromOrganizationsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<OrganizationsFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromTcgCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<TcgFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromUserProfilesCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<UserProfilesFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoBinderCardsCollectionArgs = {
+  objects: Array<BinderCardsInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoBindersCollectionArgs = {
+  objects: Array<BindersInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoCardMarketPricesCollectionArgs = {
+  objects: Array<CardMarketPricesInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoCardSetsCollectionArgs = {
+  objects: Array<CardSetsInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoCardsCollectionArgs = {
+  objects: Array<CardsInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoMtgCardDetailsCollectionArgs = {
+  objects: Array<MtgCardDetailsInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoOrganizationMembersCollectionArgs = {
+  objects: Array<OrganizationMembersInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoOrganizationsCollectionArgs = {
+  objects: Array<OrganizationsInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoTcgCollectionArgs = {
+  objects: Array<TcgInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoUserProfilesCollectionArgs = {
+  objects: Array<UserProfilesInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateBinderCardsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<BinderCardsFilter>;
+  set: BinderCardsUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateBindersCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<BindersFilter>;
+  set: BindersUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateCardMarketPricesCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<CardMarketPricesFilter>;
+  set: CardMarketPricesUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateCardSetsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<CardSetsFilter>;
+  set: CardSetsUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateCardsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<CardsFilter>;
+  set: CardsUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateMtgCardDetailsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<MtgCardDetailsFilter>;
+  set: MtgCardDetailsUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateOrganizationMembersCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<OrganizationMembersFilter>;
+  set: OrganizationMembersUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateOrganizationsCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<OrganizationsFilter>;
+  set: OrganizationsUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateTcgCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<TcgFilter>;
+  set: TcgUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateUserProfilesCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: Maybe<UserProfilesFilter>;
+  set: UserProfilesUpdateInput;
 };
 
 export type Node = {
@@ -803,6 +1391,14 @@ export type OrganizationMembersConnection = {
   pageInfo: PageInfo;
 };
 
+export type OrganizationMembersDeleteResponse = {
+  __typename?: 'OrganizationMembersDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<OrganizationMembers>;
+};
+
 export type OrganizationMembersEdge = {
   __typename?: 'OrganizationMembersEdge';
   cursor: Scalars['String'];
@@ -826,6 +1422,24 @@ export type OrganizationMembersFilter = {
   userId?: Maybe<UuidFilter>;
 };
 
+export type OrganizationMembersInsertInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['UUID']>;
+  isActive?: Maybe<Scalars['Boolean']>;
+  organizationId?: Maybe<Scalars['UUID']>;
+  role?: Maybe<OrganizationMemberRole>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+  userId?: Maybe<Scalars['UUID']>;
+};
+
+export type OrganizationMembersInsertResponse = {
+  __typename?: 'OrganizationMembersInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<OrganizationMembers>;
+};
+
 export type OrganizationMembersOrderBy = {
   createdAt?: Maybe<OrderByDirection>;
   id?: Maybe<OrderByDirection>;
@@ -834,6 +1448,24 @@ export type OrganizationMembersOrderBy = {
   role?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
   userId?: Maybe<OrderByDirection>;
+};
+
+export type OrganizationMembersUpdateInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['UUID']>;
+  isActive?: Maybe<Scalars['Boolean']>;
+  organizationId?: Maybe<Scalars['UUID']>;
+  role?: Maybe<OrganizationMemberRole>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+  userId?: Maybe<Scalars['UUID']>;
+};
+
+export type OrganizationMembersUpdateResponse = {
+  __typename?: 'OrganizationMembersUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<OrganizationMembers>;
 };
 
 export type Organizations = Node & {
@@ -864,6 +1496,14 @@ export type OrganizationsConnection = {
   pageInfo: PageInfo;
 };
 
+export type OrganizationsDeleteResponse = {
+  __typename?: 'OrganizationsDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Organizations>;
+};
+
 export type OrganizationsEdge = {
   __typename?: 'OrganizationsEdge';
   cursor: Scalars['String'];
@@ -884,11 +1524,41 @@ export type OrganizationsFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type OrganizationsInsertInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['UUID']>;
+  name?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type OrganizationsInsertResponse = {
+  __typename?: 'OrganizationsInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Organizations>;
+};
+
 export type OrganizationsOrderBy = {
   createdAt?: Maybe<OrderByDirection>;
   id?: Maybe<OrderByDirection>;
   name?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type OrganizationsUpdateInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['UUID']>;
+  name?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type OrganizationsUpdateResponse = {
+  __typename?: 'OrganizationsUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Organizations>;
 };
 
 export type PageInfo = {
@@ -1151,6 +1821,14 @@ export type TcgConnection = {
   pageInfo: PageInfo;
 };
 
+export type TcgDeleteResponse = {
+  __typename?: 'TcgDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Tcg>;
+};
+
 export type TcgEdge = {
   __typename?: 'TcgEdge';
   cursor: Scalars['String'];
@@ -1171,11 +1849,41 @@ export type TcgFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type TcgInsertInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type TcgInsertResponse = {
+  __typename?: 'TcgInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Tcg>;
+};
+
 export type TcgOrderBy = {
   createdAt?: Maybe<OrderByDirection>;
   id?: Maybe<OrderByDirection>;
   name?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
+};
+
+export type TcgUpdateInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  id?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type TcgUpdateResponse = {
+  __typename?: 'TcgUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Tcg>;
 };
 
 
@@ -1236,6 +1944,14 @@ export type UserProfilesConnection = {
   pageInfo: PageInfo;
 };
 
+export type UserProfilesDeleteResponse = {
+  __typename?: 'UserProfilesDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<UserProfiles>;
+};
+
 export type UserProfilesEdge = {
   __typename?: 'UserProfilesEdge';
   cursor: Scalars['String'];
@@ -1258,6 +1974,23 @@ export type UserProfilesFilter = {
   updatedAt?: Maybe<DatetimeFilter>;
 };
 
+export type UserProfilesInsertInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  firstname?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  isAdmin?: Maybe<Scalars['Boolean']>;
+  lastname?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type UserProfilesInsertResponse = {
+  __typename?: 'UserProfilesInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<UserProfiles>;
+};
+
 export type UserProfilesOrderBy = {
   createdAt?: Maybe<OrderByDirection>;
   firstname?: Maybe<OrderByDirection>;
@@ -1266,6 +1999,36 @@ export type UserProfilesOrderBy = {
   lastname?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
 };
+
+export type UserProfilesUpdateInput = {
+  createdAt?: Maybe<Scalars['Datetime']>;
+  firstname?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['UUID']>;
+  isAdmin?: Maybe<Scalars['Boolean']>;
+  lastname?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Datetime']>;
+};
+
+export type UserProfilesUpdateResponse = {
+  __typename?: 'UserProfilesUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<UserProfiles>;
+};
+
+export type BinderByShortIdQueryVariables = Exact<{
+  shortId: Scalars['String'];
+}>;
+
+
+export type BinderByShortIdQuery = (
+  { __typename?: 'Query' }
+  & { binderByShortId: Maybe<(
+    { __typename?: 'Binders' }
+    & Pick<Binders, 'id' | 'nodeId' | 'name' | 'shortId'>
+  )> }
+);
 
 export type CardSearchQueryVariables = Exact<{
   query: Scalars['String'];
@@ -1296,6 +2059,23 @@ export type CardSearchQuery = (
           )> }
         )> }
       ) }
+    )> }
+  )> }
+);
+
+export type CreateBinderMutationVariables = Exact<{
+  name: Scalars['String'];
+  tcgId?: Maybe<Scalars['String']>;
+}>;
+
+
+export type CreateBinderMutation = (
+  { __typename?: 'Mutation' }
+  & { insertIntoBindersCollection: Maybe<(
+    { __typename?: 'BindersInsertResponse' }
+    & { records: Array<(
+      { __typename?: 'Binders' }
+      & Pick<Binders, 'id' | 'nodeId' | 'name' | 'shortId'>
     )> }
   )> }
 );
@@ -1333,6 +2113,44 @@ export type CurrentUserProfileQuery = (
 );
 
 
+export const BinderByShortIdDocument = gql`
+    query BinderByShortId($shortId: String!) {
+  binderByShortId(binderShortId: $shortId) {
+    id
+    nodeId
+    name
+    shortId
+  }
+}
+    `;
+
+/**
+ * __useBinderByShortIdQuery__
+ *
+ * To run a query within a React component, call `useBinderByShortIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderByShortIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderByShortIdQuery({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *   },
+ * });
+ */
+export function useBinderByShortIdQuery(baseOptions: Apollo.QueryHookOptions<BinderByShortIdQuery, BinderByShortIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BinderByShortIdQuery, BinderByShortIdQueryVariables>(BinderByShortIdDocument, options);
+      }
+export function useBinderByShortIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderByShortIdQuery, BinderByShortIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BinderByShortIdQuery, BinderByShortIdQueryVariables>(BinderByShortIdDocument, options);
+        }
+export type BinderByShortIdQueryHookResult = ReturnType<typeof useBinderByShortIdQuery>;
+export type BinderByShortIdLazyQueryHookResult = ReturnType<typeof useBinderByShortIdLazyQuery>;
+export type BinderByShortIdQueryResult = Apollo.QueryResult<BinderByShortIdQuery, BinderByShortIdQueryVariables>;
 export const CardSearchDocument = gql`
     query CardSearch($query: String!, $first: Int = 8) {
   cardsCollection(
@@ -1402,6 +2220,45 @@ export function useCardSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
 export type CardSearchQueryHookResult = ReturnType<typeof useCardSearchQuery>;
 export type CardSearchLazyQueryHookResult = ReturnType<typeof useCardSearchLazyQuery>;
 export type CardSearchQueryResult = Apollo.QueryResult<CardSearchQuery, CardSearchQueryVariables>;
+export const CreateBinderDocument = gql`
+    mutation CreateBinder($name: String!, $tcgId: String = "mtg") {
+  insertIntoBindersCollection(objects: [{name: $name, tcgId: $tcgId}]) {
+    records {
+      id
+      nodeId
+      name
+      shortId
+    }
+  }
+}
+    `;
+export type CreateBinderMutationFn = Apollo.MutationFunction<CreateBinderMutation, CreateBinderMutationVariables>;
+
+/**
+ * __useCreateBinderMutation__
+ *
+ * To run a mutation, you first call `useCreateBinderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBinderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBinderMutation, { data, loading, error }] = useCreateBinderMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      tcgId: // value for 'tcgId'
+ *   },
+ * });
+ */
+export function useCreateBinderMutation(baseOptions?: Apollo.MutationHookOptions<CreateBinderMutation, CreateBinderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateBinderMutation, CreateBinderMutationVariables>(CreateBinderDocument, options);
+      }
+export type CreateBinderMutationHookResult = ReturnType<typeof useCreateBinderMutation>;
+export type CreateBinderMutationResult = Apollo.MutationResult<CreateBinderMutation>;
+export type CreateBinderMutationOptions = Apollo.BaseMutationOptions<CreateBinderMutation, CreateBinderMutationVariables>;
 export const CurrentUserOrganizationContextsDocument = gql`
     query CurrentUserOrganizationContexts {
   currentUserOrganizationContexts {

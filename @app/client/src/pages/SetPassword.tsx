@@ -63,78 +63,72 @@ export default function SetPassword() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>{t("login:set_password.title")}</CardTitle>
-            <CardDescription>
-              {t("login:set_password.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSetPassword)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="password"
-                  rules={{
-                    required: t("login:validation.password_required"),
-                    minLength: {
-                      value: 8,
-                      message: t("login:validation.password_min_length"),
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {t("login:set_password.create_password")}
-                      </FormLabel>
-                      <FormControl>
-                        <InputPassword {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  rules={{
-                    required: t("login:validation.confirm_password_required"),
-                    minLength: {
-                      value: 8,
-                      message: t(
-                        "login:validation.confirm_password_min_length"
-                      ),
-                    },
-                    validate: (value) =>
-                      value === form.getValues("password") ||
-                      t("login:validation.passwords_must_match"),
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {t("login:set_password.confirm_password")}
-                      </FormLabel>
-                      <FormControl>
-                        <InputPassword {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" isLoading={isLoading} className="w-full">
-                  {t("login:set_password.submit")}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="flex flex-1 items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>{t("login:set_password.title")}</CardTitle>
+          <CardDescription>{t("login:set_password.description")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSetPassword)}
+              className="space-y-4"
+            >
+              <FormField
+                control={form.control}
+                name="password"
+                rules={{
+                  required: t("login:validation.password_required"),
+                  minLength: {
+                    value: 8,
+                    message: t("login:validation.password_min_length"),
+                  },
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("login:set_password.create_password")}
+                    </FormLabel>
+                    <FormControl>
+                      <InputPassword {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                rules={{
+                  required: t("login:validation.confirm_password_required"),
+                  minLength: {
+                    value: 8,
+                    message: t("login:validation.confirm_password_min_length"),
+                  },
+                  validate: (value) =>
+                    value === form.getValues("password") ||
+                    t("login:validation.passwords_must_match"),
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("login:set_password.confirm_password")}
+                    </FormLabel>
+                    <FormControl>
+                      <InputPassword {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" isLoading={isLoading} className="w-full">
+                {t("login:set_password.submit")}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -23,25 +23,28 @@ const languages: Language[] = [
     shortLabel: "EN",
   },
   {
-    code: "fr",
-    label: "Français",
-    shortLabel: "FR",
+    code: "th",
+    label: "ไทย",
+    shortLabel: "TH",
   },
 ];
 interface LanguageSwitcherProps {}
 
 export const LanguageSwitcher: FC<LanguageSwitcherProps> = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation(["common"]);
   const handleLanguageChange = (lang: Language) => async () => {
     await i18n.changeLanguage(lang.code);
   };
-  const currentLanguage = i18n.language;
+  const currentLanguage =
+    languages.find((lang) => i18n.language.startsWith(lang.code)) ||
+    languages[0];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Globe className="h-5 w-5" />
-          <span className="sr-only">Switch language</span>
+        <Button variant="ghost" className="h-9 px-2 sm:px-3">
+          <Globe className="size-4" />
+          <span>{currentLanguage.shortLabel}</span>
+          <span className="sr-only">{t("common:nav.switch_language")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -49,7 +52,9 @@ export const LanguageSwitcher: FC<LanguageSwitcherProps> = () => {
           <DropdownMenuItem
             key={lang.code}
             onClick={handleLanguageChange(lang)}
-            className={`cursor-pointer ${currentLanguage === lang.code ? "bg-muted" : ""}`}
+            className={`cursor-pointer ${
+              currentLanguage.code === lang.code ? "bg-muted" : ""
+            }`}
           >
             <span className="mr-2 text-xs text-muted-foreground">
               {lang.shortLabel}

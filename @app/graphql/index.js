@@ -85,6 +85,40 @@ export var OrganizationMemberRole;
     OrganizationMemberRole["Member"] = "MEMBER";
     OrganizationMemberRole["Owner"] = "OWNER";
 })(OrganizationMemberRole || (OrganizationMemberRole = {}));
+export const BinderByShortIdDocument = gql `
+    query BinderByShortId($shortId: String!) {
+  binderByShortId(binderShortId: $shortId) {
+    id
+    nodeId
+    name
+    shortId
+  }
+}
+    `;
+/**
+ * __useBinderByShortIdQuery__
+ *
+ * To run a query within a React component, call `useBinderByShortIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderByShortIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderByShortIdQuery({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *   },
+ * });
+ */
+export function useBinderByShortIdQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(BinderByShortIdDocument, options);
+}
+export function useBinderByShortIdLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(BinderByShortIdDocument, options);
+}
 export const CardSearchDocument = gql `
     query CardSearch($query: String!, $first: Int = 8) {
   cardsCollection(
@@ -149,6 +183,40 @@ export function useCardSearchQuery(baseOptions) {
 export function useCardSearchLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(CardSearchDocument, options);
+}
+export const CreateBinderDocument = gql `
+    mutation CreateBinder($name: String!, $tcgId: String = "mtg") {
+  insertIntoBindersCollection(objects: [{name: $name, tcgId: $tcgId}]) {
+    records {
+      id
+      nodeId
+      name
+      shortId
+    }
+  }
+}
+    `;
+/**
+ * __useCreateBinderMutation__
+ *
+ * To run a mutation, you first call `useCreateBinderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBinderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBinderMutation, { data, loading, error }] = useCreateBinderMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      tcgId: // value for 'tcgId'
+ *   },
+ * });
+ */
+export function useCreateBinderMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(CreateBinderDocument, options);
 }
 export const CurrentUserOrganizationContextsDocument = gql `
     query CurrentUserOrganizationContexts {

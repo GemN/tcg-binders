@@ -30,7 +30,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   lastname,
   className,
 }) => {
-  const fullName = `${firstname} ${lastname}`;
+  const fullName = [firstname, lastname].filter(Boolean).join(" ");
   const fallbackText = `${firstname?.[0] || ""}${lastname?.[0] || ""}`;
   const avatarColor = useMemo(() => {
     const colors = Object.values(avatarColors);

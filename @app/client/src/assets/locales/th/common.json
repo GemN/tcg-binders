@@ -1,0 +1,108 @@
+{
+  "ok": "ตกลง",
+  "cancel": "ยกเลิก",
+  "confirm": "ยืนยัน",
+  "loading": "กำลังโหลด...",
+  "next": "ถัดไป",
+  "previous": "ก่อนหน้า",
+  "back": "กลับ",
+  "no_results": "ไม่พบผลลัพธ์",
+  "unselect": "ยกเลิกการเลือก",
+  "submit": "ส่ง",
+  "yes": "ใช่",
+  "no": "ไม่ใช่",
+  "not_available": "ไม่มีข้อมูล",
+  "nav": {
+    "account": "บัญชี",
+    "brand": "TCGBinder",
+    "currency": "สกุลเงิน",
+    "home": "หน้าแรก",
+    "logout": "ออกจากระบบ",
+    "register": "สมัครสมาชิก",
+    "settings": "การตั้งค่า",
+    "sign_in": "เข้าสู่ระบบ",
+    "switch_language": "เปลี่ยนภาษา",
+    "your_binders": "แฟ้มของคุณ"
+  },
+  "not_found": {
+    "title": "ไม่พบหน้า",
+    "description": "ไม่มีหน้าที่คุณกำลังมองหา"
+  },
+  "home": {
+    "title": "เริ่มสร้างแฟ้ม",
+    "subtitle": "เพิ่มการ์ด Magic ใบแรกเพื่อเริ่มต้น",
+    "or": "หรือ",
+    "import_from_file": "นำเข้าจากไฟล์",
+    "import_not_ready": "ยังไม่รองรับการนำเข้า CSV จาก Manabox"
+  },
+  "new_binder": {
+    "button": "แฟ้มใหม่",
+    "title": "แฟ้มใหม่",
+    "description": "ตั้งชื่อแฟ้มนี้ก่อนเพิ่มการ์ด",
+    "name_label": "ชื่อแฟ้ม",
+    "name_required": "จำเป็นต้องกรอกชื่อแฟ้ม",
+    "create": "สร้าง",
+    "create_error": "สร้างแฟ้มไม่สำเร็จ กรุณาลองอีกครั้ง"
+  },
+  "binder": {
+    "short_url": "URL แฟ้ม: /binder/{{shortId}}"
+  },
+  "sidenav": {
+    "group": {
+      "workspace": "พื้นที่ทำงาน",
+      "settings": "การตั้งค่า"
+    },
+    "contexts": {
+      "organizations": "องค์กร",
+      "select_value": "เลือกพื้นที่ทำงาน",
+      "role": {
+        "OWNER": "เจ้าของ",
+        "ADMIN": "ผู้ดูแล",
+        "MEMBER": "สมาชิก"
+      }
+    },
+    "dashboard": "แดชบอร์ด",
+    "profile": "โปรไฟล์",
+    "organization": "องค์กร"
+  },
+  "dashboard": {
+    "title": "แดชบอร์ด",
+    "subtitle": "พื้นที่ทำงานเริ่มต้นของคุณพร้อมแล้ว",
+    "current_workspace": "พื้นที่ทำงานปัจจุบัน",
+    "organization": "องค์กร",
+    "role": "บทบาท"
+  },
+  "profile": {
+    "title": "โปรไฟล์",
+    "subtitle": "รายละเอียดผู้ใช้จาก Supabase Auth",
+    "details": "รายละเอียดโปรไฟล์",
+    "firstname": "ชื่อ",
+    "lastname": "นามสกุล"
+  },
+  "organization": {
+    "title": "องค์กร",
+    "subtitle": "บริบทองค์กรที่ใช้งานและส่งไปยัง API",
+    "details": "รายละเอียดองค์กร",
+    "name": "ชื่อ",
+    "role": "บทบาท"
+  },
+  "days_one": "วัน",
+  "days_other": "วัน",
+  "months_one": "เดือน",
+  "months_other": "เดือน",
+  "remote": "ทำงานระยะไกล",
+  "form": {
+    "required": "จำเป็นต้องกรอกช่องนี้",
+    "must_be_positive": "ค่าต้องเป็นจำนวนบวก",
+    "email_invalid": "กรุณากรอกอีเมลให้ถูกต้อง",
+    "datepicker_placeholder": "เลือกวันที่",
+    "invalid_phone": "กรุณากรอกหมายเลขโทรศัพท์ให้ถูกต้อง",
+    "optional": "ไม่บังคับ",
+    "no_country": "ไม่มีประเทศ",
+    "invalid_linkedin": "กรุณากรอก URL โปรไฟล์ LinkedIn ให้ถูกต้อง",
+    "invalid_github": "กรุณากรอก URL โปรไฟล์ GitHub ให้ถูกต้อง",
+    "invalid_website": "กรุณากรอก URL เว็บไซต์ให้ถูกต้อง",
+    "invalid_country": "กรุณาเลือกประเทศให้ถูกต้อง"
+  },
+  "nbr_out_of": "{{nbr}} จาก {{total}}"
+}

@@ -13,6 +13,8 @@ export const Login: FC<LoginProps> = () => {
   const [searchParams] = useSearchParams();
 
   const nextPath = searchParams.get("next") || "/";
+  const authView =
+    searchParams.get("view") === "sign_up" ? "sign_up" : "sign_in";
 
   useEffect(() => {
     const checkSession = async () => {
@@ -41,13 +43,18 @@ export const Login: FC<LoginProps> = () => {
       email_label: t("login:auth_ui.email_label"),
       password_label: t("login:auth_ui.password_label"),
     },
+    sign_up: {
+      email_label: t("login:auth_ui.email_label"),
+      password_label: t("login:auth_ui.password_label"),
+    },
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+    <div className="flex flex-1 flex-col items-center justify-center bg-gray-50 p-4">
       <Card className="p-6 w-full max-w-md">
         <Auth
           supabaseClient={supabaseClient}
+          view={authView}
           appearance={{ theme: ThemeSupa }}
           providers={[]}
           localization={{ variables: localization }}

@@ -179,3 +179,14 @@ Comments:
 comment on <table|column|function|...> <fully.qualified.name> is
   E'...';
 ```
+
+## Project
+
+Do not create sql/pgsql code without my acknowledgement.
+If needed only use current.sql for new sql code.
+
+Must use i18n. Languages are English / Thai
+Design is mobile-first.
+Always check if the project is not already up before running it.
+Always use types from @app/graphql whenever possible
+Get data from the backend thanks to graphql queries and mutation.

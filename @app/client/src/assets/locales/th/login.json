@@ -1,0 +1,23 @@
+{
+  "logout": "ออกจากระบบ",
+  "auth_ui": {
+    "email_label": "อีเมล",
+    "password_label": "รหัสผ่าน"
+  },
+  "set_password": {
+    "title": "ยินดีต้อนรับ",
+    "description": "ตั้งรหัสผ่านเพื่อดำเนินการตั้งค่าให้เสร็จสิ้น",
+    "create_password": "สร้างรหัสผ่าน",
+    "confirm_password": "ยืนยันรหัสผ่าน",
+    "submit": "ตั้งรหัสผ่าน",
+    "success": "ตั้งรหัสผ่านสำเร็จแล้ว",
+    "error": "ตั้งรหัสผ่านไม่สำเร็จ กรุณาลองอีกครั้ง"
+  },
+  "validation": {
+    "password_required": "จำเป็นต้องกรอกรหัสผ่าน",
+    "password_min_length": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+    "confirm_password_required": "จำเป็นต้องยืนยันรหัสผ่าน",
+    "confirm_password_min_length": "รหัสผ่านยืนยันต้องมีอย่างน้อย 8 ตัวอักษร",
+    "passwords_must_match": "รหัสผ่านไม่ตรงกัน"
+  }
+}

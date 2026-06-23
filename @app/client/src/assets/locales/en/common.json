@@ -14,12 +14,38 @@
   "not_available": "Not available",
   "nav": {
     "account": "Account",
+    "brand": "TCGBinder",
+    "currency": "Currency",
+    "home": "Home",
     "logout": "Log out",
-    "settings": "Settings"
+    "register": "Register",
+    "settings": "Settings",
+    "sign_in": "Sign in",
+    "switch_language": "Switch language",
+    "your_binders": "Your Binders"
   },
   "not_found": {
     "title": "Page Not Found",
     "description": "The page you are looking for does not exist."
+  },
+  "home": {
+    "title": "Start a binder",
+    "subtitle": "Add the first Magic card to begin.",
+    "or": "or",
+    "import_from_file": "Import from file",
+    "import_not_ready": "Manabox CSV import is not ready yet."
+  },
+  "new_binder": {
+    "button": "New binder",
+    "title": "New binder",
+    "description": "Name this binder before adding cards.",
+    "name_label": "Binder name",
+    "name_required": "Binder name is required",
+    "create": "Create",
+    "create_error": "Failed to create binder. Please try again."
+  },
+  "binder": {
+    "short_url": "Binder URL: /binder/{{shortId}}"
   },
   "sidenav": {
     "group": {

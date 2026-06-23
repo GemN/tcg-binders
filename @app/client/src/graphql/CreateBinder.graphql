@@ -1,0 +1,10 @@
+mutation CreateBinder($name: String!, $tcgId: String = "mtg") {
+  insertIntoBindersCollection(objects: [{ name: $name, tcgId: $tcgId }]) {
+    records {
+      id
+      nodeId
+      name
+      shortId
+    }
+  }
+}

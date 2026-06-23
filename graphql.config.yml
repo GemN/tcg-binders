@@ -1,0 +1,5 @@
+schema:
+  - ${VITE_SUPABASE_URL}/graphql/v1:
+      headers:
+        apikey: ${VITE_SUPABASE_ANON_KEY}
+documents: '**/*.graphql'

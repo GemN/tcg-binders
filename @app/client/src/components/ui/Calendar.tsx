@@ -1,4 +1,4 @@
-import { enGB, fr } from "date-fns/locale";
+import { enGB, th } from "date-fns/locale";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -26,7 +26,7 @@ function Calendar({
   const defaultClassNames = getDefaultClassNames();
   const { i18n } = useTranslation();
 
-  const locale = i18n.language === "fr" ? fr : enGB;
+  const locale = i18n.language.startsWith("th") ? th : enGB;
 
   return (
     <DayPicker

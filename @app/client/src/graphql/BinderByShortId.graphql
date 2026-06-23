@@ -1,0 +1,8 @@
+query BinderByShortId($shortId: String!) {
+  binderByShortId(binderShortId: $shortId) {
+    id
+    nodeId
+    name
+    shortId
+  }
+}
