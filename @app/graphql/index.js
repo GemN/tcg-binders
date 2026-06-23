@@ -85,13 +85,83 @@ export var OrganizationMemberRole;
     OrganizationMemberRole["Member"] = "MEMBER";
     OrganizationMemberRole["Owner"] = "OWNER";
 })(OrganizationMemberRole || (OrganizationMemberRole = {}));
+export const AddBinderCardDocument = gql `
+    mutation AddBinderCard($binderId: UUID!, $tcgId: String!, $cardId: UUID!, $finish: String!, $position: Int!) {
+  insertIntoBinderCardsCollection(
+    objects: [{binderId: $binderId, tcgId: $tcgId, cardId: $cardId, finish: $finish, position: $position}]
+  ) {
+    records {
+      id
+      nodeId
+    }
+  }
+}
+    `;
+/**
+ * __useAddBinderCardMutation__
+ *
+ * To run a mutation, you first call `useAddBinderCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddBinderCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addBinderCardMutation, { data, loading, error }] = useAddBinderCardMutation({
+ *   variables: {
+ *      binderId: // value for 'binderId'
+ *      tcgId: // value for 'tcgId'
+ *      cardId: // value for 'cardId'
+ *      finish: // value for 'finish'
+ *      position: // value for 'position'
+ *   },
+ * });
+ */
+export function useAddBinderCardMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(AddBinderCardDocument, options);
+}
 export const BinderByShortIdDocument = gql `
-    query BinderByShortId($shortId: String!) {
+    query BinderByShortId($shortId: String!, $cardSort: String!, $cardFirst: Int!) {
   binderByShortId(binderShortId: $shortId) {
     id
     nodeId
     name
+    ownerId
     shortId
+    tcgId
+  }
+  binderCardsByShortId(
+    binderShortId: $shortId
+    sort: $cardSort
+    resultLimit: 500
+    first: $cardFirst
+  ) {
+    pageInfo {
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+        nodeId
+        finish
+        position
+        quantity
+        card {
+          id
+          name
+          collectorNumber
+          imageNormalUrl
+          imageSmallUrl
+          releasedAt
+          cardSet {
+            code
+            name
+          }
+        }
+      }
+    }
   }
 }
     `;
@@ -108,6 +178,8 @@ export const BinderByShortIdDocument = gql `
  * const { data, loading, error } = useBinderByShortIdQuery({
  *   variables: {
  *      shortId: // value for 'shortId'
+ *      cardSort: // value for 'cardSort'
+ *      cardFirst: // value for 'cardFirst'
  *   },
  * });
  */
@@ -290,5 +362,57 @@ export function useCurrentUserProfileQuery(baseOptions) {
 export function useCurrentUserProfileLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(CurrentUserProfileDocument, options);
+}
+export const MyBindersDocument = gql `
+    query MyBinders($ownerId: UUID!) {
+  bindersCollection(
+    filter: {ownerId: {eq: $ownerId}}
+    orderBy: [{updatedAt: DescNullsLast}]
+  ) {
+    edges {
+      node {
+        id
+        nodeId
+        name
+        shortId
+        updatedAt
+        binderCards(first: 1, orderBy: [{position: AscNullsLast}]) {
+          edges {
+            node {
+              card {
+                imageNormalUrl
+                imageSmallUrl
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+/**
+ * __useMyBindersQuery__
+ *
+ * To run a query within a React component, call `useMyBindersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyBindersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyBindersQuery({
+ *   variables: {
+ *      ownerId: // value for 'ownerId'
+ *   },
+ * });
+ */
+export function useMyBindersQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(MyBindersDocument, options);
+}
+export function useMyBindersLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(MyBindersDocument, options);
 }
 //# sourceMappingURL=index.js.map

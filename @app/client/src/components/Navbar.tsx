@@ -32,7 +32,7 @@ export const Navbar = () => {
         {isLoggedIn && (
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild className="h-9 px-2 sm:px-3">
-              <Link to="/dashboard">{t("common:nav.your_binders")}</Link>
+              <Link to="/my-binders">{t("common:nav.your_binders")}</Link>
             </Button>
             <ButtonNewBinder />
           </div>

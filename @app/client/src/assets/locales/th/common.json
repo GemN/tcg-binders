@@ -45,7 +45,26 @@
     "create_error": "สร้างแฟ้มไม่สำเร็จ กรุณาลองอีกครั้ง"
   },
   "binder": {
-    "short_url": "URL แฟ้ม: /binder/{{shortId}}"
+    "short_url": "URL แฟ้ม: /binder/{{shortId}}",
+    "search_placeholder": "เพิ่มการ์ด",
+    "adding_card": "กำลังเพิ่มการ์ด...",
+    "add_card_error": "เพิ่มการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "empty": "ยังไม่มีการ์ด",
+    "no_image": "ไม่มีรูปภาพ",
+    "page": "หน้า {{page}}",
+    "sort": {
+      "seller_order": "ลำดับผู้ขาย",
+      "name": "ชื่อ",
+      "release_date": "วันที่ออก"
+    },
+    "view": {
+      "grid": "ตาราง",
+      "list": "รายการ"
+    }
+  },
+  "my_binders": {
+    "title": "แฟ้มของคุณ",
+    "empty": "ยังไม่มีแฟ้ม"
   },
   "sidenav": {
     "group": {
@@ -61,16 +80,8 @@
         "MEMBER": "สมาชิก"
       }
     },
-    "dashboard": "แดชบอร์ด",
     "profile": "โปรไฟล์",
     "organization": "องค์กร"
-  },
-  "dashboard": {
-    "title": "แดชบอร์ด",
-    "subtitle": "พื้นที่ทำงานเริ่มต้นของคุณพร้อมแล้ว",
-    "current_workspace": "พื้นที่ทำงานปัจจุบัน",
-    "organization": "องค์กร",
-    "role": "บทบาท"
   },
   "profile": {
     "title": "โปรไฟล์",

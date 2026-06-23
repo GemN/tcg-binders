@@ -1385,6 +1385,7 @@ export type PageInfo = {
 export type Query = {
     __typename?: 'Query';
     binderByShortId: Maybe<Binders>;
+    binderCardsByShortId: Maybe<BinderCardsConnection>;
     /** A pagable collection of type `BinderCards` */
     binderCardsCollection: Maybe<BinderCardsConnection>;
     /** A pagable collection of type `Binders` */
@@ -1413,6 +1414,19 @@ export type Query = {
 /** The root type for querying data */
 export type QueryBinderByShortIdArgs = {
     binderShortId: Scalars['String'];
+};
+/** The root type for querying data */
+export type QueryBinderCardsByShortIdArgs = {
+    after?: Maybe<Scalars['Cursor']>;
+    before?: Maybe<Scalars['Cursor']>;
+    binderShortId: Scalars['String'];
+    filter?: Maybe<BinderCardsFilter>;
+    first?: Maybe<Scalars['Int']>;
+    last?: Maybe<Scalars['Int']>;
+    offset?: Maybe<Scalars['Int']>;
+    orderBy?: Maybe<Array<BinderCardsOrderBy>>;
+    resultLimit?: Maybe<Scalars['Int']>;
+    sort?: Maybe<Scalars['String']>;
 };
 /** The root type for querying data */
 export type QueryBinderCardsCollectionArgs = {
@@ -1768,15 +1782,57 @@ export type UserProfilesUpdateResponse = {
     /** Array of records impacted by the mutation */
     records: Array<UserProfiles>;
 };
+export type AddBinderCardMutationVariables = Exact<{
+    binderId: Scalars['UUID'];
+    tcgId: Scalars['String'];
+    cardId: Scalars['UUID'];
+    finish: Scalars['String'];
+    position: Scalars['Int'];
+}>;
+export type AddBinderCardMutation = ({
+    __typename?: 'Mutation';
+} & {
+    insertIntoBinderCardsCollection: Maybe<({
+        __typename?: 'BinderCardsInsertResponse';
+    } & {
+        records: Array<({
+            __typename?: 'BinderCards';
+        } & Pick<BinderCards, 'id' | 'nodeId'>)>;
+    })>;
+});
 export type BinderByShortIdQueryVariables = Exact<{
     shortId: Scalars['String'];
+    cardSort: Scalars['String'];
+    cardFirst: Scalars['Int'];
 }>;
 export type BinderByShortIdQuery = ({
     __typename?: 'Query';
 } & {
     binderByShortId: Maybe<({
         __typename?: 'Binders';
-    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'shortId'>)>;
+    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'ownerId' | 'shortId' | 'tcgId'>)>;
+    binderCardsByShortId: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        pageInfo: ({
+            __typename?: 'PageInfo';
+        } & Pick<PageInfo, 'hasNextPage'>);
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & Pick<BinderCards, 'id' | 'nodeId' | 'finish' | 'position' | 'quantity'> & {
+                card: Maybe<({
+                    __typename?: 'Cards';
+                } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'imageNormalUrl' | 'imageSmallUrl' | 'releasedAt'> & {
+                    cardSet: Maybe<({
+                        __typename?: 'CardSets';
+                    } & Pick<CardSets, 'code' | 'name'>)>;
+                })>;
+            });
+        })>;
+    })>;
 });
 export type CardSearchQueryVariables = Exact<{
     query: Scalars['String'];
@@ -1859,6 +1915,73 @@ export type CurrentUserProfileQuery = ({
         __typename?: 'UserProfiles';
     } & Pick<UserProfiles, 'nodeId' | 'id' | 'firstname' | 'lastname' | 'isAdmin'>)>;
 });
+export type MyBindersQueryVariables = Exact<{
+    ownerId: Scalars['UUID'];
+}>;
+export type MyBindersQuery = ({
+    __typename?: 'Query';
+} & {
+    bindersCollection: Maybe<({
+        __typename?: 'BindersConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BindersEdge';
+        } & {
+            node: ({
+                __typename?: 'Binders';
+            } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'shortId' | 'updatedAt'> & {
+                binderCards: Maybe<({
+                    __typename?: 'BinderCardsConnection';
+                } & {
+                    edges: Array<({
+                        __typename?: 'BinderCardsEdge';
+                    } & {
+                        node: ({
+                            __typename?: 'BinderCards';
+                        } & {
+                            card: Maybe<({
+                                __typename?: 'Cards';
+                            } & Pick<Cards, 'imageNormalUrl' | 'imageSmallUrl'>)>;
+                        });
+                    })>;
+                })>;
+            });
+        })>;
+    })>;
+});
+export declare const AddBinderCardDocument: Apollo.DocumentNode;
+export type AddBinderCardMutationFn = Apollo.MutationFunction<AddBinderCardMutation, AddBinderCardMutationVariables>;
+/**
+ * __useAddBinderCardMutation__
+ *
+ * To run a mutation, you first call `useAddBinderCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddBinderCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addBinderCardMutation, { data, loading, error }] = useAddBinderCardMutation({
+ *   variables: {
+ *      binderId: // value for 'binderId'
+ *      tcgId: // value for 'tcgId'
+ *      cardId: // value for 'cardId'
+ *      finish: // value for 'finish'
+ *      position: // value for 'position'
+ *   },
+ * });
+ */
+export declare function useAddBinderCardMutation(baseOptions?: Apollo.MutationHookOptions<AddBinderCardMutation, AddBinderCardMutationVariables>): Apollo.MutationTuple<AddBinderCardMutation, Exact<{
+    binderId: Scalars["UUID"];
+    tcgId: Scalars["String"];
+    cardId: Scalars["UUID"];
+    finish: Scalars["String"];
+    position: Scalars["Int"];
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type AddBinderCardMutationHookResult = ReturnType<typeof useAddBinderCardMutation>;
+export type AddBinderCardMutationResult = Apollo.MutationResult<AddBinderCardMutation>;
+export type AddBinderCardMutationOptions = Apollo.BaseMutationOptions<AddBinderCardMutation, AddBinderCardMutationVariables>;
 export declare const BinderByShortIdDocument: Apollo.DocumentNode;
 /**
  * __useBinderByShortIdQuery__
@@ -1873,14 +1996,20 @@ export declare const BinderByShortIdDocument: Apollo.DocumentNode;
  * const { data, loading, error } = useBinderByShortIdQuery({
  *   variables: {
  *      shortId: // value for 'shortId'
+ *      cardSort: // value for 'cardSort'
+ *      cardFirst: // value for 'cardFirst'
  *   },
  * });
  */
 export declare function useBinderByShortIdQuery(baseOptions: Apollo.QueryHookOptions<BinderByShortIdQuery, BinderByShortIdQueryVariables>): Apollo.QueryResult<BinderByShortIdQuery, Exact<{
     shortId: Scalars["String"];
+    cardSort: Scalars["String"];
+    cardFirst: Scalars["Int"];
 }>>;
 export declare function useBinderByShortIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderByShortIdQuery, BinderByShortIdQueryVariables>): Apollo.LazyQueryResultTuple<BinderByShortIdQuery, Exact<{
     shortId: Scalars["String"];
+    cardSort: Scalars["String"];
+    cardFirst: Scalars["Int"];
 }>>;
 export type BinderByShortIdQueryHookResult = ReturnType<typeof useBinderByShortIdQuery>;
 export type BinderByShortIdLazyQueryHookResult = ReturnType<typeof useBinderByShortIdLazyQuery>;
@@ -1991,4 +2120,30 @@ export declare function useCurrentUserProfileLazyQuery(baseOptions?: Apollo.Lazy
 export type CurrentUserProfileQueryHookResult = ReturnType<typeof useCurrentUserProfileQuery>;
 export type CurrentUserProfileLazyQueryHookResult = ReturnType<typeof useCurrentUserProfileLazyQuery>;
 export type CurrentUserProfileQueryResult = Apollo.QueryResult<CurrentUserProfileQuery, CurrentUserProfileQueryVariables>;
+export declare const MyBindersDocument: Apollo.DocumentNode;
+/**
+ * __useMyBindersQuery__
+ *
+ * To run a query within a React component, call `useMyBindersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyBindersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyBindersQuery({
+ *   variables: {
+ *      ownerId: // value for 'ownerId'
+ *   },
+ * });
+ */
+export declare function useMyBindersQuery(baseOptions: Apollo.QueryHookOptions<MyBindersQuery, MyBindersQueryVariables>): Apollo.QueryResult<MyBindersQuery, Exact<{
+    ownerId: Scalars["UUID"];
+}>>;
+export declare function useMyBindersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyBindersQuery, MyBindersQueryVariables>): Apollo.LazyQueryResultTuple<MyBindersQuery, Exact<{
+    ownerId: Scalars["UUID"];
+}>>;
+export type MyBindersQueryHookResult = ReturnType<typeof useMyBindersQuery>;
+export type MyBindersLazyQueryHookResult = ReturnType<typeof useMyBindersLazyQuery>;
+export type MyBindersQueryResult = Apollo.QueryResult<MyBindersQuery, MyBindersQueryVariables>;
 //# sourceMappingURL=index.d.ts.map

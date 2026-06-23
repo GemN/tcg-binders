@@ -41,15 +41,26 @@ const httpLink = createHttpLink({
   uri: `${import.meta.env.VITE_SUPABASE_URL}/graphql/v1`,
 });
 
+const getBinderShortIdFromPath = (): string | undefined => {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  const match = window.location.pathname.match(/^\/binder\/([^/]+)/);
+  return match?.[1] ? decodeURIComponent(match[1]) : undefined;
+};
+
 const authLink = setContext(async (_, { headers }) => {
   const token = (await supabase.auth.getSession()).data.session?.access_token;
   const context = getGlobalUserContext();
+  const binderShortId = getBinderShortIdFromPath();
 
   return {
     headers: {
       ...headers,
       Authorization: token ? `Bearer ${token}` : "",
       apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      "x-binder-short-id": binderShortId,
       "x-organization-id": context?.organizationId || undefined,
     },
   };

@@ -1,0 +1,24 @@
+mutation AddBinderCard(
+  $binderId: UUID!
+  $tcgId: String!
+  $cardId: UUID!
+  $finish: String!
+  $position: Int!
+) {
+  insertIntoBinderCardsCollection(
+    objects: [
+      {
+        binderId: $binderId
+        tcgId: $tcgId
+        cardId: $cardId
+        finish: $finish
+        position: $position
+      }
+    ]
+  ) {
+    records {
+      id
+      nodeId
+    }
+  }
+}

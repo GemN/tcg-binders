@@ -8,10 +8,10 @@ import { Toaster } from "@/components/ui/Sonner";
 import apolloClient from "@/lib/apollo";
 import { BinderDraft } from "@/pages/BinderDraft";
 import { BinderPage } from "@/pages/BinderPage";
-import { Dashboard } from "@/pages/Dashboard";
 import { Home } from "@/pages/Home";
 import { Login } from "@/pages/Login";
 import Logout from "@/pages/Logout";
+import { MyBinders } from "@/pages/MyBinders";
 import { NotFound } from "@/pages/NotFound";
 import SetPassword from "@/pages/SetPassword";
 import { SettingsOrganization } from "@/pages/settings/SettingsOrganization";
@@ -47,10 +47,10 @@ function App() {
               <Route path="logout" element={<Logout />} />
               <Route path="set-password" element={<SetPassword />} />
               <Route
-                path="dashboard"
+                path="my-binders"
                 element={
                   <RequireAuth>
-                    <Dashboard />
+                    <MyBinders />
                   </RequireAuth>
                 }
               />

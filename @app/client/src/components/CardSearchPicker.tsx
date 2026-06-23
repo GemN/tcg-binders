@@ -9,7 +9,7 @@ import {
   type DraftCardCurrency,
   type DraftCardSnapshot,
 } from "@/hooks/useDraftBinder";
-import { useThrottle } from "@/hooks/useThrottle";
+import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
 type CardSearchNode = NonNullable<
@@ -64,11 +64,11 @@ export const CardSearchPicker = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const throttledQuery = useThrottle(query.trim(), 250);
-  const canSearch = throttledQuery.length >= 2;
+  const debouncedQuery = useDebounce(query.trim(), 300);
+  const canSearch = debouncedQuery.length >= 2;
   const { data, loading } = useCardSearchQuery({
     variables: {
-      query: `%${throttledQuery}%`,
+      query: `%${debouncedQuery}%`,
       first: 10,
     },
     skip: !canSearch,

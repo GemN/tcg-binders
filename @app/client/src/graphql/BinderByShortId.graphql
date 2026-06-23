@@ -1,8 +1,45 @@
-query BinderByShortId($shortId: String!) {
+query BinderByShortId(
+  $shortId: String!
+  $cardSort: String!
+  $cardFirst: Int!
+) {
   binderByShortId(binderShortId: $shortId) {
     id
     nodeId
     name
+    ownerId
     shortId
+    tcgId
+  }
+  binderCardsByShortId(
+    binderShortId: $shortId
+    sort: $cardSort
+    resultLimit: 500
+    first: $cardFirst
+  ) {
+    pageInfo {
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+        nodeId
+        finish
+        position
+        quantity
+        card {
+          id
+          name
+          collectorNumber
+          imageNormalUrl
+          imageSmallUrl
+          releasedAt
+          cardSet {
+            code
+            name
+          }
+        }
+      }
+    }
   }
 }

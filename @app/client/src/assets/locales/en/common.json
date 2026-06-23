@@ -45,7 +45,26 @@
     "create_error": "Failed to create binder. Please try again."
   },
   "binder": {
-    "short_url": "Binder URL: /binder/{{shortId}}"
+    "short_url": "Binder URL: /binder/{{shortId}}",
+    "search_placeholder": "Add a card",
+    "adding_card": "Adding card...",
+    "add_card_error": "Failed to add card. Please try again.",
+    "empty": "No cards yet.",
+    "no_image": "No image",
+    "page": "Page {{page}}",
+    "sort": {
+      "seller_order": "Seller order",
+      "name": "Name",
+      "release_date": "Release date"
+    },
+    "view": {
+      "grid": "Grid",
+      "list": "List"
+    }
+  },
+  "my_binders": {
+    "title": "Your Binders",
+    "empty": "No binders yet."
   },
   "sidenav": {
     "group": {
@@ -61,16 +80,8 @@
         "MEMBER": "Member"
       }
     },
-    "dashboard": "Dashboard",
     "profile": "Profile",
     "organization": "Organization"
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "subtitle": "Your starter workspace is ready.",
-    "current_workspace": "Current workspace",
-    "organization": "Organization",
-    "role": "Role"
   },
   "profile": {
     "title": "Profile",

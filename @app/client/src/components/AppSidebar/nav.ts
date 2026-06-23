@@ -1,8 +1,8 @@
-import { LayoutDashboard, Settings, UserRound } from "lucide-react";
+import { Settings, UserRound } from "lucide-react";
 import type { ComponentType } from "react";
 
-export type RouteKey = "dashboard" | "profile" | "organization";
-export type GroupKey = "workspace" | "settings";
+export type RouteKey = "profile" | "organization";
+export type GroupKey = "settings";
 
 export interface NavItem {
   key: RouteKey;
@@ -16,16 +16,6 @@ export interface NavGroup {
 }
 
 export const navGroups: NavGroup[] = [
-  {
-    key: "workspace",
-    items: [
-      {
-        href: "/dashboard",
-        icon: LayoutDashboard,
-        key: "dashboard",
-      },
-    ],
-  },
   {
     key: "settings",
     items: [

@@ -1,0 +1,26 @@
+query MyBinders($ownerId: UUID!) {
+  bindersCollection(
+    filter: { ownerId: { eq: $ownerId } }
+    orderBy: [{ updatedAt: DescNullsLast }]
+  ) {
+    edges {
+      node {
+        id
+        nodeId
+        name
+        shortId
+        updatedAt
+        binderCards(first: 1, orderBy: [{ position: AscNullsLast }]) {
+          edges {
+            node {
+              card {
+                imageNormalUrl
+                imageSmallUrl
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -35,16 +35,8 @@
         "MEMBER": "Membre"
       }
     },
-    "dashboard": "Tableau de bord",
     "profile": "Profil",
     "organization": "Organisation"
-  },
-  "dashboard": {
-    "title": "Tableau de bord",
-    "subtitle": "Votre espace de démarrage est prêt.",
-    "current_workspace": "Espace courant",
-    "organization": "Organisation",
-    "role": "Rôle"
   },
   "profile": {
     "title": "Profil",
