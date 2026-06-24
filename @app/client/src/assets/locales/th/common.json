@@ -66,6 +66,30 @@
       "name": "ชื่อ",
       "release_date": "วันที่ออก"
     },
+    "import": {
+      "button": "นำเข้า",
+      "title": "นำเข้าการ์ด",
+      "description": "วางรายการการ์ดหรือไฟล์ CSV จาก ManaBox แล้วเลือกวิธีนำเข้า",
+      "label": "การ์ด",
+      "placeholder": "1 Sol Ring (LTC) 279\n1 Gandalf, Friend of the Shire (PLTR) 401s *F*",
+      "import": "นำเข้า",
+      "manabox_csv": "ManaBox CSV",
+      "empty": "กรุณาวางรายการการ์ดก่อนนำเข้า",
+      "empty_csv": "ไฟล์ CSV ที่เลือกว่างเปล่า",
+      "no_parseable_cards": "ไม่พบการ์ดที่อ่านได้จากข้อมูลนี้",
+      "error": "นำเข้าการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
+      "imported_count_one": "นำเข้าแล้ว {{count}} รายการ",
+      "imported_count_other": "นำเข้าแล้ว {{count}} รายการ",
+      "skipped_count_one": "ข้าม {{count}} รายการ",
+      "skipped_count_other": "ข้าม {{count}} รายการ",
+      "failed_insert_count_one": "มี {{count}} รายการที่จับคู่ได้แต่นำเข้าไม่สำเร็จ",
+      "failed_insert_count_other": "มี {{count}} รายการที่จับคู่ได้แต่นำเข้าไม่สำเร็จ",
+      "unmatched_preview": "ไม่พบการ์ดที่ตรงกัน: {{names}}",
+      "progress": {
+        "matching": "กำลังจับคู่การ์ด {{completed}}/{{total}}",
+        "importing": "กำลังนำเข้าการ์ด {{completed}}/{{total}}"
+      }
+    },
     "list": {
       "set": "ชุด",
       "collector_number": "№",

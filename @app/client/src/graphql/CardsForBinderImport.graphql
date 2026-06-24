@@ -1,0 +1,24 @@
+query CardsForBinderImport(
+  $filter: CardsFilter!
+  $first: Int!
+  $after: Cursor
+) {
+  cardsCollection(first: $first, after: $after, filter: $filter) {
+    edges {
+      node {
+        id
+        externalId
+        name
+        collectorNumber
+        finishes
+        cardSet {
+          code
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}

@@ -122,8 +122,39 @@ export function useAddBinderCardMutation(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useMutation(AddBinderCardDocument, options);
 }
+export const AddBinderCardsDocument = gql `
+    mutation AddBinderCards($objects: [BinderCardsInsertInput!]!) {
+  insertIntoBinderCardsCollection(objects: $objects) {
+    records {
+      id
+      nodeId
+    }
+  }
+}
+    `;
+/**
+ * __useAddBinderCardsMutation__
+ *
+ * To run a mutation, you first call `useAddBinderCardsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddBinderCardsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addBinderCardsMutation, { data, loading, error }] = useAddBinderCardsMutation({
+ *   variables: {
+ *      objects: // value for 'objects'
+ *   },
+ * });
+ */
+export function useAddBinderCardsMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(AddBinderCardsDocument, options);
+}
 export const BinderByShortIdDocument = gql `
-    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
+    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
   binderByShortId(binderShortId: $shortId) {
     id
     nodeId
@@ -136,6 +167,7 @@ export const BinderByShortIdDocument = gql `
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
+    offset: $cardOffset
     orderBy: $cardOrderBy
   ) {
     pageInfo {
@@ -192,6 +224,7 @@ export const BinderByShortIdDocument = gql `
  *   variables: {
  *      shortId: // value for 'shortId'
  *      cardFirst: // value for 'cardFirst'
+ *      cardOffset: // value for 'cardOffset'
  *      cardOrderBy: // value for 'cardOrderBy'
  *   },
  * });
@@ -268,6 +301,54 @@ export function useCardSearchQuery(baseOptions) {
 export function useCardSearchLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(CardSearchDocument, options);
+}
+export const CardsForBinderImportDocument = gql `
+    query CardsForBinderImport($filter: CardsFilter!, $first: Int!, $after: Cursor) {
+  cardsCollection(first: $first, after: $after, filter: $filter) {
+    edges {
+      node {
+        id
+        externalId
+        name
+        collectorNumber
+        finishes
+        cardSet {
+          code
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+    `;
+/**
+ * __useCardsForBinderImportQuery__
+ *
+ * To run a query within a React component, call `useCardsForBinderImportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardsForBinderImportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardsForBinderImportQuery({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useCardsForBinderImportQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardsForBinderImportDocument, options);
+}
+export function useCardsForBinderImportLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardsForBinderImportDocument, options);
 }
 export const CreateBinderDocument = gql `
     mutation CreateBinder($name: String!, $tcgId: String = "mtg") {

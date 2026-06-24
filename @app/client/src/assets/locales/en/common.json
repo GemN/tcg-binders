@@ -66,6 +66,30 @@
       "name": "Name",
       "release_date": "Release date"
     },
+    "import": {
+      "button": "Import",
+      "title": "Import cards",
+      "description": "Paste a card list or a ManaBox CSV export, then choose the matching import action.",
+      "label": "Cards",
+      "placeholder": "1 Sol Ring (LTC) 279\n1 Gandalf, Friend of the Shire (PLTR) 401s *F*",
+      "import": "Import",
+      "manabox_csv": "ManaBox CSV",
+      "empty": "Paste cards before importing.",
+      "empty_csv": "The selected CSV file is empty.",
+      "no_parseable_cards": "No cards could be parsed from this input.",
+      "error": "Failed to import cards. Please try again.",
+      "imported_count_one": "{{count}} entry imported.",
+      "imported_count_other": "{{count}} entries imported.",
+      "skipped_count_one": "{{count}} entry skipped.",
+      "skipped_count_other": "{{count}} entries skipped.",
+      "failed_insert_count_one": "{{count}} matched entry failed during import.",
+      "failed_insert_count_other": "{{count}} matched entries failed during import.",
+      "unmatched_preview": "Could not match: {{names}}",
+      "progress": {
+        "matching": "Matching cards {{completed}}/{{total}}",
+        "importing": "Importing cards {{completed}}/{{total}}"
+      }
+    },
     "list": {
       "set": "Set",
       "collector_number": "№",

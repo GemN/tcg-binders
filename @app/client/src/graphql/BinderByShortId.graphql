@@ -1,6 +1,7 @@
 query BinderByShortId(
   $shortId: String!
   $cardFirst: Int!
+  $cardOffset: Int!
   $cardOrderBy: [BinderCardsOrderBy!]!
 ) {
   binderByShortId(binderShortId: $shortId) {
@@ -15,6 +16,7 @@ query BinderByShortId(
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
+    offset: $cardOffset
     orderBy: $cardOrderBy
   ) {
     pageInfo {

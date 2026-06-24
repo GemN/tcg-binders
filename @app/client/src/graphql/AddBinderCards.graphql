@@ -1,0 +1,8 @@
+mutation AddBinderCards($objects: [BinderCardsInsertInput!]!) {
+  insertIntoBinderCardsCollection(objects: $objects) {
+    records {
+      id
+      nodeId
+    }
+  }
+}

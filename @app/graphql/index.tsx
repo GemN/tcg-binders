@@ -2210,9 +2210,26 @@ export type AddBinderCardMutation = (
   )> }
 );
 
+export type AddBinderCardsMutationVariables = Exact<{
+  objects: Array<BinderCardsInsertInput> | BinderCardsInsertInput;
+}>;
+
+
+export type AddBinderCardsMutation = (
+  { __typename?: 'Mutation' }
+  & { insertIntoBinderCardsCollection: Maybe<(
+    { __typename?: 'BinderCardsInsertResponse' }
+    & { records: Array<(
+      { __typename?: 'BinderCards' }
+      & Pick<BinderCards, 'id' | 'nodeId'>
+    )> }
+  )> }
+);
+
 export type BinderByShortIdQueryVariables = Exact<{
   shortId: Scalars['String'];
   cardFirst: Scalars['Int'];
+  cardOffset: Scalars['Int'];
   cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
 }>;
 
@@ -2285,6 +2302,34 @@ export type CardSearchQuery = (
         )> }
       ) }
     )> }
+  )> }
+);
+
+export type CardsForBinderImportQueryVariables = Exact<{
+  filter: CardsFilter;
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['Cursor']>;
+}>;
+
+
+export type CardsForBinderImportQuery = (
+  { __typename?: 'Query' }
+  & { cardsCollection: Maybe<(
+    { __typename?: 'CardsConnection' }
+    & { edges: Array<(
+      { __typename?: 'CardsEdge' }
+      & { node: (
+        { __typename?: 'Cards' }
+        & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'finishes'>
+        & { cardSet: Maybe<(
+          { __typename?: 'CardSets' }
+          & Pick<CardSets, 'code'>
+        )> }
+      ) }
+    )>, pageInfo: (
+      { __typename?: 'PageInfo' }
+      & Pick<PageInfo, 'endCursor' | 'hasNextPage'>
+    ) }
   )> }
 );
 
@@ -2447,8 +2492,44 @@ export function useAddBinderCardMutation(baseOptions?: Apollo.MutationHookOption
 export type AddBinderCardMutationHookResult = ReturnType<typeof useAddBinderCardMutation>;
 export type AddBinderCardMutationResult = Apollo.MutationResult<AddBinderCardMutation>;
 export type AddBinderCardMutationOptions = Apollo.BaseMutationOptions<AddBinderCardMutation, AddBinderCardMutationVariables>;
+export const AddBinderCardsDocument = gql`
+    mutation AddBinderCards($objects: [BinderCardsInsertInput!]!) {
+  insertIntoBinderCardsCollection(objects: $objects) {
+    records {
+      id
+      nodeId
+    }
+  }
+}
+    `;
+export type AddBinderCardsMutationFn = Apollo.MutationFunction<AddBinderCardsMutation, AddBinderCardsMutationVariables>;
+
+/**
+ * __useAddBinderCardsMutation__
+ *
+ * To run a mutation, you first call `useAddBinderCardsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddBinderCardsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addBinderCardsMutation, { data, loading, error }] = useAddBinderCardsMutation({
+ *   variables: {
+ *      objects: // value for 'objects'
+ *   },
+ * });
+ */
+export function useAddBinderCardsMutation(baseOptions?: Apollo.MutationHookOptions<AddBinderCardsMutation, AddBinderCardsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddBinderCardsMutation, AddBinderCardsMutationVariables>(AddBinderCardsDocument, options);
+      }
+export type AddBinderCardsMutationHookResult = ReturnType<typeof useAddBinderCardsMutation>;
+export type AddBinderCardsMutationResult = Apollo.MutationResult<AddBinderCardsMutation>;
+export type AddBinderCardsMutationOptions = Apollo.BaseMutationOptions<AddBinderCardsMutation, AddBinderCardsMutationVariables>;
 export const BinderByShortIdDocument = gql`
-    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
+    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
   binderByShortId(binderShortId: $shortId) {
     id
     nodeId
@@ -2461,6 +2542,7 @@ export const BinderByShortIdDocument = gql`
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
+    offset: $cardOffset
     orderBy: $cardOrderBy
   ) {
     pageInfo {
@@ -2518,6 +2600,7 @@ export const BinderByShortIdDocument = gql`
  *   variables: {
  *      shortId: // value for 'shortId'
  *      cardFirst: // value for 'cardFirst'
+ *      cardOffset: // value for 'cardOffset'
  *      cardOrderBy: // value for 'cardOrderBy'
  *   },
  * });
@@ -2602,6 +2685,58 @@ export function useCardSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
 export type CardSearchQueryHookResult = ReturnType<typeof useCardSearchQuery>;
 export type CardSearchLazyQueryHookResult = ReturnType<typeof useCardSearchLazyQuery>;
 export type CardSearchQueryResult = Apollo.QueryResult<CardSearchQuery, CardSearchQueryVariables>;
+export const CardsForBinderImportDocument = gql`
+    query CardsForBinderImport($filter: CardsFilter!, $first: Int!, $after: Cursor) {
+  cardsCollection(first: $first, after: $after, filter: $filter) {
+    edges {
+      node {
+        id
+        externalId
+        name
+        collectorNumber
+        finishes
+        cardSet {
+          code
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+    `;
+
+/**
+ * __useCardsForBinderImportQuery__
+ *
+ * To run a query within a React component, call `useCardsForBinderImportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardsForBinderImportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardsForBinderImportQuery({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useCardsForBinderImportQuery(baseOptions: Apollo.QueryHookOptions<CardsForBinderImportQuery, CardsForBinderImportQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CardsForBinderImportQuery, CardsForBinderImportQueryVariables>(CardsForBinderImportDocument, options);
+      }
+export function useCardsForBinderImportLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardsForBinderImportQuery, CardsForBinderImportQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CardsForBinderImportQuery, CardsForBinderImportQueryVariables>(CardsForBinderImportDocument, options);
+        }
+export type CardsForBinderImportQueryHookResult = ReturnType<typeof useCardsForBinderImportQuery>;
+export type CardsForBinderImportLazyQueryHookResult = ReturnType<typeof useCardsForBinderImportLazyQuery>;
+export type CardsForBinderImportQueryResult = Apollo.QueryResult<CardsForBinderImportQuery, CardsForBinderImportQueryVariables>;
 export const CreateBinderDocument = gql`
     mutation CreateBinder($name: String!, $tcgId: String = "mtg") {
   insertIntoBindersCollection(objects: [{name: $name, tcgId: $tcgId}]) {

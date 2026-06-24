@@ -5,7 +5,13 @@ import {
   useBinderByShortIdQuery,
 } from "@app/graphql";
 import { ChevronLeft, ChevronRight, Grid2X2, List } from "lucide-react";
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 
@@ -13,6 +19,7 @@ import type { BinderCardViewMode } from "@/components/BinderCard";
 import { BinderCardGrid } from "@/components/BinderCardGrid";
 import { BinderCardList } from "@/components/BinderCardList";
 import { BinderTitle } from "@/components/BinderTitle";
+import { ButtonImportBinder } from "@/components/ButtonImportBinder";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import { Loading } from "@/components/Loading";
 import {
@@ -23,10 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/ToggleGroup";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import { useIsMobile } from "@/hooks/useMobile";
 import { handleError } from "@/lib/error";
@@ -97,23 +101,19 @@ export const BinderPage = () => {
   const [showConvertedMarketPrices, setShowConvertedMarketPrices] =
     useState(true);
   const [pageIndex, setPageIndex] = useState(0);
-  const cardsPerPage =
-    viewMode === "grid" ? GRID_PAGE_SIZE : LIST_PAGE_SIZE;
+  const cardsPerPage = viewMode === "grid" ? GRID_PAGE_SIZE : LIST_PAGE_SIZE;
+  const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
   const cardFirst = isMobile
     ? MOBILE_CARD_LIMIT
-    : (pageIndex + PRELOAD_PAGE_COUNT + 1) * cardsPerPage;
-  const cardOrderBy = useMemo(
-    () => getBinderCardOrderBy(sortMode),
-    [sortMode]
-  );
+    : (PRELOAD_PAGE_COUNT + 1) * cardsPerPage;
+  const cardOrderBy = useMemo(() => getBinderCardOrderBy(sortMode), [sortMode]);
   const { data, loading, refetch } = useBinderByShortIdQuery({
-    variables: { shortId, cardFirst, cardOrderBy },
+    variables: { shortId, cardFirst, cardOffset, cardOrderBy },
     skip: !shortId,
     notifyOnNetworkStatusChange: true,
     returnPartialData: true,
   });
-  const [addBinderCard, { loading: isAddingCard }] =
-    useAddBinderCardMutation();
+  const [addBinderCard, { loading: isAddingCard }] = useAddBinderCardMutation();
 
   const binder = data?.binderByShortId;
   const binderCards = useMemo(() => {
@@ -123,20 +123,13 @@ export const BinderPage = () => {
         .filter((binderCard) => !!binderCard.card) || []
     );
   }, [data?.binderCardsByShortId?.edges]);
-  const pageStart = pageIndex * cardsPerPage;
   const visibleBinderCards = isMobile
     ? binderCards
-    : binderCards.slice(pageStart, pageStart + cardsPerPage);
+    : binderCards.slice(0, cardsPerPage);
   const totalBinderCards = data?.binderCardCountByShortId ?? binderCards.length;
   const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
-  const hasNextPage =
-    !isMobile &&
-    (binderCards.length > pageStart + cardsPerPage ||
-      !!data?.binderCardsByShortId?.pageInfo.hasNextPage);
-  const canTurnPreviousPage =
-    !isMobile && visibleBinderCards.length > 0 && pageIndex > 0;
-  const canTurnNextPage =
-    !isMobile && visibleBinderCards.length > 0 && hasNextPage;
+  const canTurnPreviousPage = !isMobile && pageIndex > 0;
+  const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
   const isPageLoading =
     loading &&
     !isMobile &&
@@ -202,9 +195,7 @@ export const BinderPage = () => {
     binderViewRef.current?.focus({ preventScroll: true });
   };
 
-  const handleBinderViewKeyDown = (
-    event: KeyboardEvent<HTMLDivElement>
-  ) => {
+  const handleBinderViewKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (shouldIgnorePageKey(event.target)) return;
 
     if (event.key === "ArrowLeft" && canTurnPreviousPage) {
@@ -233,12 +224,19 @@ export const BinderPage = () => {
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               {isOwner && (
-                <CardSearchPicker
-                  containerClassName="w-full sm:w-80"
-                  className="border-binder-toolbar-foreground/25 text-muted-foreground bg-background placeholder:text-muted-foreground"
-                  placeholder={t("common:binder.search_placeholder")}
-                  onSelect={handleAddCard}
-                />
+                <>
+                  <CardSearchPicker
+                    containerClassName="w-full sm:w-80"
+                    className="border-binder-toolbar-foreground/25 text-muted-foreground bg-background placeholder:text-muted-foreground"
+                    placeholder={t("common:binder.search_placeholder")}
+                    onSelect={handleAddCard}
+                  />
+                  <ButtonImportBinder
+                    binderId={binder.id}
+                    tcgId={binder.tcgId}
+                    onImported={refetch}
+                  />
+                </>
               )}
               <Select value={sortMode} onValueChange={handleSortChange}>
                 <SelectTrigger className="w-full border-border bg-background text-foreground sm:w-48">
