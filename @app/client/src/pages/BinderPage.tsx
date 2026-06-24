@@ -277,7 +277,7 @@ export const BinderPage = () => {
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
-            <label className="inline-flex items-center gap-2 text-sm text-binder-toolbar-foreground/80 sm:justify-end">
+            <label className="flex items-center gap-2 text-sm text-binder-toolbar-foreground/80 sm:justify-end">
               <Switch
                 checked={showConvertedMarketPrices}
                 onCheckedChange={setShowConvertedMarketPrices}
