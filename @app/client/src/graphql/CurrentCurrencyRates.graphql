@@ -1,0 +1,13 @@
+query CurrentCurrencyRates {
+  currencyRatesCollection(
+    filter: { baseCurrency: { eq: USD } }
+    orderBy: [{ quoteCurrency: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        quoteCurrency
+        rate
+      }
+    }
+  }
+}

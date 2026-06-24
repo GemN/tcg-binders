@@ -18,6 +18,7 @@
     "currency": "สกุลเงิน",
     "home": "หน้าแรก",
     "logout": "ออกจากระบบ",
+    "price_source": "แหล่งราคา",
     "register": "สมัครสมาชิก",
     "settings": "การตั้งค่า",
     "sign_in": "เข้าสู่ระบบ",
@@ -55,6 +56,7 @@
     "empty": "ยังไม่มีการ์ด",
     "no_image": "ไม่มีรูปภาพ",
     "page": "หน้า {{page}}",
+    "show_converted_market_prices": "แสดงราคาตลาดที่แปลงแล้ว",
     "unique_card_count_one": "{{count}} การ์ดไม่ซ้ำ",
     "unique_card_count_other": "{{count}} การ์ดไม่ซ้ำ",
     "page_progress": "{{cardCount}} - หน้า {{page}}/{{pageCount}}",
@@ -62,6 +64,15 @@
       "seller_order": "ลำดับผู้ขาย",
       "name": "ชื่อ",
       "release_date": "วันที่ออก"
+    },
+    "list": {
+      "set": "ชุด",
+      "collector_number": "№",
+      "name": "ชื่อ",
+      "user_price": "ราคา",
+      "cardkingdom_price": "Card Kingdom",
+      "tcgplayer_price": "TCGplayer",
+      "cardmarket_price": "Cardmarket"
     },
     "view": {
       "grid": "ตาราง",
@@ -112,6 +123,7 @@
       "foil": "ฟอยล์",
       "etched": "เอทช์"
     },
+    "price_unavailable": "ไม่มีราคา",
     "language": {
       "en": "อังกฤษ",
       "fr": "ฝรั่งเศส",

@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { ButtonNewBinder } from "@/components/ButtonNewBinder";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { PriceSourceSwitcher } from "@/components/PriceSourceSwitcher";
 import { Button } from "@/components/ui/Button";
 import { UserNavigation } from "@/components/UserNavigation";
 import { useSession } from "@/providers/SessionContext";
@@ -43,6 +44,7 @@ export const Navbar = () => {
         <div className="flex min-w-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <CurrencySwitcher />
+          <PriceSourceSwitcher />
           {isLoggedIn ? (
             <UserNavigation />
           ) : (

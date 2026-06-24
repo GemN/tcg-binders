@@ -147,6 +147,8 @@ export const BinderByShortIdDocument = gql `
         nodeId
         finish
         position
+        priceAmount
+        priceCurrency
         quantity
         card {
           id
@@ -158,6 +160,17 @@ export const BinderByShortIdDocument = gql `
           cardSet {
             code
             name
+          }
+          marketPrices(first: 12, orderBy: [{source: AscNullsLast}]) {
+            edges {
+              node {
+                source
+                finish
+                amount
+                currency
+                priceDate
+              }
+            }
           }
         }
       }
@@ -289,6 +302,44 @@ export const CreateBinderDocument = gql `
 export function useCreateBinderMutation(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useMutation(CreateBinderDocument, options);
+}
+export const CurrentCurrencyRatesDocument = gql `
+    query CurrentCurrencyRates {
+  currencyRatesCollection(
+    filter: {baseCurrency: {eq: USD}}
+    orderBy: [{quoteCurrency: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        quoteCurrency
+        rate
+      }
+    }
+  }
+}
+    `;
+/**
+ * __useCurrentCurrencyRatesQuery__
+ *
+ * To run a query within a React component, call `useCurrentCurrencyRatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCurrentCurrencyRatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCurrentCurrencyRatesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCurrentCurrencyRatesQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CurrentCurrencyRatesDocument, options);
+}
+export function useCurrentCurrencyRatesLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CurrentCurrencyRatesDocument, options);
 }
 export const CurrentUserOrganizationContextsDocument = gql `
     query CurrentUserOrganizationContexts {

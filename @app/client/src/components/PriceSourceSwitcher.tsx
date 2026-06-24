@@ -1,4 +1,5 @@
-import { CircleDollarSign } from "lucide-react";
+import { MarketPriceSource } from "@app/graphql";
+import { BadgeDollarSign } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
@@ -9,35 +10,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
 import {
-  supportedCurrencies,
+  supportedPriceSources,
   usePricingSettings,
 } from "@/providers/PricingSettingsContext";
 
-export const CurrencySwitcher = () => {
+const priceSourceLabels: Record<MarketPriceSource, string> = {
+  [MarketPriceSource.Cardkingdom]: "Card Kingdom",
+  [MarketPriceSource.Cardmarket]: "Cardmarket",
+  [MarketPriceSource.Tcgplayer]: "TCGplayer",
+};
+
+export const PriceSourceSwitcher = () => {
   const { t } = useTranslation(["common"]);
-  const { currency, setCurrency } = usePricingSettings();
+  const { priceSource, setPriceSource } = usePricingSettings();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-9 px-2 sm:px-3">
-          <CircleDollarSign className="size-4" />
-          <span>{currency}</span>
-          <span className="sr-only">{t("common:nav.currency")}</span>
+          <BadgeDollarSign className="size-4" />
+          <span>{priceSourceLabels[priceSource]}</span>
+          <span className="sr-only">{t("common:nav.price_source")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {supportedCurrencies.map((currencyOption) => (
+        {supportedPriceSources.map((source) => (
           <DropdownMenuItem
-            key={currencyOption}
-            onClick={() => setCurrency(currencyOption)}
+            key={source}
+            onClick={() => setPriceSource(source)}
             className={`cursor-pointer ${
-              currency === currencyOption
+              priceSource === source
                 ? "bg-primary text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground"
                 : ""
             }`}
           >
-            {currencyOption}
+            {priceSourceLabels[source]}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

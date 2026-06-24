@@ -16,6 +16,7 @@ import { NotFound } from "@/pages/NotFound";
 import SetPassword from "@/pages/SetPassword";
 import { SettingsOrganization } from "@/pages/settings/SettingsOrganization";
 import { SettingsUserProfile } from "@/pages/settings/SettingsUserProfile";
+import { PricingSettingsProvider } from "@/providers/PricingSettingsProvider";
 import { SessionProvider } from "@/providers/SessionProvider";
 import { UserContextProvider } from "@/providers/UserContextProvider";
 
@@ -27,7 +28,9 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
   return (
     <UserContextProvider>
       <ApolloProvider client={apolloClient}>
-        <SessionProvider>{children}</SessionProvider>
+        <PricingSettingsProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </PricingSettingsProvider>
       </ApolloProvider>
     </UserContextProvider>
   );

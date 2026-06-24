@@ -25,22 +25,11 @@ import {
   type DraftCardLanguage,
   useDraftBinder,
 } from "@/hooks/useDraftBinder";
+import { formatCurrency } from "@/lib/currency";
 import { useSession } from "@/providers/SessionContext";
 
 const formatLabel = (value: string): string => {
   return value.replace(/_/g, " ");
-};
-
-const formatPrice = (
-  amount: number,
-  currency: string,
-  locale: string
-): string => {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount);
 };
 
 interface BinderDraftCardRowProps {
@@ -103,7 +92,7 @@ const BinderDraftCardRow = ({
               className="capitalize"
             >
               {price.source} {formatOptionLabel("finish", price.finish)}:{" "}
-              {formatPrice(price.amount, price.currency, i18n.language)}
+              {formatCurrency(price.amount, price.currency, i18n.language)}
             </Badge>
           ))}
         </div>

@@ -26,6 +26,8 @@ query BinderByShortId(
         nodeId
         finish
         position
+        priceAmount
+        priceCurrency
         quantity
         card {
           id
@@ -37,6 +39,17 @@ query BinderByShortId(
           cardSet {
             code
             name
+          }
+          marketPrices(first: 12, orderBy: [{ source: AscNullsLast }]) {
+            edges {
+              node {
+                source
+                finish
+                amount
+                currency
+                priceDate
+              }
+            }
           }
         }
       }

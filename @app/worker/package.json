@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc -b",
+    "fetch-currency-rates": "yarn build && node -r @app/config/env dist/scripts/fetch_currency_rates.js",
     "gw": "cd dist && cross-env NODE_OPTIONS=\"${NODE_OPTIONS:-} -r @app/config/env\" graphile-worker --crontab ../crontab --config ../graphile.config.js",
     "dev": "cd dist && cross-env NODE_OPTIONS=\"${NODE_OPTIONS:-} -r @app/config/env \" nodemon --watch ./ --exec 'graphile-worker --crontab ../crontab --config ../graphile.config.js'",
     "start": "yarn gw",

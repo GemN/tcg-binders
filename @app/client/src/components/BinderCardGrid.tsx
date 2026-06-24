@@ -8,12 +8,14 @@ interface BinderCardGridProps {
   binderCards: BinderCardRecord[];
   className?: string;
   noImageLabel: string;
+  showConvertedMarketPrices: boolean;
 }
 
 export const BinderCardGrid = ({
   binderCards,
   className,
   noImageLabel,
+  showConvertedMarketPrices,
 }: BinderCardGridProps) => {
   return (
     <div
@@ -27,7 +29,7 @@ export const BinderCardGrid = ({
           key={binderCard.id}
           binderCard={binderCard}
           noImageLabel={noImageLabel}
-          viewMode="grid"
+          showConvertedMarketPrices={showConvertedMarketPrices}
         />
       ))}
     </div>

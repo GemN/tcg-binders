@@ -18,6 +18,7 @@
     "currency": "Currency",
     "home": "Home",
     "logout": "Log out",
+    "price_source": "Price source",
     "register": "Register",
     "settings": "Settings",
     "sign_in": "Sign in",
@@ -55,6 +56,7 @@
     "empty": "No cards yet.",
     "no_image": "No image",
     "page": "Page {{page}}",
+    "show_converted_market_prices": "Show converted market prices",
     "unique_card_count_one": "{{count}} unique card",
     "unique_card_count_other": "{{count}} unique cards",
     "page_progress": "{{cardCount}} - Page {{page}}/{{pageCount}}",
@@ -62,6 +64,15 @@
       "seller_order": "Seller order",
       "name": "Name",
       "release_date": "Release date"
+    },
+    "list": {
+      "set": "Set",
+      "collector_number": "№",
+      "name": "Name",
+      "user_price": "Price",
+      "cardkingdom_price": "Card Kingdom",
+      "tcgplayer_price": "TCGplayer",
+      "cardmarket_price": "Cardmarket"
     },
     "view": {
       "grid": "Grid",
@@ -112,6 +123,7 @@
       "foil": "Foil",
       "etched": "Etched"
     },
+    "price_unavailable": "No price",
     "language": {
       "en": "English",
       "fr": "French",

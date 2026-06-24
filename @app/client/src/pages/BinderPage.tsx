@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
+import { Switch } from "@/components/ui/Switch";
 import {
   ToggleGroup,
   ToggleGroupItem,
@@ -86,6 +87,8 @@ export const BinderPage = () => {
   const isMobile = useIsMobile();
   const [sortMode, setSortMode] = useState<BinderSortMode>("seller_order");
   const [viewMode, setViewMode] = useState<BinderCardViewMode>("grid");
+  const [showConvertedMarketPrices, setShowConvertedMarketPrices] =
+    useState(true);
   const [pageIndex, setPageIndex] = useState(0);
   const cardsPerPage =
     viewMode === "grid" ? GRID_PAGE_SIZE : LIST_PAGE_SIZE;
@@ -220,58 +223,68 @@ export const BinderPage = () => {
               onRenamed={refetch}
             />
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            {isOwner && (
-              <CardSearchPicker
-                containerClassName="w-full sm:w-80"
-                className="border-binder-toolbar-foreground/25 text-muted-foreground bg-background placeholder:text-muted-foreground"
-                placeholder={t("common:binder.search_placeholder")}
-                onSelect={handleAddCard}
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              {isOwner && (
+                <CardSearchPicker
+                  containerClassName="w-full sm:w-80"
+                  className="border-binder-toolbar-foreground/25 text-muted-foreground bg-background placeholder:text-muted-foreground"
+                  placeholder={t("common:binder.search_placeholder")}
+                  onSelect={handleAddCard}
+                />
+              )}
+              <Select value={sortMode} onValueChange={handleSortChange}>
+                <SelectTrigger className="w-full border-border bg-background text-foreground sm:w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="border-border bg-background text-foreground">
+                  <SelectItem value="seller_order">
+                    {t("common:binder.sort.seller_order")}
+                  </SelectItem>
+                  <SelectItem value="name">
+                    {t("common:binder.sort.name")}
+                  </SelectItem>
+                  <SelectItem value="release_date">
+                    {t("common:binder.sort.release_date")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <ToggleGroup
+                type="single"
+                value={viewMode}
+                size="sm"
+                className="w-full border border-border bg-background p-1 text-foreground sm:w-auto"
+                onValueChange={(value) => {
+                  if (!value) return;
+                  handleViewChange(value as BinderCardViewMode);
+                }}
+              >
+                <ToggleGroupItem
+                  value="grid"
+                  size="sm"
+                  className="h-8 flex-1 px-3 text-foreground hover:bg-primary hover:text-primary-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground sm:flex-none"
+                >
+                  <Grid2X2 className="size-4" />
+                  {t("common:binder.view.grid")}
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="list"
+                  size="sm"
+                  className="h-8 flex-1 px-3 text-foreground hover:bg-primary hover:text-primary-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground sm:flex-none"
+                >
+                  <List className="size-4" />
+                  {t("common:binder.view.list")}
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+            <label className="inline-flex items-center gap-2 text-sm text-binder-toolbar-foreground/80 sm:justify-end">
+              <Switch
+                checked={showConvertedMarketPrices}
+                onCheckedChange={setShowConvertedMarketPrices}
+                aria-label={t("common:binder.show_converted_market_prices")}
               />
-            )}
-            <Select value={sortMode} onValueChange={handleSortChange}>
-              <SelectTrigger className="w-full border-border bg-background text-foreground sm:w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="border-border bg-background text-foreground">
-                <SelectItem value="seller_order">
-                  {t("common:binder.sort.seller_order")}
-                </SelectItem>
-                <SelectItem value="name">
-                  {t("common:binder.sort.name")}
-                </SelectItem>
-                <SelectItem value="release_date">
-                  {t("common:binder.sort.release_date")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <ToggleGroup
-              type="single"
-              value={viewMode}
-              size="sm"
-              className="w-full border border-border bg-background p-1 text-foreground sm:w-auto"
-              onValueChange={(value) => {
-                if (!value) return;
-                handleViewChange(value as BinderCardViewMode);
-              }}
-            >
-              <ToggleGroupItem
-                value="grid"
-                size="sm"
-                className="h-8 flex-1 px-3 text-foreground hover:bg-primary hover:text-primary-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground sm:flex-none"
-              >
-                <Grid2X2 className="size-4" />
-                {t("common:binder.view.grid")}
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="list"
-                size="sm"
-                className="h-8 flex-1 px-3 text-foreground hover:bg-primary hover:text-primary-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground sm:flex-none"
-              >
-                <List className="size-4" />
-                {t("common:binder.view.list")}
-              </ToggleGroupItem>
-            </ToggleGroup>
+              <span>{t("common:binder.show_converted_market_prices")}</span>
+            </label>
           </div>
         </div>
 
@@ -346,12 +359,13 @@ export const BinderPage = () => {
                 binderCards={visibleBinderCards}
                 className="min-h-full"
                 noImageLabel={t("common:binder.no_image")}
+                showConvertedMarketPrices={showConvertedMarketPrices}
               />
             ) : (
               <BinderCardList
                 binderCards={visibleBinderCards}
-                className="mx-auto min-h-full w-full max-w-4xl"
-                noImageLabel={t("common:binder.no_image")}
+                className="min-h-full w-full"
+                showConvertedMarketPrices={showConvertedMarketPrices}
               />
             )}
           </div>

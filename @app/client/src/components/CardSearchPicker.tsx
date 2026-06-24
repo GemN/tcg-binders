@@ -7,10 +7,8 @@ import { useTranslation } from "react-i18next";
 import { InputSearch } from "@/components/InputSearch";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useDebounce } from "@/hooks/useDebounce";
-import {
-  type DraftCardCurrency,
-  type DraftCardSnapshot,
-} from "@/hooks/useDraftBinder";
+import { type DraftCardSnapshot } from "@/hooks/useDraftBinder";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 type CardSearchNode = NonNullable<
@@ -26,18 +24,6 @@ interface CardSearchPickerProps {
 }
 
 const MINIMUM_SEARCH_LENGTH = 2;
-
-const formatPrice = (
-  amount: number,
-  currency: DraftCardCurrency,
-  locale: string
-): string => {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
 
 const normalizeCard = (card: CardSearchNode): DraftCardSnapshot => {
   return {
@@ -158,7 +144,7 @@ export const CardSearchPicker = ({
                     {normalPrice && (
                       <div className="shrink-0 text-right text-xs">
                         <div className="font-medium">
-                          {formatPrice(
+                          {formatCurrency(
                             normalPrice.amount,
                             normalPrice.currency,
                             i18n.language

@@ -720,6 +720,97 @@ export type CurrencyCodeFilter = {
     is?: Maybe<FilterIs>;
     neq?: Maybe<CurrencyCode>;
 };
+export type CurrencyRates = Node & {
+    __typename?: 'CurrencyRates';
+    baseCurrency: CurrencyCode;
+    createdAt: Scalars['Datetime'];
+    fetchedAt: Scalars['Datetime'];
+    /** Globally Unique Record Identifier */
+    nodeId: Scalars['ID'];
+    provider: Scalars['String'];
+    quoteCurrency: CurrencyCode;
+    rate: Scalars['BigFloat'];
+    rateDate: Scalars['Date'];
+    updatedAt: Scalars['Datetime'];
+};
+export type CurrencyRatesConnection = {
+    __typename?: 'CurrencyRatesConnection';
+    edges: Array<CurrencyRatesEdge>;
+    pageInfo: PageInfo;
+};
+export type CurrencyRatesDeleteResponse = {
+    __typename?: 'CurrencyRatesDeleteResponse';
+    /** Count of the records impacted by the mutation */
+    affectedCount: Scalars['Int'];
+    /** Array of records impacted by the mutation */
+    records: Array<CurrencyRates>;
+};
+export type CurrencyRatesEdge = {
+    __typename?: 'CurrencyRatesEdge';
+    cursor: Scalars['String'];
+    node: CurrencyRates;
+};
+export type CurrencyRatesFilter = {
+    /** Returns true only if all its inner filters are true, otherwise returns false */
+    and?: Maybe<Array<CurrencyRatesFilter>>;
+    baseCurrency?: Maybe<CurrencyCodeFilter>;
+    createdAt?: Maybe<DatetimeFilter>;
+    fetchedAt?: Maybe<DatetimeFilter>;
+    nodeId?: Maybe<IdFilter>;
+    /** Negates a filter */
+    not?: Maybe<CurrencyRatesFilter>;
+    /** Returns true if at least one of its inner filters is true, otherwise returns false */
+    or?: Maybe<Array<CurrencyRatesFilter>>;
+    provider?: Maybe<StringFilter>;
+    quoteCurrency?: Maybe<CurrencyCodeFilter>;
+    rate?: Maybe<BigFloatFilter>;
+    rateDate?: Maybe<DateFilter>;
+    updatedAt?: Maybe<DatetimeFilter>;
+};
+export type CurrencyRatesInsertInput = {
+    baseCurrency?: Maybe<CurrencyCode>;
+    createdAt?: Maybe<Scalars['Datetime']>;
+    fetchedAt?: Maybe<Scalars['Datetime']>;
+    provider?: Maybe<Scalars['String']>;
+    quoteCurrency?: Maybe<CurrencyCode>;
+    rate?: Maybe<Scalars['BigFloat']>;
+    rateDate?: Maybe<Scalars['Date']>;
+    updatedAt?: Maybe<Scalars['Datetime']>;
+};
+export type CurrencyRatesInsertResponse = {
+    __typename?: 'CurrencyRatesInsertResponse';
+    /** Count of the records impacted by the mutation */
+    affectedCount: Scalars['Int'];
+    /** Array of records impacted by the mutation */
+    records: Array<CurrencyRates>;
+};
+export type CurrencyRatesOrderBy = {
+    baseCurrency?: Maybe<OrderByDirection>;
+    createdAt?: Maybe<OrderByDirection>;
+    fetchedAt?: Maybe<OrderByDirection>;
+    provider?: Maybe<OrderByDirection>;
+    quoteCurrency?: Maybe<OrderByDirection>;
+    rate?: Maybe<OrderByDirection>;
+    rateDate?: Maybe<OrderByDirection>;
+    updatedAt?: Maybe<OrderByDirection>;
+};
+export type CurrencyRatesUpdateInput = {
+    baseCurrency?: Maybe<CurrencyCode>;
+    createdAt?: Maybe<Scalars['Datetime']>;
+    fetchedAt?: Maybe<Scalars['Datetime']>;
+    provider?: Maybe<Scalars['String']>;
+    quoteCurrency?: Maybe<CurrencyCode>;
+    rate?: Maybe<Scalars['BigFloat']>;
+    rateDate?: Maybe<Scalars['Date']>;
+    updatedAt?: Maybe<Scalars['Datetime']>;
+};
+export type CurrencyRatesUpdateResponse = {
+    __typename?: 'CurrencyRatesUpdateResponse';
+    /** Count of the records impacted by the mutation */
+    affectedCount: Scalars['Int'];
+    /** Array of records impacted by the mutation */
+    records: Array<CurrencyRates>;
+};
 /** Boolean expression comparing fields on type "Date" */
 export type DateFilter = {
     eq?: Maybe<Scalars['Date']>;
@@ -979,6 +1070,8 @@ export type Mutation = {
     deleteFromCardSetsCollection: CardSetsDeleteResponse;
     /** Deletes zero or more records from the `Cards` collection */
     deleteFromCardsCollection: CardsDeleteResponse;
+    /** Deletes zero or more records from the `CurrencyRates` collection */
+    deleteFromCurrencyRatesCollection: CurrencyRatesDeleteResponse;
     /** Deletes zero or more records from the `MtgCardDetails` collection */
     deleteFromMtgCardDetailsCollection: MtgCardDetailsDeleteResponse;
     /** Deletes zero or more records from the `OrganizationMembers` collection */
@@ -999,6 +1092,8 @@ export type Mutation = {
     insertIntoCardSetsCollection: Maybe<CardSetsInsertResponse>;
     /** Adds one or more `Cards` records to the collection */
     insertIntoCardsCollection: Maybe<CardsInsertResponse>;
+    /** Adds one or more `CurrencyRates` records to the collection */
+    insertIntoCurrencyRatesCollection: Maybe<CurrencyRatesInsertResponse>;
     /** Adds one or more `MtgCardDetails` records to the collection */
     insertIntoMtgCardDetailsCollection: Maybe<MtgCardDetailsInsertResponse>;
     /** Adds one or more `OrganizationMembers` records to the collection */
@@ -1019,6 +1114,8 @@ export type Mutation = {
     updateCardSetsCollection: CardSetsUpdateResponse;
     /** Updates zero or more records in the `Cards` collection */
     updateCardsCollection: CardsUpdateResponse;
+    /** Updates zero or more records in the `CurrencyRates` collection */
+    updateCurrencyRatesCollection: CurrencyRatesUpdateResponse;
     /** Updates zero or more records in the `MtgCardDetails` collection */
     updateMtgCardDetailsCollection: MtgCardDetailsUpdateResponse;
     /** Updates zero or more records in the `OrganizationMembers` collection */
@@ -1058,6 +1155,11 @@ export type MutationDeleteFromCardSetsCollectionArgs = {
 export type MutationDeleteFromCardsCollectionArgs = {
     atMost?: Scalars['Int'];
     filter?: Maybe<CardsFilter>;
+};
+/** The root type for creating and mutating data */
+export type MutationDeleteFromCurrencyRatesCollectionArgs = {
+    atMost?: Scalars['Int'];
+    filter?: Maybe<CurrencyRatesFilter>;
 };
 /** The root type for creating and mutating data */
 export type MutationDeleteFromMtgCardDetailsCollectionArgs = {
@@ -1103,6 +1205,10 @@ export type MutationInsertIntoCardSetsCollectionArgs = {
 /** The root type for creating and mutating data */
 export type MutationInsertIntoCardsCollectionArgs = {
     objects: Array<CardsInsertInput>;
+};
+/** The root type for creating and mutating data */
+export type MutationInsertIntoCurrencyRatesCollectionArgs = {
+    objects: Array<CurrencyRatesInsertInput>;
 };
 /** The root type for creating and mutating data */
 export type MutationInsertIntoMtgCardDetailsCollectionArgs = {
@@ -1153,6 +1259,12 @@ export type MutationUpdateCardsCollectionArgs = {
     atMost?: Scalars['Int'];
     filter?: Maybe<CardsFilter>;
     set: CardsUpdateInput;
+};
+/** The root type for creating and mutating data */
+export type MutationUpdateCurrencyRatesCollectionArgs = {
+    atMost?: Scalars['Int'];
+    filter?: Maybe<CurrencyRatesFilter>;
+    set: CurrencyRatesUpdateInput;
 };
 /** The root type for creating and mutating data */
 export type MutationUpdateMtgCardDetailsCollectionArgs = {
@@ -1407,6 +1519,8 @@ export type Query = {
     cardSetsCollection: Maybe<CardSetsConnection>;
     /** A pagable collection of type `Cards` */
     cardsCollection: Maybe<CardsConnection>;
+    /** A pagable collection of type `CurrencyRates` */
+    currencyRatesCollection: Maybe<CurrencyRatesConnection>;
     currentUserOrganizationContexts: Maybe<OrganizationMembersConnection>;
     currentUserProfile: Maybe<UserProfiles>;
     /** A pagable collection of type `MtgCardDetails` */
@@ -1490,6 +1604,16 @@ export type QueryCardsCollectionArgs = {
     last?: Maybe<Scalars['Int']>;
     offset?: Maybe<Scalars['Int']>;
     orderBy?: Maybe<Array<CardsOrderBy>>;
+};
+/** The root type for querying data */
+export type QueryCurrencyRatesCollectionArgs = {
+    after?: Maybe<Scalars['Cursor']>;
+    before?: Maybe<Scalars['Cursor']>;
+    filter?: Maybe<CurrencyRatesFilter>;
+    first?: Maybe<Scalars['Int']>;
+    last?: Maybe<Scalars['Int']>;
+    offset?: Maybe<Scalars['Int']>;
+    orderBy?: Maybe<Array<CurrencyRatesOrderBy>>;
 };
 /** The root type for querying data */
 export type QueryCurrentUserOrganizationContextsArgs = {
@@ -1835,13 +1959,24 @@ export type BinderByShortIdQuery = ({
         } & {
             node: ({
                 __typename?: 'BinderCards';
-            } & Pick<BinderCards, 'id' | 'nodeId' | 'finish' | 'position' | 'quantity'> & {
+            } & Pick<BinderCards, 'id' | 'nodeId' | 'finish' | 'position' | 'priceAmount' | 'priceCurrency' | 'quantity'> & {
                 card: Maybe<({
                     __typename?: 'Cards';
                 } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'imageNormalUrl' | 'imageSmallUrl' | 'releasedAt'> & {
                     cardSet: Maybe<({
                         __typename?: 'CardSets';
                     } & Pick<CardSets, 'code' | 'name'>)>;
+                    marketPrices: Maybe<({
+                        __typename?: 'CardMarketPricesConnection';
+                    } & {
+                        edges: Array<({
+                            __typename?: 'CardMarketPricesEdge';
+                        } & {
+                            node: ({
+                                __typename?: 'CardMarketPrices';
+                            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>);
+                        })>;
+                    })>;
                 })>;
             });
         })>;
@@ -1894,6 +2029,24 @@ export type CreateBinderMutation = ({
         records: Array<({
             __typename?: 'Binders';
         } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'shortId'>)>;
+    })>;
+});
+export type CurrentCurrencyRatesQueryVariables = Exact<{
+    [key: string]: never;
+}>;
+export type CurrentCurrencyRatesQuery = ({
+    __typename?: 'Query';
+} & {
+    currencyRatesCollection: Maybe<({
+        __typename?: 'CurrencyRatesConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'CurrencyRatesEdge';
+        } & {
+            node: ({
+                __typename?: 'CurrencyRates';
+            } & Pick<CurrencyRates, 'quoteCurrency' | 'rate'>);
+        })>;
     })>;
 });
 export type CurrentUserOrganizationContextsQueryVariables = Exact<{
@@ -2098,6 +2251,31 @@ export declare function useCreateBinderMutation(baseOptions?: Apollo.MutationHoo
 export type CreateBinderMutationHookResult = ReturnType<typeof useCreateBinderMutation>;
 export type CreateBinderMutationResult = Apollo.MutationResult<CreateBinderMutation>;
 export type CreateBinderMutationOptions = Apollo.BaseMutationOptions<CreateBinderMutation, CreateBinderMutationVariables>;
+export declare const CurrentCurrencyRatesDocument: Apollo.DocumentNode;
+/**
+ * __useCurrentCurrencyRatesQuery__
+ *
+ * To run a query within a React component, call `useCurrentCurrencyRatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCurrentCurrencyRatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCurrentCurrencyRatesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export declare function useCurrentCurrencyRatesQuery(baseOptions?: Apollo.QueryHookOptions<CurrentCurrencyRatesQuery, CurrentCurrencyRatesQueryVariables>): Apollo.QueryResult<CurrentCurrencyRatesQuery, Exact<{
+    [key: string]: never;
+}>>;
+export declare function useCurrentCurrencyRatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CurrentCurrencyRatesQuery, CurrentCurrencyRatesQueryVariables>): Apollo.LazyQueryResultTuple<CurrentCurrencyRatesQuery, Exact<{
+    [key: string]: never;
+}>>;
+export type CurrentCurrencyRatesQueryHookResult = ReturnType<typeof useCurrentCurrencyRatesQuery>;
+export type CurrentCurrencyRatesLazyQueryHookResult = ReturnType<typeof useCurrentCurrencyRatesLazyQuery>;
+export type CurrentCurrencyRatesQueryResult = Apollo.QueryResult<CurrentCurrencyRatesQuery, CurrentCurrencyRatesQueryVariables>;
 export declare const CurrentUserOrganizationContextsDocument: Apollo.DocumentNode;
 /**
  * __useCurrentUserOrganizationContextsQuery__

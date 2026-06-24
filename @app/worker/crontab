@@ -13,3 +13,6 @@
 # │ │ │ │ │ │    │     │
 # │ │ │ │ │ │    │     │
 # * * * * * task ?opts {payload}
+
+# Fetch latest USD-based exchange rates after daily provider updates.
+0 17 * * * fetch_currency_rates
