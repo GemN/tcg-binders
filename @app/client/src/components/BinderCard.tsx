@@ -5,6 +5,7 @@ import {
   type BinderCardRecord,
   formatBinderCardPrice,
 } from "@/lib/binderCardPricing";
+import { getCardConditionAbbreviation } from "@/lib/cardCondition";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
@@ -20,15 +21,19 @@ interface BinderCardProps {
 
 interface BinderCardImageProps {
   card: BinderCardRecord["card"];
+  conditionLabel: string;
   noImageLabel: string;
   priceLabel: string;
+  quantityLabel: string;
   className?: string;
 }
 
 const BinderCardImage = ({
   card,
+  conditionLabel,
   noImageLabel,
   priceLabel,
+  quantityLabel,
   className,
 }: BinderCardImageProps) => {
   return (
@@ -47,6 +52,14 @@ const BinderCardImage = ({
       ) : (
         <span className="text-sm text-muted-foreground">{noImageLabel}</span>
       )}
+      <span className="absolute bottom-2 left-2 flex w-fit flex-col items-start gap-1 text-xs font-semibold tabular-nums text-white">
+        <span className="w-fit rounded-sm bg-black/70 px-2 py-0.5">
+          {conditionLabel}
+        </span>
+        <span className="w-fit rounded-sm bg-black/70 px-2 py-0.5">
+          {quantityLabel}
+        </span>
+      </span>
       <span className="absolute right-2 bottom-2 rounded-sm bg-black/70 px-2 py-1 text-xs font-semibold tabular-nums text-white">
         {priceLabel}
       </span>
@@ -78,6 +91,12 @@ export const BinderCard = ({
 }: BinderCardProps) => {
   const { t } = useTranslation(["common"]);
   const priceLabel = useBinderCardPriceLabel(binderCard);
+  const conditionLabel = t(
+    `common:card.condition_short.${binderCard.condition}`,
+    {
+      defaultValue: getCardConditionAbbreviation(binderCard.condition),
+    }
+  );
   const cardName = binderCard.card?.name || noImageLabel;
 
   return (
@@ -90,8 +109,10 @@ export const BinderCard = ({
       >
         <BinderCardImage
           card={binderCard.card}
+          conditionLabel={conditionLabel}
           noImageLabel={noImageLabel}
           priceLabel={priceLabel}
+          quantityLabel={String(binderCard.quantity)}
         />
       </button>
       {onDelete && (

@@ -42,7 +42,7 @@ const BinderGalleryItem = ({ binder }: BinderGalleryItemProps) => {
         )}
         <div className="absolute inset-0 bg-linear-to-b from-foreground/15 via-foreground/20 to-foreground/80" />
         <div className="absolute inset-x-3 bottom-3  text-center">
-          <div className="rounded-sm border border-card-foreground/15 bg-card/80 px-4 py-2 inline-block">
+          <div className="rounded-sm bg-foreground/80 px-4 py-2 inline-block">
             <div className="line-clamp-2 text-center text-sm font-semibold leading-5 text-white">
               {binder.name}
             </div>

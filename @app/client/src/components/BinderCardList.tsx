@@ -17,6 +17,7 @@ import {
   formatBinderCardPrice,
   getBinderCardMarketPrice,
 } from "@/lib/binderCardPricing";
+import { getCardConditionAbbreviation } from "@/lib/cardCondition";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
@@ -113,6 +114,12 @@ export const BinderCardList = ({
             <TableHead className="h-9 min-w-60 px-3 text-[11px] font-semibold uppercase text-[#6f6570]">
               {t("common:binder.list.name")}
             </TableHead>
+            <TableHead className="h-9 w-16 px-3 text-right text-[11px] font-semibold uppercase text-[#6f6570]">
+              {t("common:binder.list.quantity")}
+            </TableHead>
+            <TableHead className="h-9 w-24 px-3 text-[11px] font-semibold uppercase text-[#6f6570]">
+              {t("common:binder.list.condition")}
+            </TableHead>
             <TableHead className="h-9 px-3 text-right text-[11px] font-semibold uppercase text-[#6f6570]">
               {t("common:binder.list.user_price")}
             </TableHead>
@@ -143,6 +150,17 @@ export const BinderCardList = ({
               MarketPriceSource.Cardmarket
             );
             const cardName = binderCard.card?.name || t("common:not_available");
+            const conditionLabel = t(
+              `common:card.condition.${binderCard.condition}`
+            );
+            const conditionAbbreviation = t(
+              `common:card.condition_short.${binderCard.condition}`,
+              {
+                defaultValue: getCardConditionAbbreviation(
+                  binderCard.condition
+                ),
+              }
+            );
             const openCard = () => onOpenCard(binderCard, index);
 
             return (
@@ -182,6 +200,19 @@ export const BinderCardList = ({
                   >
                     {cardName}
                   </button>
+                </TableCell>
+                <TableCell
+                  className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-[#343434]"
+                  onClick={openCard}
+                >
+                  {binderCard.quantity}
+                </TableCell>
+                <TableCell
+                  title={conditionLabel}
+                  className="cursor-pointer px-3 py-2 font-medium uppercase tabular-nums text-[#6f6570]"
+                  onClick={openCard}
+                >
+                  {conditionAbbreviation}
                 </TableCell>
                 <TableCell
                   className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-[#343434]"

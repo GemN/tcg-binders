@@ -1,5 +1,4 @@
 import {
-  type BinderCardVariantsQuery,
   type BinderCardsUpdateInput,
   CardCondition,
   CurrencyCode,
@@ -8,59 +7,43 @@ import {
   useBinderCardVariantsQuery,
   useUpdateBinderCardMutation,
 } from "@app/graphql";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-  Loader2,
-  X,
-} from "lucide-react";
-import type { KeyboardEvent, ReactNode } from "react";
+import type { KeyboardEvent } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Loading } from "@/components/Loading";
-import { Button } from "@/components/ui/Button";
+import { BinderCardEditableFields } from "@/components/modal-binder-card-detail/BinderCardEditableFields";
+import { BinderCardMediaPanel } from "@/components/modal-binder-card-detail/BinderCardMediaPanel";
+import { BinderCardPricingFields } from "@/components/modal-binder-card-detail/BinderCardPricingFields";
+import { BinderCardTextPanel } from "@/components/modal-binder-card-detail/BinderCardTextPanel";
+import { ModalDetailHeader } from "@/components/modal-binder-card-detail/ModalDetailHeader";
+import { ModalDetailNavigation } from "@/components/modal-binder-card-detail/ModalDetailNavigation";
+import type {
+  DynamicPriceStrategy,
+  ModalBinderCardRecord,
+  PriceMode,
+} from "@/components/modal-binder-card-detail/types";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/Dialog";
-import { Input } from "@/components/ui/Input";
+  arePriceAmountsEqual,
+  formatFallbackLabel,
+  formatPriceInputValue,
+  getCardDetail,
+  getDefaultFinish,
+  getVariantLabel,
+  readStoredCustomCkdMultiplier,
+  shouldIgnoreModalNavigationKey,
+  writeStoredCustomCkdMultiplier,
+} from "@/components/modal-binder-card-detail/utils";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
-import {
-  CARD_CONDITION_OPTIONS,
-  CARD_LANGUAGE_OPTIONS,
-} from "@/hooks/useDraftBinder";
-import {
-  type BinderCardPriceInput,
   type BinderCardDetailRecord,
-  type BinderCardRecord,
+  type BinderCardPriceInput,
   formatBinderCardPrice,
   getBinderCardMarketPrice,
 } from "@/lib/binderCardPricing";
 import { getCurrencySymbol } from "@/lib/currency";
 import { handleError } from "@/lib/error";
-import {
-  supportedCurrencies,
-  supportedPriceSources,
-  usePricingSettings,
-} from "@/providers/PricingSettingsContext";
-
-type ModalBinderCardRecord = BinderCardRecord | BinderCardDetailRecord;
-type BinderCardVariant = NonNullable<
-  NonNullable<
-    BinderCardVariantsQuery["cardsCollection"]
-  >["edges"][number]["node"]
->;
+import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
 interface ModalBinderCardDetailProps {
   binderCard: ModalBinderCardRecord | null;
@@ -77,731 +60,6 @@ interface ModalBinderCardDetailProps {
   onGoPrevious: () => void;
   onOpenChange: (open: boolean) => void;
 }
-
-const formatFallbackLabel = (value: string): string => {
-  return value
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-};
-
-const getDefaultFinish = (finishes: readonly (string | null)[]): string => {
-  const cleanFinishes = finishes.filter((finish): finish is string => !!finish);
-  if (cleanFinishes.includes("normal")) return "normal";
-  if (cleanFinishes.includes("nonfoil")) return "nonfoil";
-  return cleanFinishes[0] || "normal";
-};
-
-const formatPriceInputValue = (
-  amount: number | string | null | undefined
-): string => {
-  if (amount === null || amount === undefined) return "";
-  return String(amount);
-};
-
-type PriceMode = "manual" | "dynamic";
-type DynamicPriceStrategy = "CKD X";
-const customCkdMultiplierStorageKey =
-  "tcgbinder.binder_card.custom_ckd_multiplier";
-
-const readStoredCustomCkdMultiplier = (): string => {
-  if (typeof window === "undefined") return "";
-  return window.localStorage.getItem(customCkdMultiplierStorageKey) || "";
-};
-
-const writeStoredCustomCkdMultiplier = (multiplier: string) => {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(customCkdMultiplierStorageKey, multiplier);
-};
-
-const shouldIgnoreModalNavigationKey = (
-  target: EventTarget | null
-): boolean => {
-  if (!(target instanceof HTMLElement)) return false;
-
-  return !!target.closest(
-    "input, textarea, select, [contenteditable='true'], [role='combobox'], [role='textbox'], [role='radio'], [role='radiogroup'], [data-slot='select-content'], [aria-expanded='true']"
-  );
-};
-
-const getCardDetail = (
-  card: ModalBinderCardRecord["card"] | null | undefined
-): NonNullable<BinderCardDetailRecord["card"]>["mtgCardDetail"] | null => {
-  if (!card || !("mtgCardDetail" in card)) return null;
-  return card.mtgCardDetail;
-};
-
-const arePriceAmountsEqual = (
-  currentAmount: number | string | null | undefined,
-  nextAmount: string | null
-): boolean => {
-  if (
-    (currentAmount === null || currentAmount === undefined) &&
-    nextAmount === null
-  ) {
-    return true;
-  }
-
-  if (
-    currentAmount === null ||
-    currentAmount === undefined ||
-    nextAmount === null
-  ) {
-    return false;
-  }
-
-  return Number(currentAmount) === Number(nextAmount);
-};
-
-interface ModalDetailNavigationProps {
-  canGoNext: boolean;
-  canGoPrevious: boolean;
-  nextLabel: string;
-  previousLabel: string;
-  onGoNext: () => void;
-  onGoPrevious: () => void;
-}
-
-const ModalDetailNavigation = ({
-  canGoNext,
-  canGoPrevious,
-  nextLabel,
-  previousLabel,
-  onGoNext,
-  onGoPrevious,
-}: ModalDetailNavigationProps) => (
-  <>
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      disabled={!canGoPrevious}
-      aria-label={previousLabel}
-      className="absolute top-1/2 -left-4 z-10 size-9 -translate-y-1/2 rounded-full border-[#d8d1c3] bg-[#fffaf0] text-[#2d4059] shadow-lg sm:-left-5 sm:size-10"
-      onClick={onGoPrevious}
-    >
-      <ChevronLeft className="size-5" />
-    </Button>
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      disabled={!canGoNext}
-      aria-label={nextLabel}
-      className="absolute top-1/2 -right-4 z-10 size-9 -translate-y-1/2 rounded-full border-[#d8d1c3] bg-[#fffaf0] text-[#2d4059] shadow-lg sm:-right-5 sm:size-10"
-      onClick={onGoNext}
-    >
-      <ChevronRight className="size-5" />
-    </Button>
-  </>
-);
-
-interface ModalDetailHeaderProps {
-  cancelLabel: string;
-  currentIndex: number | null;
-  isSaving: boolean;
-  positionLabel: string | null;
-  savingLabel: string;
-  titleLabel: string;
-}
-
-const ModalDetailHeader = ({
-  cancelLabel,
-  currentIndex,
-  isSaving,
-  positionLabel,
-  savingLabel,
-  titleLabel,
-}: ModalDetailHeaderProps) => (
-  <div className="flex shrink-0 items-center gap-2 border-b border-[#d8d1c3] bg-[#f2ebdd] px-4 py-3">
-    <p className="mr-auto text-xs font-semibold uppercase text-[#6f6570]">
-      {currentIndex === null ? titleLabel : positionLabel}
-    </p>
-    {isSaving && (
-      <span className="text-xs font-medium text-[#6f6570]">{savingLabel}</span>
-    )}
-    <DialogClose asChild>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label={cancelLabel}
-      >
-        <X className="size-4" />
-      </Button>
-    </DialogClose>
-  </div>
-);
-
-interface BinderCardMediaPanelProps {
-  binderCard: ModalBinderCardRecord | null;
-  imageAlt: string;
-  imageUrl: string | null | undefined;
-  noImageLabel: string;
-  showConvertedMarketPrices: boolean;
-  formatPrice: (input: BinderCardPriceInput) => string;
-  getBuyLabel: (source: MarketPriceSource) => string;
-}
-
-interface BinderCardImagePreviewProps {
-  imageAlt: string;
-  imageUrl: string | null | undefined;
-  noImageLabel: string;
-}
-
-const BinderCardImagePreview = ({
-  imageAlt,
-  imageUrl,
-  noImageLabel,
-}: BinderCardImagePreviewProps) => {
-  const [displayedImageUrl, setDisplayedImageUrl] = useState(imageUrl || "");
-  const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const nextImageUrl = imageUrl || "";
-
-    if (!nextImageUrl) {
-      setDisplayedImageUrl("");
-      setPendingImageUrl(null);
-      return;
-    }
-
-    if (nextImageUrl === displayedImageUrl) {
-      setPendingImageUrl(null);
-      return;
-    }
-
-    setPendingImageUrl(nextImageUrl);
-  }, [displayedImageUrl, imageUrl]);
-
-  const isLoadingNextImage =
-    !!pendingImageUrl && pendingImageUrl !== displayedImageUrl;
-
-  return (
-    <div className="relative mx-auto flex aspect-[63/88] w-full max-w-[22rem] items-center justify-center overflow-hidden rounded-md border border-[#d8d1c3] bg-[#343434] shadow-xl">
-      {displayedImageUrl ? (
-        <img
-          src={displayedImageUrl}
-          alt={imageAlt}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span className="text-sm text-[#fde9c9]">{noImageLabel}</span>
-      )}
-
-      {isLoadingNextImage && (
-        <>
-          <img
-            src={pendingImageUrl || ""}
-            alt=""
-            className="sr-only"
-            onLoad={() => {
-              if (pendingImageUrl) {
-                setDisplayedImageUrl(pendingImageUrl);
-              }
-              setPendingImageUrl(null);
-            }}
-            onError={() => setPendingImageUrl(null)}
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-[#343434]/55 backdrop-blur-[2px]">
-            <Loader2 className="size-8 animate-spin text-[#fde9c9]" />
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
-
-const BinderCardMediaPanel = ({
-  binderCard,
-  imageAlt,
-  imageUrl,
-  noImageLabel,
-  showConvertedMarketPrices,
-  formatPrice,
-  getBuyLabel,
-}: BinderCardMediaPanelProps) => (
-  <div className="flex flex-col gap-3">
-    <BinderCardImagePreview
-      imageAlt={imageAlt}
-      imageUrl={imageUrl}
-      noImageLabel={noImageLabel}
-    />
-
-    <div className="grid gap-2">
-      {supportedPriceSources.map((source) => {
-        const marketPrice = binderCard
-          ? getBinderCardMarketPrice(binderCard, source)
-          : null;
-        const priceLabel = formatPrice({
-          amount: marketPrice?.amount,
-          shouldConvert: showConvertedMarketPrices,
-          sourceCurrency: marketPrice?.currency,
-        });
-        const label = getBuyLabel(source);
-
-        if (marketPrice?.buyUrl) {
-          return (
-            <Button key={source} asChild variant="outline" className="w-full">
-              <a
-                href={marketPrice.buyUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="justify-between"
-              >
-                <span>{label}</span>
-                <span className="ml-auto font-semibold tabular-nums">
-                  {priceLabel}
-                </span>
-                <ExternalLink className="size-4" />
-              </a>
-            </Button>
-          );
-        }
-
-        return (
-          <Button
-            key={source}
-            type="button"
-            variant="outline"
-            className="w-full justify-between"
-            disabled
-          >
-            <span>{label}</span>
-            <span className="font-semibold tabular-nums">{priceLabel}</span>
-          </Button>
-        );
-      })}
-    </div>
-  </div>
-);
-
-interface BinderCardTextPanelProps {
-  detail: ReturnType<typeof getCardDetail>;
-  title: string;
-}
-
-const BinderCardTextPanel = ({ detail, title }: BinderCardTextPanelProps) => (
-  <>
-    <div>
-      <h2 className="text-2xl font-semibold leading-tight text-[#2d4059]">
-        {title}
-      </h2>
-      {detail?.typeLine && (
-        <p className="mt-1 text-sm font-medium text-[#6f6570]">
-          {detail.typeLine}
-        </p>
-      )}
-    </div>
-
-    {detail?.oracleText && (
-      <div className="rounded-md border border-[#d8d1c3] bg-[#fffdf7] p-4">
-        <p className="whitespace-pre-line text-sm leading-6 text-[#343434]">
-          {detail.oracleText}
-        </p>
-      </div>
-    )}
-  </>
-);
-
-interface BinderCardVariantSelectProps {
-  areVariantsLoading: boolean;
-  cardId: string;
-  label: string;
-  selectedVariantLabel: string;
-  variants: BinderCardVariant[];
-  getVariantLabel: (variant: BinderCardVariant) => string;
-  onVariantChange: (cardId: string) => void;
-}
-
-const BinderCardVariantSelect = ({
-  areVariantsLoading,
-  cardId,
-  label,
-  selectedVariantLabel,
-  variants,
-  getVariantLabel,
-  onVariantChange,
-}: BinderCardVariantSelectProps) => (
-  <label className="grid gap-1 text-xs font-medium text-[#6f6570] sm:col-span-2">
-    {label}
-    <Select
-      value={cardId}
-      disabled={areVariantsLoading}
-      onValueChange={onVariantChange}
-    >
-      <SelectTrigger className="w-full bg-[#fffaf0] text-[#343434]">
-        <span className="truncate">{selectedVariantLabel}</span>
-      </SelectTrigger>
-      <SelectContent>
-        {variants.map((variant) => {
-          const variantImageUrl =
-            variant.imageSmallUrl || variant.imageNormalUrl;
-
-          return (
-            <SelectItem
-              key={variant.id}
-              value={variant.id}
-              textValue={getVariantLabel(variant)}
-            >
-              <span className="flex min-w-0 items-center gap-2">
-                <span className="flex h-12 aspect-[63/88] shrink-0 items-center justify-center overflow-hidden rounded-sm border border-[#d8d1c3] bg-[#343434]">
-                  {variantImageUrl ? (
-                    <img
-                      src={variantImageUrl}
-                      alt=""
-                      className="h-full w-full object-contain"
-                    />
-                  ) : null}
-                </span>
-                <span className="truncate">{getVariantLabel(variant)}</span>
-              </span>
-            </SelectItem>
-          );
-        })}
-      </SelectContent>
-    </Select>
-  </label>
-);
-
-interface BinderCardPricingFieldsProps {
-  applyLabel: string;
-  ckdMultiplierInput: string;
-  ckdMultiplierInputId: string;
-  currencyLabel: string;
-  dynamicPriceStrategy: DynamicPriceStrategy;
-  priceCurrency: CurrencyCode;
-  priceInput: string;
-  priceInputId: string;
-  priceMode: PriceMode;
-  priceModeLabels: Record<PriceMode, string>;
-  priceLabel: string;
-  pricePlaceholder: string;
-  priceStrategyLabel: string;
-  ckdMultiplierLabel: string;
-  getCurrencyLabel: (currencyCode: CurrencyCode) => string;
-  onCkdMultiplierChange: (value: string) => void;
-  onCustomCkdCommit: () => void;
-  onManualPriceCommit: () => void;
-  onPriceCurrencyChange: (currency: CurrencyCode) => void;
-  onPriceInputChange: (value: string) => void;
-  onPriceModeChange: (mode: PriceMode) => void;
-  onPresetCkd: (multiplier: number) => void;
-  onDynamicPriceStrategyChange: (strategy: DynamicPriceStrategy) => void;
-}
-
-const BinderCardPricingFields = ({
-  applyLabel,
-  ckdMultiplierInput,
-  ckdMultiplierInputId,
-  currencyLabel,
-  dynamicPriceStrategy,
-  priceCurrency,
-  priceInput,
-  priceInputId,
-  priceMode,
-  priceModeLabels,
-  priceLabel,
-  pricePlaceholder,
-  priceStrategyLabel,
-  ckdMultiplierLabel,
-  getCurrencyLabel,
-  onCkdMultiplierChange,
-  onCustomCkdCommit,
-  onManualPriceCommit,
-  onPriceCurrencyChange,
-  onPriceInputChange,
-  onPriceModeChange,
-  onPresetCkd,
-  onDynamicPriceStrategyChange,
-}: BinderCardPricingFieldsProps) => (
-  <div className="grid gap-3 border-t border-[#ece2d2] pt-4">
-    <ToggleGroup
-      type="single"
-      value={priceMode}
-      size="sm"
-      className="w-full border border-[#d8d1c3] bg-[#fffaf0] p-1 text-[#343434] sm:w-fit"
-      onValueChange={(value) => {
-        if (!value) return;
-        onPriceModeChange(value as PriceMode);
-      }}
-    >
-      <ToggleGroupItem
-        value="manual"
-        size="sm"
-        className="h-8 flex-1 px-3 text-[#343434] hover:bg-[#f2ebdd] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
-      >
-        {priceModeLabels.manual}
-      </ToggleGroupItem>
-      <ToggleGroupItem
-        value="dynamic"
-        size="sm"
-        className="h-8 flex-1 px-3 text-[#343434] hover:bg-[#f2ebdd] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
-      >
-        {priceModeLabels.dynamic}
-      </ToggleGroupItem>
-    </ToggleGroup>
-
-    <div className="grid gap-3 sm:grid-cols-[10rem_1fr]">
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-        {currencyLabel}
-        <Select
-          value={priceCurrency}
-          onValueChange={(nextCurrency) =>
-            onPriceCurrencyChange(nextCurrency as CurrencyCode)
-          }
-        >
-          <SelectTrigger className="w-full bg-[#fffaf0] text-[#343434]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {supportedCurrencies.map((currencyOption) => (
-              <SelectItem key={currencyOption} value={currencyOption}>
-                {getCurrencyLabel(currencyOption)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </label>
-
-      {priceMode === "dynamic" ? (
-        <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-          {priceStrategyLabel}
-          <Select
-            value={dynamicPriceStrategy}
-            onValueChange={(strategy) =>
-              onDynamicPriceStrategyChange(strategy as DynamicPriceStrategy)
-            }
-          >
-            <SelectTrigger className="w-full bg-[#fffaf0] text-[#343434]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="CKD X">CKD X</SelectItem>
-            </SelectContent>
-          </Select>
-        </label>
-      ) : (
-        <div className="grid gap-1 text-xs font-medium text-[#6f6570]">
-          <label htmlFor={priceInputId}>{priceLabel}</label>
-          <div className="flex flex-wrap gap-2">
-            <Input
-              id={priceInputId}
-              value={priceInput}
-              placeholder={pricePlaceholder}
-              className="bg-[#fffaf0] text-[#343434] placeholder:text-[#9f9688]"
-              onChange={(event) => onPriceInputChange(event.target.value)}
-              onBlur={onManualPriceCommit}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.currentTarget.blur();
-                }
-              }}
-            />
-            {priceCurrency === CurrencyCode.Thb && (
-              <div className="flex h-9 shrink-0 overflow-hidden rounded-md border border-[#d8d1c3] bg-[#f2ebdd] text-xs font-medium text-[#343434]">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 rounded-none border-r border-[#d8d1c3] px-2 text-xs text-[#343434] hover:bg-[#e8ddca]"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => onPresetCkd(25)}
-                >
-                  CKD 25
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 rounded-none border-r border-[#d8d1c3] px-2 text-xs text-[#343434] hover:bg-[#e8ddca]"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => onPresetCkd(30)}
-                >
-                  CKD 30
-                </Button>
-                <label htmlFor={ckdMultiplierInputId} className="sr-only">
-                  {ckdMultiplierLabel}
-                </label>
-                <span className="flex h-9 items-center px-2">CKD</span>
-                <Input
-                  id={ckdMultiplierInputId}
-                  inputMode="decimal"
-                  value={ckdMultiplierInput}
-                  className="h-9 w-14 rounded-none border-0 bg-[#fffaf0] px-2 text-xs text-[#343434] placeholder:text-[#9f9688] focus-visible:ring-0 focus-visible:ring-offset-0"
-                  placeholder="X"
-                  onChange={(event) =>
-                    onCkdMultiplierChange(event.target.value)
-                  }
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      onCustomCkdCommit();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={!ckdMultiplierInput.trim()}
-                  className="h-9 rounded-none border-l border-[#d8d1c3] px-3 text-xs text-[#343434] hover:bg-[#e8ddca] disabled:opacity-40"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={onCustomCkdCommit}
-                >
-                  {applyLabel}
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-);
-
-interface BinderCardEditableFieldsProps {
-  areVariantsLoading: boolean;
-  binderCard: ModalBinderCardRecord;
-  cardId: string;
-  conditionLabel: string;
-  finishLabel: string;
-  finishOptions: string[];
-  languageLabel: string;
-  quantityInput: string;
-  quantityLabel: string;
-  selectedVariantLabel: string;
-  variantLabel: string;
-  variants: BinderCardVariant[];
-  getVariantLabel: (variant: BinderCardVariant) => string;
-  onConditionChange: (condition: CardCondition) => void;
-  onFinishChange: (finish: string) => void;
-  onLanguageChange: (language: LanguageCode) => void;
-  onQuantityChange: (value: string) => void;
-  onQuantityCommit: () => void;
-  onVariantChange: (cardId: string) => void;
-  translateCardOption: (
-    group: "condition" | "finish" | "language",
-    value: string | null | undefined
-  ) => string | null;
-  pricingFields: ReactNode;
-}
-
-const BinderCardEditableFields = ({
-  areVariantsLoading,
-  binderCard,
-  cardId,
-  conditionLabel,
-  finishLabel,
-  finishOptions,
-  languageLabel,
-  quantityInput,
-  quantityLabel,
-  selectedVariantLabel,
-  variantLabel,
-  variants,
-  getVariantLabel,
-  onConditionChange,
-  onFinishChange,
-  onLanguageChange,
-  onQuantityChange,
-  onQuantityCommit,
-  onVariantChange,
-  translateCardOption,
-  pricingFields,
-}: BinderCardEditableFieldsProps) => (
-  <div className="grid gap-4 rounded-md border border-[#d8d1c3] bg-[#fffdf7] p-4">
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-        {quantityLabel}
-        <Input
-          type="number"
-          min={1}
-          value={quantityInput}
-          className="bg-[#fffaf0] text-[#343434]"
-          onChange={(event) => onQuantityChange(event.target.value)}
-          onBlur={onQuantityCommit}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.currentTarget.blur();
-            }
-          }}
-        />
-      </label>
-
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-        {finishLabel}
-        <Select value={binderCard.finish} onValueChange={onFinishChange}>
-          <SelectTrigger className="w-full bg-[#fffaf0] text-[#343434]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {(finishOptions.length > 0 ? finishOptions : ["normal"]).map(
-              (finish) => (
-                <SelectItem key={finish} value={finish}>
-                  {translateCardOption("finish", finish)}
-                </SelectItem>
-              )
-            )}
-          </SelectContent>
-        </Select>
-      </label>
-
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-        {conditionLabel}
-        <Select
-          value={binderCard.condition}
-          onValueChange={(condition) =>
-            onConditionChange(condition as CardCondition)
-          }
-        >
-          <SelectTrigger className="w-full bg-[#fffaf0] text-[#343434]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {CARD_CONDITION_OPTIONS.map((condition) => (
-              <SelectItem key={condition} value={condition}>
-                {translateCardOption("condition", condition)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </label>
-
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-        {languageLabel}
-        <Select
-          value={binderCard.language}
-          onValueChange={(language) =>
-            onLanguageChange(language as LanguageCode)
-          }
-        >
-          <SelectTrigger className="w-full bg-[#fffaf0] text-[#343434]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {CARD_LANGUAGE_OPTIONS.map((language) => (
-              <SelectItem key={language} value={language}>
-                {translateCardOption("language", language)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </label>
-
-      <BinderCardVariantSelect
-        areVariantsLoading={areVariantsLoading}
-        cardId={cardId}
-        label={variantLabel}
-        selectedVariantLabel={selectedVariantLabel}
-        variants={variants}
-        getVariantLabel={getVariantLabel}
-        onVariantChange={onVariantChange}
-      />
-    </div>
-
-    {pricingFields}
-  </div>
-);
 
 export const ModalBinderCardDetail = ({
   binderCard,
@@ -833,6 +91,9 @@ export const ModalBinderCardDetail = ({
   const [priceMode, setPriceMode] = useState<PriceMode>("manual");
   const [dynamicPriceStrategy, setDynamicPriceStrategy] =
     useState<DynamicPriceStrategy>("CKD X");
+  const [variantQueryCardId, setVariantQueryCardId] = useState<string | null>(
+    null
+  );
   const [updateBinderCard, { loading: isSaving }] =
     useUpdateBinderCardMutation();
   const card = binderCard?.card;
@@ -841,6 +102,7 @@ export const ModalBinderCardDetail = ({
   const fallbackPrice = "-";
   const title = card?.name || t("common:binder.detail.title");
   const imageUrl = card?.imageNormalUrl || card?.imageSmallUrl;
+  const shouldLoadVariants = !!card?.id && variantQueryCardId === card.id;
   const finishOptions = useMemo(() => {
     const cardFinishes =
       card?.finishes.filter((finish): finish is string => !!finish) || [];
@@ -854,11 +116,12 @@ export const ModalBinderCardDetail = ({
   const { data: variantsData, loading: areVariantsLoading } =
     useBinderCardVariantsQuery({
       variables: { name: card?.name || "", first: 500 },
-      skip: !open || !isEditable || !card?.name,
+      skip: !open || !isEditable || !card?.name || !shouldLoadVariants,
     });
   const variants = useMemo(() => {
+    if (!shouldLoadVariants) return [];
     return variantsData?.cardsCollection?.edges.map(({ node }) => node) || [];
-  }, [variantsData?.cardsCollection?.edges]);
+  }, [shouldLoadVariants, variantsData?.cardsCollection?.edges]);
   const marketPriceLabels: Record<MarketPriceSource, string> = {
     [MarketPriceSource.Cardkingdom]: t("common:binder.list.cardkingdom_price"),
     [MarketPriceSource.Cardmarket]: t("common:binder.list.cardmarket_price"),
@@ -898,6 +161,10 @@ export const ModalBinderCardDetail = ({
     binderCard?.priceCurrency,
     binderCard?.quantity,
   ]);
+
+  useEffect(() => {
+    setVariantQueryCardId(null);
+  }, [binderCard?.id]);
 
   const persistBinderCard = async (set: BinderCardsUpdateInput) => {
     if (!binderCard) return;
@@ -1173,30 +440,21 @@ export const ModalBinderCardDetail = ({
     });
   };
 
-  const getVariantLabel = (variant: BinderCardVariant) => {
-    const setCode = variant.cardSet?.code || "MTG";
-    const collectorNumber = variant.collectorNumber
-      ? ` #${variant.collectorNumber}`
-      : "";
-    const release = variant.releasedAt ? ` - ${variant.releasedAt}` : "";
-    return `${setCode}${collectorNumber}${release}`;
-  };
-
   const selectedVariant = variants.find((variant) => variant.id === card?.id);
   const selectedVariantLabel = selectedVariant
     ? getVariantLabel(selectedVariant)
     : [
         card?.cardSet?.code || "MTG",
         card?.collectorNumber ? `#${card.collectorNumber}` : null,
-        card?.releasedAt,
       ]
         .filter(Boolean)
-        .join(" - ");
+        .join(" ");
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="overflow-visible border-[#d8d1c3] bg-[#fffaf0] p-0 text-[#343434] sm:max-w-6xl"
+        className="overflow-visible border-[#d8d1c3] bg-background p-0 text-[#343434] sm:max-w-6xl"
         onKeyDown={handleKeyDown}
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>
@@ -1265,11 +523,17 @@ export const ModalBinderCardDetail = ({
                     variantLabel={t("common:binder.detail.variant")}
                     variants={variants}
                     getVariantLabel={getVariantLabel}
+                    loadingVariantLabel={t("common:loading")}
                     onConditionChange={handleConditionChange}
                     onFinishChange={handleFinishChange}
                     onLanguageChange={handleLanguageChange}
                     onQuantityChange={setQuantityInput}
                     onQuantityCommit={handleQuantityCommit}
+                    onVariantSelectOpenChange={(isOpen) => {
+                      if (isOpen && card?.id) {
+                        setVariantQueryCardId(card.id);
+                      }
+                    }}
                     onVariantChange={handleVariantChange}
                     translateCardOption={translateCardOption}
                     pricingFields={

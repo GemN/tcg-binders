@@ -1,3 +1,5 @@
+import "@fontsource-variable/source-code-pro/wght.css";
+import "@fontsource-variable/noto-sans-thai/wght.css";
 import "./index.css";
 import "./lib/i18n.ts";
 

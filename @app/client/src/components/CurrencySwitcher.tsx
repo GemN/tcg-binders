@@ -20,7 +20,7 @@ export const CurrencySwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-9 px-2 sm:px-3">
+        <Button variant="link" className="h-9 px-2 sm:px-3">
           <CircleDollarSign className="size-4" />
           <span>{currency}</span>
           <span className="sr-only">{t("common:nav.currency")}</span>

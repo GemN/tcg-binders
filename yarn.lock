@@ -74,6 +74,8 @@ __metadata:
     "@app/config": "npm:0.0.0"
     "@app/graphql": "npm:0.0.0"
     "@eslint/js": "npm:^9.30.1"
+    "@fontsource-variable/noto-sans-thai": "npm:^5.2.8"
+    "@fontsource-variable/source-code-pro": "npm:^5.2.7"
     "@hookform/resolvers": "npm:^5.2.1"
     "@radix-ui/react-avatar": "npm:^1.1.10"
     "@radix-ui/react-checkbox": "npm:^1.3.3"
@@ -1838,6 +1840,20 @@ __metadata:
   version: 0.2.10
   resolution: "@floating-ui/utils@npm:0.2.10"
   checksum: 10c0/e9bc2a1730ede1ee25843937e911ab6e846a733a4488623cd353f94721b05ec2c9ec6437613a2ac9379a94c2fd40c797a2ba6fa1df2716f5ce4aa6ddb1cf9ea4
+  languageName: node
+  linkType: hard
+
+"@fontsource-variable/noto-sans-thai@npm:^5.2.8":
+  version: 5.2.8
+  resolution: "@fontsource-variable/noto-sans-thai@npm:5.2.8"
+  checksum: 10c0/297f5ed31cab05c437d8b6e940b87a097b9850f4c0fe8d12677b839db4043d57e774d312b7dd2ec0907e0c8c75ccd8a8ecba56a3e69f0e944379ba163d4452cd
+  languageName: node
+  linkType: hard
+
+"@fontsource-variable/source-code-pro@npm:^5.2.7":
+  version: 5.2.7
+  resolution: "@fontsource-variable/source-code-pro@npm:5.2.7"
+  checksum: 10c0/8c0a909782e2f950571701b5686f22ef12ae635528eabced63245910630f0bc95cfe9fc178fb54f0f0b01304eae66c7de8ab14cd73511826116718a900a2ae20
   languageName: node
   linkType: hard
 

@@ -15,24 +15,23 @@ export const Navbar = () => {
   const isLoggedIn = !!session;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-card bg-card/95 text-card-foreground backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-card text-foreground">
       <nav className="flex h-14 w-full items-center gap-2 px-4 sm:px-6 lg:px-20">
         <Link
           to="/"
           aria-label={t("common:nav.home")}
-          className="flex min-w-0 items-center gap-2"
+          className="flex min-w-0 items-center"
         >
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-muted text-xs font-semibold">
-            TCG
-          </span>
-          <span className="hidden truncate text-sm font-semibold tracking-normal sm:inline">
-            {t("common:nav.brand")}
-          </span>
+          <img
+            src="/logo_megabinder.svg"
+            alt={t("common:nav.brand")}
+            className="h-9"
+          />
         </Link>
 
         {isLoggedIn && (
           <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild className="h-9 px-2 sm:px-3">
+            <Button variant="link" asChild className="h-9 px-2 sm:px-3">
               <Link to="/my-binders">{t("common:nav.your_binders")}</Link>
             </Button>
             <ButtonNewBinder />
@@ -53,9 +52,7 @@ export const Navbar = () => {
                 <Link to="/login">{t("common:nav.sign_in")}</Link>
               </Button>
               <Button asChild className="h-9 px-2 sm:px-3">
-                <Link to="/login?view=sign_up">
-                  {t("common:nav.register")}
-                </Link>
+                <Link to="/login?view=sign_up">{t("common:nav.register")}</Link>
               </Button>
             </div>
           )}

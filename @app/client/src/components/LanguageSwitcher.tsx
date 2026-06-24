@@ -41,7 +41,7 @@ export const LanguageSwitcher: FC<LanguageSwitcherProps> = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-9 px-2 sm:px-3">
+        <Button variant="link" className="h-9 px-2 sm:px-3">
           <Globe className="size-4" />
           <span>{currentLanguage.shortLabel}</span>
           <span className="sr-only">{t("common:nav.switch_language")}</span>

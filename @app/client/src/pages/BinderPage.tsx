@@ -550,7 +550,7 @@ export const BinderPage = () => {
                   type="button"
                   aria-label={t("common:previous")}
                   disabled={!canTurnPreviousPage}
-                  className="group/page-zone absolute inset-y-0 left-0 z-20 hidden w-4 items-center justify-center bg-transparent transition-colors hover:bg-linear-to-r hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-r focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
+                  className="group/page-zone absolute inset-y-0 left-0 z-20 hidden w-4 cursor-pointer items-center justify-center bg-transparent transition-colors hover:bg-linear-to-r hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-r focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
                   onClick={() => {
                     handlePreviousPage();
                     focusBinderView();
@@ -564,7 +564,7 @@ export const BinderPage = () => {
                   type="button"
                   aria-label={t("common:next")}
                   disabled={!canTurnNextPage}
-                  className="group/page-zone absolute inset-y-0 right-0 z-20 hidden w-4 items-center justify-center bg-transparent transition-colors hover:bg-linear-to-l hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-l focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
+                  className="group/page-zone absolute inset-y-0 right-0 z-20 hidden w-4 cursor-pointer items-center justify-center bg-transparent transition-colors hover:bg-linear-to-l hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-l focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
                   onClick={() => {
                     handleNextPage();
                     focusBinderView();

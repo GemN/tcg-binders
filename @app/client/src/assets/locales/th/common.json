@@ -143,6 +143,8 @@
     "list": {
       "set": "ชุด",
       "collector_number": "№",
+      "quantity": "จำนวน",
+      "condition": "สภาพ",
       "name": "ชื่อ",
       "user_price": "ราคา",
       "cardkingdom_price": "Card Kingdom",
@@ -191,6 +193,15 @@
       "light_played": "ผ่านการเล่นเล็กน้อย",
       "played": "ผ่านการเล่น",
       "poor": "สภาพแย่"
+    },
+    "condition_short": {
+      "mint": "M",
+      "near_mint": "NM",
+      "excellent": "EX",
+      "good": "GD",
+      "light_played": "LP",
+      "played": "PL",
+      "poor": "PO"
     },
     "finish": {
       "normal": "ปกติ",
