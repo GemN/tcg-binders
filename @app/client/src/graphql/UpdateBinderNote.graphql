@@ -1,0 +1,13 @@
+mutation UpdateBinderNote($id: UUID!, $note: String!) {
+  updateBindersCollection(
+    filter: { id: { eq: $id } }
+    set: { note: $note }
+    atMost: 1
+  ) {
+    affectedCount
+    records {
+      id
+      note
+    }
+  }
+}

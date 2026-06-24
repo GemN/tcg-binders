@@ -5,13 +5,19 @@ import { cn } from "@/lib/utils";
 interface BinderCardGridProps {
   binderCards: BinderCardRecord[];
   className?: string;
+  isDeletingCard?: boolean;
   noImageLabel: string;
+  onDeleteCard?: (binderCard: BinderCardRecord) => void;
+  onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
 }
 
 export const BinderCardGrid = ({
   binderCards,
   className,
+  isDeletingCard,
   noImageLabel,
+  onDeleteCard,
+  onOpenCard,
 }: BinderCardGridProps) => {
   return (
     <div
@@ -20,11 +26,14 @@ export const BinderCardGrid = ({
         className
       )}
     >
-      {binderCards.map((binderCard) => (
+      {binderCards.map((binderCard, index) => (
         <BinderCard
           key={binderCard.id}
           binderCard={binderCard}
+          isDeleting={isDeletingCard}
           noImageLabel={noImageLabel}
+          onDelete={onDeleteCard}
+          onOpen={(openedBinderCard) => onOpenCard(openedBinderCard, index)}
         />
       ))}
     </div>

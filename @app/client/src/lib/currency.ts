@@ -12,6 +12,10 @@ export const getCurrencyFractionDigits = (currency: string): number => {
   return currency === "THB" ? 0 : 2;
 };
 
+export const getCurrencySymbol = (currency: string): string | null => {
+  return currencySymbols[currency]?.symbol || null;
+};
+
 export const formatCurrency = (
   amount: number,
   currency: string,

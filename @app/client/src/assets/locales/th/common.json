@@ -2,6 +2,7 @@
   "ok": "ตกลง",
   "cancel": "ยกเลิก",
   "confirm": "ยืนยัน",
+  "apply": "นำไปใช้",
   "loading": "กำลังโหลด...",
   "next": "ถัดไป",
   "previous": "ก่อนหน้า",
@@ -50,6 +51,7 @@
     "search_placeholder": "เพิ่มการ์ด",
     "adding_card": "กำลังเพิ่มการ์ด...",
     "add_card_error": "เพิ่มการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "delete_card_error": "ลบการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
     "rename_label": "เปลี่ยนชื่อแฟ้ม",
     "rename_name_required": "จำเป็นต้องกรอกชื่อแฟ้ม",
     "rename_error": "เปลี่ยนชื่อแฟ้มไม่สำเร็จ กรุณาลองอีกครั้ง",
@@ -60,11 +62,59 @@
     "unique_card_count_one": "{{count}} การ์ดไม่ซ้ำ",
     "unique_card_count_other": "{{count}} การ์ดไม่ซ้ำ",
     "page_progress": "{{cardCount}} - หน้า {{page}}/{{pageCount}}",
+    "actions": {
+      "open": "เปิดเมนูการทำงานของ {{name}}",
+      "delete": "ลบ"
+    },
+    "note": {
+      "label": "หมายเหตุแฟ้ม",
+      "placeholder": "เพิ่มหมายเหตุ ข้อมูลติดต่อ หรือรายละเอียดการแลกเปลี่ยน",
+      "show_more": "ดูเพิ่มเติม",
+      "title": "หมายเหตุแฟ้ม",
+      "save": "บันทึกหมายเหตุ",
+      "update_error": "อัปเดตหมายเหตุแฟ้มไม่สำเร็จ กรุณาลองอีกครั้ง"
+    },
+    "detail": {
+      "title": "รายละเอียดการ์ด",
+      "card_details": "รายละเอียดการ์ด",
+      "position": "{{current}}/{{total}}",
+      "open_card": "เปิด {{name}}",
+      "image_alt": "รูปการ์ด {{name}}",
+      "binder_card": "การ์ดในแฟ้ม",
+      "user_price": "ราคาในแฟ้ม",
+      "text": "ข้อความการ์ด",
+      "print": "ฉบับพิมพ์",
+      "rarity": "ความหายาก",
+      "released": "วันที่ออก",
+      "rules": "กฎ",
+      "mana_cost": "ค่ามานา",
+      "mana_value": "ค่ามานารวม",
+      "layout": "รูปแบบ",
+      "market_prices": "ราคาตลาด",
+      "selected": "เลือกอยู่",
+      "open_listing": "เปิด",
+      "buy_at": "ซื้อ @ {{source}}",
+      "saving": "กำลังบันทึก...",
+      "variant": "เวอร์ชัน",
+      "price": "ราคา",
+      "price_placeholder": "ราคา",
+      "price_mode": {
+        "manual": "กำหนดเอง",
+        "dynamic": "อัตโนมัติ"
+      },
+      "price_strategy": "กลยุทธ์ราคา",
+      "ckd_multiplier": "ตัวคูณ CKD",
+      "update_error": "อัปเดตการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
+      "invalid_price": "กรุณากรอกราคาให้ถูกต้อง",
+      "ckd_missing_price": "ต้องมีราคา Card Kingdom เป็น USD เพื่อใช้ราคา CKD"
+    },
     "sort": {
       "seller_order": "ลำดับผู้ขาย",
       "last_added": "เพิ่มล่าสุด",
       "name": "ชื่อ",
-      "release_date": "วันที่ออก"
+      "release_date": "วันที่ออก",
+      "price_asc": "ราคาน้อยไปมาก",
+      "price_desc": "ราคามากไปน้อย"
     },
     "import": {
       "button": "นำเข้า",

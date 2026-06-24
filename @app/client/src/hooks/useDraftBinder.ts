@@ -68,7 +68,7 @@ export interface DraftBinderCard {
   finish: string;
   condition: DraftCardCondition;
   language: DraftCardLanguage;
-  priceAmount?: number;
+  priceAmount?: string;
   priceCurrency?: DraftCardCurrency;
   note?: string;
   position: number;

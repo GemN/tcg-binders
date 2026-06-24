@@ -1,0 +1,23 @@
+query BinderCardVariants($name: String!, $first: Int = 80) {
+  cardsCollection(
+    first: $first
+    filter: { tcgId: { eq: "mtg" }, name: { eq: $name } }
+    orderBy: [{ releasedAt: DescNullsLast }, { collectorNumber: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        id
+        name
+        collectorNumber
+        finishes
+        imageSmallUrl
+        imageNormalUrl
+        releasedAt
+        cardSet {
+          code
+          name
+        }
+      }
+    }
+  }
+}

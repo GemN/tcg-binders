@@ -226,6 +226,7 @@ export type Binders = Node & {
     name: Scalars['String'];
     /** Globally Unique Record Identifier */
     nodeId: Scalars['ID'];
+    note: Scalars['String'];
     ownerId: Scalars['UUID'];
     shortId: Scalars['String'];
     tcg: Maybe<Tcg>;
@@ -268,6 +269,7 @@ export type BindersFilter = {
     nodeId?: Maybe<IdFilter>;
     /** Negates a filter */
     not?: Maybe<BindersFilter>;
+    note?: Maybe<StringFilter>;
     /** Returns true if at least one of its inner filters is true, otherwise returns false */
     or?: Maybe<Array<BindersFilter>>;
     ownerId?: Maybe<UuidFilter>;
@@ -280,6 +282,7 @@ export type BindersInsertInput = {
     createdAt?: Maybe<Scalars['Datetime']>;
     id?: Maybe<Scalars['UUID']>;
     name?: Maybe<Scalars['String']>;
+    note?: Maybe<Scalars['String']>;
     ownerId?: Maybe<Scalars['UUID']>;
     shortId?: Maybe<Scalars['String']>;
     tcgId?: Maybe<Scalars['String']>;
@@ -297,6 +300,7 @@ export type BindersOrderBy = {
     createdAt?: Maybe<OrderByDirection>;
     id?: Maybe<OrderByDirection>;
     name?: Maybe<OrderByDirection>;
+    note?: Maybe<OrderByDirection>;
     ownerId?: Maybe<OrderByDirection>;
     shortId?: Maybe<OrderByDirection>;
     tcgId?: Maybe<OrderByDirection>;
@@ -307,6 +311,7 @@ export type BindersUpdateInput = {
     createdAt?: Maybe<Scalars['Datetime']>;
     id?: Maybe<Scalars['UUID']>;
     name?: Maybe<Scalars['String']>;
+    note?: Maybe<Scalars['String']>;
     ownerId?: Maybe<Scalars['UUID']>;
     shortId?: Maybe<Scalars['String']>;
     tcgId?: Maybe<Scalars['String']>;
@@ -1962,7 +1967,7 @@ export type BinderByShortIdQuery = ({
 } & Pick<Query, 'binderCardCountByShortId'> & {
     binderByShortId: Maybe<({
         __typename?: 'Binders';
-    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'ownerId' | 'shortId' | 'tcgId'>)>;
+    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId'>)>;
     binderCardsByShortId: Maybe<({
         __typename?: 'BinderCardsConnection';
     } & {
@@ -1974,25 +1979,83 @@ export type BinderByShortIdQuery = ({
         } & {
             node: ({
                 __typename?: 'BinderCards';
-            } & Pick<BinderCards, 'id' | 'nodeId' | 'finish' | 'position' | 'priceAmount' | 'priceCurrency' | 'quantity'> & {
-                card: Maybe<({
-                    __typename?: 'Cards';
-                } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'imageNormalUrl' | 'imageSmallUrl' | 'releasedAt'> & {
-                    cardSet: Maybe<({
-                        __typename?: 'CardSets';
-                    } & Pick<CardSets, 'code' | 'name'>)>;
-                    marketPrices: Maybe<({
-                        __typename?: 'CardMarketPricesConnection';
-                    } & {
-                        edges: Array<({
-                            __typename?: 'CardMarketPricesEdge';
-                        } & {
-                            node: ({
-                                __typename?: 'CardMarketPrices';
-                            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>);
-                        })>;
-                    })>;
-                })>;
+            } & BinderCardSummaryFieldsFragment);
+        })>;
+    })>;
+});
+export type BinderCardDetailWindowQueryVariables = Exact<{
+    shortId: Scalars['String'];
+    cardFirst: Scalars['Int'];
+    cardOffset: Scalars['Int'];
+    cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
+}>;
+export type BinderCardDetailWindowQuery = ({
+    __typename?: 'Query';
+} & {
+    binderCardsByShortId: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & BinderCardDetailFieldsFragment);
+        })>;
+    })>;
+});
+export type BinderCardSummaryFieldsFragment = ({
+    __typename?: 'BinderCards';
+} & Pick<BinderCards, 'id' | 'condition' | 'dynamicPriceRule' | 'finish' | 'language' | 'priceAmount' | 'priceCurrency' | 'quantity'> & {
+    card: Maybe<({
+        __typename?: 'Cards';
+    } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'finishes' | 'imageNormalUrl' | 'imageSmallUrl' | 'releasedAt'> & {
+        cardSet: Maybe<({
+            __typename?: 'CardSets';
+        } & Pick<CardSets, 'code' | 'name'>)>;
+        marketPrices: Maybe<({
+            __typename?: 'CardMarketPricesConnection';
+        } & {
+            edges: Array<({
+                __typename?: 'CardMarketPricesEdge';
+            } & {
+                node: ({
+                    __typename?: 'CardMarketPrices';
+                } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'buyUrl'>);
+            })>;
+        })>;
+    })>;
+});
+export type BinderCardDetailFieldsFragment = ({
+    __typename?: 'BinderCards';
+} & {
+    card: Maybe<({
+        __typename?: 'Cards';
+    } & {
+        mtgCardDetail: Maybe<({
+            __typename?: 'MtgCardDetails';
+        } & Pick<MtgCardDetails, 'typeLine' | 'oracleText'>)>;
+    })>;
+} & BinderCardSummaryFieldsFragment);
+export type BinderCardVariantsQueryVariables = Exact<{
+    name: Scalars['String'];
+    first?: Maybe<Scalars['Int']>;
+}>;
+export type BinderCardVariantsQuery = ({
+    __typename?: 'Query';
+} & {
+    cardsCollection: Maybe<({
+        __typename?: 'CardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'CardsEdge';
+        } & {
+            node: ({
+                __typename?: 'Cards';
+            } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'> & {
+                cardSet: Maybe<({
+                    __typename?: 'CardSets';
+                } & Pick<CardSets, 'code' | 'name'>)>;
             });
         })>;
     })>;
@@ -2123,6 +2186,16 @@ export type CurrentUserProfileQuery = ({
         __typename?: 'UserProfiles';
     } & Pick<UserProfiles, 'nodeId' | 'id' | 'firstname' | 'lastname' | 'isAdmin'>)>;
 });
+export type DeleteBinderCardMutationVariables = Exact<{
+    id: Scalars['UUID'];
+}>;
+export type DeleteBinderCardMutation = ({
+    __typename?: 'Mutation';
+} & {
+    deleteFromBinderCardsCollection: ({
+        __typename?: 'BinderCardsDeleteResponse';
+    } & Pick<BinderCardsDeleteResponse, 'affectedCount'>);
+});
 export type MyBindersQueryVariables = Exact<{
     ownerId: Scalars['UUID'];
 }>;
@@ -2172,6 +2245,38 @@ export type RenameBinderMutation = ({
         } & Pick<Binders, 'id' | 'name'>)>;
     });
 });
+export type UpdateBinderCardMutationVariables = Exact<{
+    id: Scalars['UUID'];
+    set: BinderCardsUpdateInput;
+}>;
+export type UpdateBinderCardMutation = ({
+    __typename?: 'Mutation';
+} & {
+    updateBinderCardsCollection: ({
+        __typename?: 'BinderCardsUpdateResponse';
+    } & Pick<BinderCardsUpdateResponse, 'affectedCount'> & {
+        records: Array<({
+            __typename?: 'BinderCards';
+        } & BinderCardDetailFieldsFragment)>;
+    });
+});
+export type UpdateBinderNoteMutationVariables = Exact<{
+    id: Scalars['UUID'];
+    note: Scalars['String'];
+}>;
+export type UpdateBinderNoteMutation = ({
+    __typename?: 'Mutation';
+} & {
+    updateBindersCollection: ({
+        __typename?: 'BindersUpdateResponse';
+    } & Pick<BindersUpdateResponse, 'affectedCount'> & {
+        records: Array<({
+            __typename?: 'Binders';
+        } & Pick<Binders, 'id' | 'note'>)>;
+    });
+});
+export declare const BinderCardSummaryFieldsFragmentDoc: Apollo.DocumentNode;
+export declare const BinderCardDetailFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const AddBinderCardDocument: Apollo.DocumentNode;
 export type AddBinderCardMutationFn = Apollo.MutationFunction<AddBinderCardMutation, AddBinderCardMutationVariables>;
 /**
@@ -2265,6 +2370,70 @@ export declare function useBinderByShortIdLazyQuery(baseOptions?: Apollo.LazyQue
 export type BinderByShortIdQueryHookResult = ReturnType<typeof useBinderByShortIdQuery>;
 export type BinderByShortIdLazyQueryHookResult = ReturnType<typeof useBinderByShortIdLazyQuery>;
 export type BinderByShortIdQueryResult = Apollo.QueryResult<BinderByShortIdQuery, BinderByShortIdQueryVariables>;
+export declare const BinderCardDetailWindowDocument: Apollo.DocumentNode;
+/**
+ * __useBinderCardDetailWindowQuery__
+ *
+ * To run a query within a React component, call `useBinderCardDetailWindowQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderCardDetailWindowQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderCardDetailWindowQuery({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *      cardFirst: // value for 'cardFirst'
+ *      cardOffset: // value for 'cardOffset'
+ *      cardOrderBy: // value for 'cardOrderBy'
+ *   },
+ * });
+ */
+export declare function useBinderCardDetailWindowQuery(baseOptions: Apollo.QueryHookOptions<BinderCardDetailWindowQuery, BinderCardDetailWindowQueryVariables>): Apollo.QueryResult<BinderCardDetailWindowQuery, Exact<{
+    shortId: Scalars["String"];
+    cardFirst: Scalars["Int"];
+    cardOffset: Scalars["Int"];
+    cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
+}>>;
+export declare function useBinderCardDetailWindowLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderCardDetailWindowQuery, BinderCardDetailWindowQueryVariables>): Apollo.LazyQueryResultTuple<BinderCardDetailWindowQuery, Exact<{
+    shortId: Scalars["String"];
+    cardFirst: Scalars["Int"];
+    cardOffset: Scalars["Int"];
+    cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
+}>>;
+export type BinderCardDetailWindowQueryHookResult = ReturnType<typeof useBinderCardDetailWindowQuery>;
+export type BinderCardDetailWindowLazyQueryHookResult = ReturnType<typeof useBinderCardDetailWindowLazyQuery>;
+export type BinderCardDetailWindowQueryResult = Apollo.QueryResult<BinderCardDetailWindowQuery, BinderCardDetailWindowQueryVariables>;
+export declare const BinderCardVariantsDocument: Apollo.DocumentNode;
+/**
+ * __useBinderCardVariantsQuery__
+ *
+ * To run a query within a React component, call `useBinderCardVariantsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderCardVariantsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderCardVariantsQuery({
+ *   variables: {
+ *      name: // value for 'name'
+ *      first: // value for 'first'
+ *   },
+ * });
+ */
+export declare function useBinderCardVariantsQuery(baseOptions: Apollo.QueryHookOptions<BinderCardVariantsQuery, BinderCardVariantsQueryVariables>): Apollo.QueryResult<BinderCardVariantsQuery, Exact<{
+    name: Scalars["String"];
+    first?: Maybe<Scalars["Int"]>;
+}>>;
+export declare function useBinderCardVariantsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderCardVariantsQuery, BinderCardVariantsQueryVariables>): Apollo.LazyQueryResultTuple<BinderCardVariantsQuery, Exact<{
+    name: Scalars["String"];
+    first?: Maybe<Scalars["Int"]>;
+}>>;
+export type BinderCardVariantsQueryHookResult = ReturnType<typeof useBinderCardVariantsQuery>;
+export type BinderCardVariantsLazyQueryHookResult = ReturnType<typeof useBinderCardVariantsLazyQuery>;
+export type BinderCardVariantsQueryResult = Apollo.QueryResult<BinderCardVariantsQuery, BinderCardVariantsQueryVariables>;
 export declare const CardSearchDocument: Apollo.DocumentNode;
 /**
  * __useCardSearchQuery__
@@ -2428,6 +2597,31 @@ export declare function useCurrentUserProfileLazyQuery(baseOptions?: Apollo.Lazy
 export type CurrentUserProfileQueryHookResult = ReturnType<typeof useCurrentUserProfileQuery>;
 export type CurrentUserProfileLazyQueryHookResult = ReturnType<typeof useCurrentUserProfileLazyQuery>;
 export type CurrentUserProfileQueryResult = Apollo.QueryResult<CurrentUserProfileQuery, CurrentUserProfileQueryVariables>;
+export declare const DeleteBinderCardDocument: Apollo.DocumentNode;
+export type DeleteBinderCardMutationFn = Apollo.MutationFunction<DeleteBinderCardMutation, DeleteBinderCardMutationVariables>;
+/**
+ * __useDeleteBinderCardMutation__
+ *
+ * To run a mutation, you first call `useDeleteBinderCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBinderCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBinderCardMutation, { data, loading, error }] = useDeleteBinderCardMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export declare function useDeleteBinderCardMutation(baseOptions?: Apollo.MutationHookOptions<DeleteBinderCardMutation, DeleteBinderCardMutationVariables>): Apollo.MutationTuple<DeleteBinderCardMutation, Exact<{
+    id: Scalars["UUID"];
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type DeleteBinderCardMutationHookResult = ReturnType<typeof useDeleteBinderCardMutation>;
+export type DeleteBinderCardMutationResult = Apollo.MutationResult<DeleteBinderCardMutation>;
+export type DeleteBinderCardMutationOptions = Apollo.BaseMutationOptions<DeleteBinderCardMutation, DeleteBinderCardMutationVariables>;
 export declare const MyBindersDocument: Apollo.DocumentNode;
 /**
  * __useMyBindersQuery__
@@ -2481,4 +2675,58 @@ export declare function useRenameBinderMutation(baseOptions?: Apollo.MutationHoo
 export type RenameBinderMutationHookResult = ReturnType<typeof useRenameBinderMutation>;
 export type RenameBinderMutationResult = Apollo.MutationResult<RenameBinderMutation>;
 export type RenameBinderMutationOptions = Apollo.BaseMutationOptions<RenameBinderMutation, RenameBinderMutationVariables>;
+export declare const UpdateBinderCardDocument: Apollo.DocumentNode;
+export type UpdateBinderCardMutationFn = Apollo.MutationFunction<UpdateBinderCardMutation, UpdateBinderCardMutationVariables>;
+/**
+ * __useUpdateBinderCardMutation__
+ *
+ * To run a mutation, you first call `useUpdateBinderCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBinderCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBinderCardMutation, { data, loading, error }] = useUpdateBinderCardMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      set: // value for 'set'
+ *   },
+ * });
+ */
+export declare function useUpdateBinderCardMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBinderCardMutation, UpdateBinderCardMutationVariables>): Apollo.MutationTuple<UpdateBinderCardMutation, Exact<{
+    id: Scalars["UUID"];
+    set: BinderCardsUpdateInput;
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type UpdateBinderCardMutationHookResult = ReturnType<typeof useUpdateBinderCardMutation>;
+export type UpdateBinderCardMutationResult = Apollo.MutationResult<UpdateBinderCardMutation>;
+export type UpdateBinderCardMutationOptions = Apollo.BaseMutationOptions<UpdateBinderCardMutation, UpdateBinderCardMutationVariables>;
+export declare const UpdateBinderNoteDocument: Apollo.DocumentNode;
+export type UpdateBinderNoteMutationFn = Apollo.MutationFunction<UpdateBinderNoteMutation, UpdateBinderNoteMutationVariables>;
+/**
+ * __useUpdateBinderNoteMutation__
+ *
+ * To run a mutation, you first call `useUpdateBinderNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBinderNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBinderNoteMutation, { data, loading, error }] = useUpdateBinderNoteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export declare function useUpdateBinderNoteMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBinderNoteMutation, UpdateBinderNoteMutationVariables>): Apollo.MutationTuple<UpdateBinderNoteMutation, Exact<{
+    id: Scalars["UUID"];
+    note: Scalars["String"];
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type UpdateBinderNoteMutationHookResult = ReturnType<typeof useUpdateBinderNoteMutation>;
+export type UpdateBinderNoteMutationResult = Apollo.MutationResult<UpdateBinderNoteMutation>;
+export type UpdateBinderNoteMutationOptions = Apollo.BaseMutationOptions<UpdateBinderNoteMutation, UpdateBinderNoteMutationVariables>;
 //# sourceMappingURL=index.d.ts.map

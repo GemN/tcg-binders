@@ -182,9 +182,7 @@ const BinderDraftCardRow = ({
             onChange={(event) =>
               onUpdate({
                 priceAmount:
-                  event.target.value === ""
-                    ? undefined
-                    : Number(event.target.value),
+                  event.target.value === "" ? undefined : event.target.value,
               })
             }
           />

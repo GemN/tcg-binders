@@ -1,0 +1,44 @@
+fragment BinderCardSummaryFields on BinderCards {
+  id
+  condition
+  dynamicPriceRule
+  finish
+  language
+  priceAmount
+  priceCurrency
+  quantity
+  card {
+    id
+    name
+    collectorNumber
+    finishes
+    imageNormalUrl
+    imageSmallUrl
+    releasedAt
+    cardSet {
+      code
+      name
+    }
+    marketPrices(first: 12, orderBy: [{ source: AscNullsLast }]) {
+      edges {
+        node {
+          source
+          finish
+          amount
+          currency
+          buyUrl
+        }
+      }
+    }
+  }
+}
+
+fragment BinderCardDetailFields on BinderCards {
+  ...BinderCardSummaryFields
+  card {
+    mtgCardDetail {
+      typeLine
+      oracleText
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import {
   type BinderCardRecord,
   formatBinderCardPrice,
@@ -11,7 +12,10 @@ export type BinderCardViewMode = "grid" | "list";
 
 interface BinderCardProps {
   binderCard: BinderCardRecord;
+  isDeleting?: boolean;
   noImageLabel: string;
+  onDelete?: (binderCard: BinderCardRecord) => void;
+  onOpen: (binderCard: BinderCardRecord) => void;
 }
 
 interface BinderCardImageProps {
@@ -67,17 +71,37 @@ const useBinderCardPriceLabel = (binderCard: BinderCardRecord): string => {
 
 export const BinderCard = ({
   binderCard,
+  isDeleting,
   noImageLabel,
+  onDelete,
+  onOpen,
 }: BinderCardProps) => {
+  const { t } = useTranslation(["common"]);
   const priceLabel = useBinderCardPriceLabel(binderCard);
+  const cardName = binderCard.card?.name || noImageLabel;
 
   return (
-    <article className="group grid w-full max-w-[12rem] text-foreground transition-transform hover:-translate-y-1">
-      <BinderCardImage
-        card={binderCard.card}
-        noImageLabel={noImageLabel}
-        priceLabel={priceLabel}
-      />
-    </article>
+    <div className="relative w-full max-w-[12rem] text-left text-foreground">
+      <button
+        type="button"
+        aria-label={t("common:binder.detail.open_card", { name: cardName })}
+        className="group grid w-full cursor-pointer transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        onClick={() => onOpen(binderCard)}
+      >
+        <BinderCardImage
+          card={binderCard.card}
+          noImageLabel={noImageLabel}
+          priceLabel={priceLabel}
+        />
+      </button>
+      {onDelete && (
+        <BinderCardActionsMenu
+          cardName={cardName}
+          className="absolute top-2 right-2"
+          disabled={isDeleting}
+          onDelete={() => onDelete(binderCard)}
+        />
+      )}
+    </div>
   );
 };

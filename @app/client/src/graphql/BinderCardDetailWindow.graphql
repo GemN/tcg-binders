@@ -1,31 +1,18 @@
-query BinderByShortId(
+query BinderCardDetailWindow(
   $shortId: String!
   $cardFirst: Int!
   $cardOffset: Int!
   $cardOrderBy: [BinderCardsOrderBy!]!
 ) {
-  binderByShortId(binderShortId: $shortId) {
-    id
-    nodeId
-    name
-    note
-    ownerId
-    shortId
-    tcgId
-  }
-  binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
     offset: $cardOffset
     orderBy: $cardOrderBy
   ) {
-    pageInfo {
-      hasNextPage
-    }
     edges {
       node {
-        ...BinderCardSummaryFields
+        ...BinderCardDetailFields
       }
     }
   }

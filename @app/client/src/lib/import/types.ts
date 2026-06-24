@@ -16,7 +16,7 @@ export interface BinderImportItem {
   finish: string;
   language: LanguageCode;
   name: string;
-  priceAmount?: number;
+  priceAmount?: string;
   priceCurrency?: CurrencyCode;
   quantity: number;
   setCode?: string;

@@ -1,0 +1,12 @@
+mutation UpdateBinderCard($id: UUID!, $set: BinderCardsUpdateInput!) {
+  updateBinderCardsCollection(
+    filter: { id: { eq: $id } }
+    set: $set
+    atMost: 1
+  ) {
+    affectedCount
+    records {
+      ...BinderCardDetailFields
+    }
+  }
+}

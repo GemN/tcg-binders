@@ -4,7 +4,7 @@
 
 ### Product Name
 
-"TCGBinder" name not yet decided, this is a placeholder to represent the project.
+"MegaBinder" name not yet decided, this is a placeholder to represent the project.
 
 ### Summary
 

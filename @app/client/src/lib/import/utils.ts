@@ -23,12 +23,13 @@ export const parseQuantity = (value: string | undefined): number | null => {
   return quantity;
 };
 
-export const parsePriceAmount = (value: string): number | undefined => {
+export const parsePriceAmount = (value: string): string | undefined => {
   if (!value) return undefined;
 
-  const amount = Number(value);
+  const input = value.trim();
+  const amount = Number(input);
   if (!Number.isFinite(amount) || amount < 0) return undefined;
-  return amount;
+  return input;
 };
 
 export const parseCurrency = (value: string): CurrencyCode | undefined => {

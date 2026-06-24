@@ -32,18 +32,20 @@ const BinderGalleryItem = ({ binder }: BinderGalleryItemProps) => {
       className="group grid gap-2"
       aria-label={binder.name}
     >
-      <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-foreground shadow-md ring-1 ring-card/20 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-foreground ring-1 ring-card/20 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg">
         {binder.coverImageUrl && (
           <img
             src={binder.coverImageUrl}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover opacity-35"
+            className="absolute inset-0 h-full w-full object-contain opacity-90"
           />
         )}
         <div className="absolute inset-0 bg-linear-to-b from-foreground/15 via-foreground/20 to-foreground/80" />
-        <div className="absolute inset-x-3 bottom-3 rounded-sm border border-card-foreground/15 bg-card/80 px-2 py-2">
-          <div className="line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-card-foreground">
-            {binder.name}
+        <div className="absolute inset-x-3 bottom-3  text-center">
+          <div className="rounded-sm border border-card-foreground/15 bg-card/80 px-4 py-2 inline-block">
+            <div className="line-clamp-2 text-center text-sm font-semibold leading-5 text-white">
+              {binder.name}
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
   "ok": "Ok",
   "cancel": "Cancel",
   "confirm": "Confirm",
+  "apply": "Apply",
   "loading": "Loading...",
   "next": "Next",
   "previous": "Previous",
@@ -50,6 +51,7 @@
     "search_placeholder": "Add a card",
     "adding_card": "Adding card...",
     "add_card_error": "Failed to add card. Please try again.",
+    "delete_card_error": "Failed to delete card. Please try again.",
     "rename_label": "Rename binder",
     "rename_name_required": "Binder name is required",
     "rename_error": "Failed to rename binder. Please try again.",
@@ -60,11 +62,59 @@
     "unique_card_count_one": "{{count}} unique card",
     "unique_card_count_other": "{{count}} unique cards",
     "page_progress": "{{cardCount}} - Page {{page}}/{{pageCount}}",
+    "actions": {
+      "open": "Open actions for {{name}}",
+      "delete": "Delete"
+    },
+    "note": {
+      "label": "Binder note",
+      "placeholder": "Add a note, contact info, or trade details",
+      "show_more": "See more",
+      "title": "Binder note",
+      "save": "Save note",
+      "update_error": "Failed to update binder note. Please try again."
+    },
+    "detail": {
+      "title": "Card details",
+      "card_details": "Card details",
+      "position": "{{current}}/{{total}}",
+      "open_card": "Open {{name}}",
+      "image_alt": "{{name}} card image",
+      "binder_card": "Binder card",
+      "user_price": "Binder price",
+      "text": "Card text",
+      "print": "Print",
+      "rarity": "Rarity",
+      "released": "Released",
+      "rules": "Rules",
+      "mana_cost": "Mana cost",
+      "mana_value": "Mana value",
+      "layout": "Layout",
+      "market_prices": "Market prices",
+      "selected": "Selected",
+      "open_listing": "Open",
+      "buy_at": "Buy @ {{source}}",
+      "saving": "Saving...",
+      "variant": "Variant",
+      "price": "Price",
+      "price_placeholder": "Price",
+      "price_mode": {
+        "manual": "Manual",
+        "dynamic": "Dynamic"
+      },
+      "price_strategy": "Pricing strategy",
+      "ckd_multiplier": "CKD multiplier",
+      "update_error": "Failed to update card. Please try again.",
+      "invalid_price": "Enter a valid price.",
+      "ckd_missing_price": "Card Kingdom USD price is required for CKD pricing."
+    },
     "sort": {
       "seller_order": "Seller order",
       "last_added": "Last added",
       "name": "Name",
-      "release_date": "Release date"
+      "release_date": "Release date",
+      "price_asc": "Price Asc",
+      "price_desc": "Price Desc"
     },
     "import": {
       "button": "Import",

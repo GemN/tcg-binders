@@ -1,14 +1,14 @@
 import type {
-  BinderByShortIdQuery,
+  BinderCardDetailFieldsFragment,
+  BinderCardSummaryFieldsFragment,
   CurrencyCode,
   MarketPriceSource,
 } from "@app/graphql";
 
 import { formatCurrency } from "@/lib/currency";
 
-export type BinderCardRecord = NonNullable<
-  NonNullable<BinderByShortIdQuery["binderCardsByShortId"]>["edges"][number]["node"]
->;
+export type BinderCardRecord = BinderCardSummaryFieldsFragment;
+export type BinderCardDetailRecord = BinderCardDetailFieldsFragment;
 
 type BinderCardMarketPrice = NonNullable<
   NonNullable<BinderCardRecord["card"]>["marketPrices"]

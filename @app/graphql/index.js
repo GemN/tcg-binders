@@ -85,6 +85,53 @@ export var OrganizationMemberRole;
     OrganizationMemberRole["Member"] = "MEMBER";
     OrganizationMemberRole["Owner"] = "OWNER";
 })(OrganizationMemberRole || (OrganizationMemberRole = {}));
+export const BinderCardSummaryFieldsFragmentDoc = gql `
+    fragment BinderCardSummaryFields on BinderCards {
+  id
+  condition
+  dynamicPriceRule
+  finish
+  language
+  priceAmount
+  priceCurrency
+  quantity
+  card {
+    id
+    name
+    collectorNumber
+    finishes
+    imageNormalUrl
+    imageSmallUrl
+    releasedAt
+    cardSet {
+      code
+      name
+    }
+    marketPrices(first: 12, orderBy: [{source: AscNullsLast}]) {
+      edges {
+        node {
+          source
+          finish
+          amount
+          currency
+          buyUrl
+        }
+      }
+    }
+  }
+}
+    `;
+export const BinderCardDetailFieldsFragmentDoc = gql `
+    fragment BinderCardDetailFields on BinderCards {
+  ...BinderCardSummaryFields
+  card {
+    mtgCardDetail {
+      typeLine
+      oracleText
+    }
+  }
+}
+    ${BinderCardSummaryFieldsFragmentDoc}`;
 export const AddBinderCardDocument = gql `
     mutation AddBinderCard($binderId: UUID!, $tcgId: String!, $cardId: UUID!, $finish: String!, $position: Int!) {
   insertIntoBinderCardsCollection(
@@ -159,6 +206,7 @@ export const BinderByShortIdDocument = gql `
     id
     nodeId
     name
+    note
     ownerId
     shortId
     tcgId
@@ -175,41 +223,12 @@ export const BinderByShortIdDocument = gql `
     }
     edges {
       node {
-        id
-        nodeId
-        finish
-        position
-        priceAmount
-        priceCurrency
-        quantity
-        card {
-          id
-          name
-          collectorNumber
-          imageNormalUrl
-          imageSmallUrl
-          releasedAt
-          cardSet {
-            code
-            name
-          }
-          marketPrices(first: 12, orderBy: [{source: AscNullsLast}]) {
-            edges {
-              node {
-                source
-                finish
-                amount
-                currency
-                priceDate
-              }
-            }
-          }
-        }
+        ...BinderCardSummaryFields
       }
     }
   }
 }
-    `;
+    ${BinderCardSummaryFieldsFragmentDoc}`;
 /**
  * __useBinderByShortIdQuery__
  *
@@ -236,6 +255,99 @@ export function useBinderByShortIdQuery(baseOptions) {
 export function useBinderByShortIdLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(BinderByShortIdDocument, options);
+}
+export const BinderCardDetailWindowDocument = gql `
+    query BinderCardDetailWindow($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
+  binderCardsByShortId(
+    binderShortId: $shortId
+    first: $cardFirst
+    offset: $cardOffset
+    orderBy: $cardOrderBy
+  ) {
+    edges {
+      node {
+        ...BinderCardDetailFields
+      }
+    }
+  }
+}
+    ${BinderCardDetailFieldsFragmentDoc}`;
+/**
+ * __useBinderCardDetailWindowQuery__
+ *
+ * To run a query within a React component, call `useBinderCardDetailWindowQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderCardDetailWindowQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderCardDetailWindowQuery({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *      cardFirst: // value for 'cardFirst'
+ *      cardOffset: // value for 'cardOffset'
+ *      cardOrderBy: // value for 'cardOrderBy'
+ *   },
+ * });
+ */
+export function useBinderCardDetailWindowQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(BinderCardDetailWindowDocument, options);
+}
+export function useBinderCardDetailWindowLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(BinderCardDetailWindowDocument, options);
+}
+export const BinderCardVariantsDocument = gql `
+    query BinderCardVariants($name: String!, $first: Int = 80) {
+  cardsCollection(
+    first: $first
+    filter: {tcgId: {eq: "mtg"}, name: {eq: $name}}
+    orderBy: [{releasedAt: DescNullsLast}, {collectorNumber: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        id
+        name
+        collectorNumber
+        finishes
+        imageSmallUrl
+        imageNormalUrl
+        releasedAt
+        cardSet {
+          code
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+/**
+ * __useBinderCardVariantsQuery__
+ *
+ * To run a query within a React component, call `useBinderCardVariantsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderCardVariantsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderCardVariantsQuery({
+ *   variables: {
+ *      name: // value for 'name'
+ *      first: // value for 'first'
+ *   },
+ * });
+ */
+export function useBinderCardVariantsQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(BinderCardVariantsDocument, options);
+}
+export function useBinderCardVariantsLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(BinderCardVariantsDocument, options);
 }
 export const CardSearchDocument = gql `
     query CardSearch($query: String!, $first: Int = 8) {
@@ -495,6 +607,34 @@ export function useCurrentUserProfileLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(CurrentUserProfileDocument, options);
 }
+export const DeleteBinderCardDocument = gql `
+    mutation DeleteBinderCard($id: UUID!) {
+  deleteFromBinderCardsCollection(filter: {id: {eq: $id}}, atMost: 1) {
+    affectedCount
+  }
+}
+    `;
+/**
+ * __useDeleteBinderCardMutation__
+ *
+ * To run a mutation, you first call `useDeleteBinderCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBinderCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBinderCardMutation, { data, loading, error }] = useDeleteBinderCardMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteBinderCardMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(DeleteBinderCardDocument, options);
+}
 export const MyBindersDocument = gql `
     query MyBinders($ownerId: UUID!) {
   bindersCollection(
@@ -579,5 +719,70 @@ export const RenameBinderDocument = gql `
 export function useRenameBinderMutation(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useMutation(RenameBinderDocument, options);
+}
+export const UpdateBinderCardDocument = gql `
+    mutation UpdateBinderCard($id: UUID!, $set: BinderCardsUpdateInput!) {
+  updateBinderCardsCollection(filter: {id: {eq: $id}}, set: $set, atMost: 1) {
+    affectedCount
+    records {
+      ...BinderCardDetailFields
+    }
+  }
+}
+    ${BinderCardDetailFieldsFragmentDoc}`;
+/**
+ * __useUpdateBinderCardMutation__
+ *
+ * To run a mutation, you first call `useUpdateBinderCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBinderCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBinderCardMutation, { data, loading, error }] = useUpdateBinderCardMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      set: // value for 'set'
+ *   },
+ * });
+ */
+export function useUpdateBinderCardMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(UpdateBinderCardDocument, options);
+}
+export const UpdateBinderNoteDocument = gql `
+    mutation UpdateBinderNote($id: UUID!, $note: String!) {
+  updateBindersCollection(filter: {id: {eq: $id}}, set: {note: $note}, atMost: 1) {
+    affectedCount
+    records {
+      id
+      note
+    }
+  }
+}
+    `;
+/**
+ * __useUpdateBinderNoteMutation__
+ *
+ * To run a mutation, you first call `useUpdateBinderNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBinderNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBinderNoteMutation, { data, loading, error }] = useUpdateBinderNoteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export function useUpdateBinderNoteMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(UpdateBinderNoteDocument, options);
 }
 //# sourceMappingURL=index.js.map
