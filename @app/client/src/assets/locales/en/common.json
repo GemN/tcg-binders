@@ -62,6 +62,7 @@
     "page_progress": "{{cardCount}} - Page {{page}}/{{pageCount}}",
     "sort": {
       "seller_order": "Seller order",
+      "last_added": "Last added",
       "name": "Name",
       "release_date": "Release date"
     },

@@ -33,7 +33,7 @@ import { handleError } from "@/lib/error";
 import { NotFound } from "@/pages/NotFound";
 import { useSession } from "@/providers/SessionContext";
 
-type BinderSortMode = "seller_order" | "name" | "release_date";
+type BinderSortMode = "seller_order" | "last_added" | "name" | "release_date";
 
 const GRID_PAGE_SIZE = 14;
 const LIST_PAGE_SIZE = 12;
@@ -68,6 +68,13 @@ const getBinderCardOrderBy = (
     return [
       { cardReleasedAt: OrderByDirection.DescNullsLast },
       { cardName: OrderByDirection.AscNullsLast },
+      { id: OrderByDirection.AscNullsLast },
+    ];
+  }
+
+  if (sortMode === "last_added") {
+    return [
+      { createdAt: OrderByDirection.DescNullsLast },
       { id: OrderByDirection.AscNullsLast },
     ];
   }
@@ -240,6 +247,9 @@ export const BinderPage = () => {
                 <SelectContent className="border-border bg-background text-foreground">
                   <SelectItem value="seller_order">
                     {t("common:binder.sort.seller_order")}
+                  </SelectItem>
+                  <SelectItem value="last_added">
+                    {t("common:binder.sort.last_added")}
                   </SelectItem>
                   <SelectItem value="name">
                     {t("common:binder.sort.name")}

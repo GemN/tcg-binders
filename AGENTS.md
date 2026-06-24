@@ -185,6 +185,7 @@ comment on <table|column|function|...> <fully.qualified.name> is
 Do not create sql/pgsql code without my acknowledgement.
 If needed only use current.sql for new sql code.
 
+Prefer to not use anonymous types. Use type or interface whenever possible.
 Must use i18n. Languages are English / Thai
 Design is mobile-first.
 Always check if the project is not already up before running it.
