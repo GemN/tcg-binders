@@ -5,6 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function handlePreventDefault(e: any) {
-  e.preventDefault();
+export function handlePreventDefault(event: { preventDefault: () => void }) {
+  event.preventDefault();
 }

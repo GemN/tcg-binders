@@ -1,5 +1,6 @@
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
+import type { ParseKeys } from "i18next";
 import * as React from "react";
 import {
   Controller,
@@ -147,7 +148,10 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { t } = useTranslation(["common"]);
   const { error, formMessageId } = useFormField();
-  const body = error ? t(String(error?.message ?? "") as any) : props.children;
+  const message = String(error?.message ?? "");
+  const body = error
+    ? t(message as ParseKeys<"common">, { defaultValue: message })
+    : props.children;
 
   if (!body) {
     return null;

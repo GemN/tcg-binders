@@ -1,10 +1,15 @@
 import { addMonths, differenceInDays, differenceInMonths } from "date-fns";
 import type { TFunction } from "i18next";
 
+interface MonthsAndDays {
+  months: number;
+  days: number;
+}
+
 export function getDifferenceBetweenDatesInMonthsAndDays(
   startDate: Date,
   endDate: Date
-) {
+): MonthsAndDays {
   const months = differenceInMonths(endDate, startDate);
   const dateWithMonthsAdded = addMonths(startDate, months);
   const days = differenceInDays(endDate, dateWithMonthsAdded);
@@ -13,18 +18,18 @@ export function getDifferenceBetweenDatesInMonthsAndDays(
 }
 
 export function getDurationInMonthsAndDaysLabel(
-  t: TFunction<any>,
+  t: TFunction<"common">,
   months: number,
   days: number
-) {
+): string {
   const monthsLabel = months
-    ? `${months} ${t("common:months", { count: months })}`
+    ? `${months} ${t("months", { count: months })}`
     : null;
   const daysLabel = days
-    ? `${days} ${t("common:days", { count: days })}`
+    ? `${days} ${t("days", { count: days })}`
     : null;
   return (
     [monthsLabel, daysLabel].filter(Boolean).join(" ") ||
-    t("common:days", { count: 0 })
+    t("days", { count: 0 })
   );
 }

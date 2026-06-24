@@ -1,21 +1,17 @@
-import {
-  BinderCard,
-  type BinderCardRecord,
-} from "@/components/BinderCard";
+import { BinderCard } from "@/components/BinderCard";
+import type { BinderCardRecord } from "@/lib/binderCardPricing";
 import { cn } from "@/lib/utils";
 
 interface BinderCardGridProps {
   binderCards: BinderCardRecord[];
   className?: string;
   noImageLabel: string;
-  showConvertedMarketPrices: boolean;
 }
 
 export const BinderCardGrid = ({
   binderCards,
   className,
   noImageLabel,
-  showConvertedMarketPrices,
 }: BinderCardGridProps) => {
   return (
     <div
@@ -29,7 +25,6 @@ export const BinderCardGrid = ({
           key={binderCard.id}
           binderCard={binderCard}
           noImageLabel={noImageLabel}
-          showConvertedMarketPrices={showConvertedMarketPrices}
         />
       ))}
     </div>

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/Table";
 
 /* eslint-disable react-refresh/only-export-components */
-export const columnSelect = <TData,>(): ColumnDef<TData, any> => ({
+export const columnSelect = <TData,>(): ColumnDef<TData, unknown> => ({
   id: "select",
   header: ({ table }) => (
     <Checkbox

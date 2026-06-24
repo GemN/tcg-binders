@@ -277,14 +277,16 @@ export const BinderPage = () => {
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
-            <label className="flex items-center gap-2 text-sm text-binder-toolbar-foreground/80 sm:justify-end">
-              <Switch
-                checked={showConvertedMarketPrices}
-                onCheckedChange={setShowConvertedMarketPrices}
-                aria-label={t("common:binder.show_converted_market_prices")}
-              />
-              <span>{t("common:binder.show_converted_market_prices")}</span>
-            </label>
+            <div className="flex justify-end">
+              <label className="inline-flex w-fit items-center gap-2 text-sm text-binder-toolbar-foreground/80">
+                <Switch
+                  checked={showConvertedMarketPrices}
+                  onCheckedChange={setShowConvertedMarketPrices}
+                  aria-label={t("common:binder.show_converted_market_prices")}
+                />
+                <span>{t("common:binder.show_converted_market_prices")}</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -328,28 +330,28 @@ export const BinderPage = () => {
                   type="button"
                   aria-label={t("common:previous")}
                   disabled={!canTurnPreviousPage}
-                  className="group/page-zone absolute inset-y-0 left-0 z-20 hidden w-1/5 items-center justify-start bg-transparent px-4 transition-colors hover:bg-linear-to-r hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-r focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 md:flex lg:px-6"
+                  className="group/page-zone absolute inset-y-0 left-0 hidden w-4 items-center justify-center bg-transparent transition-colors hover:bg-linear-to-r hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-r focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
                   onClick={() => {
                     handlePreviousPage();
                     focusBinderView();
                   }}
                 >
-                  <span className="flex size-12 items-center justify-center rounded-full border border-binder-toolbar-foreground/20 bg-binder-toolbar/80 text-binder-toolbar-foreground/80 shadow-2xl shadow-foreground/20 backdrop-blur transition group-hover/page-zone:scale-110 group-hover/page-zone:bg-primary group-hover/page-zone:text-primary-foreground group-focus-visible/page-zone:scale-110 group-focus-visible/page-zone:bg-primary group-focus-visible/page-zone:text-primary-foreground">
-                    <ChevronLeft className="size-6" />
+                  <span className="flex size-4 items-center justify-center rounded-full border border-binder-toolbar-foreground/20 bg-binder-toolbar/80 text-binder-toolbar-foreground/80 shadow-2xl shadow-foreground/20 backdrop-blur transition group-hover/page-zone:scale-110 group-hover/page-zone:bg-primary group-hover/page-zone:text-primary-foreground group-focus-visible/page-zone:scale-110 group-focus-visible/page-zone:bg-primary group-focus-visible/page-zone:text-primary-foreground sm:size-6 lg:size-12">
+                    <ChevronLeft className="size-3 sm:size-4 lg:size-6" />
                   </span>
                 </button>
                 <button
                   type="button"
                   aria-label={t("common:next")}
                   disabled={!canTurnNextPage}
-                  className="group/page-zone absolute inset-y-0 right-0 z-20 hidden w-1/5 items-center justify-end bg-transparent px-4 transition-colors hover:bg-linear-to-l hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-l focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 md:flex lg:px-6"
+                  className="group/page-zone absolute inset-y-0 right-0 hidden w-4 items-center justify-center bg-transparent transition-colors hover:bg-linear-to-l hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-l focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
                   onClick={() => {
                     handleNextPage();
                     focusBinderView();
                   }}
                 >
-                  <span className="flex size-12 items-center justify-center rounded-full border border-binder-toolbar-foreground/20 bg-binder-toolbar/80 text-binder-toolbar-foreground/80 shadow-2xl shadow-foreground/20 backdrop-blur transition group-hover/page-zone:scale-110 group-hover/page-zone:bg-primary group-hover/page-zone:text-primary-foreground group-focus-visible/page-zone:scale-110 group-focus-visible/page-zone:bg-primary group-focus-visible/page-zone:text-primary-foreground">
-                    <ChevronRight className="size-6" />
+                  <span className="flex size-4 items-center justify-center rounded-full border border-binder-toolbar-foreground/20 bg-binder-toolbar/80 text-binder-toolbar-foreground/80 shadow-2xl shadow-foreground/20 backdrop-blur transition group-hover/page-zone:scale-110 group-hover/page-zone:bg-primary group-hover/page-zone:text-primary-foreground group-focus-visible/page-zone:scale-110 group-focus-visible/page-zone:bg-primary group-focus-visible/page-zone:text-primary-foreground sm:size-6 lg:size-12">
+                    <ChevronRight className="size-3 sm:size-4 lg:size-6" />
                   </span>
                 </button>
               </>
@@ -359,7 +361,6 @@ export const BinderPage = () => {
                 binderCards={visibleBinderCards}
                 className="min-h-full"
                 noImageLabel={t("common:binder.no_image")}
-                showConvertedMarketPrices={showConvertedMarketPrices}
               />
             ) : (
               <BinderCardList

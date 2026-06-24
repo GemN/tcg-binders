@@ -9,16 +9,15 @@ import { Task } from "graphile-worker";
 import { htmlToText } from "html-to-text";
 import { template as lodashTemplate } from "lodash";
 import mjml2html from "mjml";
-// @ts-ignore
 import mjmlInclude from "mjml-core/lib/includeExternal";
 import * as nodemailer from "nodemailer";
-import Mail from "nodemailer/lib/mailer/index";
+import type Mail from "nodemailer/lib/mailer/index";
 import * as process from "process";
 
 import getTransport from "../transport";
 
-declare module global {
-  let TEST_EMAILS: any[];
+declare global {
+  var TEST_EMAILS: unknown[];
 }
 
 global.TEST_EMAILS = [];
@@ -37,13 +36,14 @@ export interface SendEmailPayload {
     cc?: string | string[];
   };
   template: string;
-  variables: {
-    [varName: string]: any;
-  };
+  variables: SendEmailVariables;
 }
 
+type SendEmailVariables = Record<string, unknown>;
+type TemplateRenderer = (variables: SendEmailVariables) => string;
+
 const task: Task = async (inPayload) => {
-  const payload: SendEmailPayload = inPayload as any;
+  const payload = inPayload as SendEmailPayload;
   const transport = await getTransport();
   const { options: inOptions, template, variables } = payload;
 
@@ -75,8 +75,8 @@ const task: Task = async (inPayload) => {
 
 module.exports = task;
 
-const templatePromises: Record<string, any> = {};
-function loadTemplate(template: string) {
+const templatePromises: Record<string, Promise<TemplateRenderer>> = {};
+function loadTemplate(template: string): Promise<TemplateRenderer> {
   if (isDev || !templatePromises[template]) {
     templatePromises[template] = (async () => {
       if (!template.match(/^[a-zA-Z0-9_.-]+$/)) {
@@ -88,11 +88,11 @@ function loadTemplate(template: string) {
       );
       const templateWithIncludes = mjmlInclude(templateString, {
         filePath: `${__dirname}/../../templates/${template}`,
-      });
+      }) as string;
       const templateFn = lodashTemplate(templateWithIncludes, {
         escape: /\[\[([\s\S]+?)\]\]/g,
       });
-      return (variables: { [varName: string]: any }) => {
+      return (variables: SendEmailVariables) => {
         const mjml = templateFn({
           projectName,
           legalText,

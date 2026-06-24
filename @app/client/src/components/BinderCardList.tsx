@@ -1,7 +1,6 @@
-import { CurrencyCode, MarketPriceSource } from "@app/graphql";
+import { MarketPriceSource } from "@app/graphql";
 import { useTranslation } from "react-i18next";
 
-import type { BinderCardRecord } from "@/components/BinderCard";
 import {
   Table,
   TableBody,
@@ -10,7 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
-import { formatCurrency } from "@/lib/currency";
+import {
+  type BinderCardRecord,
+  type BinderCardPriceInput,
+  formatBinderCardPrice,
+  getBinderCardMarketPrice,
+} from "@/lib/binderCardPricing";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
@@ -28,58 +32,20 @@ export const BinderCardList = ({
   const { i18n, t } = useTranslation(["common"]);
   const { convertAmount, currency } = usePricingSettings();
 
-  const formatConvertedPrice = (
-    amount: number | string | null | undefined,
-    sourceCurrency: CurrencyCode | null | undefined
-  ) => {
-    if (amount === null || amount === undefined || !sourceCurrency) {
-      return t("common:card.price_unavailable");
-    }
-
-    const convertedAmount = convertAmount(Number(amount), sourceCurrency);
-    if (convertedAmount === null) {
-      return t("common:card.price_unavailable");
-    }
-
-    return formatCurrency(convertedAmount, currency, i18n.language);
-  };
-
-  const formatMarketPrice = (
-    amount: number | string | null | undefined,
-    sourceCurrency: CurrencyCode | null | undefined
-  ) => {
-    if (showConvertedMarketPrices) {
-      return formatConvertedPrice(amount, sourceCurrency);
-    }
-
-    if (amount === null || amount === undefined || !sourceCurrency) {
-      return t("common:card.price_unavailable");
-    }
-
-    const numericAmount = Number(amount);
-    if (!Number.isFinite(numericAmount)) {
-      return t("common:card.price_unavailable");
-    }
-
-    return formatCurrency(numericAmount, sourceCurrency, i18n.language);
-  };
-
-  const getSourcePrice = (
-    binderCard: BinderCardRecord,
-    source: MarketPriceSource
-  ) => {
-    const sourcePrices =
-      binderCard.card?.marketPrices?.edges
-        .map(({ node }) => node)
-        .filter((price) => price.source === source) || [];
-
-    return (
-      sourcePrices.find((price) => price.finish === binderCard.finish) ||
-      sourcePrices.find((price) => price.finish === "normal") ||
-      sourcePrices[0] ||
-      null
-    );
-  };
+  const fallbackPrice = t("common:card.price_unavailable");
+  const formatPrice = ({
+    amount,
+    shouldConvert,
+    sourceCurrency,
+  }: BinderCardPriceInput) =>
+    formatBinderCardPrice({
+      amount,
+      convertAmount,
+      displayCurrency: currency,
+      locale: i18n.language,
+      shouldConvert,
+      sourceCurrency,
+    }) || fallbackPrice;
 
   return (
     <div
@@ -116,15 +82,15 @@ export const BinderCardList = ({
         </TableHeader>
         <TableBody>
           {binderCards.map((binderCard) => {
-            const cardkingdomPrice = getSourcePrice(
+            const cardkingdomPrice = getBinderCardMarketPrice(
               binderCard,
               MarketPriceSource.Cardkingdom
             );
-            const tcgplayerPrice = getSourcePrice(
+            const tcgplayerPrice = getBinderCardMarketPrice(
               binderCard,
               MarketPriceSource.Tcgplayer
             );
-            const cardmarketPrice = getSourcePrice(
+            const cardmarketPrice = getBinderCardMarketPrice(
               binderCard,
               MarketPriceSource.Cardmarket
             );
@@ -144,28 +110,32 @@ export const BinderCardList = ({
                   {binderCard.card?.name}
                 </TableCell>
                 <TableCell className="px-3 py-2 text-right font-medium tabular-nums text-[#343434]">
-                  {formatConvertedPrice(
-                    binderCard.priceAmount,
-                    binderCard.priceCurrency
-                  )}
+                  {formatPrice({
+                    amount: binderCard.priceAmount,
+                    shouldConvert: true,
+                    sourceCurrency: binderCard.priceCurrency,
+                  })}
                 </TableCell>
                 <TableCell className="px-3 py-2 text-right tabular-nums text-[#4f4a45]">
-                  {formatMarketPrice(
-                    cardkingdomPrice?.amount,
-                    cardkingdomPrice?.currency
-                  )}
+                  {formatPrice({
+                    amount: cardkingdomPrice?.amount,
+                    shouldConvert: showConvertedMarketPrices,
+                    sourceCurrency: cardkingdomPrice?.currency,
+                  })}
                 </TableCell>
                 <TableCell className="px-3 py-2 text-right tabular-nums text-[#4f4a45]">
-                  {formatMarketPrice(
-                    tcgplayerPrice?.amount,
-                    tcgplayerPrice?.currency
-                  )}
+                  {formatPrice({
+                    amount: tcgplayerPrice?.amount,
+                    shouldConvert: showConvertedMarketPrices,
+                    sourceCurrency: tcgplayerPrice?.currency,
+                  })}
                 </TableCell>
                 <TableCell className="px-3 py-2 text-right tabular-nums text-[#4f4a45]">
-                  {formatMarketPrice(
-                    cardmarketPrice?.amount,
-                    cardmarketPrice?.currency
-                  )}
+                  {formatPrice({
+                    amount: cardmarketPrice?.amount,
+                    shouldConvert: showConvertedMarketPrices,
+                    sourceCurrency: cardmarketPrice?.currency,
+                  })}
                 </TableCell>
               </TableRow>
             );

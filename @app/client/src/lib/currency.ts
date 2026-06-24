@@ -8,7 +8,7 @@ const currencySymbols: Record<
   USD: { symbol: "$", position: "prefix" },
 };
 
-export const getCurrencyFractionDigits = (currency: string) => {
+export const getCurrencyFractionDigits = (currency: string): number => {
   return currency === "THB" ? 0 : 2;
 };
 
@@ -16,7 +16,7 @@ export const formatCurrency = (
   amount: number,
   currency: string,
   locale: string
-) => {
+): string => {
   const fractionDigits = getCurrencyFractionDigits(currency);
   const display = currencySymbols[currency];
 
