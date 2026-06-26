@@ -1,8 +1,4 @@
-import {
-  CurrencyCode,
-  MarketPriceSource,
-  useUpdateBinderCardMutation,
-} from "@app/graphql";
+import { CurrencyCode, useUpdateBinderCardMutation } from "@app/graphql";
 import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -20,7 +16,8 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import {
   type BinderCardRecord,
-  getBinderCardMarketPrice,
+  formatCardKingdomMultiplierThbPriceInput,
+  getCardKingdomUsdMarketPriceAmount,
 } from "@/lib/binderCardPricing";
 import { formatCurrency } from "@/lib/currency";
 import { handleError } from "@/lib/error";
@@ -47,23 +44,6 @@ interface BulkPricePreview {
 
 const CKD_PRESET_MULTIPLIERS = [25, 30];
 const BULK_PRICE_CONCURRENCY = 4;
-
-const getCardkingdomUsdAmount = (binderCard: BinderCardRecord): number | null => {
-  const cardkingdomPrice = getBinderCardMarketPrice(
-    binderCard,
-    MarketPriceSource.Cardkingdom
-  );
-  const cardkingdomAmount = Number(cardkingdomPrice?.amount);
-
-  if (
-    cardkingdomPrice?.currency !== CurrencyCode.Usd ||
-    !Number.isFinite(cardkingdomAmount)
-  ) {
-    return null;
-  }
-
-  return cardkingdomAmount;
-};
 
 const runWithConcurrency = async <T,>(
   items: T[],
@@ -103,28 +83,37 @@ export const ModalBulkBinderCardPrice = ({
     const applicableBinderCards = binderCards
       .map((binderCard) => ({
         binderCard,
-        cardkingdomAmount: getCardkingdomUsdAmount(binderCard),
+        cardKingdomUsdMarketPriceAmount:
+          getCardKingdomUsdMarketPriceAmount(binderCard),
       }))
       .filter(
         (
           item
-        ): item is { binderCard: BinderCardRecord; cardkingdomAmount: number } =>
-          item.cardkingdomAmount !== null
+        ): item is {
+          binderCard: BinderCardRecord;
+          cardKingdomUsdMarketPriceAmount: number;
+        } => item.cardKingdomUsdMarketPriceAmount !== null
       );
     const previewCard = applicableBinderCards[0];
 
     if (!previewCard || !isMultiplierValid) return null;
 
+    const multiplierThbPriceInput = formatCardKingdomMultiplierThbPriceInput(
+      previewCard.binderCard,
+      multiplier
+    );
+    if (multiplierThbPriceInput === null) return null;
+
     return {
       applicableCount: applicableBinderCards.length,
       cardName: previewCard.binderCard.card?.name || t("common:not_available"),
       resultPrice: formatCurrency(
-        previewCard.cardkingdomAmount * multiplier,
+        Number(multiplierThbPriceInput),
         CurrencyCode.Thb,
         i18n.language
       ),
       sourcePrice: formatCurrency(
-        previewCard.cardkingdomAmount,
+        previewCard.cardKingdomUsdMarketPriceAmount,
         CurrencyCode.Usd,
         i18n.language
       ),
@@ -152,9 +141,13 @@ export const ModalBulkBinderCardPrice = ({
         binderCards,
         BULK_PRICE_CONCURRENCY,
         async (binderCard) => {
-          const cardkingdomAmount = getCardkingdomUsdAmount(binderCard);
+          const multiplierThbPriceInput =
+            formatCardKingdomMultiplierThbPriceInput(
+              binderCard,
+              multiplier
+            );
 
-          if (cardkingdomAmount === null) {
+          if (multiplierThbPriceInput === null) {
             result.skipped += 1;
             return;
           }
@@ -165,7 +158,7 @@ export const ModalBulkBinderCardPrice = ({
                 id: binderCard.id,
                 set: {
                   dynamicPriceRule: null,
-                  priceAmount: (cardkingdomAmount * multiplier).toFixed(2),
+                  priceAmount: multiplierThbPriceInput,
                   priceCurrency: CurrencyCode.Thb,
                 },
               },

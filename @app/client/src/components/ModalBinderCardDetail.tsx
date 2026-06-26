@@ -38,8 +38,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import {
   type BinderCardDetailRecord,
   type BinderCardPriceInput,
+  formatCardKingdomMultiplierThbPriceInput,
   formatBinderCardPrice,
-  getBinderCardMarketPrice,
 } from "@/lib/binderCardPricing";
 import { getCurrencySymbol } from "@/lib/currency";
 import { handleError } from "@/lib/error";
@@ -205,30 +205,6 @@ export const ModalBinderCardDetail = ({
     void persistBinderCard({ quantity: nextQuantity });
   };
 
-  const getCkdPriceAmountInput = (multiplier: number): string | null => {
-    if (!binderCard) return null;
-
-    const cardkingdomPrice = getBinderCardMarketPrice(
-      binderCard,
-      MarketPriceSource.Cardkingdom
-    );
-    const cardkingdomUsdPrice = Number(cardkingdomPrice?.amount);
-
-    if (
-      !cardkingdomPrice ||
-      cardkingdomPrice.currency !== CurrencyCode.Usd ||
-      !Number.isFinite(cardkingdomUsdPrice)
-    ) {
-      handleError(
-        new Error(t("binder:detail.ckd_missing_price")),
-        t("binder:detail.update_error")
-      );
-      return null;
-    }
-
-    return (cardkingdomUsdPrice * multiplier).toFixed(2);
-  };
-
   const handleManualPriceCommit = (nextCurrency = priceCurrency) => {
     if (!binderCard) return;
 
@@ -278,8 +254,17 @@ export const ModalBinderCardDetail = ({
   const handleCkdPreset = (multiplier: number) => {
     if (!binderCard) return;
 
-    const nextAmountInput = getCkdPriceAmountInput(multiplier);
-    if (nextAmountInput === null) return;
+    const nextAmountInput = formatCardKingdomMultiplierThbPriceInput(
+      binderCard,
+      multiplier
+    );
+    if (nextAmountInput === null) {
+      handleError(
+        new Error(t("binder:detail.ckd_missing_price")),
+        t("binder:detail.update_error")
+      );
+      return;
+    }
 
     setPriceCurrency(CurrencyCode.Thb);
     setPriceInput(nextAmountInput);

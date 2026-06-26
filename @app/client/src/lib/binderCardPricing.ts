@@ -1,7 +1,7 @@
 import {
   type BinderCardDetailFieldsFragment,
   type BinderCardSummaryFieldsFragment,
-  type CurrencyCode,
+  CurrencyCode,
   MarketPriceSource,
 } from "@app/graphql";
 
@@ -68,6 +68,37 @@ export const getBinderCardMarketPrice = (
     sourcePrices[0] ||
     null
   );
+};
+
+export const getCardKingdomUsdMarketPriceAmount = (
+  binderCard: BinderCardRecord
+): number | null => {
+  const cardKingdomPrice = getBinderCardMarketPrice(
+    binderCard,
+    MarketPriceSource.Cardkingdom
+  );
+  const cardKingdomUsdMarketPriceAmount = Number(cardKingdomPrice?.amount);
+
+  if (
+    cardKingdomPrice?.currency !== CurrencyCode.Usd ||
+    !Number.isFinite(cardKingdomUsdMarketPriceAmount)
+  ) {
+    return null;
+  }
+
+  return cardKingdomUsdMarketPriceAmount;
+};
+
+export const formatCardKingdomMultiplierThbPriceInput = (
+  binderCard: BinderCardRecord,
+  multiplier: number
+): string | null => {
+  const cardKingdomUsdMarketPriceAmount =
+    getCardKingdomUsdMarketPriceAmount(binderCard);
+
+  if (cardKingdomUsdMarketPriceAmount === null) return null;
+
+  return (cardKingdomUsdMarketPriceAmount * multiplier).toFixed(2);
 };
 
 export const getCheapestMarketPriceSources = (

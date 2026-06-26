@@ -40,7 +40,7 @@
   "new_binder": {
     "button": "New binder",
     "title": "New binder",
-    "description": "Name this binder before adding cards.",
+    "description": "Create a binder for cards you want to sell or trade.",
     "name_label": "Binder name",
     "name_required": "Binder name is required",
     "create": "Create",
