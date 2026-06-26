@@ -63,7 +63,7 @@ export const ClampedText = ({
       {isClamped && indicator && (
         <span
           className={cn(
-            "absolute right-0 bottom-0 text-xs font-medium text-primary underline-offset-2",
+            "absolute right-0 bottom-0 text-xs font-medium text-primary underline-offset-2 cursor-pointer",
             indicatorClassName
           )}
         >

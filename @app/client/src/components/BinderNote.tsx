@@ -29,7 +29,7 @@ export const BinderNote = ({
   note,
   onUpdated,
 }: BinderNoteProps) => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["binder", "common"]);
   const [modalDraftNote, setModalDraftNote] = useState(note);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompactClamped, setIsCompactClamped] = useState(false);
@@ -37,8 +37,13 @@ export const BinderNote = ({
 
   const displayedNote = normalizeBinderNote(note);
   const canShowNote = isOwner || !!displayedNote;
-  const compactText = displayedNote || t("common:binder.note.placeholder");
+  const compactText = displayedNote || t("binder:note.placeholder");
   const isPlaceholder = !displayedNote;
+
+  const handleClampChange = useCallback(
+    (nextIsClamped: boolean) => setIsCompactClamped(nextIsClamped),
+    []
+  );
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -66,14 +71,14 @@ export const BinderNote = ({
       });
 
       if (!result.data?.updateBindersCollection.affectedCount) {
-        throw new Error(t("common:binder.note.update_error"));
+        throw new Error(t("binder:note.update_error"));
       }
 
       setModalDraftNote(normalizedNote);
       await onUpdated?.();
       return true;
     } catch (error) {
-      handleError(error, t("common:binder.note.update_error"));
+      handleError(error, t("binder:note.update_error"));
       return false;
     }
   };
@@ -82,11 +87,6 @@ export const BinderNote = ({
     setModalDraftNote(displayedNote);
     setIsModalOpen(true);
   };
-
-  const handleClampChange = useCallback(
-    (nextIsClamped: boolean) => setIsCompactClamped(nextIsClamped),
-    []
-  );
 
   return (
     <div className="mt-2 max-w-xl">
@@ -98,11 +98,13 @@ export const BinderNote = ({
         onClick={handleOpenModal}
       >
         <ClampedText
-          className={isPlaceholder ? "text-muted-foreground" : ""}
-          indicator={
-            displayedNote ? t("common:binder.note.show_more") : undefined
+          className={
+            isPlaceholder
+              ? "text-muted-foreground border-b border-dotted border-transparent hover:border-foreground cursor-pointer"
+              : ""
           }
-          indicatorClassName="group-hover:underline group-hover:decoration-dotted"
+          indicator={displayedNote ? t("binder:note.show_more") : undefined}
+          indicatorClassName="font-bold text-black group-hover:underline group-hover:decoration-dotted"
           onClampChange={handleClampChange}
           shouldMeasure={!!displayedNote}
         >
@@ -112,15 +114,15 @@ export const BinderNote = ({
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>{t("common:binder.note.title")}</DialogTitle>
+            <DialogTitle>{t("binder:note.title")}</DialogTitle>
           </DialogHeader>
 
           {isOwner ? (
             <Textarea
               value={modalDraftNote}
               disabled={loading}
-              aria-label={t("common:binder.note.label")}
-              placeholder={t("common:binder.note.placeholder")}
+              aria-label={t("binder:note.label")}
+              placeholder={t("binder:note.placeholder")}
               className="min-h-56 resize-y"
               onChange={(event) => setModalDraftNote(event.target.value)}
             />
@@ -152,7 +154,7 @@ export const BinderNote = ({
                   }
                 }}
               >
-                {t("common:binder.note.save")}
+                {t("binder:note.save")}
               </Button>
             )}
           </DialogFooter>

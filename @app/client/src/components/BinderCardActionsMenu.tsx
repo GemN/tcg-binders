@@ -25,7 +25,7 @@ export const BinderCardActionsMenu = ({
   onDelete,
   triggerVariant = "overlay",
 }: BinderCardActionsMenuProps) => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["binder", "common"]);
 
   return (
     <div
@@ -42,10 +42,10 @@ export const BinderCardActionsMenu = ({
             className={cn(
               "size-8",
               triggerVariant === "inline"
-                ? "bg-transparent text-[#2d4059] shadow-none hover:bg-transparent hover:text-primary focus-visible:ring-primary/30 data-[state=open]:bg-transparent data-[state=open]:text-primary"
+                ? "bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground focus-visible:ring-ring/30 data-[state=open]:bg-transparent data-[state=open]:text-foreground"
                 : "border border-black/10 bg-black/65 text-white shadow-md hover:bg-black/80 hover:text-white focus-visible:ring-white/70 data-[state=open]:bg-black/80"
             )}
-            aria-label={t("common:binder.actions.open", { name: cardName })}
+            aria-label={t("binder:actions.open", { name: cardName })}
           >
             <EllipsisVertical className="size-4" />
           </Button>
@@ -58,7 +58,7 @@ export const BinderCardActionsMenu = ({
             onSelect={onDelete}
           >
             <Trash2 className="size-4" />
-            {t("common:binder.actions.delete")}
+            {t("binder:actions.delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -59,7 +59,7 @@ export const ButtonImportBinder = ({
   onImported,
   tcgId,
 }: ButtonImportBinderProps) => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["binder", "common"]);
   const manaBoxFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -173,8 +173,8 @@ export const ButtonImportBinder = ({
     if (!value) {
       setValidationError(
         format === "manabox_csv"
-          ? t("common:binder.import.empty_csv")
-          : t("common:binder.import.empty")
+          ? t("binder:import.empty_csv")
+          : t("binder:import.empty")
       );
       return;
     }
@@ -186,7 +186,7 @@ export const ButtonImportBinder = ({
 
     if (parseResult.items.length === 0) {
       setImportResult(null);
-      setValidationError(t("common:binder.import.no_parseable_cards"));
+      setValidationError(t("binder:import.no_parseable_cards"));
       return;
     }
 
@@ -246,7 +246,7 @@ export const ButtonImportBinder = ({
       setImportProgress(null);
     } catch (error) {
       setImportProgress(null);
-      handleError(error, t("common:binder.import.error"));
+      handleError(error, t("binder:import.error"));
     }
   };
 
@@ -269,7 +269,7 @@ export const ButtonImportBinder = ({
       const csvText = await file.text();
       await handleImport("manabox_csv", csvText);
     } catch (error) {
-      handleError(error, t("common:binder.import.error"));
+      handleError(error, t("binder:import.error"));
     }
   };
 
@@ -278,20 +278,20 @@ export const ButtonImportBinder = ({
       <DialogTrigger asChild>
         <Button type="button" variant="outline" className="h-9 px-2 sm:px-3">
           <Upload className="size-4" />
-          {t("common:binder.import.button")}
+          {t("binder:import.button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{t("common:binder.import.title")}</DialogTitle>
+          <DialogTitle>{t("binder:import.title")}</DialogTitle>
           <DialogDescription>
-            {t("common:binder.import.description")}
+            {t("binder:import.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2">
           <Label htmlFor="binder-import-input">
-            {t("common:binder.import.label")}
+            {t("binder:import.label")}
           </Label>
           <Textarea
             id="binder-import-input"
@@ -303,7 +303,7 @@ export const ButtonImportBinder = ({
             }}
             rows={12}
             className="max-h-80 min-h-60 resize-y overflow-y-auto field-sizing-fixed font-mono text-sm"
-            placeholder={t("common:binder.import.placeholder")}
+            placeholder={t("binder:import.placeholder")}
             disabled={isImporting}
           />
           {validationError && (
@@ -311,7 +311,7 @@ export const ButtonImportBinder = ({
           )}
           {importProgress && (
             <p className="text-sm text-muted-foreground">
-              {t(`common:binder.import.progress.${importProgress.stage}`, {
+              {t(`binder:import.progress.${importProgress.stage}`, {
                 completed: importProgress.completed,
                 total: importProgress.total,
               })}
@@ -322,12 +322,12 @@ export const ButtonImportBinder = ({
         {importResult && (
           <div className="rounded-md border border-border bg-muted/40 p-3 text-sm">
             <p className="font-medium text-foreground">
-              {t("common:binder.import.imported_count", {
+              {t("binder:import.imported_count", {
                 count: importResult.importedCount,
               })}
             </p>
             <p className="mt-1 text-muted-foreground">
-              {t("common:binder.import.skipped_count", {
+              {t("binder:import.skipped_count", {
                 count:
                   importResult.resolveResult.unmatchedItems.length +
                   importResult.parseResult.rejectedLines.length +
@@ -336,14 +336,14 @@ export const ButtonImportBinder = ({
             </p>
             {importResult.failedInsertCount > 0 && (
               <p className="mt-1 text-muted-foreground">
-                {t("common:binder.import.failed_insert_count", {
+                {t("binder:import.failed_insert_count", {
                   count: importResult.failedInsertCount,
                 })}
               </p>
             )}
             {importResult.resolveResult.unmatchedItems.length > 0 && (
               <p className="mt-2 text-muted-foreground">
-                {t("common:binder.import.unmatched_preview", {
+                {t("binder:import.unmatched_preview", {
                   names: importResult.resolveResult.unmatchedItems
                     .slice(0, 3)
                     .map((item) => item.name)
@@ -369,7 +369,7 @@ export const ButtonImportBinder = ({
             disabled={isImporting}
             onClick={handlePickManaBoxCsv}
           >
-            {t("common:binder.import.manabox_csv")}
+            {t("binder:import.manabox_csv")}
           </Button>
           <input
             ref={manaBoxFileInputRef}
@@ -383,7 +383,7 @@ export const ButtonImportBinder = ({
             isLoading={isImporting}
             onClick={handleImportText}
           >
-            {t("common:binder.import.import")}
+            {t("binder:import.import")}
           </Button>
         </DialogFooter>
       </DialogContent>

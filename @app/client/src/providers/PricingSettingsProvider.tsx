@@ -3,9 +3,16 @@ import {
   MarketPriceSource,
   useCurrentCurrencyRatesQuery,
 } from "@app/graphql";
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
+  type ConvertAmountToLocalCurrency,
   isSupportedCurrency,
   isSupportedPriceSource,
   PricingSettingsContext,
@@ -46,8 +53,9 @@ export const PricingSettingsProvider = ({
 }: PricingSettingsProviderProps) => {
   const [currency, setCurrency] =
     useState<SupportedCurrency>(readStoredCurrency);
-  const [priceSource, setPriceSource] =
-    useState<SupportedPriceSource>(readStoredPriceSource);
+  const [priceSource, setPriceSource] = useState<SupportedPriceSource>(
+    readStoredPriceSource
+  );
   const { data, error } = useCurrentCurrencyRatesQuery({
     fetchPolicy: "cache-and-network",
   });
@@ -85,8 +93,8 @@ export const PricingSettingsProvider = ({
     return nextRates;
   }, [data?.currencyRatesCollection?.edges]);
 
-  const convertAmount = useCallback(
-    (amount: number, sourceCurrency: CurrencyCode) => {
+  const convertAmountToLocalCurrency = useCallback<ConvertAmountToLocalCurrency>(
+    (amount, sourceCurrency) => {
       if (!Number.isFinite(amount) || amount < 0) return null;
       if (!isSupportedCurrency(sourceCurrency)) return null;
       if (sourceCurrency === currency) return amount;
@@ -102,13 +110,13 @@ export const PricingSettingsProvider = ({
 
   const value = useMemo(
     () => ({
-      convertAmount,
+      convertAmountToLocalCurrency,
       currency,
       priceSource,
       setCurrency,
       setPriceSource,
     }),
-    [convertAmount, currency, priceSource]
+    [convertAmountToLocalCurrency, currency, priceSource]
   );
 
   return (

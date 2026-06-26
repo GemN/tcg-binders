@@ -122,9 +122,22 @@ create temp table import_mtg_card_prices_raw (
   uuid text
 ) on commit drop;
 
+create temp table import_mtg_card_purchase_urls_raw (
+  uuid text,
+  card_kingdom text,
+  card_kingdom_foil text,
+  card_kingdom_etched text,
+  cardmarket text,
+  cardmarket_foil text,
+  tcgplayer text,
+  tcgplayer_etched text,
+  tcgplayer_alternative_foil text
+) on commit drop;
+
 \copy import_mtg_sets_raw from '__MTG_SETS_CSV__' with (format csv, header true)
 \copy import_mtg_cards_raw from '__MTG_CARDS_CSV__' with (format csv, header true)
 \copy import_mtg_card_prices_raw from '__MTG_CARD_PRICES_CSV__' with (format csv, header true)
+\copy import_mtg_card_purchase_urls_raw from '__MTG_CARD_PURCHASE_URLS_CSV__' with (format csv, header true)
 
 create function pg_temp.import_mtg_date(value text) returns date as $$
   select case
@@ -328,6 +341,53 @@ order by
 create index import_mtg_card_prices_uuid_idx
 on import_mtg_card_prices (uuid);
 
+create temp table import_mtg_card_purchase_urls as
+select distinct on (
+  uuid,
+  price_provider,
+  finish
+)
+  uuid,
+  price_provider,
+  finish,
+  buy_url
+from (
+  select
+    nullif(btrim(raw.uuid), '') as uuid,
+    urls.price_provider,
+    urls.finish,
+    nullif(btrim(urls.buy_url), '') as buy_url,
+    urls.priority
+  from import_mtg_card_purchase_urls_raw raw
+  cross join lateral (
+    values
+      ('cardkingdom', 'normal', card_kingdom, 100),
+      ('cardkingdom', 'foil', card_kingdom_foil, 100),
+      ('cardkingdom', 'etched', card_kingdom_etched, 100),
+      ('cardmarket', 'normal', cardmarket, 100),
+      ('cardmarket', 'foil', cardmarket_foil, 100),
+      ('tcgplayer', 'normal', tcgplayer, 100),
+      ('tcgplayer', 'foil', tcgplayer_alternative_foil, 50),
+      ('tcgplayer', 'foil', tcgplayer, 100),
+      ('tcgplayer', 'etched', tcgplayer_etched, 100)
+  ) as urls(price_provider, finish, buy_url, priority)
+) purchase_urls
+where uuid is not null
+  and buy_url is not null
+  and exists (
+    select 1
+    from import_mtg_cards cards
+    where cards.uuid = purchase_urls.uuid
+  )
+order by
+  uuid,
+  price_provider,
+  finish,
+  priority;
+
+create index import_mtg_card_purchase_urls_lookup_idx
+on import_mtg_card_purchase_urls (uuid, price_provider, finish);
+
 insert into public.tcg (id, name)
 values ('mtg', 'Magic: The Gathering')
 on conflict (id) do update
@@ -391,10 +451,13 @@ select
     cards.language,
     'normal'
   ),
-  pg_temp.import_mtg_date(cards.original_release_date),
+  coalesce(
+    pg_temp.import_mtg_date(cards.original_release_date),
+    card_sets.release_at
+  ),
   now()
 from import_mtg_cards cards
-left join public.card_sets
+inner join public.card_sets
 on card_sets.tcg_id = 'mtg'
 and card_sets.external_id = cards.set_code
 on conflict (tcg_id, external_id) do update
@@ -469,12 +532,16 @@ select
   prices.finish,
   prices.amount,
   prices.currency::public.currency_code,
-  null,
+  purchase_urls.buy_url,
   prices.price_date
 from import_mtg_card_prices prices
 inner join public.cards
 on cards.tcg_id = 'mtg'
 and cards.external_id = prices.uuid
+left join import_mtg_card_purchase_urls purchase_urls
+on purchase_urls.uuid = prices.uuid
+and purchase_urls.price_provider = prices.price_provider
+and purchase_urls.finish = prices.finish
 on conflict (
   tcg_id,
   card_id,

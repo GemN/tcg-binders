@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
+import { Checkbox } from "@/components/ui/Checkbox";
 import {
   type BinderCardRecord,
   formatBinderCardPrice,
@@ -10,14 +11,6 @@ import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
 export type BinderCardViewMode = "grid" | "list";
-
-interface BinderCardProps {
-  binderCard: BinderCardRecord;
-  isDeleting?: boolean;
-  noImageLabel: string;
-  onDelete?: (binderCard: BinderCardRecord) => void;
-  onOpen: (binderCard: BinderCardRecord) => void;
-}
 
 interface BinderCardImageProps {
   card: BinderCardRecord["card"];
@@ -68,11 +61,11 @@ const BinderCardImage = ({
 };
 
 const useBinderCardPriceLabel = (binderCard: BinderCardRecord): string => {
-  const { i18n } = useTranslation(["common"]);
-  const { convertAmount, currency } = usePricingSettings();
+  const { i18n } = useTranslation(["binder", "common"]);
+  const { convertAmountToLocalCurrency, currency } = usePricingSettings();
   const displayPrice = formatBinderCardPrice({
     amount: binderCard.priceAmount,
-    convertAmount,
+    convertAmountToLocalCurrency,
     displayCurrency: currency,
     locale: i18n.language,
     shouldConvert: true,
@@ -82,14 +75,27 @@ const useBinderCardPriceLabel = (binderCard: BinderCardRecord): string => {
   return displayPrice || "-";
 };
 
+interface BinderCardProps {
+  binderCard: BinderCardRecord;
+  isDeleting?: boolean;
+  isSelected?: boolean;
+  isSelectionMode?: boolean;
+  noImageLabel: string;
+  onDelete?: (binderCard: BinderCardRecord) => void;
+  onOpen: (binderCard: BinderCardRecord) => void;
+  onToggleSelection?: (binderCard: BinderCardRecord) => void;
+}
 export const BinderCard = ({
   binderCard,
   isDeleting,
+  isSelected = false,
+  isSelectionMode = false,
   noImageLabel,
   onDelete,
   onOpen,
+  onToggleSelection,
 }: BinderCardProps) => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["binder", "common"]);
   const priceLabel = useBinderCardPriceLabel(binderCard);
   const conditionLabel = t(
     `common:card.condition_short.${binderCard.condition}`,
@@ -98,14 +104,36 @@ export const BinderCard = ({
     }
   );
   const cardName = binderCard.card?.name || noImageLabel;
+  const handlePrimaryClick = () => {
+    if (isSelectionMode) {
+      onToggleSelection?.(binderCard);
+      return;
+    }
+
+    onOpen(binderCard);
+  };
 
   return (
     <div className="relative w-full max-w-[12rem] text-left text-foreground">
+      {isSelectionMode && (
+        <Checkbox
+          checked={isSelected}
+          aria-label={t("binder:selection.select_card", {
+            name: cardName,
+          })}
+          className="absolute top-2 left-2 z-10 size-5 cursor-pointer border-white/80 bg-black/70 text-white"
+          onCheckedChange={() => onToggleSelection?.(binderCard)}
+        />
+      )}
       <button
         type="button"
-        aria-label={t("common:binder.detail.open_card", { name: cardName })}
+        aria-label={
+          isSelectionMode
+            ? t("binder:selection.select_card", { name: cardName })
+            : t("binder:detail.open_card", { name: cardName })
+        }
         className="group grid w-full cursor-pointer transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-        onClick={() => onOpen(binderCard)}
+        onClick={handlePrimaryClick}
       >
         <BinderCardImage
           card={binderCard.card}
@@ -115,7 +143,7 @@ export const BinderCard = ({
           quantityLabel={String(binderCard.quantity)}
         />
       </button>
-      {onDelete && (
+      {onDelete && !isSelectionMode && (
         <BinderCardActionsMenu
           cardName={cardName}
           className="absolute top-2 right-2"

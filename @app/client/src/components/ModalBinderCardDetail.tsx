@@ -12,17 +12,17 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Loading } from "@/components/Loading";
-import { BinderCardEditableFields } from "@/components/modal-binder-card-detail/BinderCardEditableFields";
-import { BinderCardMediaPanel } from "@/components/modal-binder-card-detail/BinderCardMediaPanel";
-import { BinderCardPricingFields } from "@/components/modal-binder-card-detail/BinderCardPricingFields";
-import { BinderCardTextPanel } from "@/components/modal-binder-card-detail/BinderCardTextPanel";
-import { ModalDetailHeader } from "@/components/modal-binder-card-detail/ModalDetailHeader";
-import { ModalDetailNavigation } from "@/components/modal-binder-card-detail/ModalDetailNavigation";
+import { BinderCardEditableFields } from "@/components/ModalBinderCardDetail/BinderCardEditableFields";
+import { BinderCardMediaPanel } from "@/components/ModalBinderCardDetail/BinderCardMediaPanel";
+import { BinderCardPricingFields } from "@/components/ModalBinderCardDetail/BinderCardPricingFields";
+import { BinderCardTextPanel } from "@/components/ModalBinderCardDetail/BinderCardTextPanel";
+import { ModalDetailHeader } from "@/components/ModalBinderCardDetail/ModalDetailHeader";
+import { ModalDetailNavigation } from "@/components/ModalBinderCardDetail/ModalDetailNavigation";
 import type {
   DynamicPriceStrategy,
   ModalBinderCardRecord,
   PriceMode,
-} from "@/components/modal-binder-card-detail/types";
+} from "@/components/ModalBinderCardDetail/types";
 import {
   arePriceAmountsEqual,
   formatFallbackLabel,
@@ -33,7 +33,7 @@ import {
   readStoredCustomCkdMultiplier,
   shouldIgnoreModalNavigationKey,
   writeStoredCustomCkdMultiplier,
-} from "@/components/modal-binder-card-detail/utils";
+} from "@/components/ModalBinderCardDetail/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import {
   type BinderCardDetailRecord,
@@ -76,8 +76,8 @@ export const ModalBinderCardDetail = ({
   onGoPrevious,
   onOpenChange,
 }: ModalBinderCardDetailProps) => {
-  const { i18n, t } = useTranslation(["common"]);
-  const { convertAmount, currency } = usePricingSettings();
+  const { i18n, t } = useTranslation(["binder", "common"]);
+  const { convertAmountToLocalCurrency, currency } = usePricingSettings();
   const priceInputId = useId();
   const ckdMultiplierInputId = useId();
   const [quantityInput, setQuantityInput] = useState("1");
@@ -98,9 +98,9 @@ export const ModalBinderCardDetail = ({
     useUpdateBinderCardMutation();
   const card = binderCard?.card;
   const detail = getCardDetail(card);
-  const noImageLabel = t("common:binder.no_image");
+  const noImageLabel = t("binder:no_image");
   const fallbackPrice = "-";
-  const title = card?.name || t("common:binder.detail.title");
+  const title = card?.name || t("binder:detail.title");
   const imageUrl = card?.imageNormalUrl || card?.imageSmallUrl;
   const shouldLoadVariants = !!card?.id && variantQueryCardId === card.id;
   const finishOptions = useMemo(() => {
@@ -123,9 +123,9 @@ export const ModalBinderCardDetail = ({
     return variantsData?.cardsCollection?.edges.map(({ node }) => node) || [];
   }, [shouldLoadVariants, variantsData?.cardsCollection?.edges]);
   const marketPriceLabels: Record<MarketPriceSource, string> = {
-    [MarketPriceSource.Cardkingdom]: t("common:binder.list.cardkingdom_price"),
-    [MarketPriceSource.Cardmarket]: t("common:binder.list.cardmarket_price"),
-    [MarketPriceSource.Tcgplayer]: t("common:binder.list.tcgplayer_price"),
+    [MarketPriceSource.Cardkingdom]: t("binder:list.cardkingdom_price"),
+    [MarketPriceSource.Cardmarket]: t("binder:list.cardmarket_price"),
+    [MarketPriceSource.Tcgplayer]: t("binder:list.tcgplayer_price"),
   };
   const formatPrice = ({
     amount,
@@ -134,7 +134,7 @@ export const ModalBinderCardDetail = ({
   }: BinderCardPriceInput) =>
     formatBinderCardPrice({
       amount,
-      convertAmount,
+      convertAmountToLocalCurrency,
       displayCurrency: currency,
       locale: i18n.language,
       shouldConvert,
@@ -154,13 +154,7 @@ export const ModalBinderCardDetail = ({
     setDynamicPriceStrategy("CKD X");
     setPriceInput(formatPriceInputValue(binderCard.priceAmount));
     setCkdMultiplierInput(readStoredCustomCkdMultiplier());
-  }, [
-    binderCard?.dynamicPriceRule,
-    binderCard?.id,
-    binderCard?.priceAmount,
-    binderCard?.priceCurrency,
-    binderCard?.quantity,
-  ]);
+  }, [binderCard]);
 
   useEffect(() => {
     setVariantQueryCardId(null);
@@ -179,11 +173,11 @@ export const ModalBinderCardDetail = ({
       const updatedBinderCard =
         result.data?.updateBinderCardsCollection.records[0];
       if (!updatedBinderCard) {
-        throw new Error(t("common:binder.detail.update_error"));
+        throw new Error(t("binder:detail.update_error"));
       }
       onBinderCardUpdated(updatedBinderCard);
     } catch (error) {
-      handleError(error, t("common:binder.detail.update_error"));
+      handleError(error, t("binder:detail.update_error"));
     }
   };
 
@@ -226,8 +220,8 @@ export const ModalBinderCardDetail = ({
       !Number.isFinite(cardkingdomUsdPrice)
     ) {
       handleError(
-        new Error(t("common:binder.detail.ckd_missing_price")),
-        t("common:binder.detail.update_error")
+        new Error(t("binder:detail.ckd_missing_price")),
+        t("binder:detail.update_error")
       );
       return null;
     }
@@ -260,8 +254,8 @@ export const ModalBinderCardDetail = ({
     const nextAmount = Number(nextAmountInput);
     if (!Number.isFinite(nextAmount) || nextAmount < 0) {
       handleError(
-        new Error(t("common:binder.detail.invalid_price")),
-        t("common:binder.detail.update_error")
+        new Error(t("binder:detail.invalid_price")),
+        t("binder:detail.update_error")
       );
       return;
     }
@@ -312,8 +306,8 @@ export const ModalBinderCardDetail = ({
     const multiplier = Number(normalizedMultiplierInput);
     if (!Number.isFinite(multiplier) || multiplier <= 0) {
       handleError(
-        new Error(t("common:binder.detail.invalid_price")),
-        t("common:binder.detail.update_error")
+        new Error(t("binder:detail.invalid_price")),
+        t("binder:detail.update_error")
       );
       return;
     }
@@ -474,13 +468,13 @@ export const ModalBinderCardDetail = ({
             positionLabel={
               currentIndex === null
                 ? null
-                : t("common:binder.detail.position", {
+                : t("binder:detail.position", {
                     current: currentIndex + 1,
                     total: totalCards,
                   })
             }
-            savingLabel={t("common:binder.detail.saving")}
-            titleLabel={t("common:binder.detail.card_details")}
+            savingLabel={t("binder:detail.saving")}
+            titleLabel={t("binder:detail.card_details")}
           />
 
           {isLoading && !binderCard ? (
@@ -491,7 +485,7 @@ export const ModalBinderCardDetail = ({
             <div className="grid min-h-0 gap-5 overflow-y-auto p-4 lg:grid-cols-[minmax(16rem,22rem)_1fr] lg:p-6">
               <BinderCardMediaPanel
                 binderCard={binderCard}
-                imageAlt={t("common:binder.detail.image_alt", {
+                imageAlt={t("binder:detail.image_alt", {
                   name: card?.name || "",
                 })}
                 imageUrl={imageUrl}
@@ -499,7 +493,7 @@ export const ModalBinderCardDetail = ({
                 showConvertedMarketPrices={showConvertedMarketPrices}
                 formatPrice={formatPrice}
                 getBuyLabel={(source) =>
-                  t("common:binder.detail.buy_at", {
+                  t("binder:detail.buy_at", {
                     source: marketPriceLabels[source],
                   })
                 }
@@ -520,7 +514,7 @@ export const ModalBinderCardDetail = ({
                     quantityInput={quantityInput}
                     quantityLabel={t("common:draft_binder.quantity")}
                     selectedVariantLabel={selectedVariantLabel}
-                    variantLabel={t("common:binder.detail.variant")}
+                    variantLabel={t("binder:detail.variant")}
                     variants={variants}
                     getVariantLabel={getVariantLabel}
                     loadingVariantLabel={t("common:loading")}
@@ -548,18 +542,18 @@ export const ModalBinderCardDetail = ({
                         priceInputId={priceInputId}
                         priceMode={priceMode}
                         priceModeLabels={{
-                          manual: t("common:binder.detail.price_mode.manual"),
-                          dynamic: t("common:binder.detail.price_mode.dynamic"),
+                          manual: t("binder:detail.price_mode.manual"),
+                          dynamic: t("binder:detail.price_mode.dynamic"),
                         }}
-                        priceLabel={t("common:binder.detail.price")}
+                        priceLabel={t("binder:detail.price")}
                         pricePlaceholder={t(
-                          "common:binder.detail.price_placeholder"
+                          "binder:detail.price_placeholder"
                         )}
                         priceStrategyLabel={t(
-                          "common:binder.detail.price_strategy"
+                          "binder:detail.price_strategy"
                         )}
                         ckdMultiplierLabel={t(
-                          "common:binder.detail.ckd_multiplier"
+                          "binder:detail.ckd_multiplier"
                         )}
                         getCurrencyLabel={getCurrencyLabel}
                         onCkdMultiplierChange={setCkdMultiplierInput}

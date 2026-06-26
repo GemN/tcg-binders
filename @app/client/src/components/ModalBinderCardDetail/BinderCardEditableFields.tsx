@@ -1,7 +1,7 @@
 import { CardCondition, LanguageCode } from "@app/graphql";
 import type { ReactNode } from "react";
 
-import { BinderCardVariantSelect } from "@/components/modal-binder-card-detail/BinderCardVariantSelect";
+import { BinderCardVariantSelect } from "@/components/ModalBinderCardDetail/BinderCardVariantSelect";
 import { Input } from "@/components/ui/Input";
 import {
   Select,

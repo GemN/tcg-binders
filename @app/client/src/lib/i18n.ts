@@ -4,18 +4,22 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 
+import enBinder from "@/assets/locales/en/binder.json";
 import enCommon from "@/assets/locales/en/common.json";
 import enLogin from "@/assets/locales/en/login.json";
+import thBinder from "@/assets/locales/th/binder.json";
 import thCommon from "@/assets/locales/th/common.json";
 import thLogin from "@/assets/locales/th/login.json";
 
 export const defaultNS = "common";
 export const resources = {
   en: {
+    binder: enBinder,
     common: enCommon,
     login: enLogin,
   },
   th: {
+    binder: thBinder,
     common: thCommon,
     login: thLogin,
   },
@@ -29,7 +33,7 @@ i18n
     resources,
     fallbackLng: "en",
     supportedLngs: ["en", "th"],
-    ns: ["common", "login"],
+    ns: ["binder", "common", "login"],
     interpolation: {
       escapeValue: false,
     },

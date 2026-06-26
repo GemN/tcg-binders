@@ -1,11 +1,12 @@
-import type {
-  BinderCardDetailFieldsFragment,
-  BinderCardSummaryFieldsFragment,
-  CurrencyCode,
+import {
+  type BinderCardDetailFieldsFragment,
+  type BinderCardSummaryFieldsFragment,
+  type CurrencyCode,
   MarketPriceSource,
 } from "@app/graphql";
 
 import { formatCurrency } from "@/lib/currency";
+import type { ConvertAmountToLocalCurrency } from "@/providers/PricingSettingsContext";
 
 export type BinderCardRecord = BinderCardSummaryFieldsFragment;
 export type BinderCardDetailRecord = BinderCardDetailFieldsFragment;
@@ -14,14 +15,14 @@ type BinderCardMarketPrice = NonNullable<
   NonNullable<BinderCardRecord["card"]>["marketPrices"]
 >["edges"][number]["node"];
 
-type ConvertAmount = (
-  amount: number,
-  sourceCurrency: CurrencyCode
-) => number | null;
+export interface ComparableMarketPriceInput {
+  amount: number | string | null | undefined;
+  currency: CurrencyCode | null | undefined;
+}
 
 export interface FormatBinderCardPriceParams {
   amount: number | string | null | undefined;
-  convertAmount: ConvertAmount;
+  convertAmountToLocalCurrency: ConvertAmountToLocalCurrency;
   displayCurrency: CurrencyCode;
   locale: string;
   shouldConvert: boolean;
@@ -32,6 +33,25 @@ export type BinderCardPriceInput = Pick<
   FormatBinderCardPriceParams,
   "amount" | "shouldConvert" | "sourceCurrency"
 >;
+
+const MARKET_PRICE_COMPARE_EPSILON = 0.000001;
+const marketPriceSources = [
+  MarketPriceSource.Cardkingdom,
+  MarketPriceSource.Tcgplayer,
+  MarketPriceSource.Cardmarket,
+] as const;
+
+const getComparableMarketPriceAmount = (
+  marketPrice: ComparableMarketPriceInput | null,
+  convertAmountToLocalCurrency: ConvertAmountToLocalCurrency
+): number | null => {
+  if (!marketPrice?.currency) return null;
+
+  const amount = Number(marketPrice.amount);
+  if (!Number.isFinite(amount)) return null;
+
+  return convertAmountToLocalCurrency(amount, marketPrice.currency);
+};
 
 export const getBinderCardMarketPrice = (
   binderCard: BinderCardRecord,
@@ -50,9 +70,42 @@ export const getBinderCardMarketPrice = (
   );
 };
 
+export const getCheapestMarketPriceSources = (
+  marketPrices: Record<MarketPriceSource, ComparableMarketPriceInput | null>,
+  convertAmountToLocalCurrency: ConvertAmountToLocalCurrency
+): Set<MarketPriceSource> => {
+  const comparablePrices = marketPriceSources
+    .map((source) => ({
+      amount: getComparableMarketPriceAmount(
+        marketPrices[source],
+        convertAmountToLocalCurrency
+      ),
+      source,
+    }))
+    .filter(
+      (price): price is { amount: number; source: MarketPriceSource } =>
+        price.amount !== null
+    );
+
+  if (comparablePrices.length < 2) return new Set();
+
+  const cheapestAmount = Math.min(
+    ...comparablePrices.map(({ amount }) => amount)
+  );
+
+  return new Set(
+    comparablePrices
+      .filter(
+        ({ amount }) =>
+          Math.abs(amount - cheapestAmount) <= MARKET_PRICE_COMPARE_EPSILON
+      )
+      .map(({ source }) => source)
+  );
+};
+
 export const formatBinderCardPrice = ({
   amount,
-  convertAmount,
+  convertAmountToLocalCurrency,
   displayCurrency,
   locale,
   shouldConvert,
@@ -67,7 +120,10 @@ export const formatBinderCardPrice = ({
     return formatCurrency(numericAmount, sourceCurrency, locale);
   }
 
-  const convertedAmount = convertAmount(numericAmount, sourceCurrency);
+  const convertedAmount = convertAmountToLocalCurrency(
+    numericAmount,
+    sourceCurrency
+  );
   if (convertedAmount === null) return null;
 
   return formatCurrency(convertedAmount, displayCurrency, locale);

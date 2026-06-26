@@ -6,18 +6,24 @@ interface BinderCardGridProps {
   binderCards: BinderCardRecord[];
   className?: string;
   isDeletingCard?: boolean;
+  isSelectionMode?: boolean;
   noImageLabel: string;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
+  onToggleCardSelection?: (binderCard: BinderCardRecord) => void;
+  selectedBinderCardIds?: Set<string>;
 }
 
 export const BinderCardGrid = ({
   binderCards,
   className,
   isDeletingCard,
+  isSelectionMode,
   noImageLabel,
   onDeleteCard,
   onOpenCard,
+  onToggleCardSelection,
+  selectedBinderCardIds,
 }: BinderCardGridProps) => {
   return (
     <div
@@ -31,9 +37,12 @@ export const BinderCardGrid = ({
           key={binderCard.id}
           binderCard={binderCard}
           isDeleting={isDeletingCard}
+          isSelected={selectedBinderCardIds?.has(binderCard.id)}
+          isSelectionMode={isSelectionMode}
           noImageLabel={noImageLabel}
           onDelete={onDeleteCard}
           onOpen={(openedBinderCard) => onOpenCard(openedBinderCard, index)}
+          onToggleSelection={onToggleCardSelection}
         />
       ))}
     </div>

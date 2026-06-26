@@ -16,6 +16,10 @@ const cardPricesCsv = path.resolve(
   process.env.MTG_CARD_PRICES_CSV ||
     path.join(repoRoot, "scripts/cardPrices.csv")
 );
+const cardPurchaseUrlsCsv = path.resolve(
+  process.env.MTG_CARD_PURCHASE_URLS_CSV ||
+    path.join(repoRoot, "scripts/cardPurchaseUrls.csv")
+);
 const sqlPath = path.join(repoRoot, "scripts/import-mtg-catalog.sql");
 
 function requireFile(filePath) {
@@ -68,7 +72,11 @@ function createRunnableSqlFile() {
     .readFileSync(sqlPath, "utf8")
     .replaceAll("__MTG_SETS_CSV__", escapeCopyPath(setsCsv))
     .replaceAll("__MTG_CARDS_CSV__", escapeCopyPath(cardsCsv))
-    .replaceAll("__MTG_CARD_PRICES_CSV__", escapeCopyPath(cardPricesCsv));
+    .replaceAll("__MTG_CARD_PRICES_CSV__", escapeCopyPath(cardPricesCsv))
+    .replaceAll(
+      "__MTG_CARD_PURCHASE_URLS_CSV__",
+      escapeCopyPath(cardPurchaseUrlsCsv)
+    );
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "tcgbinder-mtg-import-"));
   const tempSqlPath = path.join(tempDir, "import-mtg-catalog.sql");
 
@@ -80,6 +88,7 @@ function createRunnableSqlFile() {
 requireFile(setsCsv);
 requireFile(cardsCsv);
 requireFile(cardPricesCsv);
+requireFile(cardPurchaseUrlsCsv);
 requireFile(sqlPath);
 
 const databaseUrl = getDatabaseUrl();

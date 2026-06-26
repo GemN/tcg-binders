@@ -16,12 +16,13 @@ export const supportedPriceSources = [
 
 export type SupportedCurrency = (typeof supportedCurrencies)[number];
 export type SupportedPriceSource = (typeof supportedPriceSources)[number];
+export type ConvertAmountToLocalCurrency = (
+  amount: number,
+  sourceCurrency: CurrencyCode
+) => number | null;
 
 export interface PricingSettingsContextValue {
-  convertAmount: (
-    amount: number,
-    sourceCurrency: CurrencyCode
-  ) => number | null;
+  convertAmountToLocalCurrency: ConvertAmountToLocalCurrency;
   currency: SupportedCurrency;
   priceSource: SupportedPriceSource;
   setCurrency: (currency: SupportedCurrency) => void;
@@ -34,7 +35,9 @@ export const PricingSettingsContext =
 export const usePricingSettings = () => {
   const context = useContext(PricingSettingsContext);
   if (!context) {
-    throw new Error("usePricingSettings must be used within PricingSettingsProvider");
+    throw new Error(
+      "usePricingSettings must be used within PricingSettingsProvider"
+    );
   }
   return context;
 };

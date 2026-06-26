@@ -17,7 +17,7 @@ export const BinderTitle = ({
   name,
   onRenamed,
 }: BinderTitleProps) => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["binder", "common"]);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
   const isSubmittingRef = useRef(false);
   const skipBlurSubmitRef = useRef(false);
@@ -72,8 +72,8 @@ export const BinderTitle = ({
     const nextName = draftName.trim();
     if (!nextName) {
       handleError(
-        new Error(t("common:binder.rename_name_required")),
-        t("common:binder.rename_error")
+        new Error(t("binder:rename_name_required")),
+        t("binder:rename_error")
       );
       return;
     }
@@ -94,7 +94,7 @@ export const BinderTitle = ({
       });
 
       if (!result.data?.updateBindersCollection.affectedCount) {
-        throw new Error(t("common:binder.rename_error"));
+        throw new Error(t("binder:rename_error"));
       }
 
       await onRenamed?.();
@@ -102,7 +102,7 @@ export const BinderTitle = ({
       setIsEditing(false);
       setDraftName("");
     } catch (error) {
-      handleError(error, t("common:binder.rename_error"));
+      handleError(error, t("binder:rename_error"));
     } finally {
       isSubmittingRef.current = false;
     }
@@ -117,7 +117,7 @@ export const BinderTitle = ({
         size={Math.max(displayedName.length, 1)}
         disabled={loading}
         readOnly={!isEditing}
-        aria-label={t("common:binder.rename_label")}
+        aria-label={t("binder:rename_label")}
         className="block field-sizing-content h-auto min-w-[1ch] max-w-full cursor-text truncate rounded-none border-0 border-b border-dotted border-transparent bg-transparent p-0 text-2xl font-semibold tracking-normal text-binder-toolbar-foreground shadow-none outline-none transition-colors hover:border-binder-toolbar-foreground focus:border-binder-toolbar-foreground focus-visible:ring-0 disabled:opacity-60 sm:text-3xl"
         onBlur={() => {
           if (skipBlurSubmitRef.current) {

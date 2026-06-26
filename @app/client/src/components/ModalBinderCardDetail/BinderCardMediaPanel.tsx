@@ -1,6 +1,7 @@
 import { MarketPriceSource } from "@app/graphql";
 import { ExternalLink } from "lucide-react";
 
+import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { Button } from "@/components/ui/Button";
 import {
   type BinderCardPriceInput,
@@ -58,7 +59,10 @@ export const BinderCardMediaPanel = ({
                 rel="noreferrer"
                 className="justify-between"
               >
-                <span>{label}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  <MarketPriceSourceIcon source={source} />
+                  <span className="truncate">{label}</span>
+                </span>
                 <span className="ml-auto font-semibold tabular-nums">
                   {priceLabel}
                 </span>
@@ -76,7 +80,10 @@ export const BinderCardMediaPanel = ({
             className="w-full justify-between"
             disabled
           >
-            <span>{label}</span>
+            <span className="flex min-w-0 items-center gap-2">
+              <MarketPriceSourceIcon source={source} />
+              <span className="truncate">{label}</span>
+            </span>
             <span className="font-semibold tabular-nums">{priceLabel}</span>
           </Button>
         );
