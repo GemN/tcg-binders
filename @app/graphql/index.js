@@ -132,6 +132,36 @@ export const BinderCardDetailFieldsFragmentDoc = gql `
   }
 }
     ${BinderCardSummaryFieldsFragmentDoc}`;
+export const CardSearchFieldsFragmentDoc = gql `
+    fragment CardSearchFields on Cards {
+  id
+  externalId
+  name
+  collectorNumber
+  rarity
+  finishes
+  imageSmallUrl
+  imageNormalUrl
+  releasedAt
+  cardSet {
+    id
+    code
+    name
+    releaseAt
+  }
+  marketPrices(first: 8, orderBy: [{source: AscNullsLast}]) {
+    edges {
+      node {
+        source
+        finish
+        amount
+        currency
+        priceDate
+      }
+    }
+  }
+}
+    `;
 export const AddBinderCardDocument = gql `
     mutation AddBinderCard($binderId: UUID!, $tcgId: String!, $cardId: UUID!, $finish: String!, $position: Int!) {
   insertIntoBinderCardsCollection(
@@ -350,7 +380,7 @@ export function useBinderCardVariantsLazyQuery(baseOptions) {
     return Apollo.useLazyQuery(BinderCardVariantsDocument, options);
 }
 export const CardSearchDocument = gql `
-    query CardSearch($query: String!, $first: Int = 8) {
+    query CardSearch($query: String!, $nameQuery: String!, $setCode: String!, $hasSetCode: Boolean!, $first: Int = 8) {
   cardsCollection(
     first: $first
     filter: {tcgId: {eq: "mtg"}, name: {ilike: $query}}
@@ -358,29 +388,22 @@ export const CardSearchDocument = gql `
   ) {
     edges {
       node {
+        ...CardSearchFields
+      }
+    }
+  }
+  cardSetsCollection(first: 1, filter: {tcgId: {eq: "mtg"}, code: {eq: $setCode}}) @include(if: $hasSetCode) {
+    edges {
+      node {
         id
-        externalId
-        name
-        collectorNumber
-        rarity
-        finishes
-        imageSmallUrl
-        imageNormalUrl
-        releasedAt
-        cardSet {
-          id
-          code
-          name
-          releaseAt
-        }
-        marketPrices(first: 8, orderBy: [{source: AscNullsLast}]) {
+        cards(
+          first: $first
+          filter: {tcgId: {eq: "mtg"}, name: {ilike: $nameQuery}}
+          orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
+        ) {
           edges {
             node {
-              source
-              finish
-              amount
-              currency
-              priceDate
+              ...CardSearchFields
             }
           }
         }
@@ -388,7 +411,7 @@ export const CardSearchDocument = gql `
     }
   }
 }
-    `;
+    ${CardSearchFieldsFragmentDoc}`;
 /**
  * __useCardSearchQuery__
  *
@@ -402,6 +425,9 @@ export const CardSearchDocument = gql `
  * const { data, loading, error } = useCardSearchQuery({
  *   variables: {
  *      query: // value for 'query'
+ *      nameQuery: // value for 'nameQuery'
+ *      setCode: // value for 'setCode'
+ *      hasSetCode: // value for 'hasSetCode'
  *      first: // value for 'first'
  *   },
  * });

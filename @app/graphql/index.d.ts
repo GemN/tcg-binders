@@ -2062,6 +2062,9 @@ export type BinderCardVariantsQuery = ({
 });
 export type CardSearchQueryVariables = Exact<{
     query: Scalars['String'];
+    nameQuery: Scalars['String'];
+    setCode: Scalars['String'];
+    hasSetCode: Scalars['Boolean'];
     first?: Maybe<Scalars['Int']>;
 }>;
 export type CardSearchQuery = ({
@@ -2075,22 +2078,48 @@ export type CardSearchQuery = ({
         } & {
             node: ({
                 __typename?: 'Cards';
-            } & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'> & {
-                cardSet: Maybe<({
-                    __typename?: 'CardSets';
-                } & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>)>;
-                marketPrices: Maybe<({
-                    __typename?: 'CardMarketPricesConnection';
+            } & CardSearchFieldsFragment);
+        })>;
+    })>;
+    cardSetsCollection?: Maybe<({
+        __typename?: 'CardSetsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'CardSetsEdge';
+        } & {
+            node: ({
+                __typename?: 'CardSets';
+            } & Pick<CardSets, 'id'> & {
+                cards: Maybe<({
+                    __typename?: 'CardsConnection';
                 } & {
                     edges: Array<({
-                        __typename?: 'CardMarketPricesEdge';
+                        __typename?: 'CardsEdge';
                     } & {
                         node: ({
-                            __typename?: 'CardMarketPrices';
-                        } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>);
+                            __typename?: 'Cards';
+                        } & CardSearchFieldsFragment);
                     })>;
                 })>;
             });
+        })>;
+    })>;
+});
+export type CardSearchFieldsFragment = ({
+    __typename?: 'Cards';
+} & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'> & {
+    cardSet: Maybe<({
+        __typename?: 'CardSets';
+    } & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>)>;
+    marketPrices: Maybe<({
+        __typename?: 'CardMarketPricesConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'CardMarketPricesEdge';
+        } & {
+            node: ({
+                __typename?: 'CardMarketPrices';
+            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>);
         })>;
     })>;
 });
@@ -2277,6 +2306,7 @@ export type UpdateBinderNoteMutation = ({
 });
 export declare const BinderCardSummaryFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const BinderCardDetailFieldsFragmentDoc: Apollo.DocumentNode;
+export declare const CardSearchFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const AddBinderCardDocument: Apollo.DocumentNode;
 export type AddBinderCardMutationFn = Apollo.MutationFunction<AddBinderCardMutation, AddBinderCardMutationVariables>;
 /**
@@ -2448,16 +2478,25 @@ export declare const CardSearchDocument: Apollo.DocumentNode;
  * const { data, loading, error } = useCardSearchQuery({
  *   variables: {
  *      query: // value for 'query'
+ *      nameQuery: // value for 'nameQuery'
+ *      setCode: // value for 'setCode'
+ *      hasSetCode: // value for 'hasSetCode'
  *      first: // value for 'first'
  *   },
  * });
  */
 export declare function useCardSearchQuery(baseOptions: Apollo.QueryHookOptions<CardSearchQuery, CardSearchQueryVariables>): Apollo.QueryResult<CardSearchQuery, Exact<{
     query: Scalars["String"];
+    nameQuery: Scalars["String"];
+    setCode: Scalars["String"];
+    hasSetCode: Scalars["Boolean"];
     first?: Maybe<Scalars["Int"]>;
 }>>;
 export declare function useCardSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardSearchQuery, CardSearchQueryVariables>): Apollo.LazyQueryResultTuple<CardSearchQuery, Exact<{
     query: Scalars["String"];
+    nameQuery: Scalars["String"];
+    setCode: Scalars["String"];
+    hasSetCode: Scalars["Boolean"];
     first?: Maybe<Scalars["Int"]>;
 }>>;
 export type CardSearchQueryHookResult = ReturnType<typeof useCardSearchQuery>;

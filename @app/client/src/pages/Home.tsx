@@ -14,7 +14,7 @@ export const Home = () => {
 
   return (
     <div className="flex flex-1 flex-col bg-background">
-      <div className="flex flex-1 items-center justify-center px-4 py-12">
+      <div className="flex flex-1 justify-center px-4 pt-16 pb-12 sm:pt-24 lg:pt-32">
         <div className="w-full max-w-2xl">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-semibold tracking-normal sm:text-4xl">
@@ -28,21 +28,20 @@ export const Home = () => {
           <div className="mx-auto flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-start">
             <CardSearchPicker
               containerClassName="min-w-0 flex-1"
-              className="h-12 text-base"
               onSelect={(card) => {
                 addCard(card);
                 navigate("/binder/draft");
               }}
             />
 
-            <div className="flex items-center justify-center text-sm text-muted-foreground sm:h-12">
+            <div className="flex items-center justify-center text-sm text-muted-foreground sm:h-9">
               {t("common:home.or")}
             </div>
 
             <Button
               type="button"
               variant="outline"
-              className="h-12 shrink-0"
+              className="h-9 shrink-0"
               onClick={() => toast.info(t("common:home.import_not_ready"))}
             >
               <Upload className="size-4" />

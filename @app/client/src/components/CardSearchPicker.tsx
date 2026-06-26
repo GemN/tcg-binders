@@ -1,7 +1,7 @@
 import type { CardSearchQuery } from "@app/graphql";
 import { useCardSearchQuery } from "@app/graphql";
 import { LoaderCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { InputSearch } from "@/components/InputSearch";
@@ -10,10 +10,12 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { type DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
 type CardSearchNode = NonNullable<
   CardSearchQuery["cardsCollection"]
 >["edges"][number]["node"];
+type CardSearchMarketPrice = DraftCardSnapshot["marketPrices"][number];
 
 interface CardSearchPickerProps {
   containerClassName?: string;
@@ -23,7 +25,77 @@ interface CardSearchPickerProps {
   onSelect: (card: DraftCardSnapshot) => void;
 }
 
+interface ParsedCardSearchQuery {
+  cardName: string;
+  hasSetCode: boolean;
+  searchText: string;
+  setCode: string;
+}
+
 const MINIMUM_SEARCH_LENGTH = 2;
+const SET_CODE_TOKEN_PATTERN = /^[A-Za-z0-9]{2,6}$/;
+
+const parseCardSearchQuery = (value: string): ParsedCardSearchQuery => {
+  const searchText = value.trim().replace(/\s+/g, " ");
+  const tokens = searchText.split(" ");
+
+  if (tokens.length < 2) {
+    return {
+      cardName: searchText,
+      hasSetCode: false,
+      searchText,
+      setCode: "",
+    };
+  }
+
+  const setCodeCandidate = tokens[tokens.length - 1].replace(
+    /^[([{]+|[\])}]+$/g,
+    ""
+  );
+  const cardName = tokens.slice(0, -1).join(" ");
+
+  if (
+    cardName.length < MINIMUM_SEARCH_LENGTH ||
+    !SET_CODE_TOKEN_PATTERN.test(setCodeCandidate)
+  ) {
+    return {
+      cardName: searchText,
+      hasSetCode: false,
+      searchText,
+      setCode: "",
+    };
+  }
+
+  return {
+    cardName,
+    hasSetCode: true,
+    searchText,
+    setCode: setCodeCandidate.toUpperCase(),
+  };
+};
+
+const getSetScopedCards = (data: CardSearchQuery | undefined) => {
+  return (
+    data?.cardSetsCollection?.edges.flatMap(
+      ({ node }) => node.cards?.edges.map(({ node: card }) => card) || []
+    ) || []
+  );
+};
+
+const getCardSearchMarketPrice = (
+  card: DraftCardSnapshot,
+  priceSource: CardSearchMarketPrice["source"]
+): CardSearchMarketPrice | null => {
+  const sourcePrices = card.marketPrices.filter(
+    (price) => price.source === priceSource
+  );
+
+  return (
+    sourcePrices.find((price) => price.finish === "normal") ||
+    sourcePrices[0] ||
+    null
+  );
+};
 
 const normalizeCard = (card: CardSearchNode): DraftCardSnapshot => {
   return {
@@ -57,21 +129,35 @@ export const CardSearchPicker = ({
   onSelect,
 }: CardSearchPickerProps) => {
   const { i18n, t } = useTranslation(["common"]);
+  const { convertAmountToLocalCurrency, currency, priceSource } =
+    usePricingSettings();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const debouncedQuery = useDebounce(query.trim(), 300);
-  const canSearch = debouncedQuery.length >= MINIMUM_SEARCH_LENGTH;
+  const parsedQuery = useMemo(
+    () => parseCardSearchQuery(debouncedQuery),
+    [debouncedQuery]
+  );
+  const canSearch = parsedQuery.searchText.length >= MINIMUM_SEARCH_LENGTH;
   const { data, loading } = useCardSearchQuery({
     variables: {
-      query: `%${debouncedQuery}%`,
+      hasSetCode: parsedQuery.hasSetCode,
+      nameQuery: `%${parsedQuery.cardName}%`,
+      query: `%${parsedQuery.searchText}%`,
+      setCode: parsedQuery.setCode,
       first: 10,
     },
     skip: !canSearch,
   });
 
-  const cards =
-    data?.cardsCollection?.edges.map(({ node }) => normalizeCard(node)) || [];
+  const setScopedCards = getSetScopedCards(data);
+  const hasMatchingSet = !!data?.cardSetsCollection?.edges.length;
+  const cardNodes =
+    parsedQuery.hasSetCode && hasMatchingSet
+      ? setScopedCards
+      : data?.cardsCollection?.edges.map(({ node }) => node) || [];
+  const cards = cardNodes.map((card) => normalizeCard(card));
 
   const handleSelect = (card: DraftCardSnapshot) => () => {
     onSelect(card);
@@ -104,10 +190,23 @@ export const CardSearchPicker = ({
           ) : cards.length > 0 ? (
             <div className="max-h-[420px] overflow-y-auto p-1">
               {cards.map((card) => {
-                const normalPrice =
-                  card.marketPrices.find(
-                    (price) => price.finish === "normal"
-                  ) || card.marketPrices[0];
+                const marketPrice = getCardSearchMarketPrice(
+                  card,
+                  priceSource
+                );
+                const convertedMarketPriceAmount = marketPrice
+                  ? convertAmountToLocalCurrency(
+                      marketPrice.amount,
+                      marketPrice.currency
+                    )
+                  : null;
+                const formattedOriginalMarketPrice = marketPrice
+                  ? formatCurrency(
+                      marketPrice.amount,
+                      marketPrice.currency,
+                      i18n.language
+                    )
+                  : null;
 
                 return (
                   <button
@@ -138,20 +237,24 @@ export const CardSearchPicker = ({
                         {card.collectorNumber && (
                           <span>#{card.collectorNumber}</span>
                         )}
-                        {card.releasedAt && <span>{card.releasedAt}</span>}
                       </div>
                     </div>
-                    {normalPrice && (
+                    {marketPrice && convertedMarketPriceAmount !== null && (
                       <div className="shrink-0 text-right text-xs">
                         <div className="font-medium">
                           {formatCurrency(
-                            normalPrice.amount,
-                            normalPrice.currency,
+                            convertedMarketPriceAmount,
+                            currency,
                             i18n.language
+                          )}
+                          {formattedOriginalMarketPrice && (
+                            <span className="ml-1 font-normal text-current/60">
+                              ({formattedOriginalMarketPrice})
+                            </span>
                           )}
                         </div>
                         <div className="text-current/70">
-                          {normalPrice.source}
+                          {marketPrice.source}
                         </div>
                       </div>
                     )}

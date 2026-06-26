@@ -1,4 +1,10 @@
-query CardSearch($query: String!, $first: Int = 8) {
+query CardSearch(
+  $query: String!
+  $nameQuery: String!
+  $setCode: String!
+  $hasSetCode: Boolean!
+  $first: Int = 8
+) {
   cardsCollection(
     first: $first
     filter: { tcgId: { eq: "mtg" }, name: { ilike: $query } }
@@ -6,32 +12,57 @@ query CardSearch($query: String!, $first: Int = 8) {
   ) {
     edges {
       node {
+        ...CardSearchFields
+      }
+    }
+  }
+  cardSetsCollection(
+    first: 1
+    filter: { tcgId: { eq: "mtg" }, code: { eq: $setCode } }
+  ) @include(if: $hasSetCode) {
+    edges {
+      node {
         id
-        externalId
-        name
-        collectorNumber
-        rarity
-        finishes
-        imageSmallUrl
-        imageNormalUrl
-        releasedAt
-        cardSet {
-          id
-          code
-          name
-          releaseAt
-        }
-        marketPrices(first: 8, orderBy: [{ source: AscNullsLast }]) {
+        cards(
+          first: $first
+          filter: { tcgId: { eq: "mtg" }, name: { ilike: $nameQuery } }
+          orderBy: [{ releasedAt: DescNullsLast }, { name: AscNullsLast }]
+        ) {
           edges {
             node {
-              source
-              finish
-              amount
-              currency
-              priceDate
+              ...CardSearchFields
             }
           }
         }
+      }
+    }
+  }
+}
+
+fragment CardSearchFields on Cards {
+  id
+  externalId
+  name
+  collectorNumber
+  rarity
+  finishes
+  imageSmallUrl
+  imageNormalUrl
+  releasedAt
+  cardSet {
+    id
+    code
+    name
+    releaseAt
+  }
+  marketPrices(first: 8, orderBy: [{ source: AscNullsLast }]) {
+    edges {
+      node {
+        source
+        finish
+        amount
+        currency
+        priceDate
       }
     }
   }

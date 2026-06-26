@@ -2342,6 +2342,9 @@ export type BinderCardVariantsQuery = (
 
 export type CardSearchQueryVariables = Exact<{
   query: Scalars['String'];
+  nameQuery: Scalars['String'];
+  setCode: Scalars['String'];
+  hasSetCode: Scalars['Boolean'];
   first?: Maybe<Scalars['Int']>;
 }>;
 
@@ -2354,20 +2357,44 @@ export type CardSearchQuery = (
       { __typename?: 'CardsEdge' }
       & { node: (
         { __typename?: 'Cards' }
-        & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'>
-        & { cardSet: Maybe<(
-          { __typename?: 'CardSets' }
-          & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>
-        )>, marketPrices: Maybe<(
-          { __typename?: 'CardMarketPricesConnection' }
+        & CardSearchFieldsFragment
+      ) }
+    )> }
+  )>, cardSetsCollection?: Maybe<(
+    { __typename?: 'CardSetsConnection' }
+    & { edges: Array<(
+      { __typename?: 'CardSetsEdge' }
+      & { node: (
+        { __typename?: 'CardSets' }
+        & Pick<CardSets, 'id'>
+        & { cards: Maybe<(
+          { __typename?: 'CardsConnection' }
           & { edges: Array<(
-            { __typename?: 'CardMarketPricesEdge' }
+            { __typename?: 'CardsEdge' }
             & { node: (
-              { __typename?: 'CardMarketPrices' }
-              & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>
+              { __typename?: 'Cards' }
+              & CardSearchFieldsFragment
             ) }
           )> }
         )> }
+      ) }
+    )> }
+  )> }
+);
+
+export type CardSearchFieldsFragment = (
+  { __typename?: 'Cards' }
+  & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'>
+  & { cardSet: Maybe<(
+    { __typename?: 'CardSets' }
+    & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>
+  )>, marketPrices: Maybe<(
+    { __typename?: 'CardMarketPricesConnection' }
+    & { edges: Array<(
+      { __typename?: 'CardMarketPricesEdge' }
+      & { node: (
+        { __typename?: 'CardMarketPrices' }
+        & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>
       ) }
     )> }
   )> }
@@ -2613,6 +2640,36 @@ export const BinderCardDetailFieldsFragmentDoc = gql`
   }
 }
     ${BinderCardSummaryFieldsFragmentDoc}`;
+export const CardSearchFieldsFragmentDoc = gql`
+    fragment CardSearchFields on Cards {
+  id
+  externalId
+  name
+  collectorNumber
+  rarity
+  finishes
+  imageSmallUrl
+  imageNormalUrl
+  releasedAt
+  cardSet {
+    id
+    code
+    name
+    releaseAt
+  }
+  marketPrices(first: 8, orderBy: [{source: AscNullsLast}]) {
+    edges {
+      node {
+        source
+        finish
+        amount
+        currency
+        priceDate
+      }
+    }
+  }
+}
+    `;
 export const AddBinderCardDocument = gql`
     mutation AddBinderCard($binderId: UUID!, $tcgId: String!, $cardId: UUID!, $finish: String!, $position: Int!) {
   insertIntoBinderCardsCollection(
@@ -2853,7 +2910,7 @@ export type BinderCardVariantsQueryHookResult = ReturnType<typeof useBinderCardV
 export type BinderCardVariantsLazyQueryHookResult = ReturnType<typeof useBinderCardVariantsLazyQuery>;
 export type BinderCardVariantsQueryResult = Apollo.QueryResult<BinderCardVariantsQuery, BinderCardVariantsQueryVariables>;
 export const CardSearchDocument = gql`
-    query CardSearch($query: String!, $first: Int = 8) {
+    query CardSearch($query: String!, $nameQuery: String!, $setCode: String!, $hasSetCode: Boolean!, $first: Int = 8) {
   cardsCollection(
     first: $first
     filter: {tcgId: {eq: "mtg"}, name: {ilike: $query}}
@@ -2861,29 +2918,22 @@ export const CardSearchDocument = gql`
   ) {
     edges {
       node {
+        ...CardSearchFields
+      }
+    }
+  }
+  cardSetsCollection(first: 1, filter: {tcgId: {eq: "mtg"}, code: {eq: $setCode}}) @include(if: $hasSetCode) {
+    edges {
+      node {
         id
-        externalId
-        name
-        collectorNumber
-        rarity
-        finishes
-        imageSmallUrl
-        imageNormalUrl
-        releasedAt
-        cardSet {
-          id
-          code
-          name
-          releaseAt
-        }
-        marketPrices(first: 8, orderBy: [{source: AscNullsLast}]) {
+        cards(
+          first: $first
+          filter: {tcgId: {eq: "mtg"}, name: {ilike: $nameQuery}}
+          orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
+        ) {
           edges {
             node {
-              source
-              finish
-              amount
-              currency
-              priceDate
+              ...CardSearchFields
             }
           }
         }
@@ -2891,7 +2941,7 @@ export const CardSearchDocument = gql`
     }
   }
 }
-    `;
+    ${CardSearchFieldsFragmentDoc}`;
 
 /**
  * __useCardSearchQuery__
@@ -2906,6 +2956,9 @@ export const CardSearchDocument = gql`
  * const { data, loading, error } = useCardSearchQuery({
  *   variables: {
  *      query: // value for 'query'
+ *      nameQuery: // value for 'nameQuery'
+ *      setCode: // value for 'setCode'
+ *      hasSetCode: // value for 'hasSetCode'
  *      first: // value for 'first'
  *   },
  * });
