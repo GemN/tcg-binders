@@ -80,6 +80,7 @@ The biggest problem is to find specific cards.
 | FR-016 | Users can drag and drop to reorder cards in their binders          | Should   | Only in sorting "seller order"                                                               |
 | FR-017 | Users can sort binders                                             | Must     | By seller order (default), name, price                                                       |
 | FR-018 | Users can open a feedback popup to send feedback                   | Could    | This should happens after specific actions, this will be posted to a discord channel         |
+| FR-018 | Users can add set a wishlist of cards they want                    | Must     | Should have the same functionality as a binder but type wishlist                             |
 
 ### User Flows
 

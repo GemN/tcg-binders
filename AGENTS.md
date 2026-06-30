@@ -182,12 +182,23 @@ comment on <table|column|function|...> <fully.qualified.name> is
 
 ## Project
 
+#### SQL
 Do not create sql/pgsql code without my acknowledgement.
 If needed only use current.sql for new sql code.
 
+#### Types
 Prefer to not use anonymous types. Use type or interface whenever possible.
-Must use i18n. Languages are English / Thai
-Design is mobile-first.
-Always check if the project is not already up before running it.
+Always put the interface type used in component or function directly above the
+component or function.
 Always use types from @app/graphql whenever possible
 Get data from the backend thanks to graphql queries and mutation.
+
+#### Locales
+Must use i18n. Languages are English / Thai
+Split json by pages, keep common for generic accross pages translations.
+
+Design is mobile-first.
+
+#### Testing
+Always check if the project is not already up before running it.
+
