@@ -27,6 +27,7 @@ interface ModalBulkBinderCardPriceProps {
   open: boolean;
   onApplied: () => Promise<unknown> | unknown;
   onOpenChange: (open: boolean) => void;
+  onUpdateBinderCardPrice?: UpdateBulkBinderCardPrice;
 }
 
 interface BulkPriceResult {
@@ -41,6 +42,17 @@ interface BulkPricePreview {
   resultPrice: string;
   sourcePrice: string;
 }
+
+export interface BulkBinderCardPriceUpdate {
+  dynamicPriceRule: null;
+  priceAmount: string;
+  priceCurrency: CurrencyCode;
+}
+
+export type UpdateBulkBinderCardPrice = (
+  binderCard: BinderCardRecord,
+  update: BulkBinderCardPriceUpdate
+) => Promise<boolean> | boolean;
 
 const CKD_PRESET_MULTIPLIERS = [25, 30];
 const BULK_PRICE_CONCURRENCY = 4;
@@ -71,6 +83,7 @@ export const ModalBulkBinderCardPrice = ({
   open,
   onApplied,
   onOpenChange,
+  onUpdateBinderCardPrice,
 }: ModalBulkBinderCardPriceProps) => {
   const { i18n, t } = useTranslation(["binder", "common"]);
   const multiplierInputId = useId();
@@ -153,16 +166,29 @@ export const ModalBulkBinderCardPrice = ({
           }
 
           try {
-            await updateBinderCard({
-              variables: {
-                id: binderCard.id,
-                set: {
-                  dynamicPriceRule: null,
-                  priceAmount: multiplierThbPriceInput,
-                  priceCurrency: CurrencyCode.Thb,
-                },
-              },
-            });
+            const update = {
+              dynamicPriceRule: null,
+              priceAmount: multiplierThbPriceInput,
+              priceCurrency: CurrencyCode.Thb,
+            };
+            const didUpdate = onUpdateBinderCardPrice
+              ? await onUpdateBinderCardPrice(binderCard, update)
+              : await updateBinderCard({
+                  variables: {
+                    id: binderCard.id,
+                    set: update,
+                  },
+                }).then(
+                  (updateResult) =>
+                    (updateResult.data?.updateBinderCardsCollection
+                      .affectedCount ?? 0) > 0
+                );
+
+            if (!didUpdate) {
+              result.failed += 1;
+              return;
+            }
+
             result.applied += 1;
           } catch (error) {
             console.error(error);

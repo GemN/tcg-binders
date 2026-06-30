@@ -1,4 +1,7 @@
-import type { BinderCardVariantsQuery } from "@app/graphql";
+import type {
+  BinderCardsUpdateInput,
+  BinderCardVariantsQuery,
+} from "@app/graphql";
 
 import type {
   BinderCardDetailRecord,
@@ -12,6 +15,20 @@ export type BinderCardVariant = NonNullable<
     BinderCardVariantsQuery["cardsCollection"]
   >["edges"][number]["node"]
 >;
+
+export interface UpdateBinderCardContext {
+  variant?: BinderCardVariant;
+}
+
+export type UpdateBinderCardHandler = (
+  binderCard: ModalBinderCardRecord,
+  set: BinderCardsUpdateInput,
+  context?: UpdateBinderCardContext
+) =>
+  | Promise<ModalBinderCardRecord | null | undefined>
+  | ModalBinderCardRecord
+  | null
+  | undefined;
 
 export type PriceMode = "manual" | "dynamic";
 export type DynamicPriceStrategy = "CKD X";

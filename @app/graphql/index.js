@@ -149,6 +149,10 @@ export const CardSearchFieldsFragmentDoc = gql `
     name
     releaseAt
   }
+  mtgCardDetail {
+    typeLine
+    oracleText
+  }
   marketPrices(first: 8, orderBy: [{source: AscNullsLast}]) {
     edges {
       node {
@@ -157,6 +161,7 @@ export const CardSearchFieldsFragmentDoc = gql `
         amount
         currency
         priceDate
+        buyUrl
       }
     }
   }
@@ -338,22 +343,12 @@ export const BinderCardVariantsDocument = gql `
   ) {
     edges {
       node {
-        id
-        name
-        collectorNumber
-        finishes
-        imageSmallUrl
-        imageNormalUrl
-        releasedAt
-        cardSet {
-          code
-          name
-        }
+        ...CardSearchFields
       }
     }
   }
 }
-    `;
+    ${CardSearchFieldsFragmentDoc}`;
 /**
  * __useBinderCardVariantsQuery__
  *
@@ -445,14 +440,7 @@ export const CardsForBinderImportDocument = gql `
   cardsCollection(first: $first, after: $after, filter: $filter) {
     edges {
       node {
-        id
-        externalId
-        name
-        collectorNumber
-        finishes
-        cardSet {
-          code
-        }
+        ...CardSearchFields
       }
     }
     pageInfo {
@@ -461,7 +449,7 @@ export const CardsForBinderImportDocument = gql `
     }
   }
 }
-    `;
+    ${CardSearchFieldsFragmentDoc}`;
 /**
  * __useCardsForBinderImportQuery__
  *
@@ -632,6 +620,34 @@ export function useCurrentUserProfileQuery(baseOptions) {
 export function useCurrentUserProfileLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(CurrentUserProfileDocument, options);
+}
+export const DeleteBinderDocument = gql `
+    mutation DeleteBinder($id: UUID!) {
+  deleteFromBindersCollection(filter: {id: {eq: $id}}, atMost: 1) {
+    affectedCount
+  }
+}
+    `;
+/**
+ * __useDeleteBinderMutation__
+ *
+ * To run a mutation, you first call `useDeleteBinderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBinderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBinderMutation, { data, loading, error }] = useDeleteBinderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteBinderMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(DeleteBinderDocument, options);
 }
 export const DeleteBinderCardDocument = gql `
     mutation DeleteBinderCard($id: UUID!) {

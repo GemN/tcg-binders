@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
+import { Plus } from "lucide-react";
 
 import { ButtonNewBinder } from "@/components/ButtonNewBinder";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
@@ -29,14 +30,23 @@ export const Navbar = () => {
           />
         </Link>
 
-        {isLoggedIn && (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {isLoggedIn && (
             <Button variant="link" asChild className="h-9 px-2 sm:px-3">
               <Link to="/my-binders">{t("common:nav.your_binders")}</Link>
             </Button>
+          )}
+          {isLoggedIn ? (
             <ButtonNewBinder />
-          </div>
-        )}
+          ) : (
+            <Button asChild className="h-9 px-2 sm:px-3">
+              <Link to="/binder/draft">
+                <Plus className="size-4" />
+                {t("common:new_binder.button")}
+              </Link>
+            </Button>
+          )}
+        </div>
 
         <div className="flex-1" />
 

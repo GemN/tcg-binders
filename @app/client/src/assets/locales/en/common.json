@@ -7,6 +7,8 @@
   "next": "Next",
   "previous": "Previous",
   "back": "Back",
+  "copy": "Copy",
+  "copied": "Copied",
   "no_results": "No results found",
   "unselect": "Unselect",
   "submit": "Submit",
@@ -51,28 +53,6 @@
     "no_image": "No image",
     "no_cards_found": "No cards found",
     "minimum_query": "Type at least {{count}} characters"
-  },
-  "draft_binder": {
-    "title": "Binder builder",
-    "untitled_name": "Untitled binder",
-    "name_label": "Binder name",
-    "quantity": "Quantity",
-    "finish": "Finish",
-    "condition": "Condition",
-    "language": "Language",
-    "manual_price": "Manual price",
-    "currency": "Currency",
-    "note": "Note",
-    "remove_card": "Remove card",
-    "save_not_ready": "Saving draft binders is not ready yet.",
-    "back_home": "Back home",
-    "draft_cleared": "Draft cleared.",
-    "clear": "Clear",
-    "save_share": "Save / Share",
-    "card_count_one": "{{count}} card",
-    "card_count_other": "{{count}} cards",
-    "add_another_card": "Add another card",
-    "empty": "No cards yet"
   },
   "card": {
     "condition": {

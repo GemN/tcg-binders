@@ -18,6 +18,7 @@ interface BinderNoteProps {
   binderId: string;
   isOwner: boolean;
   note: string;
+  onUpdate?: (note: string) => Promise<unknown> | unknown;
   onUpdated?: () => Promise<unknown> | unknown;
 }
 
@@ -27,13 +28,17 @@ export const BinderNote = ({
   binderId,
   isOwner,
   note,
+  onUpdate,
   onUpdated,
 }: BinderNoteProps) => {
   const { t } = useTranslation(["binder", "common"]);
   const [modalDraftNote, setModalDraftNote] = useState(note);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompactClamped, setIsCompactClamped] = useState(false);
-  const [updateBinderNote, { loading }] = useUpdateBinderNoteMutation();
+  const [updateBinderNote, { loading: isUpdatingRemote }] =
+    useUpdateBinderNoteMutation();
+  const [isUpdatingLocal, setIsUpdatingLocal] = useState(false);
+  const loading = isUpdatingRemote || isUpdatingLocal;
 
   const displayedNote = normalizeBinderNote(note);
   const canShowNote = isOwner || !!displayedNote;
@@ -63,15 +68,20 @@ export const BinderNote = ({
     }
 
     try {
-      const result = await updateBinderNote({
-        variables: {
-          id: binderId,
-          note: normalizedNote,
-        },
-      });
+      if (onUpdate) {
+        setIsUpdatingLocal(true);
+        await onUpdate(normalizedNote);
+      } else {
+        const result = await updateBinderNote({
+          variables: {
+            id: binderId,
+            note: normalizedNote,
+          },
+        });
 
-      if (!result.data?.updateBindersCollection.affectedCount) {
-        throw new Error(t("binder:note.update_error"));
+        if (!result.data?.updateBindersCollection.affectedCount) {
+          throw new Error(t("binder:note.update_error"));
+        }
       }
 
       setModalDraftNote(normalizedNote);
@@ -80,6 +90,8 @@ export const BinderNote = ({
     } catch (error) {
       handleError(error, t("binder:note.update_error"));
       return false;
+    } finally {
+      setIsUpdatingLocal(false);
     }
   };
 

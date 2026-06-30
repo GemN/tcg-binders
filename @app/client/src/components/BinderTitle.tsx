@@ -8,6 +8,7 @@ interface BinderTitleProps {
   binderId: string;
   isOwner: boolean;
   name: string;
+  onRename?: (name: string) => Promise<unknown> | unknown;
   onRenamed?: () => Promise<unknown> | unknown;
 }
 
@@ -15,6 +16,7 @@ export const BinderTitle = ({
   binderId,
   isOwner,
   name,
+  onRename,
   onRenamed,
 }: BinderTitleProps) => {
   const { t } = useTranslation(["binder", "common"]);
@@ -23,7 +25,10 @@ export const BinderTitle = ({
   const skipBlurSubmitRef = useRef(false);
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState("");
-  const [renameBinder, { loading }] = useRenameBinderMutation();
+  const [renameBinder, { loading: isRenamingRemote }] =
+    useRenameBinderMutation();
+  const [isRenamingLocal, setIsRenamingLocal] = useState(false);
+  const loading = isRenamingRemote || isRenamingLocal;
 
   const displayedName = isEditing ? draftName : name;
 
@@ -86,15 +91,20 @@ export const BinderTitle = ({
     isSubmittingRef.current = true;
 
     try {
-      const result = await renameBinder({
-        variables: {
-          id: binderId,
-          name: nextName,
-        },
-      });
+      if (onRename) {
+        setIsRenamingLocal(true);
+        await onRename(nextName);
+      } else {
+        const result = await renameBinder({
+          variables: {
+            id: binderId,
+            name: nextName,
+          },
+        });
 
-      if (!result.data?.updateBindersCollection.affectedCount) {
-        throw new Error(t("binder:rename_error"));
+        if (!result.data?.updateBindersCollection.affectedCount) {
+          throw new Error(t("binder:rename_error"));
+        }
       }
 
       await onRenamed?.();
@@ -104,6 +114,7 @@ export const BinderTitle = ({
     } catch (error) {
       handleError(error, t("binder:rename_error"));
     } finally {
+      setIsRenamingLocal(false);
       isSubmittingRef.current = false;
     }
   };

@@ -7,14 +7,14 @@ import { useTranslation } from "react-i18next";
 import { InputSearch } from "@/components/InputSearch";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useDebounce } from "@/hooks/useDebounce";
-import { type DraftCardSnapshot } from "@/hooks/useDraftBinder";
+import {
+  createDraftCardSnapshot,
+  type DraftCardSnapshot,
+} from "@/hooks/useDraftBinder";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
-type CardSearchNode = NonNullable<
-  CardSearchQuery["cardsCollection"]
->["edges"][number]["node"];
 type CardSearchMarketPrice = DraftCardSnapshot["marketPrices"][number];
 
 interface CardSearchPickerProps {
@@ -97,30 +97,6 @@ const getCardSearchMarketPrice = (
   );
 };
 
-const normalizeCard = (card: CardSearchNode): DraftCardSnapshot => {
-  return {
-    id: card.id,
-    externalId: card.externalId,
-    name: card.name,
-    collectorNumber: card.collectorNumber,
-    rarity: card.rarity,
-    finishes: card.finishes.filter((finish): finish is string => !!finish),
-    imageSmallUrl: card.imageSmallUrl,
-    imageNormalUrl: card.imageNormalUrl,
-    releasedAt: card.releasedAt,
-    setCode: card.cardSet?.code,
-    setName: card.cardSet?.name,
-    marketPrices:
-      card.marketPrices?.edges.map(({ node }) => ({
-        source: node.source,
-        finish: node.finish,
-        amount: Number(node.amount),
-        currency: node.currency,
-        priceDate: node.priceDate,
-      })) || [],
-  };
-};
-
 export const CardSearchPicker = ({
   containerClassName,
   className,
@@ -157,7 +133,7 @@ export const CardSearchPicker = ({
     parsedQuery.hasSetCode && hasMatchingSet
       ? setScopedCards
       : data?.cardsCollection?.edges.map(({ node }) => node) || [];
-  const cards = cardNodes.map((card) => normalizeCard(card));
+  const cards = cardNodes.map((card) => createDraftCardSnapshot(card));
 
   const handleSelect = (card: DraftCardSnapshot) => () => {
     onSelect(card);

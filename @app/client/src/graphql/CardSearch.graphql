@@ -55,6 +55,10 @@ fragment CardSearchFields on Cards {
     name
     releaseAt
   }
+  mtgCardDetail {
+    typeLine
+    oracleText
+  }
   marketPrices(first: 8, orderBy: [{ source: AscNullsLast }]) {
     edges {
       node {
@@ -63,6 +67,7 @@ fragment CardSearchFields on Cards {
         amount
         currency
         priceDate
+        buyUrl
       }
     }
   }

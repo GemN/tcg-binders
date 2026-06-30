@@ -1,5 +1,4 @@
 import {
-  type BinderCardsInsertInput,
   useAddBinderCardsMutation,
   useCardsForBinderImportLazyQuery,
 } from "@app/graphql";
@@ -24,6 +23,7 @@ import {
   type BinderImportCardRecord,
   type BinderImportLookupBatch,
   type BinderImportParseResult,
+  type BinderImportResolvedItem,
   type BinderImportResolveResult,
   createBinderImportLookupBatches,
   createBinderImportObjects,
@@ -35,9 +35,25 @@ import { handleError } from "@/lib/error";
 
 interface ButtonImportBinderProps {
   binderId: string;
+  onImportCards?: ImportBinderCardsHandler;
   onImported: () => Promise<unknown> | unknown;
   tcgId: string;
 }
+
+export interface ImportBinderCardsResult {
+  failedInsertCount: number;
+  importedCount: number;
+}
+
+export interface ImportBinderCardsHandlerParams {
+  items: BinderImportResolvedItem[];
+  onProgress: (completed: number) => void;
+  tcgId: string;
+}
+
+export type ImportBinderCardsHandler = (
+  params: ImportBinderCardsHandlerParams
+) => Promise<ImportBinderCardsResult> | ImportBinderCardsResult;
 
 interface BinderImportResult {
   failedInsertCount: number;
@@ -56,6 +72,7 @@ const importChunkSize = 50;
 
 export const ButtonImportBinder = ({
   binderId,
+  onImportCards,
   onImported,
   tcgId,
 }: ButtonImportBinderProps) => {
@@ -92,9 +109,18 @@ export const ButtonImportBinder = ({
   };
 
   const insertBinderCards = async (
-    objects: BinderCardsInsertInput[],
+    items: BinderImportResolvedItem[],
     onProgress: (completed: number) => void
-  ): Promise<{ failedInsertCount: number; importedCount: number }> => {
+  ): Promise<ImportBinderCardsResult> => {
+    if (onImportCards) {
+      return onImportCards({ items, onProgress, tcgId });
+    }
+
+    const objects = createBinderImportObjects({
+      binderId,
+      items,
+      tcgId,
+    });
     let failedInsertCount = 0;
     let importedCount = 0;
 
@@ -210,27 +236,24 @@ export const ButtonImportBinder = ({
         });
       });
       const resolveResult = resolveBinderImportItems(parseResult.items, cards);
-      const objects = createBinderImportObjects({
-        binderId,
-        items: resolveResult.matchedItems,
-        tcgId,
-      });
-
       let insertResult = { failedInsertCount: 0, importedCount: 0 };
 
-      if (objects.length > 0) {
+      if (resolveResult.matchedItems.length > 0) {
         setImportProgress({
           completed: 0,
           stage: "importing",
-          total: objects.length,
+          total: resolveResult.matchedItems.length,
         });
-        insertResult = await insertBinderCards(objects, (completed) => {
-          setImportProgress({
-            completed,
-            stage: "importing",
-            total: objects.length,
-          });
-        });
+        insertResult = await insertBinderCards(
+          resolveResult.matchedItems,
+          (completed) => {
+            setImportProgress({
+              completed,
+              stage: "importing",
+              total: resolveResult.matchedItems.length,
+            });
+          }
+        );
       }
 
       if (insertResult.importedCount > 0) {

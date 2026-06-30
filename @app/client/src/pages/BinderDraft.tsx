@@ -1,338 +1,472 @@
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import {
+  useAddBinderCardsMutation,
+  useCreateBinderMutation,
+  useDeleteBinderMutation,
+} from "@app/graphql";
+import { Save } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
-import { CardSearchPicker } from "@/components/CardSearchPicker";
-import { Badge } from "@/components/ui/Badge";
+import type { BinderCardViewMode } from "@/components/BinderCard";
+import { BinderPageView } from "@/components/BinderPageView";
+import type { ImportBinderCardsHandler } from "@/components/ButtonImportBinder";
+import {
+  ModalDraftBinderShare,
+  type DraftBinderShareStatus,
+} from "@/components/ModalDraftBinderShare";
+import type { UpdateBinderCardHandler } from "@/components/ModalBinderCardDetail/types";
+import type { UpdateBulkBinderCardPrice } from "@/components/ModalBulkBinderCardPrice";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/Textarea";
-import {
-  CARD_CONDITION_OPTIONS,
-  CARD_CURRENCY_OPTIONS,
-  CARD_LANGUAGE_OPTIONS,
-  type DraftBinderCard,
-  type DraftCardCondition,
-  type DraftCardCurrency,
-  type DraftCardLanguage,
+  createDraftCardSnapshot,
   useDraftBinder,
 } from "@/hooks/useDraftBinder";
-import { formatCurrency } from "@/lib/currency";
+import { useIsMobile } from "@/hooks/useMobile";
+import type { BinderCardRecord } from "@/lib/binderCardPricing";
+import {
+  binderCardsUpdateInputToDraftPatch,
+  draftBinderCardToBinderCardRecord,
+  draftBinderCardToInsertInput,
+  draftBinderCardsToBinderCardRecords,
+  sortDraftBinderCards,
+} from "@/lib/draftBinder";
+import {
+  type BinderSortMode,
+  getBinderCardsPerPage,
+} from "@/lib/binderPage";
+import { handleError } from "@/lib/error";
 import { useSession } from "@/providers/SessionContext";
 
-const formatLabel = (value: string): string => {
-  return value.replace(/_/g, " ");
-};
-
-interface BinderDraftCardRowProps {
-  draftCard: DraftBinderCard;
-  onUpdate: (patch: Partial<DraftBinderCard>) => void;
-  onRemove: () => void;
-}
-
-const BinderDraftCardRow = ({
-  draftCard,
-  onUpdate,
-  onRemove,
-}: BinderDraftCardRowProps) => {
-  const { i18n, t } = useTranslation(["common"]);
-  const finishOptions =
-    draftCard.card.finishes.length > 0 ? draftCard.card.finishes : ["normal"];
-  const formatOptionLabel = (
-    scope: "condition" | "finish" | "language",
-    value: string
-  ) => t(`common:card.${scope}.${value}`, { defaultValue: formatLabel(value) });
-
-  return (
-    <article className="grid gap-4 rounded-md border bg-card p-3 text-card-foreground shadow-xs md:grid-cols-[88px_minmax(180px,1fr)_minmax(360px,2fr)_auto]">
-      <div className="flex aspect-[63/88] w-20 items-center justify-center overflow-hidden rounded-sm border bg-muted md:w-full">
-        {draftCard.card.imageNormalUrl || draftCard.card.imageSmallUrl ? (
-          <img
-            src={
-              draftCard.card.imageNormalUrl ||
-              draftCard.card.imageSmallUrl ||
-              ""
-            }
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <span className="text-xs text-muted-foreground">
-            {t("common:card_search.no_image")}
-          </span>
-        )}
-      </div>
-
-      <div className="min-w-0">
-        <h2 className="truncate text-base font-semibold tracking-normal">
-          {draftCard.card.name}
-        </h2>
-        <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
-          <span>{draftCard.card.setCode || "MTG"}</span>
-          {draftCard.card.collectorNumber && (
-            <span>#{draftCard.card.collectorNumber}</span>
-          )}
-          {draftCard.card.releasedAt && (
-            <span>{draftCard.card.releasedAt}</span>
-          )}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {draftCard.card.marketPrices.slice(0, 3).map((price) => (
-            <Badge
-              key={`${price.source}-${price.finish}`}
-              variant="outline"
-              className="capitalize"
-            >
-              {price.source} {formatOptionLabel("finish", price.finish)}:{" "}
-              {formatCurrency(price.amount, price.currency, i18n.language)}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          {t("common:draft_binder.quantity")}
-          <Input
-            type="number"
-            min={1}
-            value={draftCard.quantity}
-            onChange={(event) =>
-              onUpdate({ quantity: Number(event.target.value) || 1 })
-            }
-          />
-        </label>
-
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          {t("common:draft_binder.finish")}
-          <Select
-            value={draftCard.finish}
-            onValueChange={(finish) => onUpdate({ finish })}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {finishOptions.map((finish) => (
-                <SelectItem key={finish} value={finish}>
-                  {formatOptionLabel("finish", finish)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </label>
-
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          {t("common:draft_binder.condition")}
-          <Select
-            value={draftCard.condition}
-            onValueChange={(condition) =>
-              onUpdate({ condition: condition as DraftCardCondition })
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CARD_CONDITION_OPTIONS.map((condition) => (
-                <SelectItem key={condition} value={condition}>
-                  {formatOptionLabel("condition", condition)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </label>
-
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-          {t("common:draft_binder.language")}
-          <Select
-            value={draftCard.language}
-            onValueChange={(language) =>
-              onUpdate({ language: language as DraftCardLanguage })
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CARD_LANGUAGE_OPTIONS.map((language) => (
-                <SelectItem key={language} value={language}>
-                  {formatOptionLabel("language", language)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </label>
-
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-1 lg:col-span-2">
-          {t("common:draft_binder.manual_price")}
-          <Input
-            type="number"
-            min={0}
-            step="0.01"
-            value={draftCard.priceAmount ?? ""}
-            onChange={(event) =>
-              onUpdate({
-                priceAmount:
-                  event.target.value === "" ? undefined : event.target.value,
-              })
-            }
-          />
-        </label>
-
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-1 lg:col-span-2">
-          {t("common:draft_binder.currency")}
-          <Select
-            value={draftCard.priceCurrency || CARD_CURRENCY_OPTIONS[0]}
-            onValueChange={(priceCurrency) =>
-              onUpdate({ priceCurrency: priceCurrency as DraftCardCurrency })
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CARD_CURRENCY_OPTIONS.map((currency) => (
-                <SelectItem key={currency} value={currency}>
-                  {currency}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </label>
-
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-2 lg:col-span-4">
-          {t("common:draft_binder.note")}
-          <Textarea
-            value={draftCard.note || ""}
-            onChange={(event) => onUpdate({ note: event.target.value })}
-            className="min-h-12 resize-none"
-          />
-        </label>
-      </div>
-
-      <div className="flex items-start justify-end">
-        <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
-          <Trash2 className="size-4" />
-          <span className="sr-only">
-            {t("common:draft_binder.remove_card")}
-          </span>
-        </Button>
-      </div>
-    </article>
-  );
-};
+const DRAFT_BINDER_ID = "draft";
 
 export const BinderDraft = () => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["binder", "common"]);
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { session } = useSession();
-  const { draftBinder, setName, addCard, updateCard, removeCard, clearDraft } =
-    useDraftBinder();
+  const isMobile = useIsMobile();
+  const didShareAfterLoginRef = useRef(false);
+  const {
+    addCard,
+    addCards,
+    clearDraft,
+    draftBinder,
+    removeCard,
+    removeCards,
+    setName,
+    setNote,
+    updateCard,
+  } = useDraftBinder();
+  const [createBinder, { loading: isCreatingBinder }] =
+    useCreateBinderMutation();
+  const [addBinderCards, { loading: isAddingBinderCards }] =
+    useAddBinderCardsMutation();
+  const [deleteBinder] = useDeleteBinderMutation();
+  const [sortMode, setSortMode] = useState<BinderSortMode>("seller_order");
+  const [viewMode, setViewMode] = useState<BinderCardViewMode>("grid");
+  const [showConvertedMarketPrices, setShowConvertedMarketPrices] =
+    useState(true);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [selectedBinderCardId, setSelectedBinderCardId] = useState<
+    string | null
+  >(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareStatus, setShareStatus] =
+    useState<DraftBinderShareStatus>("idle");
+  const [shareBinderName, setShareBinderName] = useState("");
+  const [shareCardCount, setShareCardCount] = useState(0);
+  const [shareBinderUrl, setShareBinderUrl] = useState("");
+  const [shareBinderShortId, setShareBinderShortId] = useState("");
+  const [isDeletingSelectedBinderCards, setIsDeletingSelectedBinderCards] =
+    useState(false);
+  const [isBulkPriceOpen, setIsBulkPriceOpen] = useState(false);
+  const cardsPerPage = getBinderCardsPerPage(viewMode);
+  const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
+  const sortedDraftCards = useMemo(
+    () => sortDraftBinderCards(draftBinder.cards, sortMode),
+    [draftBinder.cards, sortMode]
+  );
+  const binderCards = useMemo(
+    () => draftBinderCardsToBinderCardRecords(sortedDraftCards),
+    [sortedDraftCards]
+  );
+  const visibleBinderCards = isMobile
+    ? binderCards
+    : binderCards.slice(cardOffset, cardOffset + cardsPerPage);
+  const totalBinderCards = binderCards.length;
+  const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
+  const canTurnPreviousPage = !isMobile && pageIndex > 0;
+  const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
+  const selectedCardIndex = useMemo(() => {
+    if (!selectedBinderCardId) return null;
 
-  const handleSave = () => {
-    if (!session) {
-      navigate(`/login?next=${encodeURIComponent(location.pathname)}`);
+    const cardIndex = binderCards.findIndex(
+      (binderCard) => binderCard.id === selectedBinderCardId
+    );
+
+    return cardIndex >= 0 ? cardIndex : null;
+  }, [binderCards, selectedBinderCardId]);
+  const selectedBinderCard =
+    selectedCardIndex === null ? null : binderCards[selectedCardIndex] || null;
+  const shouldShareAfterLogin = searchParams.get("share") === "1";
+  const canGoPreviousDetailCard =
+    selectedCardIndex !== null && selectedCardIndex > 0;
+  const canGoNextDetailCard =
+    selectedCardIndex !== null && selectedCardIndex + 1 < totalBinderCards;
+  const isShareInProgress =
+    shareStatus === "creating" || shareStatus === "adding";
+  const isSharing = isCreatingBinder || isAddingBinderCards || isShareInProgress;
+  const {
+    clearCardSelection,
+    handleSelectBinderCards,
+    handleSelectionModeChange: setCardSelectionMode,
+    handleToggleCardSelection,
+    isSelectionMode,
+    removeSelectedBinderCard,
+    resetCardSelection,
+    selectedBinderCardCount,
+    selectedBinderCardIds,
+    selectedBinderCards,
+  } = useBinderCardSelection();
+
+  useEffect(() => {
+    if (selectedBinderCardId && selectedCardIndex === null) {
+      setSelectedBinderCardId(null);
+    }
+  }, [selectedBinderCardId, selectedCardIndex]);
+
+  useEffect(() => {
+    setPageIndex((currentPageIndex) =>
+      Math.min(currentPageIndex, totalPages - 1)
+    );
+  }, [totalPages]);
+
+  const handleSelectionModeChange = (nextIsSelectionMode: boolean) => {
+    setCardSelectionMode(nextIsSelectionMode);
+    setSelectedBinderCardId(null);
+  };
+
+  const handleSelectVisibleBinderCards = () => {
+    handleSelectBinderCards(visibleBinderCards);
+  };
+
+  const handleOpenCard = (binderCard: BinderCardRecord) => {
+    if (isSelectionMode) {
+      handleToggleCardSelection(binderCard);
       return;
     }
 
-    toast.info(t("common:draft_binder.save_not_ready"));
+    setSelectedBinderCardId(binderCard.id);
   };
 
+  const handleDeleteCard = (binderCard: BinderCardRecord) => {
+    removeCard(binderCard.id);
+    removeSelectedBinderCard(binderCard.id);
+
+    if (selectedBinderCard?.id === binderCard.id) {
+      setSelectedBinderCardId(null);
+    }
+  };
+
+  const handleDeleteSelectedBinderCards = () => {
+    const binderCardIds = selectedBinderCards.map((binderCard) => binderCard.id);
+
+    if (binderCardIds.length === 0 || isDeletingSelectedBinderCards) {
+      return;
+    }
+
+    setIsDeletingSelectedBinderCards(true);
+
+    try {
+      removeCards(binderCardIds);
+
+      if (selectedBinderCard && binderCardIds.includes(selectedBinderCard.id)) {
+        setSelectedBinderCardId(null);
+      }
+
+      resetCardSelection();
+      toast.success(
+        t("binder:bulk_delete.success", {
+          count: binderCardIds.length,
+        })
+      );
+    } finally {
+      setIsDeletingSelectedBinderCards(false);
+    }
+  };
+
+  const handleDetailOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) return;
+
+    if (selectedCardIndex !== null && !isMobile) {
+      setPageIndex(Math.floor(selectedCardIndex / cardsPerPage));
+    }
+
+    setSelectedBinderCardId(null);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortMode(value as BinderSortMode);
+    setPageIndex(0);
+    setSelectedBinderCardId(null);
+  };
+
+  const handleViewChange = (value: BinderCardViewMode) => {
+    setViewMode(value);
+    setPageIndex(0);
+    setSelectedBinderCardId(null);
+  };
+
+  const handlePreviousPage = () => {
+    setPageIndex((currentPage) => Math.max(currentPage - 1, 0));
+  };
+
+  const handleNextPage = () => {
+    if (!canTurnNextPage) return;
+
+    setPageIndex((currentPage) => currentPage + 1);
+  };
+
+  const handleUpdateBinderCard: UpdateBinderCardHandler = (
+    binderCard,
+    set,
+    context
+  ) => {
+    const patch = binderCardsUpdateInputToDraftPatch(set);
+
+    if (set.cardId && context?.variant) {
+      const card = createDraftCardSnapshot(context.variant);
+      patch.card = card;
+      patch.cardId = card.id;
+    }
+
+    const updatedDraftCard = updateCard(binderCard.id, patch);
+    if (!updatedDraftCard) {
+      throw new Error(t("binder:detail.update_error"));
+    }
+
+    return draftBinderCardToBinderCardRecord(updatedDraftCard);
+  };
+
+  const handleUpdateBinderCardPrice: UpdateBulkBinderCardPrice = (
+    binderCard,
+    update
+  ) => {
+    return !!updateCard(binderCard.id, update);
+  };
+
+  const handleBulkPriceApplied = () => {
+    handleSelectionModeChange(false);
+  };
+
+  const handleImportCards: ImportBinderCardsHandler = ({
+    items,
+    onProgress,
+  }) => {
+    addCards(
+      items.map(({ card, finish, item }) => ({
+        card: createDraftCardSnapshot(card),
+        options: {
+          condition: item.condition,
+          finish,
+          language: item.language,
+          priceAmount: item.priceAmount ?? null,
+          priceCurrency: item.priceCurrency,
+          quantity: item.quantity,
+        },
+      }))
+    );
+    onProgress(items.length);
+
+    return {
+      failedInsertCount: 0,
+      importedCount: items.length,
+    };
+  };
+
+  const handleShare = useCallback(async () => {
+    if (isShareInProgress) return;
+
+    if (!session) {
+      navigate(
+        `/login?next=${encodeURIComponent(`${location.pathname}?share=1`)}`
+      );
+      return;
+    }
+
+    const name = draftBinder.name.trim() || t("binder:draft.untitled_name");
+    const cardCount = draftBinder.cards.length;
+    let createdBinderId: string | null = null;
+
+    setShareBinderName(name);
+    setShareCardCount(cardCount);
+    setShareBinderUrl("");
+    setShareBinderShortId("");
+    setShareStatus("creating");
+    setShareDialogOpen(true);
+
+    try {
+      const result = await createBinder({
+        variables: {
+          name,
+          tcgId: draftBinder.tcgId,
+        },
+      });
+      const binder =
+        result.data?.insertIntoBindersCollection?.records[0] || null;
+
+      if (!binder?.id || !binder.shortId) {
+        throw new Error(t("binder:draft.share_error"));
+      }
+
+      createdBinderId = binder.id;
+
+      const objects = draftBinder.cards.map((draftCard) =>
+        draftBinderCardToInsertInput(binder.id, draftCard)
+      );
+
+      if (objects.length > 0) {
+        setShareStatus("adding");
+        await addBinderCards({ variables: { objects } });
+      }
+
+      setShareBinderUrl(`${window.location.origin}/binder/${binder.shortId}`);
+      setShareBinderShortId(binder.shortId);
+      setShareStatus("ready");
+      clearDraft();
+    } catch (error) {
+      if (createdBinderId) {
+        try {
+          await deleteBinder({ variables: { id: createdBinderId } });
+        } catch (deleteError) {
+          console.error(deleteError);
+        }
+      }
+
+      setShareStatus("idle");
+      setShareDialogOpen(false);
+      handleError(error, t("binder:draft.share_error"));
+    }
+  }, [
+    addBinderCards,
+    clearDraft,
+    createBinder,
+    deleteBinder,
+    draftBinder.cards,
+    draftBinder.name,
+    draftBinder.tcgId,
+    isShareInProgress,
+    location.pathname,
+    navigate,
+    session,
+    t,
+  ]);
+
+  useEffect(() => {
+    if (!session || !shouldShareAfterLogin || didShareAfterLoginRef.current) {
+      return;
+    }
+
+    didShareAfterLoginRef.current = true;
+    void handleShare();
+  }, [handleShare, session, shouldShareAfterLogin]);
+
   return (
-    <div className="flex-1 bg-background">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 border-b pb-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <Button type="button" variant="ghost" size="icon" asChild>
-              <Link to="/">
-                <ArrowLeft className="size-4" />
-                <span className="sr-only">
-                  {t("common:draft_binder.back_home")}
-                </span>
-              </Link>
-            </Button>
-            <Input
-              value={draftBinder.name}
-              placeholder={t("common:draft_binder.untitled_name")}
-              aria-label={t("common:draft_binder.name_label")}
-              onChange={(event) => setName(event.target.value)}
-              className="h-11 max-w-md text-lg font-semibold"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                clearDraft();
-                toast.success(t("common:draft_binder.draft_cleared"));
-              }}
-              disabled={draftBinder.cards.length === 0}
-            >
-              {t("common:draft_binder.clear")}
-            </Button>
-            <Button type="button" onClick={handleSave}>
-              <Save className="size-4" />
-              {t("common:draft_binder.save_share")}
-            </Button>
-          </div>
-        </div>
-
-        <section className="grid gap-3">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-xl font-semibold tracking-normal">
-                {t("common:draft_binder.title")}
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("common:draft_binder.card_count", {
-                  count: draftBinder.cards.length,
-                })}
-              </p>
-            </div>
-            <CardSearchPicker
-              containerClassName="w-full md:max-w-md"
-              placeholder={t("common:draft_binder.add_another_card")}
-              onSelect={addCard}
-            />
-          </div>
-        </section>
-
-        {draftBinder.cards.length > 0 ? (
-          <section className="grid gap-3">
-            {draftBinder.cards.map((draftCard) => (
-              <BinderDraftCardRow
-                key={draftCard.draftId}
-                draftCard={draftCard}
-                onUpdate={(patch) => updateCard(draftCard.draftId, patch)}
-                onRemove={() => removeCard(draftCard.draftId)}
-              />
-            ))}
-          </section>
-        ) : (
-          <section className="flex min-h-[320px] items-center justify-center rounded-md border border-dashed">
-            <div className="w-full max-w-md px-4 text-center">
-              <h2 className="text-lg font-medium tracking-normal">
-                {t("common:draft_binder.empty")}
-              </h2>
-              <div className="mt-4">
-                <CardSearchPicker onSelect={addCard} />
-              </div>
-            </div>
-          </section>
-        )}
-      </div>
-    </div>
+    <>
+      <BinderPageView
+        binderId={DRAFT_BINDER_ID}
+        binderName={draftBinder.name || t("binder:draft.untitled_name")}
+        binderNote={draftBinder.note}
+        binderTcgId={draftBinder.tcgId}
+        canGoNextDetailCard={canGoNextDetailCard}
+        canGoPreviousDetailCard={canGoPreviousDetailCard}
+        canTurnNextPage={canTurnNextPage}
+        canTurnPreviousPage={canTurnPreviousPage}
+        cardsPerPage={cardsPerPage}
+        headerAction={
+          <Button
+            type="button"
+            className="h-9 px-2 sm:px-3"
+            isLoading={isSharing}
+            onClick={() => void handleShare()}
+          >
+            <Save className="size-4" />
+            {t("binder:draft.share")}
+          </Button>
+        }
+        isAddingCard={false}
+        isDeletingCard={false}
+        isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
+        isDetailLoading={false}
+        isMobile={isMobile}
+        isOwner
+        isPageLoading={false}
+        isSelectionMode={isSelectionMode}
+        isBulkPriceOpen={isBulkPriceOpen}
+        pageIndex={pageIndex}
+        selectedBinderCard={selectedBinderCard}
+        selectedBinderCardCount={selectedBinderCardCount}
+        selectedBinderCardIds={selectedBinderCardIds}
+        selectedBinderCards={selectedBinderCards}
+        selectedCardIndex={selectedCardIndex}
+        showConvertedMarketPrices={showConvertedMarketPrices}
+        sortMode={sortMode}
+        totalBinderCards={totalBinderCards}
+        totalPages={totalPages}
+        viewMode={viewMode}
+        visibleBinderCards={visibleBinderCards}
+        onAddCard={addCard}
+        onBinderCardUpdated={() => undefined}
+        onBinderChanged={() => undefined}
+        onBulkPriceApplied={handleBulkPriceApplied}
+        onBulkPriceOpenChange={setIsBulkPriceOpen}
+        onClearCardSelection={clearCardSelection}
+        onDeleteCard={handleDeleteCard}
+        onDeleteSelectedBinderCards={handleDeleteSelectedBinderCards}
+        onDetailOpenChange={handleDetailOpenChange}
+        onGoNextDetailCard={() => {
+          if (selectedCardIndex !== null && canGoNextDetailCard) {
+            setSelectedBinderCardId(
+              binderCards[selectedCardIndex + 1]?.id || null
+            );
+          }
+        }}
+        onGoPreviousDetailCard={() => {
+          if (selectedCardIndex !== null && canGoPreviousDetailCard) {
+            setSelectedBinderCardId(
+              binderCards[selectedCardIndex - 1]?.id || null
+            );
+          }
+        }}
+        onImportCards={handleImportCards}
+        onNextPage={handleNextPage}
+        onOpenBulkPrice={() => setIsBulkPriceOpen(true)}
+        onOpenCard={handleOpenCard}
+        onPreviousPage={handlePreviousPage}
+        onRenameBinder={setName}
+        onSelectVisibleBinderCards={handleSelectVisibleBinderCards}
+        onSelectionModeChange={handleSelectionModeChange}
+        onShowConvertedMarketPricesChange={setShowConvertedMarketPrices}
+        onSortChange={handleSortChange}
+        onToggleCardSelection={handleToggleCardSelection}
+        onUpdateBinderCard={handleUpdateBinderCard}
+        onUpdateBinderCardPrice={handleUpdateBinderCardPrice}
+        onUpdateBinderNote={setNote}
+        onViewChange={handleViewChange}
+      />
+      <ModalDraftBinderShare
+        binderName={shareBinderName}
+        cardCount={shareCardCount}
+        open={shareDialogOpen}
+        shareUrl={shareBinderUrl}
+        status={shareStatus}
+        onOpenBinder={() => navigate(`/binder/${shareBinderShortId}`)}
+        onOpenChange={setShareDialogOpen}
+      />
+    </>
   );
 };

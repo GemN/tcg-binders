@@ -1,8 +1,12 @@
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderNote } from "@/components/BinderNote";
 import { BinderTitle } from "@/components/BinderTitle";
-import { ButtonImportBinder } from "@/components/ButtonImportBinder";
+import {
+  ButtonImportBinder,
+  type ImportBinderCardsHandler,
+} from "@/components/ButtonImportBinder";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import { Switch } from "@/components/ui/Switch";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
@@ -12,11 +16,15 @@ interface BinderPageHeaderProps {
   binderName: string;
   binderNote: string;
   binderTcgId: string;
+  headerAction?: ReactNode;
   isOwner: boolean;
   showConvertedMarketPrices: boolean;
   onAddCard: (card: DraftCardSnapshot) => void;
   onBinderChanged: () => Promise<unknown> | unknown;
+  onImportCards?: ImportBinderCardsHandler;
+  onRenameBinder?: (name: string) => Promise<unknown> | unknown;
   onShowConvertedMarketPricesChange: (checked: boolean) => void;
+  onUpdateBinderNote?: (note: string) => Promise<unknown> | unknown;
 }
 
 export const BinderPageHeader = ({
@@ -24,11 +32,15 @@ export const BinderPageHeader = ({
   binderName,
   binderNote,
   binderTcgId,
+  headerAction,
   isOwner,
   showConvertedMarketPrices,
   onAddCard,
   onBinderChanged,
+  onImportCards,
+  onRenameBinder,
   onShowConvertedMarketPricesChange,
+  onUpdateBinderNote,
 }: BinderPageHeaderProps) => {
   const { t } = useTranslation(["binder", "common"]);
 
@@ -39,12 +51,14 @@ export const BinderPageHeader = ({
           binderId={binderId}
           isOwner={isOwner}
           name={binderName}
+          onRename={onRenameBinder}
           onRenamed={onBinderChanged}
         />
         <BinderNote
           binderId={binderId}
           isOwner={isOwner}
           note={binderNote}
+          onUpdate={onUpdateBinderNote}
           onUpdated={onBinderChanged}
         />
       </div>
@@ -61,10 +75,12 @@ export const BinderPageHeader = ({
               <ButtonImportBinder
                 binderId={binderId}
                 tcgId={binderTcgId}
+                onImportCards={onImportCards}
                 onImported={onBinderChanged}
               />
             </>
           )}
+          {headerAction}
         </div>
         <div className="flex justify-end">
           <label className="inline-flex w-fit items-center gap-2 text-sm text-binder-toolbar-foreground/80">

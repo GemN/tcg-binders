@@ -2052,11 +2052,7 @@ export type BinderCardVariantsQuery = ({
         } & {
             node: ({
                 __typename?: 'Cards';
-            } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'> & {
-                cardSet: Maybe<({
-                    __typename?: 'CardSets';
-                } & Pick<CardSets, 'code' | 'name'>)>;
-            });
+            } & CardSearchFieldsFragment);
         })>;
     })>;
 });
@@ -2111,6 +2107,9 @@ export type CardSearchFieldsFragment = ({
     cardSet: Maybe<({
         __typename?: 'CardSets';
     } & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>)>;
+    mtgCardDetail: Maybe<({
+        __typename?: 'MtgCardDetails';
+    } & Pick<MtgCardDetails, 'typeLine' | 'oracleText'>)>;
     marketPrices: Maybe<({
         __typename?: 'CardMarketPricesConnection';
     } & {
@@ -2119,7 +2118,7 @@ export type CardSearchFieldsFragment = ({
         } & {
             node: ({
                 __typename?: 'CardMarketPrices';
-            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate'>);
+            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate' | 'buyUrl'>);
         })>;
     })>;
 });
@@ -2139,11 +2138,7 @@ export type CardsForBinderImportQuery = ({
         } & {
             node: ({
                 __typename?: 'Cards';
-            } & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'finishes'> & {
-                cardSet: Maybe<({
-                    __typename?: 'CardSets';
-                } & Pick<CardSets, 'code'>)>;
-            });
+            } & CardSearchFieldsFragment);
         })>;
         pageInfo: ({
             __typename?: 'PageInfo';
@@ -2214,6 +2209,16 @@ export type CurrentUserProfileQuery = ({
     currentUserProfile: Maybe<({
         __typename?: 'UserProfiles';
     } & Pick<UserProfiles, 'nodeId' | 'id' | 'firstname' | 'lastname' | 'isAdmin'>)>;
+});
+export type DeleteBinderMutationVariables = Exact<{
+    id: Scalars['UUID'];
+}>;
+export type DeleteBinderMutation = ({
+    __typename?: 'Mutation';
+} & {
+    deleteFromBindersCollection: ({
+        __typename?: 'BindersDeleteResponse';
+    } & Pick<BindersDeleteResponse, 'affectedCount'>);
 });
 export type DeleteBinderCardMutationVariables = Exact<{
     id: Scalars['UUID'];
@@ -2636,6 +2641,31 @@ export declare function useCurrentUserProfileLazyQuery(baseOptions?: Apollo.Lazy
 export type CurrentUserProfileQueryHookResult = ReturnType<typeof useCurrentUserProfileQuery>;
 export type CurrentUserProfileLazyQueryHookResult = ReturnType<typeof useCurrentUserProfileLazyQuery>;
 export type CurrentUserProfileQueryResult = Apollo.QueryResult<CurrentUserProfileQuery, CurrentUserProfileQueryVariables>;
+export declare const DeleteBinderDocument: Apollo.DocumentNode;
+export type DeleteBinderMutationFn = Apollo.MutationFunction<DeleteBinderMutation, DeleteBinderMutationVariables>;
+/**
+ * __useDeleteBinderMutation__
+ *
+ * To run a mutation, you first call `useDeleteBinderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBinderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBinderMutation, { data, loading, error }] = useDeleteBinderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export declare function useDeleteBinderMutation(baseOptions?: Apollo.MutationHookOptions<DeleteBinderMutation, DeleteBinderMutationVariables>): Apollo.MutationTuple<DeleteBinderMutation, Exact<{
+    id: Scalars["UUID"];
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type DeleteBinderMutationHookResult = ReturnType<typeof useDeleteBinderMutation>;
+export type DeleteBinderMutationResult = Apollo.MutationResult<DeleteBinderMutation>;
+export type DeleteBinderMutationOptions = Apollo.BaseMutationOptions<DeleteBinderMutation, DeleteBinderMutationVariables>;
 export declare const DeleteBinderCardDocument: Apollo.DocumentNode;
 export type DeleteBinderCardMutationFn = Apollo.MutationFunction<DeleteBinderCardMutation, DeleteBinderCardMutationVariables>;
 /**

@@ -7,6 +7,8 @@
   "next": "ถัดไป",
   "previous": "ก่อนหน้า",
   "back": "กลับ",
+  "copy": "คัดลอก",
+  "copied": "คัดลอกแล้ว",
   "no_results": "ไม่พบผลลัพธ์",
   "unselect": "ยกเลิกการเลือก",
   "submit": "ส่ง",
@@ -51,28 +53,6 @@
     "no_image": "ไม่มีรูปภาพ",
     "no_cards_found": "ไม่พบการ์ด",
     "minimum_query": "พิมพ์อย่างน้อย {{count}} ตัวอักษร"
-  },
-  "draft_binder": {
-    "title": "ตัวสร้างแฟ้ม",
-    "untitled_name": "แฟ้มไม่มีชื่อ",
-    "name_label": "ชื่อแฟ้ม",
-    "quantity": "จำนวน",
-    "finish": "พื้นผิว",
-    "condition": "สภาพ",
-    "language": "ภาษา",
-    "manual_price": "ราคากำหนดเอง",
-    "currency": "สกุลเงิน",
-    "note": "หมายเหตุ",
-    "remove_card": "ลบการ์ด",
-    "save_not_ready": "ยังไม่รองรับการบันทึกแฟ้มฉบับร่าง",
-    "back_home": "กลับหน้าแรก",
-    "draft_cleared": "ล้างฉบับร่างแล้ว",
-    "clear": "ล้าง",
-    "save_share": "บันทึก / แชร์",
-    "card_count_one": "{{count}} ใบ",
-    "card_count_other": "{{count}} ใบ",
-    "add_another_card": "เพิ่มการ์ดอีกใบ",
-    "empty": "ยังไม่มีการ์ด"
   },
   "card": {
     "condition": {

@@ -4,18 +4,17 @@ import {
   useBinderByShortIdQuery,
   useDeleteBinderCardMutation,
 } from "@app/graphql";
+import { Share2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 import { toast } from "sonner";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
-import { BinderCardViewPanel } from "@/components/BinderCardViewPanel";
-import { BinderPageControls } from "@/components/BinderPageControls";
-import { BinderPageHeader } from "@/components/BinderPageHeader";
+import { BinderPageView } from "@/components/BinderPageView";
 import { Loading } from "@/components/Loading";
-import { ModalBinderCardDetail } from "@/components/ModalBinderCardDetail";
-import { ModalBulkBinderCardPrice } from "@/components/ModalBulkBinderCardPrice";
+import { ModalBinderShare } from "@/components/ModalBinderShare";
+import { Button } from "@/components/ui/Button";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
@@ -46,6 +45,7 @@ export const BinderPage = () => {
   const [isBulkPriceOpen, setIsBulkPriceOpen] = useState(false);
   const [isDeletingSelectedBinderCards, setIsDeletingSelectedBinderCards] =
     useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const cardsPerPage = getBinderCardsPerPage(viewMode);
   const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
   const cardFirst = isMobile
@@ -129,6 +129,10 @@ export const BinderPage = () => {
   }
 
   const isOwner = !!session?.user.id && session.user.id === binder.ownerId;
+  const binderShareUrl =
+    typeof window === "undefined"
+      ? `/binder/${binder.shortId}`
+      : `${window.location.origin}/binder/${binder.shortId}`;
 
   const handleAddCard = async (card: DraftCardSnapshot) => {
     try {
@@ -323,92 +327,82 @@ export const BinderPage = () => {
   };
 
   return (
-    <div className="relative isolate flex min-h-[calc(100svh-3.5rem)] w-full flex-1 overflow-y-auto bg-background text-foreground md:overflow-hidden">
-      <div className="relative z-10 flex min-h-[calc(100svh-3.5rem)] w-full flex-col gap-5 px-4 pb-4 sm:px-6 lg:px-20">
-        <BinderPageHeader
-          binderId={binder.id}
-          binderName={binder.name}
-          binderNote={binder.note}
-          binderTcgId={binder.tcgId}
-          isOwner={isOwner}
-          showConvertedMarketPrices={showConvertedMarketPrices}
-          onAddCard={handleAddCard}
-          onBinderChanged={refetch}
-          onShowConvertedMarketPricesChange={setShowConvertedMarketPrices}
-        />
-
-        <BinderPageControls
-          isMobile={isMobile}
-          isOwner={isOwner}
-          isPageLoading={isPageLoading}
-          isSelectionMode={isSelectionMode}
-          isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
-          pageIndex={pageIndex}
-          selectedBinderCardCount={selectedBinderCardCount}
-          sortMode={sortMode}
-          totalBinderCards={totalBinderCards}
-          totalPages={totalPages}
-          viewMode={viewMode}
-          visibleBinderCardCount={visibleBinderCards.length}
-          onClearCardSelection={clearCardSelection}
-          onDeleteSelectedBinderCards={handleDeleteSelectedBinderCards}
-          onOpenBulkPrice={() => setIsBulkPriceOpen(true)}
-          onSelectVisibleBinderCards={handleSelectVisibleBinderCards}
-          onSelectionModeChange={handleSelectionModeChange}
-          onSortChange={handleSortChange}
-          onViewChange={handleViewChange}
-        />
-
-        {isAddingCard && (
-          <p className="shrink-0 text-sm text-muted-foreground">
-            {t("binder:adding_card")}
-          </p>
-        )}
-
-        <BinderCardViewPanel
-          binderCards={visibleBinderCards}
-          canTurnNextPage={canTurnNextPage}
-          canTurnPreviousPage={canTurnPreviousPage}
-          cardsPerPage={cardsPerPage}
-          isDeletingCard={isDeletingCard || isDeletingSelectedBinderCards}
-          isDetailOpen={selectedCardIndex !== null}
-          isMobile={isMobile}
-          isPageLoading={isPageLoading}
-          isSelectionMode={isSelectionMode}
-          selectedBinderCardIds={selectedBinderCardIds}
-          showConvertedMarketPrices={showConvertedMarketPrices}
-          viewMode={viewMode}
-          onDeleteCard={isOwner ? handleDeleteCard : undefined}
-          onNextPage={handleNextPage}
-          onOpenCard={handleOpenCard}
-          onPreviousPage={handlePreviousPage}
-          onToggleCardSelection={handleToggleCardSelection}
-        />
-      </div>
-      <ModalBinderCardDetail
-        binderCard={selectedBinderCard}
-        canGoNext={canGoNextDetailCard}
-        canGoPrevious={canGoPreviousDetailCard}
-        currentIndex={selectedCardIndex}
-        isEditable={isOwner}
-        isLoading={isDetailLoading}
-        open={selectedCardIndex !== null}
+    <>
+      <BinderPageView
+        binderId={binder.id}
+        binderName={binder.name}
+        binderNote={binder.note}
+        binderTcgId={binder.tcgId}
+        canGoNextDetailCard={canGoNextDetailCard}
+        canGoPreviousDetailCard={canGoPreviousDetailCard}
+        canTurnNextPage={canTurnNextPage}
+        canTurnPreviousPage={canTurnPreviousPage}
+        cardsPerPage={cardsPerPage}
+        headerAction={
+          session ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="border-binder-toolbar-foreground/25 bg-background"
+              onClick={() => setIsShareDialogOpen(true)}
+            >
+              <Share2 className="size-4" />
+              {t("binder:share.button")}
+            </Button>
+          ) : undefined
+        }
+        isAddingCard={isAddingCard}
+        isDeletingCard={isDeletingCard}
+        isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
+        isDetailLoading={isDetailLoading}
+        isMobile={isMobile}
+        isOwner={isOwner}
+        isPageLoading={isPageLoading}
+        isSelectionMode={isSelectionMode}
+        isBulkPriceOpen={isBulkPriceOpen}
+        pageIndex={pageIndex}
+        selectedBinderCard={selectedBinderCard}
+        selectedBinderCardCount={selectedBinderCardCount}
+        selectedBinderCardIds={selectedBinderCardIds}
+        selectedBinderCards={selectedBinderCards}
+        selectedCardIndex={selectedCardIndex}
         showConvertedMarketPrices={showConvertedMarketPrices}
-        totalCards={totalBinderCards}
+        sortMode={sortMode}
+        totalBinderCards={totalBinderCards}
+        totalPages={totalPages}
+        viewMode={viewMode}
+        visibleBinderCards={visibleBinderCards}
+        onAddCard={handleAddCard}
         onBinderCardUpdated={(binderCard) => {
           setSelectedBinderCard(binderCard);
           void refetch();
         }}
-        onGoNext={goToNextDetailCard}
-        onGoPrevious={goToPreviousDetailCard}
-        onOpenChange={handleDetailOpenChange}
+        onBinderChanged={refetch}
+        onBulkPriceApplied={handleBulkPriceApplied}
+        onBulkPriceOpenChange={setIsBulkPriceOpen}
+        onClearCardSelection={clearCardSelection}
+        onDeleteCard={isOwner ? handleDeleteCard : undefined}
+        onDeleteSelectedBinderCards={handleDeleteSelectedBinderCards}
+        onDetailOpenChange={handleDetailOpenChange}
+        onGoNextDetailCard={goToNextDetailCard}
+        onGoPreviousDetailCard={goToPreviousDetailCard}
+        onNextPage={handleNextPage}
+        onOpenBulkPrice={() => setIsBulkPriceOpen(true)}
+        onOpenCard={handleOpenCard}
+        onPreviousPage={handlePreviousPage}
+        onSelectVisibleBinderCards={handleSelectVisibleBinderCards}
+        onSelectionModeChange={handleSelectionModeChange}
+        onShowConvertedMarketPricesChange={setShowConvertedMarketPrices}
+        onSortChange={handleSortChange}
+        onToggleCardSelection={handleToggleCardSelection}
+        onViewChange={handleViewChange}
       />
-      <ModalBulkBinderCardPrice
-        binderCards={selectedBinderCards}
-        open={isBulkPriceOpen}
-        onApplied={handleBulkPriceApplied}
-        onOpenChange={setIsBulkPriceOpen}
+      <ModalBinderShare
+        binderName={binder.name}
+        open={isShareDialogOpen}
+        shareUrl={binderShareUrl}
+        onOpenChange={setIsShareDialogOpen}
       />
-    </div>
+    </>
   );
 };

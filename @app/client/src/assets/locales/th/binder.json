@@ -14,6 +14,12 @@
   "unique_card_count_one": "{{count}} การ์ดไม่ซ้ำ",
   "unique_card_count_other": "{{count}} การ์ดไม่ซ้ำ",
   "page_progress": "{{cardCount}} - หน้า {{page}}/{{pageCount}}",
+  "share": {
+    "button": "แชร์",
+    "description": "แชร์ \"{{name}}\" ด้วย URL นี้",
+    "title": "แชร์แฟ้ม",
+    "url_label": "URL"
+  },
   "actions": {
     "open": "เปิดเมนูการทำงานของ {{name}}",
     "delete": "ลบ"
@@ -56,6 +62,27 @@
     "partial_other": "ลบแล้ว {{count}} ใบ ล้มเหลว {{failed}} ใบ",
     "failed_one": "ลบการ์ดที่เลือก {{count}} ใบไม่สำเร็จ",
     "failed_other": "ลบการ์ดที่เลือก {{count}} ใบไม่สำเร็จ"
+  },
+  "draft": {
+    "adding_cards_description_one": "กำลังเพิ่มการ์ด {{count}} ใบไปยัง \"{{name}}\"",
+    "adding_cards_description_other": "กำลังเพิ่มการ์ด {{count}} ใบไปยัง \"{{name}}\"",
+    "adding_cards_title": "กำลังเพิ่มการ์ด",
+    "creating_description": "กำลังสร้าง \"{{name}}\"",
+    "creating_title": "กำลังสร้างแฟ้ม",
+    "open_binder": "เปิดแฟ้ม",
+    "ready_description": "แฟ้มของคุณพร้อมแชร์แล้ว",
+    "ready_title": "พร้อมแชร์",
+    "share": "บันทึก / แชร์",
+    "share_error": "บันทึกแฟ้มนี้ไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "share_url_label": "URL สำหรับแชร์",
+    "untitled_name": "แฟ้มยังไม่มีชื่อ"
+  },
+  "field": {
+    "condition": "สภาพ",
+    "currency": "สกุลเงิน",
+    "finish": "ฟินิช",
+    "language": "ภาษา",
+    "quantity": "จำนวน"
   },
   "note": {
     "label": "หมายเหตุแฟ้ม",

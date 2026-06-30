@@ -22,6 +22,8 @@ import type {
   DynamicPriceStrategy,
   ModalBinderCardRecord,
   PriceMode,
+  UpdateBinderCardContext,
+  UpdateBinderCardHandler,
 } from "@/components/ModalBinderCardDetail/types";
 import {
   arePriceAmountsEqual,
@@ -36,7 +38,6 @@ import {
 } from "@/components/ModalBinderCardDetail/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import {
-  type BinderCardDetailRecord,
   type BinderCardPriceInput,
   formatCardKingdomMultiplierThbPriceInput,
   formatBinderCardPrice,
@@ -55,10 +56,11 @@ interface ModalBinderCardDetailProps {
   open: boolean;
   showConvertedMarketPrices: boolean;
   totalCards: number;
-  onBinderCardUpdated: (binderCard: BinderCardDetailRecord) => void;
+  onBinderCardUpdated: (binderCard: ModalBinderCardRecord) => void;
   onGoNext: () => void;
   onGoPrevious: () => void;
   onOpenChange: (open: boolean) => void;
+  onUpdateBinderCard?: UpdateBinderCardHandler;
 }
 
 export const ModalBinderCardDetail = ({
@@ -75,6 +77,7 @@ export const ModalBinderCardDetail = ({
   onGoNext,
   onGoPrevious,
   onOpenChange,
+  onUpdateBinderCard,
 }: ModalBinderCardDetailProps) => {
   const { i18n, t } = useTranslation(["binder", "common"]);
   const { convertAmountToLocalCurrency, currency } = usePricingSettings();
@@ -94,6 +97,7 @@ export const ModalBinderCardDetail = ({
   const [variantQueryCardId, setVariantQueryCardId] = useState<string | null>(
     null
   );
+  const [isSavingLocal, setIsSavingLocal] = useState(false);
   const [updateBinderCard, { loading: isSaving }] =
     useUpdateBinderCardMutation();
   const card = binderCard?.card;
@@ -160,24 +164,37 @@ export const ModalBinderCardDetail = ({
     setVariantQueryCardId(null);
   }, [binderCard?.id]);
 
-  const persistBinderCard = async (set: BinderCardsUpdateInput) => {
+  const persistBinderCard = async (
+    set: BinderCardsUpdateInput,
+    context?: UpdateBinderCardContext
+  ) => {
     if (!binderCard) return;
 
     try {
-      const result = await updateBinderCard({
-        variables: {
-          id: binderCard.id,
-          set,
-        },
-      });
-      const updatedBinderCard =
-        result.data?.updateBinderCardsCollection.records[0];
+      let updatedBinderCard: ModalBinderCardRecord | null | undefined;
+
+      if (onUpdateBinderCard) {
+        setIsSavingLocal(true);
+        updatedBinderCard = await onUpdateBinderCard(binderCard, set, context);
+      } else {
+        const result = await updateBinderCard({
+          variables: {
+            id: binderCard.id,
+            set,
+          },
+        });
+        updatedBinderCard =
+          result.data?.updateBinderCardsCollection.records[0];
+      }
+
       if (!updatedBinderCard) {
         throw new Error(t("binder:detail.update_error"));
       }
       onBinderCardUpdated(updatedBinderCard);
     } catch (error) {
       handleError(error, t("binder:detail.update_error"));
+    } finally {
+      setIsSavingLocal(false);
     }
   };
 
@@ -406,7 +423,7 @@ export const ModalBinderCardDetail = ({
     void persistBinderCard({
       cardId: variant.id,
       ...(nextFinish === binderCard.finish ? {} : { finish: nextFinish }),
-    });
+    }, { variant });
   };
 
   const translateCardOption = (
@@ -449,7 +466,7 @@ export const ModalBinderCardDetail = ({
           <ModalDetailHeader
             cancelLabel={t("common:cancel")}
             currentIndex={currentIndex}
-            isSaving={isSaving}
+            isSaving={isSaving || isSavingLocal}
             positionLabel={
               currentIndex === null
                 ? null
@@ -492,12 +509,12 @@ export const ModalBinderCardDetail = ({
                     areVariantsLoading={areVariantsLoading}
                     binderCard={binderCard}
                     cardId={card?.id || ""}
-                    conditionLabel={t("common:draft_binder.condition")}
-                    finishLabel={t("common:draft_binder.finish")}
+                    conditionLabel={t("binder:field.condition")}
+                    finishLabel={t("binder:field.finish")}
                     finishOptions={finishOptions}
-                    languageLabel={t("common:draft_binder.language")}
+                    languageLabel={t("binder:field.language")}
                     quantityInput={quantityInput}
-                    quantityLabel={t("common:draft_binder.quantity")}
+                    quantityLabel={t("binder:field.quantity")}
                     selectedVariantLabel={selectedVariantLabel}
                     variantLabel={t("binder:detail.variant")}
                     variants={variants}
@@ -520,7 +537,7 @@ export const ModalBinderCardDetail = ({
                         applyLabel={t("common:apply")}
                         ckdMultiplierInput={ckdMultiplierInput}
                         ckdMultiplierInputId={ckdMultiplierInputId}
-                        currencyLabel={t("common:draft_binder.currency")}
+                        currencyLabel={t("binder:field.currency")}
                         dynamicPriceStrategy={dynamicPriceStrategy}
                         priceCurrency={priceCurrency}
                         priceInput={priceInput}

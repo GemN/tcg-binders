@@ -1,4 +1,10 @@
-import { CardCondition, CurrencyCode, LanguageCode } from "@app/graphql";
+import {
+  CardCondition,
+  CurrencyCode,
+  LanguageCode,
+  MarketPriceSource,
+  type CardSearchFieldsFragment,
+} from "@app/graphql";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 const DRAFT_BINDER_STORAGE_KEY = "tcgbinder:draft-binder";
@@ -34,16 +40,22 @@ export const CARD_CURRENCY_OPTIONS = [
   CurrencyCode.Jpy,
 ] as const;
 
-export type DraftCardCondition = (typeof CARD_CONDITION_OPTIONS)[number];
-export type DraftCardLanguage = (typeof CARD_LANGUAGE_OPTIONS)[number];
-export type DraftCardCurrency = (typeof CARD_CURRENCY_OPTIONS)[number];
+export type DraftCardCondition = CardCondition;
+export type DraftCardLanguage = LanguageCode;
+export type DraftCardCurrency = CurrencyCode;
 
 export interface DraftMarketPrice {
-  source: string;
+  source: MarketPriceSource;
   finish: string;
   amount: number;
   currency: DraftCardCurrency;
   priceDate: string;
+  buyUrl?: string | null;
+}
+
+export interface DraftMtgCardDetail {
+  oracleText?: string | null;
+  typeLine?: string | null;
 }
 
 export interface DraftCardSnapshot {
@@ -58,6 +70,7 @@ export interface DraftCardSnapshot {
   releasedAt?: string | null;
   setCode?: string | null;
   setName?: string | null;
+  mtgCardDetail?: DraftMtgCardDetail | null;
   marketPrices: DraftMarketPrice[];
 }
 
@@ -68,21 +81,34 @@ export interface DraftBinderCard {
   finish: string;
   condition: DraftCardCondition;
   language: DraftCardLanguage;
-  priceAmount?: string;
-  priceCurrency?: DraftCardCurrency;
+  dynamicPriceRule?: string | null;
+  priceAmount?: string | null;
+  priceCurrency?: DraftCardCurrency | null;
   note?: string;
   position: number;
+  createdAt: string;
   card: DraftCardSnapshot;
 }
 
 export interface DraftBinder {
   name: string;
+  note: string;
   tcgId: "mtg";
   cards: DraftBinderCard[];
 }
 
+export interface AddDraftCardOptions {
+  condition?: DraftCardCondition;
+  finish?: string;
+  language?: DraftCardLanguage;
+  priceAmount?: string | null;
+  priceCurrency?: DraftCardCurrency | null;
+  quantity?: number;
+}
+
 const emptyDraftBinder: DraftBinder = {
   name: "",
+  note: "",
   tcgId: "mtg",
   cards: [],
 };
@@ -99,6 +125,59 @@ const createDraftId = (): string => {
   }
 
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
+export const createDraftCardSnapshot = (
+  card: CardSearchFieldsFragment
+): DraftCardSnapshot => {
+  return {
+    id: card.id,
+    externalId: card.externalId,
+    name: card.name,
+    collectorNumber: card.collectorNumber,
+    rarity: card.rarity,
+    finishes: card.finishes.filter((finish): finish is string => !!finish),
+    imageSmallUrl: card.imageSmallUrl,
+    imageNormalUrl: card.imageNormalUrl,
+    releasedAt: card.releasedAt,
+    setCode: card.cardSet?.code,
+    setName: card.cardSet?.name,
+    mtgCardDetail: card.mtgCardDetail
+      ? {
+          oracleText: card.mtgCardDetail.oracleText,
+          typeLine: card.mtgCardDetail.typeLine,
+        }
+      : null,
+    marketPrices:
+      card.marketPrices?.edges.map(({ node }) => ({
+        source: node.source,
+        finish: node.finish,
+        amount: Number(node.amount),
+        currency: node.currency,
+        priceDate: node.priceDate,
+        buyUrl: node.buyUrl,
+      })) || [],
+  };
+};
+
+const normalizeMarketPrice = (
+  marketPrice: Partial<DraftMarketPrice>
+): DraftMarketPrice | null => {
+  if (!marketPrice.source || !marketPrice.finish || !marketPrice.currency) {
+    return null;
+  }
+
+  const amount = Number(marketPrice.amount);
+  if (!Number.isFinite(amount)) return null;
+
+  return {
+    source: marketPrice.source,
+    finish: marketPrice.finish,
+    amount,
+    currency: marketPrice.currency,
+    priceDate: marketPrice.priceDate || "",
+    buyUrl: marketPrice.buyUrl,
+  };
 };
 
 const normalizeDraftCard = (
@@ -120,10 +199,12 @@ const normalizeDraftCard = (
     finish: draftCard.finish || getDefaultFinish(finishes),
     condition: draftCard.condition || CardCondition.NearMint,
     language: draftCard.language || LanguageCode.En,
-    priceAmount: draftCard.priceAmount,
+    dynamicPriceRule: draftCard.dynamicPriceRule || null,
+    priceAmount: draftCard.priceAmount ?? null,
     priceCurrency: draftCard.priceCurrency || CurrencyCode.Thb,
     note: draftCard.note || "",
     position,
+    createdAt: draftCard.createdAt || new Date().toISOString(),
     card: {
       id: draftCard.card.id,
       externalId: draftCard.card.externalId || "",
@@ -136,8 +217,13 @@ const normalizeDraftCard = (
       releasedAt: draftCard.card.releasedAt,
       setCode: draftCard.card.setCode,
       setName: draftCard.card.setName,
+      mtgCardDetail: draftCard.card.mtgCardDetail || null,
       marketPrices: Array.isArray(draftCard.card.marketPrices)
         ? draftCard.card.marketPrices
+            .map((marketPrice) => normalizeMarketPrice(marketPrice))
+            .filter(
+              (marketPrice): marketPrice is DraftMarketPrice => !!marketPrice
+            )
         : [],
     },
   };
@@ -155,6 +241,7 @@ const normalizeDraftBinder = (
   return {
     ...emptyDraftBinder,
     ...draftBinder,
+    note: draftBinder.note || "",
     tcgId: "mtg",
     cards,
   };
@@ -178,6 +265,57 @@ const readDraftBinder = (): DraftBinder => {
 
 const writeDraftBinder = (draftBinder: DraftBinder): void => {
   localStorage.setItem(DRAFT_BINDER_STORAGE_KEY, JSON.stringify(draftBinder));
+};
+
+const appendDraftCard = (
+  currentDraft: DraftBinder,
+  card: DraftCardSnapshot,
+  options: AddDraftCardOptions = {}
+): DraftBinder => {
+  const finish = options.finish || getDefaultFinish(card.finishes);
+  const quantity = Math.max(1, Number(options.quantity) || 1);
+  const existingCard = currentDraft.cards.find(
+    (draftCard) => draftCard.cardId === card.id && draftCard.finish === finish
+  );
+
+  if (existingCard) {
+    return {
+      ...currentDraft,
+      cards: currentDraft.cards.map((draftCard) =>
+        draftCard.draftId === existingCard.draftId
+          ? { ...draftCard, quantity: draftCard.quantity + quantity }
+          : draftCard
+      ),
+    };
+  }
+
+  const position =
+    currentDraft.cards.reduce(
+      (maxPosition, draftCard) => Math.max(maxPosition, draftCard.position),
+      -1
+    ) + 1;
+
+  return {
+    ...currentDraft,
+    cards: [
+      ...currentDraft.cards,
+      {
+        draftId: createDraftId(),
+        cardId: card.id,
+        quantity,
+        finish,
+        condition: options.condition || CardCondition.NearMint,
+        language: options.language || LanguageCode.En,
+        dynamicPriceRule: null,
+        priceAmount: options.priceAmount ?? null,
+        priceCurrency: options.priceCurrency || CurrencyCode.Thb,
+        note: "",
+        position,
+        createdAt: new Date().toISOString(),
+        card,
+      },
+    ],
+  };
 };
 
 export const useDraftBinder = () => {
@@ -214,70 +352,63 @@ export const useDraftBinder = () => {
     [commitDraftBinder]
   );
 
+  const setNote = useCallback(
+    (note: string) => {
+      commitDraftBinder((currentDraft) => ({
+        ...currentDraft,
+        note,
+      }));
+    },
+    [commitDraftBinder]
+  );
+
   const addCard = useCallback(
-    (card: DraftCardSnapshot) => {
-      const finish = getDefaultFinish(card.finishes);
+    (card: DraftCardSnapshot, options?: AddDraftCardOptions) => {
+      commitDraftBinder((currentDraft) =>
+        appendDraftCard(currentDraft, card, options)
+      );
+    },
+    [commitDraftBinder]
+  );
 
-      commitDraftBinder((currentDraft) => {
-        const existingCard = currentDraft.cards.find(
-          (draftCard) =>
-            draftCard.cardId === card.id && draftCard.finish === finish
-        );
-
-        if (existingCard) {
-          return {
-            ...currentDraft,
-            cards: currentDraft.cards.map((draftCard) =>
-              draftCard.draftId === existingCard.draftId
-                ? { ...draftCard, quantity: draftCard.quantity + 1 }
-                : draftCard
-            ),
-          };
-        }
-
-        const position =
-          currentDraft.cards.reduce(
-            (maxPosition, draftCard) =>
-              Math.max(maxPosition, draftCard.position),
-            -1
-          ) + 1;
-
-        return {
-          ...currentDraft,
-          cards: [
-            ...currentDraft.cards,
-            {
-              draftId: createDraftId(),
-              cardId: card.id,
-              quantity: 1,
-              finish,
-              condition: CardCondition.NearMint,
-              language: LanguageCode.En,
-              priceCurrency: CurrencyCode.Thb,
-              position,
-              card,
-            },
-          ],
-        };
-      });
+  const addCards = useCallback(
+    (
+      cards: {
+        card: DraftCardSnapshot;
+        options?: AddDraftCardOptions;
+      }[]
+    ) => {
+      commitDraftBinder((currentDraft) =>
+        cards.reduce(
+          (nextDraft, item) =>
+            appendDraftCard(nextDraft, item.card, item.options),
+          currentDraft
+        )
+      );
     },
     [commitDraftBinder]
   );
 
   const updateCard = useCallback(
     (draftId: string, patch: Partial<DraftBinderCard>) => {
-      commitDraftBinder((currentDraft) => ({
+      const nextDraft = commitDraftBinder((currentDraft) => ({
         ...currentDraft,
         cards: currentDraft.cards.map((draftCard) =>
           draftCard.draftId === draftId
             ? {
                 ...draftCard,
                 ...patch,
+                cardId: patch.card?.id || patch.cardId || draftCard.cardId,
                 quantity: Math.max(1, patch.quantity ?? draftCard.quantity),
               }
             : draftCard
         ),
       }));
+
+      return (
+        nextDraft.cards.find((draftCard) => draftCard.draftId === draftId) ||
+        null
+      );
     },
     [commitDraftBinder]
   );
@@ -288,6 +419,20 @@ export const useDraftBinder = () => {
         ...currentDraft,
         cards: currentDraft.cards
           .filter((draftCard) => draftCard.draftId !== draftId)
+          .map((draftCard, index) => ({ ...draftCard, position: index })),
+      }));
+    },
+    [commitDraftBinder]
+  );
+
+  const removeCards = useCallback(
+    (draftIds: string[]) => {
+      const draftIdsToRemove = new Set(draftIds);
+
+      commitDraftBinder((currentDraft) => ({
+        ...currentDraft,
+        cards: currentDraft.cards
+          .filter((draftCard) => !draftIdsToRemove.has(draftCard.draftId))
           .map((draftCard, index) => ({ ...draftCard, position: index })),
       }));
     },
@@ -306,9 +451,12 @@ export const useDraftBinder = () => {
       cards: sortedCards,
     },
     setName,
+    setNote,
     addCard,
+    addCards,
     updateCard,
     removeCard,
+    removeCards,
     clearDraft,
   };
 };
