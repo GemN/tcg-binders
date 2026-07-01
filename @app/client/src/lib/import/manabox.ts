@@ -7,9 +7,7 @@ import type {
 } from "./types";
 import {
   parseCondition,
-  parseCurrency,
   parseLanguage,
-  parsePriceAmount,
   parseQuantity,
 } from "./utils";
 
@@ -56,23 +54,13 @@ export const parseManaBoxCsvImport = (
       return;
     }
 
-    const priceAmount = parsePriceAmount(
-      getCsvValue(row, columns, "purchase price")
-    );
-    const priceCurrency = parseCurrency(
-      getCsvValue(row, columns, "purchase price currency")
-    );
-
     items.push({
       collectorNumber:
         getCsvValue(row, columns, "collector number") || undefined,
       condition: parseCondition(getCsvValue(row, columns, "condition")),
-      externalId: getCsvValue(row, columns, "scryfall id") || undefined,
       finish: parseManaBoxFinish(getCsvValue(row, columns, "foil")),
       language: parseLanguage(getCsvValue(row, columns, "language")),
       name,
-      priceAmount,
-      priceCurrency: priceAmount === undefined ? undefined : priceCurrency,
       quantity,
       setCode: getCsvValue(row, columns, "set code")?.toUpperCase(),
       sourceLine,

@@ -2,6 +2,7 @@ import { MarketPriceSource } from "@app/graphql";
 import { BadgeDollarSign, CheckIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
@@ -46,6 +47,7 @@ export const PriceSourceSwitcher = () => {
               onClick={() => setPriceSource(source)}
               className="cursor-pointer pr-8"
             >
+              <MarketPriceSourceIcon source={source} />
               {priceSourceLabels[source]}
               <CheckIcon
                 aria-hidden="true"

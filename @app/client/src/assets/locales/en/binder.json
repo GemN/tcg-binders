@@ -139,9 +139,29 @@
     "title": "Import cards",
     "description": "Paste a card list or a ManaBox CSV export, then choose the matching import action.",
     "label": "Cards",
-    "placeholder": "1 Sol Ring (LTC) 279\n1 Gandalf, Friend of the Shire (PLTR) 401s *F*",
+    "file_label": "File",
+    "source": {
+      "text": "Text",
+      "manabox_csv": "ManaBox CSV",
+      "file_txt": "File TXT"
+    },
+    "file_drop_label": "Drop a file here or click to select",
+    "accepted_csv": "CSV file",
+    "accepted_txt": "TXT file",
+    "selected_file": "Selected: {{name}}",
+    "placeholder": "1 Serra the Benevolent\n1 Sol Ring (LTC) 279\n1 Gandalf, Friend of the Shire (PLTR) 401s *F*",
     "import": "Import",
     "manabox_csv": "ManaBox CSV",
+    "success_title": "Import complete",
+    "success_description": "All cards were imported successfully.",
+    "partial_title": "Some cards need attention",
+    "partial_description_one": "{{count}} card can be imported. Review the skipped card below, then confirm if you want to import the matched card.",
+    "partial_description_other": "{{count}} cards can be imported. Review the skipped cards below, then confirm if you want to import the matched cards.",
+    "import_matched_count_one": "Import {{count}} matched card",
+    "import_matched_count_other": "Import {{count}} matched cards",
+    "partial_success_title": "Partial import complete",
+    "partial_success_description": "Matched cards were imported. Review the cards that were skipped.",
+    "skipped_cards": "Cards not imported",
     "empty": "Paste cards before importing.",
     "empty_csv": "The selected CSV file is empty.",
     "no_parseable_cards": "No cards could be parsed from this input.",
@@ -156,6 +176,27 @@
     "progress": {
       "matching": "Matching cards {{completed}}/{{total}}",
       "importing": "Importing cards {{completed}}/{{total}}"
+    },
+    "errors": {
+      "select_file": "Select a file before importing.",
+      "empty_txt": "The selected TXT file is empty.",
+      "file_read": "Could not read the selected file.",
+      "parse_title": "Some lines could not be parsed.",
+      "match_title": "Some cards could not be matched.",
+      "insert_title": "Some matched cards could not be imported.",
+      "unknown_title": "Import failed.",
+      "rejected_line": "Line {{line}}: {{reason}} - {{value}}",
+      "unmatched_item": "Line {{line}}: {{name}}",
+      "insert_item": "Line {{line}}: {{name}} could not be imported.",
+      "and_more_one": "and {{count}} more",
+      "and_more_other": "and {{count}} more",
+      "reason": {
+        "invalid_quantity": "invalid quantity",
+        "missing_csv_header": "missing CSV header",
+        "missing_card_name": "missing card name",
+        "unsupported_line_format": "unsupported line format",
+        "unknown": "unknown error"
+      }
     }
   },
   "list": {

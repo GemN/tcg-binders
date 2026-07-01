@@ -21,6 +21,7 @@ export interface BinderTextExportItem {
 
 const textImportRowPattern =
   /^(\d+)\s+(.+)\s+\(([A-Za-z0-9]+)\)\s+(\S+)(?:\s+\*F\*)?$/;
+const textImportNameOnlyRowPattern = /^(\d+)\s+(.+?)(?:\s+\*F\*)?$/;
 const textImportFoilPattern = /\s+\*F\*$/;
 
 export const parseBinderImportText = (
@@ -32,9 +33,13 @@ export const parseBinderImportText = (
   text.split(/\r?\n/).forEach((line, index) => {
     const value = line.trim();
     if (!value) return;
+    if (value.toLowerCase() === "sideboard") return;
 
-    const match = value.match(textImportRowPattern);
-    if (!match) {
+    const printMatch = value.match(textImportRowPattern);
+    const nameOnlyMatch = printMatch
+      ? null
+      : value.match(textImportNameOnlyRowPattern);
+    if (!printMatch && !nameOnlyMatch) {
       rejectedLines.push({
         line: index + 1,
         reason: "Unsupported line format",
@@ -43,7 +48,8 @@ export const parseBinderImportText = (
       return;
     }
 
-    const [, quantityValue, name, setCode, collectorNumber] = match;
+    const quantityValue = printMatch?.[1] || nameOnlyMatch?.[1];
+    const name = printMatch?.[2] || nameOnlyMatch?.[2] || "";
     const quantity = parseQuantity(quantityValue);
     if (!quantity) {
       rejectedLines.push({
@@ -54,16 +60,21 @@ export const parseBinderImportText = (
       return;
     }
 
-    items.push({
-      collectorNumber: collectorNumber.trim(),
+    const item: BinderImportItem = {
       condition: defaultCardCondition,
       finish: textImportFoilPattern.test(value) ? "foil" : defaultCardFinish,
       language: defaultCardLanguage,
       name: name.trim(),
       quantity,
-      setCode: setCode.toUpperCase(),
       sourceLine: index + 1,
-    });
+    };
+
+    if (printMatch) {
+      item.collectorNumber = printMatch[4].trim();
+      item.setCode = printMatch[3].toUpperCase();
+    }
+
+    items.push(item);
   });
 
   return { items, rejectedLines };

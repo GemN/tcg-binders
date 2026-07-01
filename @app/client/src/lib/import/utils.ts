@@ -138,23 +138,29 @@ export const indexCardsForImport = (
   cards: BinderImportCardRecord[]
 ): {
   byExternalId: Map<string, BinderImportCardRecord>;
+  byName: Map<string, BinderImportCardRecord>;
   byPrintKey: Map<string, BinderImportCardRecord>;
 } => {
   const byExternalId = new Map(
     cards.map((card) => [normalizeValue(card.externalId), card])
   );
+  const byName = new Map<string, BinderImportCardRecord>();
   const byPrintKey = new Map<string, BinderImportCardRecord>();
 
   cards.forEach((card) => {
     getCardNameAliases(card.name).forEach((name) => {
+      const nameKey = normalizeValue(name);
       const key = getPrintKey(name, card.cardSet?.code, card.collectorNumber);
+      if (!byName.has(nameKey)) {
+        byName.set(nameKey, card);
+      }
       if (!byPrintKey.has(key)) {
         byPrintKey.set(key, card);
       }
     });
   });
 
-  return { byExternalId, byPrintKey };
+  return { byExternalId, byName, byPrintKey };
 };
 
 export const normalizeValue = (value: string): string => {

@@ -81,16 +81,18 @@ export const resolveBinderImportItems = (
   items: BinderImportItem[],
   cards: BinderImportCardRecord[]
 ): BinderImportResolveResult => {
-  const { byExternalId, byPrintKey } = indexCardsForImport(cards);
+  const { byExternalId, byName, byPrintKey } = indexCardsForImport(cards);
   const matchedItems: BinderImportResolveResult["matchedItems"] = [];
   const unmatchedItems: BinderImportItem[] = [];
 
   items.forEach((item) => {
     const card =
       (item.externalId && byExternalId.get(normalizeValue(item.externalId))) ||
-      byPrintKey.get(
-        getPrintKey(item.name, item.setCode, item.collectorNumber)
-      );
+      (item.setCode || item.collectorNumber
+        ? byPrintKey.get(
+            getPrintKey(item.name, item.setCode, item.collectorNumber)
+          )
+        : byName.get(normalizeValue(item.name)));
 
     if (!card) {
       unmatchedItems.push(item);

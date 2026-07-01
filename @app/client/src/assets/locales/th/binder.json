@@ -139,9 +139,29 @@
     "title": "นำเข้าการ์ด",
     "description": "วางรายการการ์ดหรือไฟล์ CSV จาก ManaBox แล้วเลือกวิธีนำเข้า",
     "label": "การ์ด",
-    "placeholder": "1 Sol Ring (LTC) 279\n1 Gandalf, Friend of the Shire (PLTR) 401s *F*",
+    "file_label": "ไฟล์",
+    "source": {
+      "text": "ข้อความ",
+      "manabox_csv": "ManaBox CSV",
+      "file_txt": "ไฟล์ TXT"
+    },
+    "file_drop_label": "วางไฟล์ที่นี่หรือคลิกเพื่อเลือกไฟล์",
+    "accepted_csv": "ไฟล์ CSV",
+    "accepted_txt": "ไฟล์ TXT",
+    "selected_file": "เลือกแล้ว: {{name}}",
+    "placeholder": "1 Serra the Benevolent\n1 Sol Ring (LTC) 279\n1 Gandalf, Friend of the Shire (PLTR) 401s *F*",
     "import": "นำเข้า",
     "manabox_csv": "ManaBox CSV",
+    "success_title": "นำเข้าเสร็จสิ้น",
+    "success_description": "นำเข้าการ์ดทั้งหมดสำเร็จ",
+    "partial_title": "มีบางการ์ดที่ต้องตรวจสอบ",
+    "partial_description_one": "นำเข้าได้ {{count}} รายการ ตรวจสอบการ์ดที่ถูกข้ามด้านล่าง แล้วกดยืนยันเพื่อนำเข้ารายการที่จับคู่ได้",
+    "partial_description_other": "นำเข้าได้ {{count}} รายการ ตรวจสอบการ์ดที่ถูกข้ามด้านล่าง แล้วกดยืนยันเพื่อนำเข้ารายการที่จับคู่ได้",
+    "import_matched_count_one": "นำเข้า {{count}} รายการที่จับคู่ได้",
+    "import_matched_count_other": "นำเข้า {{count}} รายการที่จับคู่ได้",
+    "partial_success_title": "นำเข้าบางส่วนเสร็จสิ้น",
+    "partial_success_description": "นำเข้าการ์ดที่จับคู่ได้แล้ว ตรวจสอบการ์ดที่ถูกข้าม",
+    "skipped_cards": "การ์ดที่ไม่ได้นำเข้า",
     "empty": "กรุณาวางรายการการ์ดก่อนนำเข้า",
     "empty_csv": "ไฟล์ CSV ที่เลือกว่างเปล่า",
     "no_parseable_cards": "ไม่พบการ์ดที่อ่านได้จากข้อมูลนี้",
@@ -156,6 +176,27 @@
     "progress": {
       "matching": "กำลังจับคู่การ์ด {{completed}}/{{total}}",
       "importing": "กำลังนำเข้าการ์ด {{completed}}/{{total}}"
+    },
+    "errors": {
+      "select_file": "กรุณาเลือกไฟล์ก่อนนำเข้า",
+      "empty_txt": "ไฟล์ TXT ที่เลือกว่างเปล่า",
+      "file_read": "ไม่สามารถอ่านไฟล์ที่เลือกได้",
+      "parse_title": "มีบางบรรทัดที่อ่านไม่ได้",
+      "match_title": "มีบางการ์ดที่จับคู่ไม่ได้",
+      "insert_title": "มีบางการ์ดที่จับคู่ได้แต่นำเข้าไม่สำเร็จ",
+      "unknown_title": "นำเข้าไม่สำเร็จ",
+      "rejected_line": "บรรทัด {{line}}: {{reason}} - {{value}}",
+      "unmatched_item": "บรรทัด {{line}}: {{name}}",
+      "insert_item": "บรรทัด {{line}}: ไม่สามารถนำเข้า {{name}} ได้",
+      "and_more_one": "และอีก {{count}} รายการ",
+      "and_more_other": "และอีก {{count}} รายการ",
+      "reason": {
+        "invalid_quantity": "จำนวนไม่ถูกต้อง",
+        "missing_csv_header": "ไม่พบหัวตาราง CSV",
+        "missing_card_name": "ไม่พบชื่อการ์ด",
+        "unsupported_line_format": "รูปแบบบรรทัดไม่รองรับ",
+        "unknown": "ข้อผิดพลาดไม่ทราบสาเหตุ"
+      }
     }
   },
   "list": {
