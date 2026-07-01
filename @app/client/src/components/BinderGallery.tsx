@@ -1,7 +1,10 @@
 import { Link } from "react-router";
 
+import { getCardImageUrls } from "@/lib/cardImageUrl";
+
 interface BinderGalleryBinder {
   coverImageUrl?: string | null;
+  coverScryfallId?: string | null;
   id: string;
   name: string;
   shortId: string;
@@ -26,6 +29,12 @@ interface BinderGalleryItemProps {
 }
 
 const BinderGalleryItem = ({ binder }: BinderGalleryItemProps) => {
+  const coverImageUrls = getCardImageUrls(
+    binder.coverImageUrl,
+    "art",
+    binder.coverScryfallId
+  );
+
   return (
     <Link
       to={`/binder/${binder.shortId}`}
@@ -33,12 +42,19 @@ const BinderGalleryItem = ({ binder }: BinderGalleryItemProps) => {
       aria-label={binder.name}
     >
       <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-foreground ring-1 ring-card/20 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg">
-        {binder.coverImageUrl && (
-          <img
-            src={binder.coverImageUrl}
-            alt=""
-            className="absolute inset-0 h-full w-full object-contain opacity-90"
-          />
+        {coverImageUrls.fallbackUrl && (
+          <picture className="absolute inset-0 block opacity-90">
+            {coverImageUrls.webpUrl && (
+              <source srcSet={coverImageUrls.webpUrl} type="image/webp" />
+            )}
+            <img
+              src={coverImageUrls.fallbackUrl}
+              alt=""
+              className="h-full w-full object-cover"
+              decoding="async"
+              loading="lazy"
+            />
+          </picture>
         )}
         <div className="absolute inset-0 bg-linear-to-b from-foreground/15 via-foreground/20 to-foreground/80" />
         <div className="absolute inset-x-3 bottom-3  text-center">

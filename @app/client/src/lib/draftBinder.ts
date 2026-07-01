@@ -104,8 +104,7 @@ export const draftBinderCardToBinderCardRecord = (
       name: draftCard.card.name,
       collectorNumber: draftCard.card.collectorNumber,
       finishes: draftCard.card.finishes,
-      imageNormalUrl: draftCard.card.imageNormalUrl,
-      imageSmallUrl: draftCard.card.imageSmallUrl,
+      imageUrl: draftCard.card.imageUrl,
       releasedAt: draftCard.card.releasedAt,
       cardSet: draftCard.card.setCode
         ? {
@@ -118,6 +117,7 @@ export const draftBinderCardToBinderCardRecord = (
         ? {
             __typename: "MtgCardDetails",
             oracleText: draftCard.card.mtgCardDetail.oracleText,
+            scryfallId: draftCard.card.mtgCardDetail.scryfallId,
             typeLine: draftCard.card.mtgCardDetail.typeLine,
           }
         : null,

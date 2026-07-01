@@ -134,10 +134,39 @@ create temp table import_mtg_card_purchase_urls_raw (
   tcgplayer_alternative_foil text
 ) on commit drop;
 
+create temp table import_mtg_card_identifiers_raw (
+  uuid text,
+  scryfall_id text,
+  scryfall_oracle_id text,
+  scryfall_illustration_id text,
+  scryfall_card_back_id text,
+  mcm_id text,
+  mcm_meta_id text,
+  mtg_arena_id text,
+  mtgo_id text,
+  mtgo_foil_id text,
+  multiverse_id text,
+  tcgplayer_product_id text,
+  tcgplayer_etched_product_id text,
+  tcgplayer_alternative_foil_product_id text,
+  card_kingdom_id text,
+  card_kingdom_foil_id text,
+  card_kingdom_etched_id text,
+  cardsphere_id text,
+  cardsphere_alternative_foil_id text,
+  cardsphere_etched_id text,
+  cardsphere_foil_id text,
+  deckbox_id text,
+  mtgjson_foil_version_id text,
+  mtgjson_non_foil_version_id text,
+  mtgjson_v4_id text
+) on commit drop;
+
 \copy import_mtg_sets_raw from '__MTG_SETS_CSV__' with (format csv, header true)
 \copy import_mtg_cards_raw from '__MTG_CARDS_CSV__' with (format csv, header true)
 \copy import_mtg_card_prices_raw from '__MTG_CARD_PRICES_CSV__' with (format csv, header true)
 \copy import_mtg_card_purchase_urls_raw from '__MTG_CARD_PURCHASE_URLS_CSV__' with (format csv, header true)
+\copy import_mtg_card_identifiers_raw from '__MTG_CARD_IDENTIFIERS_CSV__' with (format csv, header true)
 
 create function pg_temp.import_mtg_date(value text) returns date as $$
   select case
@@ -214,8 +243,7 @@ $$ language sql stable set search_path from current;
 create function pg_temp.import_mtg_scryfall_image_url(
   set_code text,
   collector_number text,
-  language text,
-  image_version text
+  language text
 ) returns text as $$
   select case
     when nullif(btrim(coalesce(set_code, '')), '') is null then null
@@ -226,8 +254,7 @@ create function pg_temp.import_mtg_scryfall_image_url(
       || regexp_replace(btrim(collector_number), '\s+', '%20', 'g')
       || '/'
       || pg_temp.import_mtg_language_code(language)
-      || '?format=image&version='
-      || image_version
+      || '?format=image'
   end;
 $$ language sql stable set search_path from current;
 
@@ -285,6 +312,17 @@ on import_mtg_cards (uuid);
 
 create index import_mtg_cards_set_code_idx
 on import_mtg_cards (set_code);
+
+create temp table import_mtg_card_identifiers as
+select distinct on (uuid)
+  nullif(btrim(uuid), '') as uuid,
+  nullif(btrim(scryfall_id), '') as scryfall_id
+from import_mtg_card_identifiers_raw
+where nullif(btrim(uuid), '') is not null
+order by uuid;
+
+create index import_mtg_card_identifiers_uuid_idx
+on import_mtg_card_identifiers (uuid);
 
 create temp table import_mtg_card_prices_supported as
 select
@@ -426,8 +464,7 @@ insert into public.cards (
   collector_number,
   rarity,
   finishes,
-  image_small_url,
-  image_normal_url,
+  image_url,
   released_at,
   synced_at
 )
@@ -439,18 +476,7 @@ select
   cards.collector_number,
   cards.rarity,
   pg_temp.import_mtg_finish_array(cards.finishes),
-  pg_temp.import_mtg_scryfall_image_url(
-    cards.set_code,
-    cards.collector_number,
-    cards.language,
-    'small'
-  ),
-  pg_temp.import_mtg_scryfall_image_url(
-    cards.set_code,
-    cards.collector_number,
-    cards.language,
-    'normal'
-  ),
+  image.image_url,
   coalesce(
     pg_temp.import_mtg_date(cards.original_release_date),
     card_sets.release_at
@@ -460,6 +486,13 @@ from import_mtg_cards cards
 inner join public.card_sets
 on card_sets.tcg_id = 'mtg'
 and card_sets.external_id = cards.set_code
+left join lateral (
+  select pg_temp.import_mtg_scryfall_image_url(
+    cards.set_code,
+    cards.collector_number,
+    cards.language
+  ) as image_url
+) image on true
 on conflict (tcg_id, external_id) do update
 set
   card_set_id = excluded.card_set_id,
@@ -467,14 +500,14 @@ set
   collector_number = excluded.collector_number,
   rarity = excluded.rarity,
   finishes = excluded.finishes,
-  image_small_url = excluded.image_small_url,
-  image_normal_url = excluded.image_normal_url,
+  image_url = excluded.image_url,
   released_at = excluded.released_at,
   synced_at = excluded.synced_at;
 
 insert into public.mtg_card_details (
   card_id,
   oracle_id,
+  scryfall_id,
   mana_cost,
   mana_value,
   type_line,
@@ -487,6 +520,7 @@ insert into public.mtg_card_details (
 select
   cards.id,
   null,
+  identifiers.scryfall_id,
   nullif(imported.mana_cost, ''),
   case
     when btrim(coalesce(imported.mana_value, '')) ~ '^[0-9]+(\.[0-9]+)?$'
@@ -503,9 +537,12 @@ from import_mtg_cards imported
 inner join public.cards
 on cards.tcg_id = 'mtg'
 and cards.external_id = imported.uuid
+left join import_mtg_card_identifiers identifiers
+on identifiers.uuid = imported.uuid
 on conflict (card_id) do update
 set
   oracle_id = coalesce(excluded.oracle_id, public.mtg_card_details.oracle_id),
+  scryfall_id = coalesce(excluded.scryfall_id, public.mtg_card_details.scryfall_id),
   mana_cost = excluded.mana_cost,
   mana_value = excluded.mana_value,
   type_line = excluded.type_line,
@@ -585,6 +622,14 @@ select
   (select count(*) from import_mtg_arena_only_cards) as skipped_arena_only_card_rows,
   (select count(*) from import_mtg_cards) as cards_csv_rows,
   (select count(*) from public.cards where tcg_id = 'mtg') as cards_in_database,
+  (select count(*) from import_mtg_card_identifiers where scryfall_id is not null) as card_identifier_rows_with_scryfall_id,
+  (
+    select count(*)
+    from import_mtg_cards cards
+    left join import_mtg_card_identifiers identifiers
+    on identifiers.uuid = cards.uuid
+    where identifiers.scryfall_id is null
+  ) as card_rows_missing_scryfall_id,
   (select count(*) from import_mtg_card_prices) as price_csv_rows,
   (
     select count(*)

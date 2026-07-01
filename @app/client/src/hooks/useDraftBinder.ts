@@ -24,6 +24,7 @@ export interface DraftMarketPrice {
 
 export interface DraftMtgCardDetail {
   oracleText?: string | null;
+  scryfallId?: string | null;
   typeLine?: string | null;
 }
 
@@ -34,8 +35,7 @@ export interface DraftCardSnapshot {
   collectorNumber?: string | null;
   rarity?: string | null;
   finishes: string[];
-  imageSmallUrl?: string | null;
-  imageNormalUrl?: string | null;
+  imageUrl?: string | null;
   releasedAt?: string | null;
   setCode?: string | null;
   setName?: string | null;
@@ -106,14 +106,14 @@ export const createDraftCardSnapshot = (
     collectorNumber: card.collectorNumber,
     rarity: card.rarity,
     finishes: card.finishes.filter((finish): finish is string => !!finish),
-    imageSmallUrl: card.imageSmallUrl,
-    imageNormalUrl: card.imageNormalUrl,
+    imageUrl: card.imageUrl,
     releasedAt: card.releasedAt,
     setCode: card.cardSet?.code,
     setName: card.cardSet?.name,
     mtgCardDetail: card.mtgCardDetail
       ? {
           oracleText: card.mtgCardDetail.oracleText,
+          scryfallId: card.mtgCardDetail.scryfallId,
           typeLine: card.mtgCardDetail.typeLine,
         }
       : null,
@@ -181,8 +181,7 @@ const normalizeDraftCard = (
       collectorNumber: draftCard.card.collectorNumber,
       rarity: draftCard.card.rarity,
       finishes,
-      imageSmallUrl: draftCard.card.imageSmallUrl,
-      imageNormalUrl: draftCard.card.imageNormalUrl,
+      imageUrl: draftCard.card.imageUrl,
       releasedAt: draftCard.card.releasedAt,
       setCode: draftCard.card.setCode,
       setName: draftCard.card.setName,

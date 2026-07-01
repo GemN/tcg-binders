@@ -1,4 +1,5 @@
 import type { LanguageCode } from "@app/graphql";
+import { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
@@ -11,36 +12,37 @@ import {
   type BinderCardRecord,
   formatBinderCardPrice,
 } from "@/lib/binderCardPricing";
+import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
 export type BinderCardViewMode = "grid" | "list";
 
 interface BinderCardImageProps {
-  card: BinderCardRecord["card"];
   condition: BinderCardRecord["condition"];
   finish: BinderCardRecord["finish"];
+  imageUrl: string | null | undefined;
   language: BinderCardRecord["language"];
   languageLabel: string;
   noImageLabel: string;
   priceLabel: string;
   quantityLabel: string;
+  scryfallId: string | null | undefined;
   className?: string;
 }
 
 const BinderCardImage = ({
-  card,
   condition,
   finish,
+  imageUrl,
   language,
   languageLabel,
   noImageLabel,
   priceLabel,
   quantityLabel,
+  scryfallId,
   className,
 }: BinderCardImageProps) => {
-  const imageUrl = card?.imageNormalUrl || card?.imageSmallUrl;
-
   return (
     <CardImage
       alt=""
@@ -50,8 +52,10 @@ const BinderCardImage = ({
       )}
       fallbackClassName="text-muted-foreground"
       finish={finish}
+      imageSize="grid"
       imageUrl={imageUrl}
       noImageLabel={noImageLabel}
+      scryfallId={scryfallId}
     >
       <span className="absolute bottom-2 left-2 flex w-7 flex-col items-stretch overflow-hidden rounded-sm bg-black/70 text-xs font-semibold tabular-nums text-white">
         <span className="inline-flex w-full items-center justify-center py-0.5">
@@ -91,16 +95,18 @@ const useBinderCardPriceLabel = (binderCard: BinderCardRecord): string => {
 
 interface BinderCardProps {
   binderCard: BinderCardRecord;
+  index: number;
   isDeleting?: boolean;
   isSelected?: boolean;
   isSelectionMode?: boolean;
   noImageLabel: string;
   onDelete?: (binderCard: BinderCardRecord) => void;
-  onOpen: (binderCard: BinderCardRecord) => void;
+  onOpen: (binderCard: BinderCardRecord, index: number) => void;
   onToggleSelection?: (binderCard: BinderCardRecord) => void;
 }
-export const BinderCard = ({
+const BinderCardComponent = ({
   binderCard,
+  index,
   isDeleting,
   isSelected = false,
   isSelectionMode = false,
@@ -115,14 +121,19 @@ export const BinderCard = ({
   const languageLabel = t(`common:card.language.${binderCard.language}`, {
     defaultValue: binderCard.language.toUpperCase(),
   });
-  const handlePrimaryClick = () => {
+  const imageUrl = getCardImageBaseUrl(binderCard.card);
+  const scryfallId = getCardScryfallId(binderCard.card);
+  const handlePrimaryClick = useCallback(() => {
     if (isSelectionMode) {
       onToggleSelection?.(binderCard);
       return;
     }
 
-    onOpen(binderCard);
-  };
+    onOpen(binderCard, index);
+  }, [binderCard, index, isSelectionMode, onOpen, onToggleSelection]);
+  const handleDelete = useCallback(() => {
+    onDelete?.(binderCard);
+  }, [binderCard, onDelete]);
 
   return (
     <div className="relative w-full max-w-[12rem] text-left text-foreground">
@@ -147,14 +158,15 @@ export const BinderCard = ({
         onClick={handlePrimaryClick}
       >
         <BinderCardImage
-          card={binderCard.card}
           condition={binderCard.condition}
           finish={binderCard.finish}
+          imageUrl={imageUrl}
           language={binderCard.language}
           languageLabel={languageLabel}
           noImageLabel={noImageLabel}
           priceLabel={priceLabel}
           quantityLabel={String(binderCard.quantity)}
+          scryfallId={scryfallId}
         />
       </button>
       {onDelete && !isSelectionMode && (
@@ -162,9 +174,11 @@ export const BinderCard = ({
           cardName={cardName}
           className="absolute top-2 right-2"
           disabled={isDeleting}
-          onDelete={() => onDelete(binderCard)}
+          onDelete={handleDelete}
         />
       )}
     </div>
   );
 };
+
+export const BinderCard = memo(BinderCardComponent);

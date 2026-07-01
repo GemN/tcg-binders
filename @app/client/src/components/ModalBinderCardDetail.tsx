@@ -4,7 +4,6 @@ import {
   CurrencyCode,
   LanguageCode,
   MarketPriceSource,
-  useBinderCardVariantsQuery,
   useUpdateBinderCardMutation,
 } from "@app/graphql";
 import { type KeyboardEvent, useCallback } from "react";
@@ -19,6 +18,7 @@ import { BinderCardTextPanel } from "@/components/ModalBinderCardDetail/BinderCa
 import { ModalDetailHeader } from "@/components/ModalBinderCardDetail/ModalDetailHeader";
 import { ModalDetailNavigation } from "@/components/ModalBinderCardDetail/ModalDetailNavigation";
 import type {
+  BinderCardVariant,
   DynamicPriceStrategy,
   ModalBinderCardRecord,
   PriceMode,
@@ -31,7 +31,6 @@ import {
   formatPriceInputValue,
   getCardDetail,
   getDefaultFinish,
-  getVariantLabel,
   readStoredBinderCardPriceCurrency,
   readStoredCustomCkdMultiplier,
   shouldIgnoreModalNavigationKey,
@@ -44,6 +43,7 @@ import {
   formatBinderCardPrice,
   formatCardKingdomMultiplierThbPriceInput,
 } from "@/lib/binderCardPricing";
+import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { getCurrencyFractionDigits, getCurrencySymbol } from "@/lib/currency";
 import { handleError } from "@/lib/error";
 import {
@@ -103,9 +103,6 @@ export const ModalBinderCardDetail = ({
   const [priceMode, setPriceMode] = useState<PriceMode>("manual");
   const [dynamicPriceStrategy, setDynamicPriceStrategy] =
     useState<DynamicPriceStrategy>("CKD X");
-  const [variantQueryCardId, setVariantQueryCardId] = useState<string | null>(
-    null
-  );
   const [isSavingLocal, setIsSavingLocal] = useState(false);
   const [updateBinderCard, { loading: isSaving }] =
     useUpdateBinderCardMutation();
@@ -114,8 +111,8 @@ export const ModalBinderCardDetail = ({
   const noImageLabel = t("binder:no_image");
   const fallbackPrice = "-";
   const title = card?.name || t("binder:detail.title");
-  const imageUrl = card?.imageNormalUrl || card?.imageSmallUrl;
-  const shouldLoadVariants = !!card?.id && variantQueryCardId === card.id;
+  const imageUrl = getCardImageBaseUrl(card);
+  const scryfallId = getCardScryfallId(card);
   const finishOptions = useMemo(() => {
     const cardFinishes =
       card?.finishes.filter((finish): finish is string => !!finish) || [];
@@ -126,15 +123,6 @@ export const ModalBinderCardDetail = ({
 
     return cardFinishes;
   }, [binderCard?.finish, card?.finishes]);
-  const { data: variantsData, loading: areVariantsLoading } =
-    useBinderCardVariantsQuery({
-      variables: { name: card?.name || "", first: 500 },
-      skip: !open || !isEditable || !card?.name || !shouldLoadVariants,
-    });
-  const variants = useMemo(() => {
-    if (!shouldLoadVariants) return [];
-    return variantsData?.cardsCollection?.edges.map(({ node }) => node) || [];
-  }, [shouldLoadVariants, variantsData?.cardsCollection?.edges]);
   const marketPriceLabels: Record<MarketPriceSource, string> = {
     [MarketPriceSource.Cardkingdom]: t("binder:list.cardkingdom_price"),
     [MarketPriceSource.Cardmarket]: t("binder:list.cardmarket_price"),
@@ -196,10 +184,6 @@ export const ModalBinderCardDetail = ({
     setPriceInput(formatPriceInputValue(binderCard.priceAmount));
     setCkdMultiplierInput(readStoredCustomCkdMultiplier());
   }, [binderCard, currency, getInitialPriceCurrency]);
-
-  useEffect(() => {
-    setVariantQueryCardId(null);
-  }, [binderCard?.id]);
 
   const persistBinderCard = async (
     set: BinderCardsUpdateInput,
@@ -490,11 +474,8 @@ export const ModalBinderCardDetail = ({
     void persistBinderCard({ language });
   };
 
-  const handleVariantChange = (cardId: string) => {
-    if (!binderCard || cardId === card?.id) return;
-
-    const variant = variants.find((candidate) => candidate.id === cardId);
-    if (!variant) return;
+  const handleVariantChange = (variant: BinderCardVariant) => {
+    if (!binderCard || variant.id === card?.id) return;
 
     const variantFinishes = variant.finishes.filter(
       (finish): finish is string => !!finish
@@ -521,16 +502,6 @@ export const ModalBinderCardDetail = ({
       defaultValue: formatFallbackLabel(value),
     });
   };
-
-  const selectedVariant = variants.find((variant) => variant.id === card?.id);
-  const selectedVariantLabel = selectedVariant
-    ? getVariantLabel(selectedVariant)
-    : [
-        card?.cardSet?.code || "MTG",
-        card?.collectorNumber ? `#${card.collectorNumber}` : null,
-      ]
-        .filter(Boolean)
-        .join(" ");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -578,6 +549,7 @@ export const ModalBinderCardDetail = ({
                 })}
                 imageUrl={imageUrl}
                 noImageLabel={noImageLabel}
+                scryfallId={scryfallId}
                 showConvertedMarketPrices={showConvertedMarketPrices}
                 formatPrice={formatPrice}
                 getBuyLabel={(source) =>
@@ -592,30 +564,20 @@ export const ModalBinderCardDetail = ({
 
                 {isEditable && binderCard && (
                   <BinderCardEditableFields
-                    areVariantsLoading={areVariantsLoading}
                     binderCard={binderCard}
-                    cardId={card?.id || ""}
+                    card={card}
                     conditionLabel={t("binder:field.condition")}
                     finishLabel={t("binder:field.finish")}
                     finishOptions={finishOptions}
                     languageLabel={t("binder:field.language")}
                     quantityInput={quantityInput}
                     quantityLabel={t("binder:field.quantity")}
-                    selectedVariantLabel={selectedVariantLabel}
                     variantLabel={t("binder:detail.variant")}
-                    variants={variants}
-                    getVariantLabel={getVariantLabel}
-                    loadingVariantLabel={t("common:loading")}
                     onConditionChange={handleConditionChange}
                     onFinishChange={handleFinishChange}
                     onLanguageChange={handleLanguageChange}
                     onQuantityChange={setQuantityInput}
                     onQuantityCommit={handleQuantityCommit}
-                    onVariantSelectOpenChange={(isOpen) => {
-                      if (isOpen && card?.id) {
-                        setVariantQueryCardId(card.id);
-                      }
-                    }}
                     onVariantChange={handleVariantChange}
                     translateCardOption={translateCardOption}
                     pricingFields={

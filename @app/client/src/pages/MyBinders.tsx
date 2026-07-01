@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { BinderGallery } from "@/components/BinderGallery";
 import { Loading } from "@/components/Loading";
+import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { useSession } from "@/providers/SessionContext";
 
 export const MyBinders = () => {
@@ -17,9 +18,10 @@ export const MyBinders = () => {
 
   const binders =
     data?.bindersCollection?.edges.map(({ node }) => ({
-      coverImageUrl:
-        node.binderCards?.edges[0]?.node.card?.imageNormalUrl ||
-        node.binderCards?.edges[0]?.node.card?.imageSmallUrl,
+      coverImageUrl: getCardImageBaseUrl(node.binderCards?.edges[0]?.node.card),
+      coverScryfallId: getCardScryfallId(
+        node.binderCards?.edges[0]?.node.card
+      ),
       id: node.id,
       name: node.name,
       shortId: node.shortId,

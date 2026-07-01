@@ -36,12 +36,13 @@ export const BinderCardGrid = ({
         <BinderCard
           key={binderCard.id}
           binderCard={binderCard}
+          index={index}
           isDeleting={isDeletingCard}
           isSelected={selectedBinderCardIds?.has(binderCard.id)}
           isSelectionMode={isSelectionMode}
           noImageLabel={noImageLabel}
           onDelete={onDeleteCard}
-          onOpen={(openedBinderCard) => onOpenCard(openedBinderCard, index)}
+          onOpen={onOpenCard}
           onToggleSelection={onToggleCardSelection}
         />
       ))}

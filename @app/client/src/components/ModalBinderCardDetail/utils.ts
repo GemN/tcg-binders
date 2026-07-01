@@ -78,7 +78,13 @@ export const getCardDetail = (
   card: ModalBinderCardRecord["card"] | null | undefined
 ): NonNullable<BinderCardDetailRecord["card"]>["mtgCardDetail"] | null => {
   if (!card || !("mtgCardDetail" in card)) return null;
-  return card.mtgCardDetail;
+  const detail = card.mtgCardDetail;
+
+  if (!detail || !("typeLine" in detail) || !("oracleText" in detail)) {
+    return null;
+  }
+
+  return detail;
 };
 
 export const arePriceAmountsEqual = (

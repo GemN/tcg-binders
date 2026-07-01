@@ -2,50 +2,88 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CardImage, type CardImageProps } from "@/components/CardImage";
+import { getPreferredCardImageUrl } from "@/lib/cardImageUrl";
+
+interface CardImageSource {
+  imageUrl: string;
+  scryfallId: string | null;
+}
+
+const getCardImageSource = (
+  imageUrl: string | null | undefined,
+  scryfallId: string | null | undefined
+): CardImageSource => ({
+  imageUrl: imageUrl || "",
+  scryfallId: scryfallId || null,
+});
 
 export const PreloadedCardImage = ({
   children,
+  imageSize = "grid",
   imageUrl,
+  scryfallId,
   ...cardImageProps
 }: CardImageProps) => {
-  const [displayedImageUrl, setDisplayedImageUrl] = useState(imageUrl || "");
-  const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
+  const [displayedImageSource, setDisplayedImageSource] =
+    useState<CardImageSource>(() => getCardImageSource(imageUrl, scryfallId));
+  const [pendingImageSource, setPendingImageSource] =
+    useState<CardImageSource | null>(null);
 
   useEffect(() => {
-    const nextImageUrl = imageUrl || "";
+    const nextImageSource = getCardImageSource(imageUrl, scryfallId);
 
-    if (!nextImageUrl) {
-      setDisplayedImageUrl("");
-      setPendingImageUrl(null);
+    if (!nextImageSource.imageUrl) {
+      setDisplayedImageSource(nextImageSource);
+      setPendingImageSource(null);
       return;
     }
 
-    if (nextImageUrl === displayedImageUrl) {
-      setPendingImageUrl(null);
+    if (
+      nextImageSource.imageUrl === displayedImageSource.imageUrl &&
+      nextImageSource.scryfallId === displayedImageSource.scryfallId
+    ) {
+      setPendingImageSource(null);
       return;
     }
 
-    setPendingImageUrl(nextImageUrl);
-  }, [displayedImageUrl, imageUrl]);
+    setPendingImageSource(nextImageSource);
+  }, [
+    displayedImageSource.imageUrl,
+    displayedImageSource.scryfallId,
+    imageUrl,
+    scryfallId,
+  ]);
 
   const isLoadingNextImage =
-    !!pendingImageUrl && pendingImageUrl !== displayedImageUrl;
+    !!pendingImageSource &&
+    (pendingImageSource.imageUrl !== displayedImageSource.imageUrl ||
+      pendingImageSource.scryfallId !== displayedImageSource.scryfallId);
+  const pendingPreferredImageUrl = getPreferredCardImageUrl(
+    pendingImageSource?.imageUrl,
+    imageSize,
+    pendingImageSource?.scryfallId
+  );
 
   return (
-    <CardImage {...cardImageProps} imageUrl={displayedImageUrl}>
-      {isLoadingNextImage && (
+    <CardImage
+      {...cardImageProps}
+      imageSize={imageSize}
+      imageUrl={displayedImageSource.imageUrl}
+      scryfallId={displayedImageSource.scryfallId}
+    >
+      {isLoadingNextImage && pendingPreferredImageUrl && (
         <>
           <img
-            src={pendingImageUrl || ""}
+            src={pendingPreferredImageUrl}
             alt=""
             className="sr-only"
             onLoad={() => {
-              if (pendingImageUrl) {
-                setDisplayedImageUrl(pendingImageUrl);
+              if (pendingImageSource) {
+                setDisplayedImageSource(pendingImageSource);
               }
-              setPendingImageUrl(null);
+              setPendingImageSource(null);
             }}
-            onError={() => setPendingImageUrl(null)}
+            onError={() => setPendingImageSource(null)}
           />
           <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-[#343434]/55">
             <Loader2 className="size-8 animate-spin text-[#fde9c9]" />

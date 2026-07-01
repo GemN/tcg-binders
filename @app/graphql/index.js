@@ -100,9 +100,11 @@ export const BinderCardSummaryFieldsFragmentDoc = gql `
     name
     collectorNumber
     finishes
-    imageNormalUrl
-    imageSmallUrl
+    imageUrl
     releasedAt
+    mtgCardDetail {
+      scryfallId
+    }
     cardSet {
       code
       name
@@ -126,6 +128,7 @@ export const BinderCardDetailFieldsFragmentDoc = gql `
   ...BinderCardSummaryFields
   card {
     mtgCardDetail {
+      scryfallId
       typeLine
       oracleText
     }
@@ -140,8 +143,7 @@ export const CardSearchFieldsFragmentDoc = gql `
   collectorNumber
   rarity
   finishes
-  imageSmallUrl
-  imageNormalUrl
+  imageUrl
   releasedAt
   cardSet {
     id
@@ -150,6 +152,7 @@ export const CardSearchFieldsFragmentDoc = gql `
     releaseAt
   }
   mtgCardDetail {
+    scryfallId
     typeLine
     oracleText
   }
@@ -694,8 +697,10 @@ export const MyBindersDocument = gql `
           edges {
             node {
               card {
-                imageNormalUrl
-                imageSmallUrl
+                imageUrl
+                mtgCardDetail {
+                  scryfallId
+                }
               }
             }
           }

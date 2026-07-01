@@ -1,6 +1,6 @@
 import { LanguageCode, MarketPriceSource } from "@app/graphql";
 import { Star } from "lucide-react";
-import { type MouseEvent, useState } from "react";
+import { memo, type MouseEvent, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
@@ -31,6 +31,8 @@ import {
   getBinderCardMarketPrice,
   getCheapestMarketPriceSources,
 } from "@/lib/binderCardPricing";
+import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
+import { preloadImage } from "@/lib/imagePreload";
 import { cn } from "@/lib/utils";
 import {
   type ConvertAmountToLocalCurrency,
@@ -100,6 +102,7 @@ const CARD_PREVIEW_WIDTH = 180;
 const CARD_PREVIEW_HEIGHT = Math.round((CARD_PREVIEW_WIDTH * 88) / 63);
 const CARD_PREVIEW_OFFSET = 18;
 const CARD_PREVIEW_MARGIN = 12;
+const fallbackPrice = "-";
 const highlightedMarketPriceClassName = "font-bold";
 const conditionColumnTooltipClassName = "bg-[#2f2933] text-[#fffdf7]";
 const conditionColumnTooltipArrowClassName = "bg-[#2f2933] fill-[#2f2933]";
@@ -136,12 +139,15 @@ const getCardPreviewPosition = (
 const useBinderCardPreview = () => {
   const [cardPreview, setCardPreview] = useState<CardPreviewState | null>(null);
 
-  const updateCardPreview: UpdateCardPreview = (binderCard, event) => {
-    const { left, top } = getCardPreviewPosition(event);
-    setCardPreview({ binderCard, left, top });
-  };
+  const updateCardPreview = useCallback<UpdateCardPreview>(
+    (binderCard, event) => {
+      const { left, top } = getCardPreviewPosition(event);
+      setCardPreview({ binderCard, left, top });
+    },
+    []
+  );
 
-  const clearCardPreview = () => setCardPreview(null);
+  const clearCardPreview = useCallback(() => setCardPreview(null), []);
 
   return { cardPreview, clearCardPreview, updateCardPreview };
 };
@@ -170,10 +176,12 @@ const BinderCardPreview = ({
     <CardImage
       alt=""
       className="pointer-events-none fixed z-40 overflow-hidden rounded-md border border-border bg-foreground shadow-2xl shadow-foreground/30"
-      fallbackClassName="px-4 text-center text-background"
       finish={cardPreview.binderCard.finish}
-      imageUrl={previewCard?.imageNormalUrl || previewCard?.imageSmallUrl}
+      imageSize="grid"
+      imageUrl={getCardImageBaseUrl(previewCard)}
+      loading="eager"
       noImageLabel={noImageLabel}
+      scryfallId={getCardScryfallId(previewCard)}
       style={{
         left: cardPreview.left,
         top: cardPreview.top,
@@ -206,7 +214,7 @@ const MarketPriceCell = ({
   </TableCell>
 );
 
-const BinderCardListRow = ({
+const BinderCardListRowComponent = ({
   binderCard,
   convertAmountToLocalCurrency,
   formatPrice,
@@ -259,18 +267,41 @@ const BinderCardListRow = ({
       .replace(/[-_]/g, " ")
       .replace(/\b\w/g, (letter) => letter.toUpperCase()),
   });
-  const openCard = () => onOpenCard(binderCard, index);
-  const activateCard = () => {
+  const imageUrl = getCardImageBaseUrl(binderCard.card);
+  const scryfallId = getCardScryfallId(binderCard.card);
+  const preloadBinderCardImage = useCallback(() => {
+    preloadImage(imageUrl, "grid", scryfallId);
+  }, [imageUrl, scryfallId]);
+  const openCard = useCallback(() => {
+    onOpenCard(binderCard, index);
+  }, [binderCard, index, onOpenCard]);
+  const activateCard = useCallback(() => {
     if (isSelectionMode) {
       onToggleCardSelection?.(binderCard);
       return;
     }
 
     openCard();
-  };
-  const updateCardPreview = (event: MouseEvent<HTMLTableRowElement>) => {
-    onUpdateCardPreview(binderCard, event);
-  };
+  }, [binderCard, isSelectionMode, onToggleCardSelection, openCard]);
+  const updateCardPreview = useCallback(
+    (event: MouseEvent<HTMLTableRowElement>) => {
+      preloadBinderCardImage();
+      onUpdateCardPreview(binderCard, event);
+    },
+    [binderCard, onUpdateCardPreview, preloadBinderCardImage]
+  );
+  const toggleSelection = useCallback(() => {
+    onToggleCardSelection?.(binderCard);
+  }, [binderCard, onToggleCardSelection]);
+  const deleteCard = useCallback(() => {
+    onDeleteCard?.(binderCard);
+  }, [binderCard, onDeleteCard]);
+  const stopCheckboxClickPropagation = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+    },
+    []
+  );
 
   return (
     <TableRow
@@ -280,6 +311,7 @@ const BinderCardListRow = ({
       onMouseEnter={updateCardPreview}
       onMouseMove={updateCardPreview}
       onMouseLeave={onClearCardPreview}
+      onPointerDown={preloadBinderCardImage}
     >
       {isSelectionMode && (
         <TableCell className="px-3 py-2">
@@ -287,8 +319,8 @@ const BinderCardListRow = ({
             checked={isSelected}
             aria-label={selectCardLabel}
             className="cursor-pointer"
-            onClick={(event) => event.stopPropagation()}
-            onCheckedChange={() => onToggleCardSelection?.(binderCard)}
+            onClick={stopCheckboxClickPropagation}
+            onCheckedChange={toggleSelection}
           />
         </TableCell>
       )}
@@ -307,6 +339,7 @@ const BinderCardListRow = ({
               ? selectCardLabel
               : t("binder:detail.open_card", { name: cardName })
           }
+          onFocus={preloadBinderCardImage}
         >
           {cardName}
         </button>
@@ -407,7 +440,7 @@ const BinderCardListRow = ({
           <BinderCardActionsMenu
             cardName={cardName}
             disabled={isDeletingCard}
-            onDelete={() => onDeleteCard(binderCard)}
+            onDelete={deleteCard}
             triggerVariant="inline"
           />
         </TableCell>
@@ -415,6 +448,8 @@ const BinderCardListRow = ({
     </TableRow>
   );
 };
+
+const BinderCardListRow = memo(BinderCardListRowComponent);
 
 export const BinderCardList = ({
   binderCards,
@@ -432,20 +467,18 @@ export const BinderCardList = ({
   const { cardPreview, clearCardPreview, updateCardPreview } =
     useBinderCardPreview();
 
-  const fallbackPrice = "-";
-  const formatPrice = ({
-    amount,
-    shouldConvert,
-    sourceCurrency,
-  }: BinderCardPriceInput) =>
-    formatBinderCardPrice({
-      amount,
-      convertAmountToLocalCurrency,
-      displayCurrency: currency,
-      locale: i18n.language,
-      shouldConvert,
-      sourceCurrency,
-    }) || fallbackPrice;
+  const formatPrice = useCallback(
+    ({ amount, shouldConvert, sourceCurrency }: BinderCardPriceInput) =>
+      formatBinderCardPrice({
+        amount,
+        convertAmountToLocalCurrency,
+        displayCurrency: currency,
+        locale: i18n.language,
+        shouldConvert,
+        sourceCurrency,
+      }) || fallbackPrice,
+    [convertAmountToLocalCurrency, currency, i18n.language]
+  );
 
   return (
     <div

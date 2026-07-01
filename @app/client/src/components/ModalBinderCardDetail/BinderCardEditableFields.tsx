@@ -2,7 +2,10 @@ import { CardCondition, LanguageCode } from "@app/graphql";
 import type { ReactNode } from "react";
 
 import { CardConditionDot } from "@/components/CardConditionBadge";
-import { BinderCardVariantSelect } from "@/components/ModalBinderCardDetail/BinderCardVariantSelect";
+import {
+  BinderCardVariantSelect,
+  type BinderCardVariantSelectCard,
+} from "@/components/ModalBinderCardDetail/BinderCardVariantSelect";
 import { LanguagePicker } from "@/components/ModalBinderCardDetail/LanguagePicker";
 import { Input } from "@/components/ui/Input";
 import {
@@ -17,27 +20,21 @@ import { CARD_CONDITION_OPTIONS } from "@/config/card";
 import type { BinderCardVariant, ModalBinderCardRecord } from "./types";
 
 interface BinderCardEditableFieldsProps {
-  areVariantsLoading: boolean;
   binderCard: ModalBinderCardRecord;
-  cardId: string;
+  card: BinderCardVariantSelectCard | null | undefined;
   conditionLabel: string;
   finishLabel: string;
   finishOptions: string[];
   languageLabel: string;
   quantityInput: string;
   quantityLabel: string;
-  selectedVariantLabel: string;
   variantLabel: string;
-  variants: BinderCardVariant[];
-  getVariantLabel: (variant: BinderCardVariant) => string;
-  loadingVariantLabel: string;
   onConditionChange: (condition: CardCondition) => void;
   onFinishChange: (finish: string) => void;
   onLanguageChange: (language: LanguageCode) => void;
   onQuantityChange: (value: string) => void;
   onQuantityCommit: () => void;
-  onVariantSelectOpenChange: (open: boolean) => void;
-  onVariantChange: (cardId: string) => void;
+  onVariantChange: (variant: BinderCardVariant) => void;
   translateCardOption: (
     group: "condition" | "finish" | "language",
     value: string | null | undefined
@@ -46,26 +43,20 @@ interface BinderCardEditableFieldsProps {
 }
 
 export const BinderCardEditableFields = ({
-  areVariantsLoading,
   binderCard,
-  cardId,
+  card,
   conditionLabel,
   finishLabel,
   finishOptions,
   languageLabel,
   quantityInput,
   quantityLabel,
-  selectedVariantLabel,
   variantLabel,
-  variants,
-  getVariantLabel,
-  loadingVariantLabel,
   onConditionChange,
   onFinishChange,
   onLanguageChange,
   onQuantityChange,
   onQuantityCommit,
-  onVariantSelectOpenChange,
   onVariantChange,
   translateCardOption,
   pricingFields,
@@ -141,14 +132,8 @@ export const BinderCardEditableFields = ({
       />
 
       <BinderCardVariantSelect
-        areVariantsLoading={areVariantsLoading}
-        cardId={cardId}
+        card={card}
         label={variantLabel}
-        loadingLabel={loadingVariantLabel}
-        selectedVariantLabel={selectedVariantLabel}
-        variants={variants}
-        getVariantLabel={getVariantLabel}
-        onOpenChange={onVariantSelectOpenChange}
         onVariantChange={onVariantChange}
       />
     </div>

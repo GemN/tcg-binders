@@ -4,6 +4,7 @@ import { LoaderCircle } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { CardImage } from "@/components/CardImage";
 import { InputSearch } from "@/components/InputSearch";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -11,6 +12,7 @@ import {
   createDraftCardSnapshot,
   type DraftCardSnapshot,
 } from "@/hooks/useDraftBinder";
+import { getCardScryfallId } from "@/lib/cardImageUrl";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
@@ -183,6 +185,8 @@ export const CardSearchPicker = ({
                       i18n.language
                     )
                   : null;
+                const cardFinish =
+                  card.finishes.length === 1 ? card.finishes[0] : null;
 
                 return (
                   <button
@@ -191,19 +195,16 @@ export const CardSearchPicker = ({
                     className="group flex w-full items-center gap-3 rounded-md p-2 text-left hover:bg-primary hover:text-primary-foreground focus-visible:bg-primary focus-visible:text-primary-foreground focus-visible:outline-none"
                     onClick={handleSelect(card)}
                   >
-                    <div className="flex h-16 w-12 shrink-0 items-center justify-center overflow-hidden rounded-sm border bg-muted">
-                      {card.imageSmallUrl ? (
-                        <img
-                          src={card.imageSmallUrl}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-xs text-current/70">
-                          {t("common:card_search.no_image")}
-                        </span>
-                      )}
-                    </div>
+                    <CardImage
+                      alt=""
+                      className="h-16 w-12 shrink-0 rounded-sm border bg-muted"
+                      fallbackClassName="text-xs text-current/70"
+                      finish={cardFinish}
+                      imageSize="thumbnail"
+                      imageUrl={card.imageUrl}
+                      noImageLabel={t("common:card_search.no_image")}
+                      scryfallId={getCardScryfallId(card)}
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">
                         {card.name}

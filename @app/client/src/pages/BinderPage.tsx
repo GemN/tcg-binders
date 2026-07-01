@@ -5,7 +5,7 @@ import {
   useDeleteBinderCardMutation,
 } from "@app/graphql";
 import { Share2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 import { toast } from "sonner";
@@ -109,12 +109,63 @@ export const BinderPage = () => {
     shortId,
     totalBinderCards,
   });
+  const selectedBinderCardIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     setPageIndex(0);
     clearSelectedBinderCard();
     resetCardSelection();
   }, [clearSelectedBinderCard, isMobile, resetCardSelection, shortId]);
+
+  useEffect(() => {
+    selectedBinderCardIdRef.current = selectedBinderCard?.id ?? null;
+  }, [selectedBinderCard?.id]);
+
+  const handleDeleteCard = useCallback(async (binderCard: BinderCardRecord) => {
+    try {
+      await deleteBinderCard({
+        variables: { id: binderCard.id },
+      });
+
+      if (selectedBinderCardIdRef.current === binderCard.id) {
+        clearSelectedBinderCard();
+      }
+      removeSelectedBinderCard(binderCard.id);
+
+      const nextTotalBinderCards = Math.max(totalBinderCards - 1, 0);
+      const nextLastPageIndex = Math.max(
+        Math.ceil(nextTotalBinderCards / cardsPerPage) - 1,
+        0
+      );
+      setPageIndex((currentPageIndex) =>
+        Math.min(currentPageIndex, nextLastPageIndex)
+      );
+
+      await refetch();
+    } catch (error) {
+      handleError(error, t("binder:delete_card_error"));
+    }
+  }, [
+    cardsPerPage,
+    clearSelectedBinderCard,
+    deleteBinderCard,
+    refetch,
+    removeSelectedBinderCard,
+    t,
+    totalBinderCards,
+  ]);
+
+  const handleOpenCard = useCallback(
+    (binderCard: BinderCardRecord, index: number) => {
+      if (isSelectionMode) {
+        handleToggleCardSelection(binderCard);
+        return;
+      }
+
+      openBinderCard(binderCard, index);
+    },
+    [handleToggleCardSelection, isSelectionMode, openBinderCard]
+  );
 
   if (loading && !data) {
     return (
@@ -163,32 +214,6 @@ export const BinderPage = () => {
   const handleBulkPriceApplied = async () => {
     handleSelectionModeChange(false);
     await refetch();
-  };
-
-  const handleDeleteCard = async (binderCard: BinderCardRecord) => {
-    try {
-      await deleteBinderCard({
-        variables: { id: binderCard.id },
-      });
-
-      if (selectedBinderCard?.id === binderCard.id) {
-        clearSelectedBinderCard();
-      }
-      removeSelectedBinderCard(binderCard.id);
-
-      const nextTotalBinderCards = Math.max(totalBinderCards - 1, 0);
-      const nextLastPageIndex = Math.max(
-        Math.ceil(nextTotalBinderCards / cardsPerPage) - 1,
-        0
-      );
-      setPageIndex((currentPageIndex) =>
-        Math.min(currentPageIndex, nextLastPageIndex)
-      );
-
-      await refetch();
-    } catch (error) {
-      handleError(error, t("binder:delete_card_error"));
-    }
   };
 
   const handleDeleteSelectedBinderCards = async () => {
@@ -280,15 +305,6 @@ export const BinderPage = () => {
     } finally {
       setIsDeletingSelectedBinderCards(false);
     }
-  };
-
-  const handleOpenCard = (binderCard: BinderCardRecord, index: number) => {
-    if (isSelectionMode) {
-      handleToggleCardSelection(binderCard);
-      return;
-    }
-
-    openBinderCard(binderCard, index);
   };
 
   const handleDetailOpenChange = (nextOpen: boolean) => {

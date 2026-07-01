@@ -17,6 +17,7 @@ interface BinderCardMediaPanelProps {
   imageAlt: string;
   imageUrl: string | null | undefined;
   noImageLabel: string;
+  scryfallId: string | null | undefined;
   showConvertedMarketPrices: boolean;
   formatPrice: (input: BinderCardPriceInput) => string;
   getBuyLabel: (source: MarketPriceSource) => string;
@@ -27,6 +28,7 @@ export const BinderCardMediaPanel = ({
   imageAlt,
   imageUrl,
   noImageLabel,
+  scryfallId,
   showConvertedMarketPrices,
   formatPrice,
   getBuyLabel,
@@ -37,6 +39,7 @@ export const BinderCardMediaPanel = ({
       imageAlt={imageAlt}
       imageUrl={imageUrl}
       noImageLabel={noImageLabel}
+      scryfallId={scryfallId}
     />
 
     <div className="grid gap-2">

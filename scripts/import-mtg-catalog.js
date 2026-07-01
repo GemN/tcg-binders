@@ -20,6 +20,10 @@ const cardPurchaseUrlsCsv = path.resolve(
   process.env.MTG_CARD_PURCHASE_URLS_CSV ||
     path.join(repoRoot, "scripts/cardPurchaseUrls.csv")
 );
+const cardIdentifiersCsv = path.resolve(
+  process.env.MTG_CARD_IDENTIFIERS_CSV ||
+    path.join(repoRoot, "scripts/cardIdentifiers.csv")
+);
 const sqlPath = path.join(repoRoot, "scripts/import-mtg-catalog.sql");
 
 function requireFile(filePath) {
@@ -67,7 +71,7 @@ function escapeCopyPath(filePath) {
   return filePath.replace(/\\/g, "\\\\").replace(/'/g, "''");
 }
 
-function createRunnableSqlFile() {
+function createRunnableSqlFile(tempDir) {
   const sql = fs
     .readFileSync(sqlPath, "utf8")
     .replaceAll("__MTG_SETS_CSV__", escapeCopyPath(setsCsv))
@@ -76,40 +80,52 @@ function createRunnableSqlFile() {
     .replaceAll(
       "__MTG_CARD_PURCHASE_URLS_CSV__",
       escapeCopyPath(cardPurchaseUrlsCsv)
+    )
+    .replaceAll(
+      "__MTG_CARD_IDENTIFIERS_CSV__",
+      escapeCopyPath(cardIdentifiersCsv)
     );
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "tcgbinder-mtg-import-"));
   const tempSqlPath = path.join(tempDir, "import-mtg-catalog.sql");
 
   fs.writeFileSync(tempSqlPath, sql, "utf8");
 
-  return { tempDir, tempSqlPath };
+  return { tempSqlPath };
 }
 
 requireFile(setsCsv);
 requireFile(cardsCsv);
 requireFile(cardPricesCsv);
 requireFile(cardPurchaseUrlsCsv);
+requireFile(cardIdentifiersCsv);
 requireFile(sqlPath);
 
-const databaseUrl = getDatabaseUrl();
-const { tempDir, tempSqlPath } = createRunnableSqlFile();
+async function main() {
+  const databaseUrl = getDatabaseUrl();
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "tcgbinder-mtg-import-"));
 
-try {
-  const result = spawnSync(
-    "psql",
-    ["-d", databaseUrl, "-v", "ON_ERROR_STOP=1", "-f", tempSqlPath],
-    {
-      cwd: repoRoot,
-      stdio: "inherit",
+  try {
+    const { tempSqlPath } = createRunnableSqlFile(tempDir);
+    const result = spawnSync(
+      "psql",
+      ["-d", databaseUrl, "-v", "ON_ERROR_STOP=1", "-f", tempSqlPath],
+      {
+        cwd: repoRoot,
+        stdio: "inherit",
+      }
+    );
+
+    if (result.error) {
+      console.error(result.error.message);
+      process.exit(1);
     }
-  );
 
-  if (result.error) {
-    console.error(result.error.message);
-    process.exit(1);
+    process.exit(result.status || 0);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
   }
-
-  process.exit(result.status || 0);
-} finally {
-  fs.rmSync(tempDir, { recursive: true, force: true });
 }
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

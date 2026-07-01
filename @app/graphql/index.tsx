@@ -628,8 +628,7 @@ export type Cards = Node & {
   externalId: Scalars['String'];
   finishes: Array<Maybe<Scalars['String']>>;
   id: Scalars['UUID'];
-  imageNormalUrl: Maybe<Scalars['String']>;
-  imageSmallUrl: Maybe<Scalars['String']>;
+  imageUrl: Maybe<Scalars['String']>;
   marketPrices: Maybe<CardMarketPricesConnection>;
   mtgCardDetail: Maybe<MtgCardDetails>;
   name: Scalars['String'];
@@ -694,8 +693,7 @@ export type CardsFilter = {
   externalId?: Maybe<StringFilter>;
   finishes?: Maybe<StringListFilter>;
   id?: Maybe<UuidFilter>;
-  imageNormalUrl?: Maybe<StringFilter>;
-  imageSmallUrl?: Maybe<StringFilter>;
+  imageUrl?: Maybe<StringFilter>;
   name?: Maybe<StringFilter>;
   nodeId?: Maybe<IdFilter>;
   /** Negates a filter */
@@ -716,8 +714,7 @@ export type CardsInsertInput = {
   externalId?: Maybe<Scalars['String']>;
   finishes?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['UUID']>;
-  imageNormalUrl?: Maybe<Scalars['String']>;
-  imageSmallUrl?: Maybe<Scalars['String']>;
+  imageUrl?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   rarity?: Maybe<Scalars['String']>;
   releasedAt?: Maybe<Scalars['Date']>;
@@ -740,8 +737,7 @@ export type CardsOrderBy = {
   createdAt?: Maybe<OrderByDirection>;
   externalId?: Maybe<OrderByDirection>;
   id?: Maybe<OrderByDirection>;
-  imageNormalUrl?: Maybe<OrderByDirection>;
-  imageSmallUrl?: Maybe<OrderByDirection>;
+  imageUrl?: Maybe<OrderByDirection>;
   name?: Maybe<OrderByDirection>;
   rarity?: Maybe<OrderByDirection>;
   releasedAt?: Maybe<OrderByDirection>;
@@ -757,8 +753,7 @@ export type CardsUpdateInput = {
   externalId?: Maybe<Scalars['String']>;
   finishes?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['UUID']>;
-  imageNormalUrl?: Maybe<Scalars['String']>;
-  imageSmallUrl?: Maybe<Scalars['String']>;
+  imageUrl?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   rarity?: Maybe<Scalars['String']>;
   releasedAt?: Maybe<Scalars['Date']>;
@@ -1048,6 +1043,7 @@ export type MtgCardDetails = Node & {
   nodeId: Scalars['ID'];
   oracleId: Maybe<Scalars['String']>;
   oracleText: Maybe<Scalars['String']>;
+  scryfallId: Maybe<Scalars['String']>;
   typeLine: Maybe<Scalars['String']>;
   updatedAt: Scalars['Datetime'];
 };
@@ -1088,6 +1084,7 @@ export type MtgCardDetailsFilter = {
   or?: Maybe<Array<MtgCardDetailsFilter>>;
   oracleId?: Maybe<StringFilter>;
   oracleText?: Maybe<StringFilter>;
+  scryfallId?: Maybe<StringFilter>;
   typeLine?: Maybe<StringFilter>;
   updatedAt?: Maybe<DatetimeFilter>;
 };
@@ -1103,6 +1100,7 @@ export type MtgCardDetailsInsertInput = {
   manaValue?: Maybe<Scalars['BigFloat']>;
   oracleId?: Maybe<Scalars['String']>;
   oracleText?: Maybe<Scalars['String']>;
+  scryfallId?: Maybe<Scalars['String']>;
   typeLine?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['Datetime']>;
 };
@@ -1123,6 +1121,7 @@ export type MtgCardDetailsOrderBy = {
   manaValue?: Maybe<OrderByDirection>;
   oracleId?: Maybe<OrderByDirection>;
   oracleText?: Maybe<OrderByDirection>;
+  scryfallId?: Maybe<OrderByDirection>;
   typeLine?: Maybe<OrderByDirection>;
   updatedAt?: Maybe<OrderByDirection>;
 };
@@ -1138,6 +1137,7 @@ export type MtgCardDetailsUpdateInput = {
   manaValue?: Maybe<Scalars['BigFloat']>;
   oracleId?: Maybe<Scalars['String']>;
   oracleText?: Maybe<Scalars['String']>;
+  scryfallId?: Maybe<Scalars['String']>;
   typeLine?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['Datetime']>;
 };
@@ -2287,8 +2287,11 @@ export type BinderCardSummaryFieldsFragment = (
   & Pick<BinderCards, 'id' | 'condition' | 'dynamicPriceRule' | 'finish' | 'language' | 'priceAmount' | 'priceCurrency' | 'quantity'>
   & { card: Maybe<(
     { __typename?: 'Cards' }
-    & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'finishes' | 'imageNormalUrl' | 'imageSmallUrl' | 'releasedAt'>
-    & { cardSet: Maybe<(
+    & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'finishes' | 'imageUrl' | 'releasedAt'>
+    & { mtgCardDetail: Maybe<(
+      { __typename?: 'MtgCardDetails' }
+      & Pick<MtgCardDetails, 'scryfallId'>
+    )>, cardSet: Maybe<(
       { __typename?: 'CardSets' }
       & Pick<CardSets, 'code' | 'name'>
     )>, marketPrices: Maybe<(
@@ -2310,7 +2313,7 @@ export type BinderCardDetailFieldsFragment = (
     { __typename?: 'Cards' }
     & { mtgCardDetail: Maybe<(
       { __typename?: 'MtgCardDetails' }
-      & Pick<MtgCardDetails, 'typeLine' | 'oracleText'>
+      & Pick<MtgCardDetails, 'scryfallId' | 'typeLine' | 'oracleText'>
     )> }
   )> }
   & BinderCardSummaryFieldsFragment
@@ -2380,13 +2383,13 @@ export type CardSearchQuery = (
 
 export type CardSearchFieldsFragment = (
   { __typename?: 'Cards' }
-  & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageSmallUrl' | 'imageNormalUrl' | 'releasedAt'>
+  & Pick<Cards, 'id' | 'externalId' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageUrl' | 'releasedAt'>
   & { cardSet: Maybe<(
     { __typename?: 'CardSets' }
     & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>
   )>, mtgCardDetail: Maybe<(
     { __typename?: 'MtgCardDetails' }
-    & Pick<MtgCardDetails, 'typeLine' | 'oracleText'>
+    & Pick<MtgCardDetails, 'scryfallId' | 'typeLine' | 'oracleText'>
   )>, marketPrices: Maybe<(
     { __typename?: 'CardMarketPricesConnection' }
     & { edges: Array<(
@@ -2537,7 +2540,11 @@ export type MyBindersQuery = (
               { __typename?: 'BinderCards' }
               & { card: Maybe<(
                 { __typename?: 'Cards' }
-                & Pick<Cards, 'imageNormalUrl' | 'imageSmallUrl'>
+                & Pick<Cards, 'imageUrl'>
+                & { mtgCardDetail: Maybe<(
+                  { __typename?: 'MtgCardDetails' }
+                  & Pick<MtgCardDetails, 'scryfallId'>
+                )> }
               )> }
             ) }
           )> }
@@ -2616,9 +2623,11 @@ export const BinderCardSummaryFieldsFragmentDoc = gql`
     name
     collectorNumber
     finishes
-    imageNormalUrl
-    imageSmallUrl
+    imageUrl
     releasedAt
+    mtgCardDetail {
+      scryfallId
+    }
     cardSet {
       code
       name
@@ -2642,6 +2651,7 @@ export const BinderCardDetailFieldsFragmentDoc = gql`
   ...BinderCardSummaryFields
   card {
     mtgCardDetail {
+      scryfallId
       typeLine
       oracleText
     }
@@ -2656,8 +2666,7 @@ export const CardSearchFieldsFragmentDoc = gql`
   collectorNumber
   rarity
   finishes
-  imageSmallUrl
-  imageNormalUrl
+  imageUrl
   releasedAt
   cardSet {
     id
@@ -2666,6 +2675,7 @@ export const CardSearchFieldsFragmentDoc = gql`
     releaseAt
   }
   mtgCardDetail {
+    scryfallId
     typeLine
     oracleText
   }
@@ -3267,8 +3277,10 @@ export const MyBindersDocument = gql`
           edges {
             node {
               card {
-                imageNormalUrl
-                imageSmallUrl
+                imageUrl
+                mtgCardDetail {
+                  scryfallId
+                }
               }
             }
           }

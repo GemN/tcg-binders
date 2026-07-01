@@ -12,9 +12,11 @@ fragment BinderCardSummaryFields on BinderCards {
     name
     collectorNumber
     finishes
-    imageNormalUrl
-    imageSmallUrl
+    imageUrl
     releasedAt
+    mtgCardDetail {
+      scryfallId
+    }
     cardSet {
       code
       name
@@ -37,6 +39,7 @@ fragment BinderCardDetailFields on BinderCards {
   ...BinderCardSummaryFields
   card {
     mtgCardDetail {
+      scryfallId
       typeLine
       oracleText
     }

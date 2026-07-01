@@ -46,8 +46,7 @@ fragment CardSearchFields on Cards {
   collectorNumber
   rarity
   finishes
-  imageSmallUrl
-  imageNormalUrl
+  imageUrl
   releasedAt
   cardSet {
     id
@@ -56,6 +55,7 @@ fragment CardSearchFields on Cards {
     releaseAt
   }
   mtgCardDetail {
+    scryfallId
     typeLine
     oracleText
   }

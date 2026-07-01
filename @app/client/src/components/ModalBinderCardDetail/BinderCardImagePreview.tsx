@@ -5,6 +5,7 @@ interface BinderCardImagePreviewProps {
   imageAlt: string;
   imageUrl: string | null | undefined;
   noImageLabel: string;
+  scryfallId: string | null | undefined;
 }
 
 export const BinderCardImagePreview = ({
@@ -12,13 +13,16 @@ export const BinderCardImagePreview = ({
   imageAlt,
   imageUrl,
   noImageLabel,
+  scryfallId,
 }: BinderCardImagePreviewProps) => (
   <PreloadedCardImage
     alt={imageAlt}
-    className="mx-auto w-full max-w-[22rem] rounded-[4.75%_/_3.5%] border border-[#d8d1c3] bg-[#343434] shadow-xl"
-    fallbackClassName="text-[#fde9c9]"
+    className="mx-auto w-full max-w-[22rem] rounded-[4.75%_/_3.5%] border border-[#d8dce0] shadow-xl"
     finish={finish}
+    imageSize="detail"
     imageUrl={imageUrl}
+    loading="eager"
     noImageLabel={noImageLabel}
+    scryfallId={scryfallId}
   />
 );

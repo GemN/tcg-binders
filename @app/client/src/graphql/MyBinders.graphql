@@ -14,8 +14,10 @@ query MyBinders($ownerId: UUID!) {
           edges {
             node {
               card {
-                imageNormalUrl
-                imageSmallUrl
+                imageUrl
+                mtgCardDetail {
+                  scryfallId
+                }
               }
             }
           }
