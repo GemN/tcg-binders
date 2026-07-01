@@ -1,4 +1,4 @@
-import { Globe } from "lucide-react";
+import { CheckIcon, Globe } from "lucide-react";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -52,20 +52,26 @@ export const LanguageSwitcher: FC<LanguageSwitcherProps> = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {languages.map((lang) => (
-          <DropdownMenuItem
-            key={lang.code}
-            onClick={handleLanguageChange(lang)}
-            className={`cursor-pointer ${
-              currentLanguage.code === lang.code
-                ? "bg-primary text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground"
-                : ""
-            }`}
-          >
-            <CountryFlag code={lang.flagCode} className="mr-2 h-3.5 w-5" />
-            {lang.label}
-          </DropdownMenuItem>
-        ))}
+        {languages.map((lang) => {
+          const isSelected = currentLanguage.code === lang.code;
+
+          return (
+            <DropdownMenuItem
+              key={lang.code}
+              onClick={handleLanguageChange(lang)}
+              className="cursor-pointer pr-8"
+            >
+              <CountryFlag code={lang.flagCode} className="h-3.5 w-5" />
+              {lang.label}
+              <CheckIcon
+                aria-hidden="true"
+                className={`absolute right-2 size-4 ${
+                  isSelected ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            </DropdownMenuItem>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -22,6 +22,7 @@
     "home": "Home",
     "logout": "Log out",
     "price_source": "Price source",
+    "price_source_description": "Used as the primary pricing reference across the site",
     "register": "Register",
     "settings": "Settings",
     "sign_in": "Sign in",

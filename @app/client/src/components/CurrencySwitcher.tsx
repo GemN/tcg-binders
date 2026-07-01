@@ -1,4 +1,4 @@
-import { CircleDollarSign } from "lucide-react";
+import { CheckIcon, CircleDollarSign } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
@@ -32,19 +32,25 @@ export const CurrencySwitcher = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {supportedCurrencies.map((currencyOption) => (
-          <DropdownMenuItem
-            key={currencyOption}
-            onClick={() => setCurrency(currencyOption)}
-            className={`cursor-pointer ${
-              currency === currencyOption
-                ? "bg-primary text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground"
-                : ""
-            }`}
-          >
-            {getCurrencyLabel(currencyOption)}
-          </DropdownMenuItem>
-        ))}
+        {supportedCurrencies.map((currencyOption) => {
+          const isSelected = currency === currencyOption;
+
+          return (
+            <DropdownMenuItem
+              key={currencyOption}
+              onClick={() => setCurrency(currencyOption)}
+              className="cursor-pointer pr-8"
+            >
+              {getCurrencyLabel(currencyOption)}
+              <CheckIcon
+                aria-hidden="true"
+                className={`absolute right-2 size-4 ${
+                  isSelected ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            </DropdownMenuItem>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );

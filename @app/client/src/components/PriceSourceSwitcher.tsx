@@ -1,5 +1,5 @@
 import { MarketPriceSource } from "@app/graphql";
-import { BadgeDollarSign } from "lucide-react";
+import { BadgeDollarSign, CheckIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
@@ -34,19 +34,28 @@ export const PriceSourceSwitcher = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {supportedPriceSources.map((source) => (
-          <DropdownMenuItem
-            key={source}
-            onClick={() => setPriceSource(source)}
-            className={`cursor-pointer ${
-              priceSource === source
-                ? "bg-primary text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground"
-                : ""
-            }`}
-          >
-            {priceSourceLabels[source]}
-          </DropdownMenuItem>
-        ))}
+        <p className="max-w-56 px-2 py-1.5 text-xs leading-snug text-muted-foreground">
+          {t("common:nav.price_source_description")}
+        </p>
+        {supportedPriceSources.map((source) => {
+          const isSelected = priceSource === source;
+
+          return (
+            <DropdownMenuItem
+              key={source}
+              onClick={() => setPriceSource(source)}
+              className="cursor-pointer pr-8"
+            >
+              {priceSourceLabels[source]}
+              <CheckIcon
+                aria-hidden="true"
+                className={`absolute right-2 size-4 ${
+                  isSelected ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            </DropdownMenuItem>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );

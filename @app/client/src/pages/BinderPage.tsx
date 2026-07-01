@@ -251,10 +251,7 @@ export const BinderPage = () => {
         clearSelectedBinderCard();
       }
 
-      const nextTotalBinderCards = Math.max(
-        totalBinderCards - deletedCount,
-        0
-      );
+      const nextTotalBinderCards = Math.max(totalBinderCards - deletedCount, 0);
       const nextLastPageIndex = Math.max(
         Math.ceil(nextTotalBinderCards / cardsPerPage) - 1,
         0
@@ -343,7 +340,6 @@ export const BinderPage = () => {
             <Button
               type="button"
               variant="outline"
-              className="border-binder-toolbar-foreground/25 bg-background"
               onClick={() => setIsShareDialogOpen(true)}
             >
               <Share2 className="size-4" />
