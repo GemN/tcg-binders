@@ -48,11 +48,14 @@
   --color-binder-toolbar-foreground: var(--binder-toolbar-foreground);
   --color-binder-toolbar-input: var(--binder-toolbar-input);
   --font-sans:
-    "Source Code Pro Variable", "Noto Sans Thai Variable", ui-monospace,
-    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    "IBM Plex Sans Variable", "Noto Sans Thai Variable", ui-sans-serif,
+    system-ui, sans-serif;
+  --font-display:
+    "Space Grotesk Variable", "IBM Plex Sans Variable",
+    "Noto Sans Thai Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono:
-    "Source Code Pro Variable", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", monospace;
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
 }
 
 :root {
@@ -162,12 +165,12 @@
   }
 
   .h1 {
-    @apply text-3xl font-bold tracking-tight;
+    @apply font-display text-3xl font-bold tracking-tight;
   }
   .h2 {
-    @apply text-2xl font-semibold leading-none tracking-tight;
+    @apply font-display text-2xl font-semibold leading-none tracking-tight;
   }
   .h3 {
-    @apply text-lg font-medium;
+    @apply font-display text-lg font-medium;
   }
 }

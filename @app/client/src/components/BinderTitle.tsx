@@ -50,7 +50,7 @@ export const BinderTitle = ({
 
   if (!isOwner) {
     return (
-      <h1 className="truncate text-2xl font-semibold tracking-normal text-binder-toolbar-foreground sm:text-3xl">
+      <h1 className="font-display truncate text-2xl font-semibold tracking-normal text-binder-toolbar-foreground sm:text-3xl">
         {name}
       </h1>
     );
@@ -129,7 +129,7 @@ export const BinderTitle = ({
         disabled={loading}
         readOnly={!isEditing}
         aria-label={t("binder:rename_label")}
-        className="block field-sizing-content h-auto min-w-[1ch] max-w-full cursor-text truncate rounded-none border-0 border-b border-dotted border-transparent bg-transparent p-0 text-2xl font-semibold tracking-normal text-binder-toolbar-foreground shadow-none outline-none transition-colors hover:border-binder-toolbar-foreground focus:border-binder-toolbar-foreground focus-visible:ring-0 disabled:opacity-60 sm:text-3xl"
+        className="font-display block field-sizing-content h-auto min-w-[1ch] max-w-full cursor-text truncate rounded-none border-0 border-b border-dotted border-transparent bg-transparent p-0 text-2xl font-semibold tracking-normal text-binder-toolbar-foreground shadow-none outline-none transition-colors hover:border-binder-toolbar-foreground focus:border-binder-toolbar-foreground focus-visible:ring-0 disabled:opacity-60 sm:text-3xl"
         onBlur={() => {
           if (skipBlurSubmitRef.current) {
             skipBlurSubmitRef.current = false;

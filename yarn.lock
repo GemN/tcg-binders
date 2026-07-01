@@ -74,8 +74,9 @@ __metadata:
     "@app/config": "npm:0.0.0"
     "@app/graphql": "npm:0.0.0"
     "@eslint/js": "npm:^9.30.1"
+    "@fontsource-variable/ibm-plex-sans": "npm:^5.2.8"
     "@fontsource-variable/noto-sans-thai": "npm:^5.2.8"
-    "@fontsource-variable/source-code-pro": "npm:^5.2.7"
+    "@fontsource-variable/space-grotesk": "npm:^5.2.10"
     "@hookform/resolvers": "npm:^5.2.1"
     "@radix-ui/react-alert-dialog": "npm:^1.1.17"
     "@radix-ui/react-avatar": "npm:^1.1.10"
@@ -1845,6 +1846,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource-variable/ibm-plex-sans@npm:^5.2.8":
+  version: 5.2.8
+  resolution: "@fontsource-variable/ibm-plex-sans@npm:5.2.8"
+  checksum: 10c0/e1c073d347da65e1b6e8a1269dc2f6ebea4ff1a9abe84d70194d5b6c868871cd2ae704fd78612495c8dd2a3a0541c97d75959f5edd21c4bc3582fdaf2dfbe029
+  languageName: node
+  linkType: hard
+
 "@fontsource-variable/noto-sans-thai@npm:^5.2.8":
   version: 5.2.8
   resolution: "@fontsource-variable/noto-sans-thai@npm:5.2.8"
@@ -1852,10 +1860,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fontsource-variable/source-code-pro@npm:^5.2.7":
-  version: 5.2.7
-  resolution: "@fontsource-variable/source-code-pro@npm:5.2.7"
-  checksum: 10c0/8c0a909782e2f950571701b5686f22ef12ae635528eabced63245910630f0bc95cfe9fc178fb54f0f0b01304eae66c7de8ab14cd73511826116718a900a2ae20
+"@fontsource-variable/space-grotesk@npm:^5.2.10":
+  version: 5.2.10
+  resolution: "@fontsource-variable/space-grotesk@npm:5.2.10"
+  checksum: 10c0/976123dc55a4c73d1986e0ca0c3f6210862cc48ebbec0fc4ba416f17195452e661e40504436ad4972692d34c530e1833cd5e9a0e377b4b9b062b781c6a4eeb74
   languageName: node
   linkType: hard
 

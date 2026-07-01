@@ -1,5 +1,6 @@
-import "@fontsource-variable/source-code-pro/wght.css";
+import "@fontsource-variable/ibm-plex-sans/wght.css";
 import "@fontsource-variable/noto-sans-thai/wght.css";
+import "@fontsource-variable/space-grotesk/wght.css";
 import "./index.css";
 import "./lib/i18n.ts";
 
