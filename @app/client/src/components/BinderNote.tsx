@@ -110,11 +110,9 @@ export const BinderNote = ({
         onClick={handleOpenModal}
       >
         <ClampedText
-          className={
-            isPlaceholder
-              ? "text-muted-foreground border-b border-dotted border-transparent hover:border-foreground cursor-pointer"
-              : ""
-          }
+          className={`
+            border-b border-dotted border-transparent hover:border-foreground cursor-pointer ${isPlaceholder ? "text-muted-foreground" : ""}
+          `}
           indicator={displayedNote ? t("binder:note.show_more") : undefined}
           indicatorClassName="font-bold text-black group-hover:underline group-hover:decoration-dotted"
           onClampChange={handleClampChange}

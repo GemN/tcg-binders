@@ -60,27 +60,27 @@ The biggest problem is to find specific cards.
 
 ### Functional Requirements
 
-| ID     | Requirement                                                        | Priority | Notes                                                                                        |
-|--------|--------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------|
-| FR-001 | Users can create a binder without being logged                     | Must     | Saving the binder require logging                                                            |
-| FR-002 | Logged user can share a binder with a small url                    | Must     | Share url must be short                                                                      |
-| FR-003 | Users can add a card to their binder by searching from a card name | Must     | -                                                                                            |
-| FR-004 | Users can import a list of cards from a CSV or Text in a binder    | Must     | This must follow the format of a manabox export                                              |
-| FR-005 | Users can export a list of cards from a binder in CSV or Text      | Should   | This must follow the format of a manabox import                                              |
-| FR-006 | Users can select their currency of choice for display              | Must     | This will be saved in account, or local storage is not logged                                |
-| FR-007 | Users can set a price in a defined currency                        | Must     | Price can be set with helpers, like "CKD x25" (it's how thai do from USD to THB)             |
-| FR-008 | Users can set a dynamic pricing in a defined currency              | Should   | For ex, CKD x25 will always show the price depending on the market                           |
-| FR-009 | Users can define condition, quantity, foil type, language          | Must     |                                                                                              |
-| FR-010 | Users can search by name and others domain filters                 | Must     | By domain filters, in MTG that would be mana, power, set, rarity etc                         |
-| FR-011 | Users can set a website language                                   | Must     | Starting with english, thai. Saved in account if logged, else local storage.                 |
-| FR-012 | Users can set up to two comparaison prices                         | Should   | Comparaison price is picked from a marketplace like CKD, TCGPlayer, Cardmarket               |
-| FR-013 | Users can add to a basket and checkout                             | Must     | The checkout will generate a message listing all cards, sum and show total to send to seller |
-| FR-014 | Users can browse cards from pages left to right in "binder view"   | Must     | On mobile, this must be a vertical scrollable list                                           |
-| FR-015 | Users can set "lists" view                                         | Should   | List view is a table, with no images                                                         |
-| FR-016 | Users can drag and drop to reorder cards in their binders          | Should   | Only in sorting "seller order"                                                               |
-| FR-017 | Users can sort binders                                             | Must     | By seller order (default), name, price                                                       |
-| FR-018 | Users can open a feedback popup to send feedback                   | Could    | This should happens after specific actions, this will be posted to a discord channel         |
-| FR-018 | Users can add set a wishlist of cards they want                    | Must     | Should have the same functionality as a binder but type wishlist                             |
+| Done | ID     | Requirement                                                        | Priority | Notes                                                                                        |
+|------|--------|--------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------|
+| [x]  | FR-001 | Users can create a binder without being logged                     | Must     | Saving the binder require logging                                                            |
+| [x]  | FR-002 | Logged user can share a binder with a small url                    | Must     | Share url must be short                                                                      |
+| [x]  | FR-003 | Users can add a card to their binder by searching from a card name | Must     | -                                                                                            |
+| [ ]  | FR-004 | Users can import a list of cards from a CSV or Text in a binder    | Must     | This must follow the format of a manabox export                                              |
+| [ ]  | FR-005 | Users can export a list of cards from a binder in CSV or Text      | Should   | This must follow the format of a manabox import                                              |
+| [x]  | FR-006 | Users can select their currency of choice for display              | Must     | This will be saved in account, or local storage is not logged                                |
+| [x]  | FR-007 | Users can set a price in a defined currency                        | Must     | Price can be set with helpers, like "CKD x25" (it's how thai do from USD to THB)             |
+| [ ]  | FR-008 | Users can set a dynamic pricing in a defined currency              | Should   | For ex, CKD x25 will always show the price depending on the market                           |
+| [x]  | FR-009 | Users can define condition, quantity, foil type, language          | Must     |                                                                                              |
+| [ ]  | FR-010 | Users can search by name and others domain filters                 | Must     | By domain filters, in MTG that would be mana, power, set, rarity etc                         |
+| [x]  | FR-011 | Users can set a website language                                   | Must     | Starting with english, thai. Saved in account if logged, else local storage.                 |
+| [ ]  | FR-012 | Users can set up to two comparaison prices                         | Should   | Comparaison price is picked from a marketplace like CKD, TCGPlayer, Cardmarket               |
+| [ ]  | FR-013 | Users can add to a basket and checkout                             | Must     | The checkout will generate a message listing all cards, sum and show total to send to seller |
+| [x]  | FR-014 | Users can browse cards from pages left to right in "binder view"   | Must     | On mobile, this must be a vertical scrollable list                                           |
+| [x]  | FR-015 | Users can set "lists" view                                         | Should   | List view is a table, with no images                                                         |
+| [ ]  | FR-016 | Users can drag and drop to reorder cards in their binders          | Should   | Only in sorting "seller order"                                                               |
+| [ ]  | FR-017 | Users can sort binders                                             | Must     | By seller order (default), name, price                                                       |
+| [ ]  | FR-018 | Users can open a feedback popup to send feedback                   | Could    | This should happens after specific actions, this will be posted to a discord channel         |
+| [ ]  | FR-019 | Users can add set a wishlist of cards they want                    | Must     | Should have the same functionality as a binder but type wishlist                             |
 
 ### User Flows
 
