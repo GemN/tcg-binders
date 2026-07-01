@@ -7,7 +7,7 @@ import {
   useBinderCardVariantsQuery,
   useUpdateBinderCardMutation,
 } from "@app/graphql";
-import type { KeyboardEvent } from "react";
+import { type KeyboardEvent, useCallback } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -32,19 +32,24 @@ import {
   getCardDetail,
   getDefaultFinish,
   getVariantLabel,
+  readStoredBinderCardPriceCurrency,
   readStoredCustomCkdMultiplier,
   shouldIgnoreModalNavigationKey,
+  writeStoredBinderCardPriceCurrency,
   writeStoredCustomCkdMultiplier,
 } from "@/components/ModalBinderCardDetail/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import {
   type BinderCardPriceInput,
-  formatCardKingdomMultiplierThbPriceInput,
   formatBinderCardPrice,
+  formatCardKingdomMultiplierThbPriceInput,
 } from "@/lib/binderCardPricing";
-import { getCurrencySymbol } from "@/lib/currency";
+import { getCurrencyFractionDigits, getCurrencySymbol } from "@/lib/currency";
 import { handleError } from "@/lib/error";
-import { usePricingSettings } from "@/providers/PricingSettingsContext";
+import {
+  isSupportedCurrency,
+  usePricingSettings,
+} from "@/providers/PricingSettingsContext";
 
 interface ModalBinderCardDetailProps {
   binderCard: ModalBinderCardRecord | null;
@@ -80,7 +85,11 @@ export const ModalBinderCardDetail = ({
   onUpdateBinderCard,
 }: ModalBinderCardDetailProps) => {
   const { i18n, t } = useTranslation(["binder", "common"]);
-  const { convertAmountToLocalCurrency, currency } = usePricingSettings();
+  const {
+    convertAmountToLocalCurrency,
+    convertAmountToTargetCurrency,
+    currency,
+  } = usePricingSettings();
   const priceInputId = useId();
   const ckdMultiplierInputId = useId();
   const [quantityInput, setQuantityInput] = useState("1");
@@ -89,7 +98,7 @@ export const ModalBinderCardDetail = ({
     readStoredCustomCkdMultiplier
   );
   const [priceCurrency, setPriceCurrency] = useState<CurrencyCode>(
-    CurrencyCode.Thb
+    readStoredBinderCardPriceCurrency(currency)
   );
   const [priceMode, setPriceMode] = useState<PriceMode>("manual");
   const [dynamicPriceStrategy, setDynamicPriceStrategy] =
@@ -148,17 +157,45 @@ export const ModalBinderCardDetail = ({
     const symbol = getCurrencySymbol(currencyCode);
     return symbol ? `${currencyCode} ${symbol}` : currencyCode;
   };
+  const getDefaultPriceCurrency = useCallback(() => {
+    return readStoredBinderCardPriceCurrency(currency);
+  }, [currency]);
+  const getInitialPriceCurrency = useCallback(
+    (nextBinderCard: ModalBinderCardRecord): CurrencyCode => {
+      const hasSavedPrice =
+        !!nextBinderCard.dynamicPriceRule ||
+        (nextBinderCard.priceAmount !== null &&
+          nextBinderCard.priceAmount !== undefined);
+
+      if (
+        hasSavedPrice &&
+        nextBinderCard.priceCurrency &&
+        isSupportedCurrency(nextBinderCard.priceCurrency)
+      ) {
+        return nextBinderCard.priceCurrency;
+      }
+
+      return getDefaultPriceCurrency();
+    },
+    [getDefaultPriceCurrency]
+  );
+  const formatConvertedPriceInput = (
+    amount: number,
+    targetCurrency: CurrencyCode
+  ) => {
+    return amount.toFixed(getCurrencyFractionDigits(targetCurrency));
+  };
 
   useEffect(() => {
     if (!binderCard) return;
 
     setQuantityInput(String(binderCard.quantity));
-    setPriceCurrency(binderCard.priceCurrency || CurrencyCode.Thb);
+    setPriceCurrency(getInitialPriceCurrency(binderCard));
     setPriceMode(binderCard.dynamicPriceRule ? "dynamic" : "manual");
     setDynamicPriceStrategy("CKD X");
     setPriceInput(formatPriceInputValue(binderCard.priceAmount));
     setCkdMultiplierInput(readStoredCustomCkdMultiplier());
-  }, [binderCard]);
+  }, [binderCard, currency, getInitialPriceCurrency]);
 
   useEffect(() => {
     setVariantQueryCardId(null);
@@ -183,8 +220,7 @@ export const ModalBinderCardDetail = ({
             set,
           },
         });
-        updatedBinderCard =
-          result.data?.updateBinderCardsCollection.records[0];
+        updatedBinderCard = result.data?.updateBinderCardsCollection.records[0];
       }
 
       if (!updatedBinderCard) {
@@ -222,15 +258,20 @@ export const ModalBinderCardDetail = ({
     void persistBinderCard({ quantity: nextQuantity });
   };
 
-  const handleManualPriceCommit = (nextCurrency = priceCurrency) => {
+  const handleManualPriceCommit = (
+    nextCurrency = priceCurrency,
+    nextPriceInput = priceInput
+  ) => {
     if (!binderCard) return;
 
-    const trimmedPrice = priceInput.trim();
+    const trimmedPrice = nextPriceInput.trim();
     if (!trimmedPrice) {
+      writeStoredBinderCardPriceCurrency(nextCurrency);
+
       if (
         !binderCard.dynamicPriceRule &&
         arePriceAmountsEqual(binderCard.priceAmount, null) &&
-        (binderCard.priceCurrency || CurrencyCode.Thb) === nextCurrency
+        getInitialPriceCurrency(binderCard) === nextCurrency
       ) {
         return;
       }
@@ -253,10 +294,12 @@ export const ModalBinderCardDetail = ({
       return;
     }
 
+    writeStoredBinderCardPriceCurrency(nextCurrency);
+
     if (
       !binderCard.dynamicPriceRule &&
       arePriceAmountsEqual(binderCard.priceAmount, nextAmountInput) &&
-      (binderCard.priceCurrency || CurrencyCode.Thb) === nextCurrency
+      getInitialPriceCurrency(binderCard) === nextCurrency
     ) {
       return;
     }
@@ -284,11 +327,12 @@ export const ModalBinderCardDetail = ({
     }
 
     setPriceCurrency(CurrencyCode.Thb);
+    writeStoredBinderCardPriceCurrency(CurrencyCode.Thb);
     setPriceInput(nextAmountInput);
     if (
       !binderCard.dynamicPriceRule &&
       arePriceAmountsEqual(binderCard.priceAmount, nextAmountInput) &&
-      (binderCard.priceCurrency || CurrencyCode.Thb) === CurrencyCode.Thb
+      getInitialPriceCurrency(binderCard) === CurrencyCode.Thb
     ) {
       return;
     }
@@ -330,11 +374,12 @@ export const ModalBinderCardDetail = ({
     if (
       binderCard.dynamicPriceRule === strategy &&
       arePriceAmountsEqual(binderCard.priceAmount, null) &&
-      (binderCard.priceCurrency || CurrencyCode.Thb) === priceCurrency
+      getInitialPriceCurrency(binderCard) === priceCurrency
     ) {
       return;
     }
 
+    writeStoredBinderCardPriceCurrency(priceCurrency);
     void persistBinderCard({
       dynamicPriceRule: strategy,
       priceAmount: null,
@@ -345,13 +390,14 @@ export const ModalBinderCardDetail = ({
   const handlePriceCurrencyChange = (nextCurrency: CurrencyCode) => {
     if (!binderCard) return;
 
-    setPriceCurrency(nextCurrency);
-
     if (priceMode === "dynamic") {
+      setPriceCurrency(nextCurrency);
+      writeStoredBinderCardPriceCurrency(nextCurrency);
+
       if (
         binderCard.dynamicPriceRule === dynamicPriceStrategy &&
         arePriceAmountsEqual(binderCard.priceAmount, null) &&
-        (binderCard.priceCurrency || CurrencyCode.Thb) === nextCurrency
+        getInitialPriceCurrency(binderCard) === nextCurrency
       ) {
         return;
       }
@@ -364,7 +410,44 @@ export const ModalBinderCardDetail = ({
       return;
     }
 
-    handleManualPriceCommit(nextCurrency);
+    const trimmedPrice = priceInput.trim();
+    if (!trimmedPrice) {
+      setPriceCurrency(nextCurrency);
+      handleManualPriceCommit(nextCurrency);
+      return;
+    }
+
+    const nextAmountInput = trimmedPrice.replace(",", ".");
+    const nextAmount = Number(nextAmountInput);
+    if (!Number.isFinite(nextAmount) || nextAmount < 0) {
+      handleError(
+        new Error(t("binder:detail.invalid_price")),
+        t("binder:detail.update_error")
+      );
+      return;
+    }
+
+    const convertedAmount = convertAmountToTargetCurrency(
+      nextAmount,
+      priceCurrency,
+      nextCurrency
+    );
+    if (convertedAmount === null) {
+      handleError(
+        new Error(t("binder:detail.currency_conversion_error")),
+        t("binder:detail.update_error")
+      );
+      return;
+    }
+
+    const convertedPriceInput = formatConvertedPriceInput(
+      convertedAmount,
+      nextCurrency
+    );
+
+    setPriceCurrency(nextCurrency);
+    setPriceInput(convertedPriceInput);
+    handleManualPriceCommit(nextCurrency, convertedPriceInput);
   };
 
   const handlePriceModeChange = (nextPriceMode: PriceMode) => {
@@ -380,7 +463,7 @@ export const ModalBinderCardDetail = ({
     if (
       !binderCard.dynamicPriceRule &&
       arePriceAmountsEqual(binderCard.priceAmount, null) &&
-      (binderCard.priceCurrency || CurrencyCode.Thb) === priceCurrency
+      getInitialPriceCurrency(binderCard) === priceCurrency
     ) {
       return;
     }
@@ -420,10 +503,13 @@ export const ModalBinderCardDetail = ({
       ? binderCard.finish
       : getDefaultFinish(variantFinishes);
 
-    void persistBinderCard({
-      cardId: variant.id,
-      ...(nextFinish === binderCard.finish ? {} : { finish: nextFinish }),
-    }, { variant });
+    void persistBinderCard(
+      {
+        cardId: variant.id,
+        ...(nextFinish === binderCard.finish ? {} : { finish: nextFinish }),
+      },
+      { variant }
+    );
   };
 
   const translateCardOption = (
@@ -548,15 +634,9 @@ export const ModalBinderCardDetail = ({
                           dynamic: t("binder:detail.price_mode.dynamic"),
                         }}
                         priceLabel={t("binder:detail.price")}
-                        pricePlaceholder={t(
-                          "binder:detail.price_placeholder"
-                        )}
-                        priceStrategyLabel={t(
-                          "binder:detail.price_strategy"
-                        )}
-                        ckdMultiplierLabel={t(
-                          "binder:detail.ckd_multiplier"
-                        )}
+                        pricePlaceholder={t("binder:detail.price_placeholder")}
+                        priceStrategyLabel={t("binder:detail.price_strategy")}
+                        ckdMultiplierLabel={t("binder:detail.ckd_multiplier")}
                         getCurrencyLabel={getCurrencyLabel}
                         onCkdMultiplierChange={setCkdMultiplierInput}
                         onCustomCkdCommit={handleCustomCkdCommit}

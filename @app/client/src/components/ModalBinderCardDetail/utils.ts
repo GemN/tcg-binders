@@ -1,9 +1,16 @@
+import { CurrencyCode } from "@app/graphql";
+
 import type { BinderCardDetailRecord } from "@/lib/binderCardPricing";
+import {
+  isSupportedCurrency,
+  type SupportedCurrency,
+} from "@/providers/PricingSettingsContext";
 
 import type { BinderCardVariant, ModalBinderCardRecord } from "./types";
 
 const customCkdMultiplierStorageKey =
   "tcgbinder.binder_card.custom_ckd_multiplier";
+const priceCurrencyStorageKey = "tcgbinder.binder_card.price_currency";
 
 export const formatFallbackLabel = (value: string): string => {
   return value
@@ -35,6 +42,26 @@ export const readStoredCustomCkdMultiplier = (): string => {
 export const writeStoredCustomCkdMultiplier = (multiplier: string) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(customCkdMultiplierStorageKey, multiplier);
+};
+
+export const readStoredBinderCardPriceCurrency = (
+  fallbackCurrency: SupportedCurrency
+): SupportedCurrency => {
+  if (typeof window === "undefined") return fallbackCurrency;
+
+  const storedCurrency = window.localStorage.getItem(priceCurrencyStorageKey);
+  return storedCurrency && isSupportedCurrency(storedCurrency)
+    ? storedCurrency
+    : fallbackCurrency;
+};
+
+export const writeStoredBinderCardPriceCurrency = (
+  currency: CurrencyCode
+) => {
+  if (typeof window === "undefined") return;
+  if (!isSupportedCurrency(currency)) return;
+
+  window.localStorage.setItem(priceCurrencyStorageKey, currency);
 };
 
 export const shouldIgnoreModalNavigationKey = (

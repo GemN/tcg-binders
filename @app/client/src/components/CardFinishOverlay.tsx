@@ -1,13 +1,12 @@
 import { useTranslation } from "react-i18next";
 
+import { isFoilCardFinish } from "@/config/card";
 import { cn } from "@/lib/utils";
 
 interface CardFinishOverlayProps {
   className?: string;
   finish: string | null | undefined;
 }
-
-const nonFoilFinishes = new Set(["normal", "nonfoil"]);
 
 const getNormalizedFinish = (finish: string | null | undefined) => {
   const normalizedFinish = finish?.trim().toLowerCase();
@@ -27,7 +26,7 @@ export const CardFinishOverlay = ({
   const { t } = useTranslation("common");
   const normalizedFinish = getNormalizedFinish(finish);
 
-  if (!normalizedFinish || nonFoilFinishes.has(normalizedFinish)) return null;
+  if (!normalizedFinish || !isFoilCardFinish(normalizedFinish)) return null;
 
   const shouldShowBadge = normalizedFinish !== "foil";
   const finishLabel = shouldShowBadge

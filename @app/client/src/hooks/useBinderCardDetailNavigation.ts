@@ -34,6 +34,9 @@ export const useBinderCardDetailNavigation = ({
   const [selectedBinderCard, setSelectedBinderCard] = useState<
     BinderCardRecord | BinderCardDetailRecord | null
   >(null);
+  const [selectedBinderCardId, setSelectedBinderCardId] = useState<
+    string | null
+  >(null);
   const detailCardOffset =
     selectedCardIndex === null
       ? 0
@@ -46,6 +49,7 @@ export const useBinderCardDetailNavigation = ({
         cardOffset: detailCardOffset,
         cardOrderBy,
       },
+      fetchPolicy: "cache-and-network",
       skip: !shortId || selectedCardIndex === null,
       notifyOnNetworkStatusChange: true,
       returnPartialData: true,
@@ -67,14 +71,29 @@ export const useBinderCardDetailNavigation = ({
 
     const detailWindowIndex = selectedCardIndex - detailCardOffset;
     const nextSelectedBinderCard = detailBinderCards[detailWindowIndex];
-    if (nextSelectedBinderCard) {
-      setSelectedBinderCard(nextSelectedBinderCard);
+    if (!nextSelectedBinderCard) return;
+
+    if (
+      selectedBinderCardId &&
+      nextSelectedBinderCard.id !== selectedBinderCardId
+    ) {
+      return;
     }
-  }, [detailBinderCards, detailCardOffset, isDetailLoading, selectedCardIndex]);
+
+    setSelectedBinderCard(nextSelectedBinderCard);
+    setSelectedBinderCardId(nextSelectedBinderCard.id);
+  }, [
+    detailBinderCards,
+    detailCardOffset,
+    isDetailLoading,
+    selectedBinderCardId,
+    selectedCardIndex,
+  ]);
 
   const clearSelectedBinderCard = useCallback(() => {
     setSelectedCardIndex(null);
     setSelectedBinderCard(null);
+    setSelectedBinderCardId(null);
   }, []);
 
   const getLoadedBinderCardByIndex = useCallback(
@@ -103,6 +122,7 @@ export const useBinderCardDetailNavigation = ({
     (binderCard: BinderCardRecord, index: number) => {
       setSelectedCardIndex(cardOffset + index);
       setSelectedBinderCard(binderCard);
+      setSelectedBinderCardId(binderCard.id);
     },
     [cardOffset]
   );
@@ -111,8 +131,10 @@ export const useBinderCardDetailNavigation = ({
     (nextCardIndex: number) => {
       if (nextCardIndex < 0 || nextCardIndex >= totalBinderCards) return;
 
+      const nextBinderCard = getLoadedBinderCardByIndex(nextCardIndex);
       setSelectedCardIndex(nextCardIndex);
-      setSelectedBinderCard(getLoadedBinderCardByIndex(nextCardIndex));
+      setSelectedBinderCard(nextBinderCard);
+      setSelectedBinderCardId(nextBinderCard?.id ?? null);
     },
     [getLoadedBinderCardByIndex, totalBinderCards]
   );

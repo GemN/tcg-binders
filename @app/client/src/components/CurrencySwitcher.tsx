@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
+import { getCurrencySymbol } from "@/lib/currency";
 import {
   supportedCurrencies,
   usePricingSettings,
@@ -16,13 +17,17 @@ import {
 export const CurrencySwitcher = () => {
   const { t } = useTranslation(["common"]);
   const { currency, setCurrency } = usePricingSettings();
+  const getCurrencyLabel = (currencyCode: string) => {
+    const symbol = getCurrencySymbol(currencyCode);
+    return symbol ? `${currencyCode} ${symbol}` : currencyCode;
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="link" className="h-9 px-2 sm:px-3">
           <CircleDollarSign className="size-4" />
-          <span>{currency}</span>
+          <span>{getCurrencyLabel(currency)}</span>
           <span className="sr-only">{t("common:nav.currency")}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -37,7 +42,7 @@ export const CurrencySwitcher = () => {
                 : ""
             }`}
           >
-            {currencyOption}
+            {getCurrencyLabel(currencyOption)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

@@ -2,6 +2,7 @@ import { Globe } from "lucide-react";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 
+import { CountryFlag } from "@/components/CountryFlag";
 import { Button } from "@/components/ui/Button.tsx";
 
 import {
@@ -13,17 +14,20 @@ import {
 
 interface Language {
   code: string;
+  flagCode: string;
   label: string;
   shortLabel: string;
 }
 const languages: Language[] = [
   {
     code: "en",
+    flagCode: "gb",
     label: "English",
     shortLabel: "EN",
   },
   {
     code: "th",
+    flagCode: "th",
     label: "ไทย",
     shortLabel: "TH",
   },
@@ -58,9 +62,7 @@ export const LanguageSwitcher: FC<LanguageSwitcherProps> = () => {
                 : ""
             }`}
           >
-            <span className="mr-2 text-xs text-current/70">
-              {lang.shortLabel}
-            </span>
+            <CountryFlag code={lang.flagCode} className="mr-2 h-3.5 w-5" />
             {lang.label}
           </DropdownMenuItem>
         ))}

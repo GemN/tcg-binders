@@ -123,6 +123,7 @@
     "ckd_multiplier": "CKD multiplier",
     "update_error": "Failed to update card. Please try again.",
     "invalid_price": "Enter a valid price.",
+    "currency_conversion_error": "Currency conversion is unavailable.",
     "ckd_missing_price": "Card Kingdom USD price is required for CKD pricing."
   },
   "sort": {

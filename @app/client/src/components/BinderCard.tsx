@@ -1,9 +1,12 @@
+import type { LanguageCode } from "@app/graphql";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CardImage } from "@/components/CardImage";
+import { CountryFlag } from "@/components/CountryFlag";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { cardLanguageFlagCodes } from "@/config/card";
 import {
   type BinderCardRecord,
   formatBinderCardPrice,
@@ -17,6 +20,8 @@ interface BinderCardImageProps {
   card: BinderCardRecord["card"];
   condition: BinderCardRecord["condition"];
   finish: BinderCardRecord["finish"];
+  language: BinderCardRecord["language"];
+  languageLabel: string;
   noImageLabel: string;
   priceLabel: string;
   quantityLabel: string;
@@ -27,6 +32,8 @@ const BinderCardImage = ({
   card,
   condition,
   finish,
+  language,
+  languageLabel,
   noImageLabel,
   priceLabel,
   quantityLabel,
@@ -46,13 +53,21 @@ const BinderCardImage = ({
       imageUrl={imageUrl}
       noImageLabel={noImageLabel}
     >
-      <span className="absolute bottom-2 left-2 flex w-fit flex-col items-start gap-1 text-xs font-semibold tabular-nums text-white">
-        <CardConditionBadge condition={condition} />
-        <span className="w-fit rounded-sm bg-black/70 px-2 py-0.5">
+      <span className="absolute bottom-2 left-2 flex w-7 flex-col items-stretch overflow-hidden rounded-sm bg-black/70 text-xs font-semibold tabular-nums text-white">
+        <span className="inline-flex w-full items-center justify-center py-0.5">
           {quantityLabel}
         </span>
+        <CardConditionBadge
+          condition={condition}
+          className="h-6 w-full min-w-0 rounded-none px-0 py-0 text-sm"
+        />
+        <CountryFlag
+          code={cardLanguageFlagCodes[language as LanguageCode]}
+          className="w-7 aspect-[4/3] rounded-none shadow-none"
+          label={languageLabel}
+        />
       </span>
-      <span className="absolute right-2 bottom-2 rounded-sm bg-black/70 px-2 py-1 text-xs font-semibold tabular-nums text-white">
+      <span className="absolute right-2 bottom-2 rounded-sm bg-black/70 px-2 py-1 text-sm font-semibold tabular-nums text-white">
         {priceLabel}
       </span>
     </CardImage>
@@ -97,6 +112,9 @@ export const BinderCard = ({
   const { t } = useTranslation(["binder", "common"]);
   const priceLabel = useBinderCardPriceLabel(binderCard);
   const cardName = binderCard.card?.name || noImageLabel;
+  const languageLabel = t(`common:card.language.${binderCard.language}`, {
+    defaultValue: binderCard.language.toUpperCase(),
+  });
   const handlePrimaryClick = () => {
     if (isSelectionMode) {
       onToggleSelection?.(binderCard);
@@ -132,6 +150,8 @@ export const BinderCard = ({
           card={binderCard.card}
           condition={binderCard.condition}
           finish={binderCard.finish}
+          language={binderCard.language}
+          languageLabel={languageLabel}
           noImageLabel={noImageLabel}
           priceLabel={priceLabel}
           quantityLabel={String(binderCard.quantity)}

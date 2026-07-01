@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 
+import { CountryFlag } from "@/components/CountryFlag";
 import {
   Select,
   SelectContent,
@@ -40,7 +41,14 @@ export const SelectCountry: FC<SelectCountryProps> = ({
         )}
         {countries.map((country) => (
           <SelectItem key={country.isoCode} value={country.isoCode}>
-            {country.emojiFlag} {country.name}
+            <span className="flex items-center gap-2">
+              <CountryFlag
+                code={country.isoCode}
+                className="h-3.5 w-5"
+                label={country.name}
+              />
+              <span>{country.name}</span>
+            </span>
           </SelectItem>
         ))}
       </SelectContent>

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { CardConditionDot } from "@/components/CardConditionBadge";
 import { BinderCardVariantSelect } from "@/components/ModalBinderCardDetail/BinderCardVariantSelect";
+import { LanguagePicker } from "@/components/ModalBinderCardDetail/LanguagePicker";
 import { Input } from "@/components/ui/Input";
 import {
   Select,
@@ -11,10 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
-import {
-  CARD_CONDITION_OPTIONS,
-  CARD_LANGUAGE_OPTIONS,
-} from "@/hooks/useDraftBinder";
+import { CARD_CONDITION_OPTIONS } from "@/config/card";
 
 import type { BinderCardVariant, ModalBinderCardRecord } from "./types";
 
@@ -133,26 +131,14 @@ export const BinderCardEditableFields = ({
         </Select>
       </label>
 
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-        {languageLabel}
-        <Select
-          value={binderCard.language}
-          onValueChange={(language) =>
-            onLanguageChange(language as LanguageCode)
-          }
-        >
-          <SelectTrigger className="w-full bg-[#E8E8E8] text-[#343434]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {CARD_LANGUAGE_OPTIONS.map((language) => (
-              <SelectItem key={language} value={language}>
-                {translateCardOption("language", language)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </label>
+      <LanguagePicker
+        label={languageLabel}
+        value={binderCard.language}
+        onChange={onLanguageChange}
+        getLanguageLabel={(language) =>
+          translateCardOption("language", language)
+        }
+      />
 
       <BinderCardVariantSelect
         areVariantsLoading={areVariantsLoading}

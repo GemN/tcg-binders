@@ -1,10 +1,12 @@
-import { MarketPriceSource } from "@app/graphql";
+import { LanguageCode, MarketPriceSource } from "@app/graphql";
+import { Star } from "lucide-react";
 import { type MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CardImage } from "@/components/CardImage";
+import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { Checkbox } from "@/components/ui/Checkbox";
 import {
@@ -15,6 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/Tooltip";
+import { cardLanguageFlagCodes, isFoilCardFinish } from "@/config/card";
 import {
   type BinderCardPriceInput,
   type BinderCardRecord,
@@ -93,6 +101,8 @@ const CARD_PREVIEW_HEIGHT = Math.round((CARD_PREVIEW_WIDTH * 88) / 63);
 const CARD_PREVIEW_OFFSET = 18;
 const CARD_PREVIEW_MARGIN = 12;
 const highlightedMarketPriceClassName = "font-bold";
+const conditionColumnTooltipClassName = "bg-[#2f2933] text-[#fffdf7]";
+const conditionColumnTooltipArrowClassName = "bg-[#2f2933] fill-[#2f2933]";
 const marketPriceSourceClassNames: MarketPriceSourceClassNameMap = {
   [MarketPriceSource.Cardkingdom]: "text-info",
   [MarketPriceSource.Cardmarket]: "text-success",
@@ -241,6 +251,14 @@ const BinderCardListRow = ({
     name: cardName,
   });
   const conditionLabel = t(`common:card.condition.${binderCard.condition}`);
+  const languageLabel = t(`common:card.language.${binderCard.language}`, {
+    defaultValue: binderCard.language.toUpperCase(),
+  });
+  const finishLabel = t(`common:card.finish.${binderCard.finish}`, {
+    defaultValue: binderCard.finish
+      .replace(/[-_]/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase()),
+  });
   const openCard = () => onOpenCard(binderCard, index);
   const activateCard = () => {
     if (isSelectionMode) {
@@ -274,14 +292,10 @@ const BinderCardListRow = ({
           />
         </TableCell>
       )}
-      <TableCell
-        className="cursor-pointer px-3 py-2 font-medium uppercase tabular-nums text-muted-foreground"
-      >
+      <TableCell className="cursor-pointer px-3 py-2 font-medium uppercase tabular-nums text-muted-foreground">
         {binderCard.card?.cardSet?.code || "MTG"}
       </TableCell>
-      <TableCell
-        className="cursor-pointer px-3 py-2 tabular-nums text-muted-foreground"
-      >
+      <TableCell className="cursor-pointer px-3 py-2 tabular-nums text-muted-foreground">
         {binderCard.card?.collectorNumber || "-"}
       </TableCell>
       <TableCell className="max-w-96 whitespace-normal px-3 py-2 font-medium text-foreground">
@@ -297,20 +311,70 @@ const BinderCardListRow = ({
           {cardName}
         </button>
       </TableCell>
-      <TableCell
-        className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground"
-      >
+      <TableCell className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground">
         {binderCard.quantity}
       </TableCell>
-      <TableCell
-        title={conditionLabel}
-        className="cursor-pointer px-3 py-2"
-      >
-        <CardConditionBadge condition={binderCard.condition} />
+      <TableCell className="cursor-pointer px-3 py-2">
+        <span className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center justify-center">
+                <CardConditionBadge
+                  condition={binderCard.condition}
+                  className="py-0.5 rounded-sm"
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent
+              side="bottom"
+              className={conditionColumnTooltipClassName}
+              arrowClassName={conditionColumnTooltipArrowClassName}
+            >
+              {conditionLabel}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center justify-center">
+                <CountryFlag
+                  code={
+                    cardLanguageFlagCodes[binderCard.language as LanguageCode]
+                  }
+                  className="w-5 aspect-[4/3]"
+                  label={languageLabel}
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent
+              side="bottom"
+              className={conditionColumnTooltipClassName}
+              arrowClassName={conditionColumnTooltipArrowClassName}
+            >
+              {languageLabel}
+            </TooltipContent>
+          </Tooltip>
+          {isFoilCardFinish(binderCard.finish) && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span aria-label={finishLabel}>
+                  <Star
+                    aria-hidden="true"
+                    className="size-4 fill-[#ffd21f] text-[#ffd21f]"
+                  />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent
+                side="bottom"
+                className={conditionColumnTooltipClassName}
+                arrowClassName={conditionColumnTooltipArrowClassName}
+              >
+                {finishLabel}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </span>
       </TableCell>
-      <TableCell
-        className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground"
-      >
+      <TableCell className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground">
         {formatPrice({
           amount: binderCard.priceAmount,
           shouldConvert: true,
@@ -395,9 +459,7 @@ export const BinderCardList = ({
           <TableRow className="border-border hover:bg-transparent">
             {isSelectionMode && (
               <TableHead className="h-9 w-10 px-3">
-                <span className="sr-only">
-                  {t("binder:detail.selected")}
-                </span>
+                <span className="sr-only">{t("binder:detail.selected")}</span>
               </TableHead>
             )}
             <TableHead className="h-9 w-20 px-3 text-[11px] font-semibold uppercase text-muted-foreground">

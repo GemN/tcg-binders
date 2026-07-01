@@ -33,7 +33,15 @@ i18n
     resources,
     fallbackLng: "en",
     supportedLngs: ["en", "th"],
+    load: "languageOnly",
     ns: ["binder", "common", "login"],
+    detection: {
+      order: ["localStorage", "navigator"],
+      caches: ["localStorage"],
+      lookupLocalStorage: "i18nextLng",
+      convertDetectedLanguage: (language: string) =>
+        language.toLowerCase().startsWith("th") ? "th" : "en",
+    },
     interpolation: {
       escapeValue: false,
     },

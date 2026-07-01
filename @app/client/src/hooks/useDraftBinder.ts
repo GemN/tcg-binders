@@ -1,44 +1,13 @@
 import {
   CardCondition,
+  type CardSearchFieldsFragment,
   CurrencyCode,
   LanguageCode,
   MarketPriceSource,
-  type CardSearchFieldsFragment,
 } from "@app/graphql";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 const DRAFT_BINDER_STORAGE_KEY = "tcgbinder:draft-binder";
-
-export const CARD_CONDITION_OPTIONS = [
-  CardCondition.Mint,
-  CardCondition.NearMint,
-  CardCondition.Excellent,
-  CardCondition.Good,
-  CardCondition.LightPlayed,
-  CardCondition.Played,
-  CardCondition.Poor,
-] as const;
-
-export const CARD_LANGUAGE_OPTIONS = [
-  LanguageCode.En,
-  LanguageCode.Fr,
-  LanguageCode.De,
-  LanguageCode.It,
-  LanguageCode.Es,
-  LanguageCode.Pt,
-  LanguageCode.Ja,
-  LanguageCode.Ko,
-  LanguageCode.Zhs,
-  LanguageCode.Zht,
-] as const;
-
-export const CARD_CURRENCY_OPTIONS = [
-  CurrencyCode.Thb,
-  CurrencyCode.Usd,
-  CurrencyCode.Eur,
-  CurrencyCode.Gbp,
-  CurrencyCode.Jpy,
-] as const;
 
 export type DraftCardCondition = CardCondition;
 export type DraftCardLanguage = LanguageCode;

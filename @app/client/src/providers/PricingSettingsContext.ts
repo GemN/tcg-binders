@@ -20,8 +20,14 @@ export type ConvertAmountToLocalCurrency = (
   amount: number,
   sourceCurrency: CurrencyCode
 ) => number | null;
+export type ConvertAmountToTargetCurrency = (
+  amount: number,
+  sourceCurrency: CurrencyCode,
+  targetCurrency: CurrencyCode
+) => number | null;
 
 export interface PricingSettingsContextValue {
+  convertAmountToTargetCurrency: ConvertAmountToTargetCurrency;
   convertAmountToLocalCurrency: ConvertAmountToLocalCurrency;
   currency: SupportedCurrency;
   priceSource: SupportedPriceSource;

@@ -123,6 +123,7 @@
     "ckd_multiplier": "ตัวคูณ CKD",
     "update_error": "อัปเดตการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
     "invalid_price": "กรุณากรอกราคาให้ถูกต้อง",
+    "currency_conversion_error": "ไม่สามารถแปลงสกุลเงินได้",
     "ckd_missing_price": "ต้องมีราคา Card Kingdom เป็น USD เพื่อใช้ราคา CKD"
   },
   "sort": {
