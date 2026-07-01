@@ -63,7 +63,7 @@ const BinderCardImage = ({
         </span>
         <CardConditionBadge
           condition={condition}
-          className="h-6 w-full min-w-0 rounded-none px-0 py-0 text-sm"
+          className="h-6 w-full min-w-0 rounded-none px-0 py-0 text-[13px]"
         />
         <CountryFlag
           code={cardLanguageFlagCodes[language as LanguageCode]}

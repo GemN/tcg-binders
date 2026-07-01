@@ -65,7 +65,7 @@ The biggest problem is to find specific cards.
 | [x]  | FR-001 | Users can create a binder without being logged                     | Must     | Saving the binder require logging                                                            |
 | [x]  | FR-002 | Logged user can share a binder with a small url                    | Must     | Share url must be short                                                                      |
 | [x]  | FR-003 | Users can add a card to their binder by searching from a card name | Must     | -                                                                                            |
-| [ ]  | FR-004 | Users can import a list of cards from a CSV or Text in a binder    | Must     | This must follow the format of a manabox export                                              |
+| [x]  | FR-004 | Users can import a list of cards from a CSV or Text in a binder    | Must     | This must follow the format of a manabox export                                              |
 | [ ]  | FR-005 | Users can export a list of cards from a binder in CSV or Text      | Should   | This must follow the format of a manabox import                                              |
 | [x]  | FR-006 | Users can select their currency of choice for display              | Must     | This will be saved in account, or local storage is not logged                                |
 | [x]  | FR-007 | Users can set a price in a defined currency                        | Must     | Price can be set with helpers, like "CKD x25" (it's how thai do from USD to THB)             |

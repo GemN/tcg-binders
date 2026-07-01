@@ -43,7 +43,7 @@ const BinderGalleryItem = ({ binder }: BinderGalleryItemProps) => {
     >
       <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-foreground ring-1 ring-card/20 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg">
         {coverImageUrls.fallbackUrl && (
-          <picture className="absolute inset-0 block opacity-90">
+          <picture className="absolute inset-0 block">
             {coverImageUrls.webpUrl && (
               <source srcSet={coverImageUrls.webpUrl} type="image/webp" />
             )}
@@ -56,7 +56,6 @@ const BinderGalleryItem = ({ binder }: BinderGalleryItemProps) => {
             />
           </picture>
         )}
-        <div className="absolute inset-0 bg-linear-to-b from-foreground/15 via-foreground/20 to-foreground/80" />
         <div className="absolute inset-x-3 bottom-3  text-center">
           <div className="rounded-sm bg-foreground/80 px-4 py-2 inline-block">
             <div className="line-clamp-2 text-center text-sm font-semibold leading-5 text-white">
