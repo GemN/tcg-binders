@@ -1,7 +1,6 @@
 import { type Session } from "@supabase/supabase-js";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
-import { Loading } from "@/components/Loading";
 import supabase from "@/lib/supabase";
 
 import { SessionContext } from "./SessionContext";
@@ -15,26 +14,36 @@ export const SessionProvider = ({ children }: SessionProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    let isCurrent = true;
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!isCurrent) return;
+
+        setSession(data.session);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        if (isCurrent) {
+          setIsLoading(false);
+        }
+      });
+
+    const authStateListener = supabase.auth.onAuthStateChange((_, session) => {
+      setSession(session);
       setIsLoading(false);
     });
 
-    const authStateListener = supabase.auth.onAuthStateChange(
-      async (_, session) => {
-        setSession(session);
-        setIsLoading(false);
-      }
-    );
-
     return () => {
+      isCurrent = false;
       authStateListener.data.subscription.unsubscribe();
     };
   }, []);
 
   return (
-    <SessionContext.Provider value={{ session }}>
-      {isLoading ? <Loading /> : children}
+    <SessionContext.Provider value={{ isLoading, session }}>
+      {children}
     </SessionContext.Provider>
   );
 };

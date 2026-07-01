@@ -7,7 +7,11 @@ interface RequireAuthProps {
 }
 export const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   const location = useLocation();
-  const { session } = useSession();
+  const { isLoading, session } = useSession();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!session) {
     const nextUrl = `/login?next=${encodeURIComponent(location.pathname)}`;

@@ -1,9 +1,13 @@
 import type { Session } from "@supabase/supabase-js";
 import { createContext, useContext } from "react";
 
-export const SessionContext = createContext<{
+interface SessionContextValue {
+  isLoading: boolean;
   session: Session | null;
-}>({
+}
+
+export const SessionContext = createContext<SessionContextValue>({
+  isLoading: true,
   session: null,
 });
 

@@ -12,7 +12,7 @@ import { useSession } from "@/providers/SessionContext";
 
 export const Navbar = () => {
   const { t } = useTranslation(["common"]);
-  const { session } = useSession();
+  const { isLoading: isSessionLoading, session } = useSession();
   const isLoggedIn = !!session;
 
   return (
@@ -31,20 +31,24 @@ export const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-2">
-          {isLoggedIn && (
-            <Button variant="link" asChild className="h-9 px-2 sm:px-3">
-              <Link to="/my-binders">{t("common:nav.your_binders")}</Link>
-            </Button>
-          )}
-          {isLoggedIn ? (
-            <ButtonNewBinder />
-          ) : (
-            <Button asChild className="h-9 px-2 sm:px-3">
-              <Link to="/binder/draft">
-                <Plus className="size-4" />
-                {t("common:new_binder.button")}
-              </Link>
-            </Button>
+          {!isSessionLoading && (
+            <>
+              {isLoggedIn && (
+                <Button variant="link" asChild className="h-9 px-2 sm:px-3">
+                  <Link to="/my-binders">{t("common:nav.your_binders")}</Link>
+                </Button>
+              )}
+              {isLoggedIn ? (
+                <ButtonNewBinder />
+              ) : (
+                <Button asChild className="h-9 px-2 sm:px-3">
+                  <Link to="/binder/draft">
+                    <Plus className="size-4" />
+                    {t("common:new_binder.button")}
+                  </Link>
+                </Button>
+              )}
+            </>
           )}
         </div>
 
@@ -54,17 +58,23 @@ export const Navbar = () => {
           <LanguageSwitcher />
           <CurrencySwitcher />
           <PriceSourceSwitcher />
-          {isLoggedIn ? (
-            <UserNavigation />
-          ) : (
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Button variant="ghost" asChild className="h-9 px-2 sm:px-3">
-                <Link to="/login">{t("common:nav.sign_in")}</Link>
-              </Button>
-              <Button asChild className="h-9 px-2 sm:px-3">
-                <Link to="/login?view=sign_up">{t("common:nav.register")}</Link>
-              </Button>
-            </div>
+          {!isSessionLoading && (
+            <>
+              {isLoggedIn ? (
+                <UserNavigation />
+              ) : (
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Button variant="ghost" asChild className="h-9 px-2 sm:px-3">
+                    <Link to="/login">{t("common:nav.sign_in")}</Link>
+                  </Button>
+                  <Button asChild className="h-9 px-2 sm:px-3">
+                    <Link to="/login?view=sign_up">
+                      {t("common:nav.register")}
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </nav>
