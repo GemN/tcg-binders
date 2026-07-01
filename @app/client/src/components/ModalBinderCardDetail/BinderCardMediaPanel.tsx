@@ -33,6 +33,7 @@ export const BinderCardMediaPanel = ({
 }: BinderCardMediaPanelProps) => (
   <div className="flex flex-col gap-3">
     <BinderCardImagePreview
+      finish={binderCard?.finish}
       imageAlt={imageAlt}
       imageUrl={imageUrl}
       noImageLabel={noImageLabel}

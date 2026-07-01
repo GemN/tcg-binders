@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import { CardConditionBadge } from "@/components/CardConditionBadge";
+import { CardImage } from "@/components/CardImage";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { Checkbox } from "@/components/ui/Checkbox";
 import {
@@ -154,27 +155,22 @@ const BinderCardPreview = ({
   if (!cardPreview) return null;
 
   const previewCard = cardPreview.binderCard.card;
-  const previewImageUrl =
-    previewCard?.imageNormalUrl || previewCard?.imageSmallUrl;
 
   return (
-    <div
+    <CardImage
+      alt=""
       className="pointer-events-none fixed z-40 overflow-hidden rounded-md border border-border bg-foreground shadow-2xl shadow-foreground/30"
+      fallbackClassName="px-4 text-center text-background"
+      finish={cardPreview.binderCard.finish}
+      imageUrl={previewCard?.imageNormalUrl || previewCard?.imageSmallUrl}
+      noImageLabel={noImageLabel}
       style={{
         left: cardPreview.left,
         top: cardPreview.top,
         width: CARD_PREVIEW_WIDTH,
         height: CARD_PREVIEW_HEIGHT,
       }}
-    >
-      {previewImageUrl ? (
-        <img src={previewImageUrl} alt="" className="h-full w-full object-cover" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center px-4 text-center text-sm text-background">
-          {noImageLabel}
-        </div>
-      )}
-    </div>
+    />
   );
 };
 

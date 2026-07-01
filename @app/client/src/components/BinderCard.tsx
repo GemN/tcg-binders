@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import { CardConditionBadge } from "@/components/CardConditionBadge";
+import { CardImage } from "@/components/CardImage";
 import { Checkbox } from "@/components/ui/Checkbox";
 import {
   type BinderCardRecord,
@@ -15,6 +16,7 @@ export type BinderCardViewMode = "grid" | "list";
 interface BinderCardImageProps {
   card: BinderCardRecord["card"];
   condition: BinderCardRecord["condition"];
+  finish: BinderCardRecord["finish"];
   noImageLabel: string;
   priceLabel: string;
   quantityLabel: string;
@@ -24,27 +26,26 @@ interface BinderCardImageProps {
 const BinderCardImage = ({
   card,
   condition,
+  finish,
   noImageLabel,
   priceLabel,
   quantityLabel,
   className,
 }: BinderCardImageProps) => {
+  const imageUrl = card?.imageNormalUrl || card?.imageSmallUrl;
+
   return (
-    <div
+    <CardImage
+      alt=""
       className={cn(
-        "relative flex aspect-[63/88] items-center justify-center overflow-hidden rounded-md border border-primary/25 bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40",
+        "rounded-md border border-primary/25 bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40",
         className
       )}
+      fallbackClassName="text-muted-foreground"
+      finish={finish}
+      imageUrl={imageUrl}
+      noImageLabel={noImageLabel}
     >
-      {card?.imageNormalUrl || card?.imageSmallUrl ? (
-        <img
-          src={card.imageNormalUrl || card.imageSmallUrl || ""}
-          alt=""
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span className="text-sm text-muted-foreground">{noImageLabel}</span>
-      )}
       <span className="absolute bottom-2 left-2 flex w-fit flex-col items-start gap-1 text-xs font-semibold tabular-nums text-white">
         <CardConditionBadge condition={condition} />
         <span className="w-fit rounded-sm bg-black/70 px-2 py-0.5">
@@ -54,7 +55,7 @@ const BinderCardImage = ({
       <span className="absolute right-2 bottom-2 rounded-sm bg-black/70 px-2 py-1 text-xs font-semibold tabular-nums text-white">
         {priceLabel}
       </span>
-    </div>
+    </CardImage>
   );
 };
 
@@ -113,7 +114,7 @@ export const BinderCard = ({
           aria-label={t("binder:selection.select_card", {
             name: cardName,
           })}
-          className="absolute top-2 left-2 z-10 size-5 cursor-pointer border-white/80 bg-black/70 text-white"
+          className="absolute top-2 right-2 z-10 size-5 cursor-pointer border-white/80 bg-black/70 text-white"
           onCheckedChange={() => onToggleSelection?.(binderCard)}
         />
       )}
@@ -130,6 +131,7 @@ export const BinderCard = ({
         <BinderCardImage
           card={binderCard.card}
           condition={binderCard.condition}
+          finish={binderCard.finish}
           noImageLabel={noImageLabel}
           priceLabel={priceLabel}
           quantityLabel={String(binderCard.quantity)}
