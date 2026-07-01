@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
+import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { Checkbox } from "@/components/ui/Checkbox";
 import {
   type BinderCardRecord,
   formatBinderCardPrice,
 } from "@/lib/binderCardPricing";
-import { getCardConditionAbbreviation } from "@/lib/cardCondition";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
@@ -14,7 +14,7 @@ export type BinderCardViewMode = "grid" | "list";
 
 interface BinderCardImageProps {
   card: BinderCardRecord["card"];
-  conditionLabel: string;
+  condition: BinderCardRecord["condition"];
   noImageLabel: string;
   priceLabel: string;
   quantityLabel: string;
@@ -23,7 +23,7 @@ interface BinderCardImageProps {
 
 const BinderCardImage = ({
   card,
-  conditionLabel,
+  condition,
   noImageLabel,
   priceLabel,
   quantityLabel,
@@ -46,9 +46,7 @@ const BinderCardImage = ({
         <span className="text-sm text-muted-foreground">{noImageLabel}</span>
       )}
       <span className="absolute bottom-2 left-2 flex w-fit flex-col items-start gap-1 text-xs font-semibold tabular-nums text-white">
-        <span className="w-fit rounded-sm bg-black/70 px-2 py-0.5">
-          {conditionLabel}
-        </span>
+        <CardConditionBadge condition={condition} />
         <span className="w-fit rounded-sm bg-black/70 px-2 py-0.5">
           {quantityLabel}
         </span>
@@ -97,12 +95,6 @@ export const BinderCard = ({
 }: BinderCardProps) => {
   const { t } = useTranslation(["binder", "common"]);
   const priceLabel = useBinderCardPriceLabel(binderCard);
-  const conditionLabel = t(
-    `common:card.condition_short.${binderCard.condition}`,
-    {
-      defaultValue: getCardConditionAbbreviation(binderCard.condition),
-    }
-  );
   const cardName = binderCard.card?.name || noImageLabel;
   const handlePrimaryClick = () => {
     if (isSelectionMode) {
@@ -137,7 +129,7 @@ export const BinderCard = ({
       >
         <BinderCardImage
           card={binderCard.card}
-          conditionLabel={conditionLabel}
+          condition={binderCard.condition}
           noImageLabel={noImageLabel}
           priceLabel={priceLabel}
           quantityLabel={String(binderCard.quantity)}

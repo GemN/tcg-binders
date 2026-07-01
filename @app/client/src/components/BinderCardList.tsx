@@ -3,6 +3,7 @@ import { type MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
+import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { Checkbox } from "@/components/ui/Checkbox";
 import {
@@ -21,7 +22,6 @@ import {
   getBinderCardMarketPrice,
   getCheapestMarketPriceSources,
 } from "@/lib/binderCardPricing";
-import { getCardConditionAbbreviation } from "@/lib/cardCondition";
 import { cn } from "@/lib/utils";
 import {
   type ConvertAmountToLocalCurrency,
@@ -245,12 +245,6 @@ const BinderCardListRow = ({
     name: cardName,
   });
   const conditionLabel = t(`common:card.condition.${binderCard.condition}`);
-  const conditionAbbreviation = t(
-    `common:card.condition_short.${binderCard.condition}`,
-    {
-      defaultValue: getCardConditionAbbreviation(binderCard.condition),
-    }
-  );
   const openCard = () => onOpenCard(binderCard, index);
   const activateCard = () => {
     if (isSelectionMode) {
@@ -314,9 +308,9 @@ const BinderCardListRow = ({
       </TableCell>
       <TableCell
         title={conditionLabel}
-        className="cursor-pointer px-3 py-2 font-medium uppercase tabular-nums text-muted-foreground"
+        className="cursor-pointer px-3 py-2"
       >
-        {conditionAbbreviation}
+        <CardConditionBadge condition={binderCard.condition} />
       </TableCell>
       <TableCell
         className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground"

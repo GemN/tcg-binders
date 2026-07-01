@@ -64,22 +64,12 @@
       "played": "Played",
       "poor": "Poor"
     },
-    "condition_short": {
-      "mint": "M",
-      "near_mint": "NM",
-      "excellent": "EX",
-      "good": "GD",
-      "light_played": "LP",
-      "played": "PL",
-      "poor": "PO"
-    },
     "finish": {
       "normal": "Normal",
       "nonfoil": "Nonfoil",
       "foil": "Foil",
       "etched": "Etched"
     },
-    "price_unavailable": "No price",
     "language": {
       "en": "English",
       "fr": "French",

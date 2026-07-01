@@ -1,6 +1,7 @@
 import { CardCondition, LanguageCode } from "@app/graphql";
 import type { ReactNode } from "react";
 
+import { CardConditionDot } from "@/components/CardConditionBadge";
 import { BinderCardVariantSelect } from "@/components/ModalBinderCardDetail/BinderCardVariantSelect";
 import { Input } from "@/components/ui/Input";
 import {
@@ -122,7 +123,10 @@ export const BinderCardEditableFields = ({
           <SelectContent>
             {CARD_CONDITION_OPTIONS.map((condition) => (
               <SelectItem key={condition} value={condition}>
-                {translateCardOption("condition", condition)}
+                <span className="flex min-w-0 items-center gap-2">
+                  <CardConditionDot condition={condition} />
+                  <span>{translateCardOption("condition", condition)}</span>
+                </span>
               </SelectItem>
             ))}
           </SelectContent>

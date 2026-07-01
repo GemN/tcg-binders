@@ -1,5 +1,4 @@
 {
-  "short_url": "Binder URL: /binder/{{shortId}}",
   "search_placeholder": "Add a card",
   "adding_card": "Adding card...",
   "add_card_error": "Failed to add card. Please try again.",

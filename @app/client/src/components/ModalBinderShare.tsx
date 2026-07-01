@@ -43,7 +43,7 @@ export const ModalBinderShare = ({
           <span className="text-sm font-medium">
             {t("binder:share.url_label")}
           </span>
-          <div className="flex min-w-0 items-center gap-2 rounded-md border bg-muted/30 py-1 px-3">
+          <div className="flex min-w-0 items-center gap-2 rounded-md border bg-muted/30 py-1.5 pl-3 pr-1.5">
             <span className="min-w-0 flex-1 truncate text-sm tabular-nums">
               {shareUrl}
             </span>

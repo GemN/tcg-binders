@@ -49,24 +49,29 @@ export const BinderCardMediaPanel = ({
           sourceCurrency: marketPrice?.currency,
         });
         const label = getBuyLabel(source);
+        const content = (
+          <>
+            <span className="flex min-w-0 items-center gap-2">
+              <MarketPriceSourceIcon source={source} />
+              <span className="truncate">{label}</span>
+            </span>
+            <span className="ml-auto font-semibold tabular-nums">
+              {priceLabel}
+            </span>
+            {marketPrice?.buyUrl && <ExternalLink className="size-4" />}
+          </>
+        );
 
         if (marketPrice?.buyUrl) {
           return (
-            <Button key={source} asChild variant="outline" className="w-full">
-              <a
-                href={marketPrice.buyUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="justify-between"
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <MarketPriceSourceIcon source={source} />
-                  <span className="truncate">{label}</span>
-                </span>
-                <span className="ml-auto font-semibold tabular-nums">
-                  {priceLabel}
-                </span>
-                <ExternalLink className="size-4" />
+            <Button
+              key={source}
+              asChild
+              variant="outline"
+              className="w-full justify-between px-3 py-2"
+            >
+              <a href={marketPrice.buyUrl} target="_blank" rel="noreferrer">
+                {content}
               </a>
             </Button>
           );
@@ -77,14 +82,10 @@ export const BinderCardMediaPanel = ({
             key={source}
             type="button"
             variant="outline"
-            className="w-full justify-between"
+            className="w-full justify-between px-3 py-2"
             disabled
           >
-            <span className="flex min-w-0 items-center gap-2">
-              <MarketPriceSourceIcon source={source} />
-              <span className="truncate">{label}</span>
-            </span>
-            <span className="font-semibold tabular-nums">{priceLabel}</span>
+            {content}
           </Button>
         );
       })}

@@ -64,22 +64,12 @@
       "played": "ผ่านการเล่น",
       "poor": "สภาพแย่"
     },
-    "condition_short": {
-      "mint": "M",
-      "near_mint": "NM",
-      "excellent": "EX",
-      "good": "GD",
-      "light_played": "LP",
-      "played": "PL",
-      "poor": "PO"
-    },
     "finish": {
       "normal": "ปกติ",
       "nonfoil": "ไม่ฟอยล์",
       "foil": "ฟอยล์",
       "etched": "เอทช์"
     },
-    "price_unavailable": "ไม่มีราคา",
     "language": {
       "en": "อังกฤษ",
       "fr": "ฝรั่งเศส",
