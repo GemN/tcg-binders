@@ -17,7 +17,7 @@ export const CardConditionBadge = ({
   return (
     <span
       className={cn(
-        "inline-flex min-w-7 items-center justify-center rounded-md  px-1.5 py-1 text-[13px] font-bold leading-none tabular-nums",
+        "inline-flex min-w-7 items-center justify-center rounded-md  px-1.5 py-1 text-[13px] font-display font-bold leading-none tabular-nums",
         className
       )}
       style={{

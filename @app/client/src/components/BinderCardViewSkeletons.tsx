@@ -9,12 +9,15 @@ export const BinderCardGridSkeleton = ({ count }: { count: number }) => {
   );
 
   return (
-    <div className="grid h-full grid-cols-2 place-items-start content-start gap-2 gap-y-4 sm:grid-cols-4 lg:grid-cols-7">
+    <div className="grid h-full grid-cols-2 place-items-start content-start gap-3 gap-y-6 sm:grid-cols-4 lg:grid-cols-7">
       {skeletonItems.map((skeletonItem) => (
-        <Skeleton
-          key={skeletonItem}
-          className="aspect-[63/88] w-full max-w-[12rem] rounded-md bg-binder-toolbar/25"
-        />
+        <div key={skeletonItem} className="grid w-full max-w-[12rem] gap-2">
+          <Skeleton className="aspect-[63/88] w-full rounded-md bg-binder-toolbar/25" />
+          <div className="grid min-h-12 justify-items-end gap-1">
+            <Skeleton className="h-5 w-24 bg-binder-toolbar/25" />
+            <Skeleton className="h-4 w-20 bg-binder-toolbar/20" />
+          </div>
+        </div>
       ))}
     </div>
   );

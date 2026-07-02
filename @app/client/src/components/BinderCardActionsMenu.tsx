@@ -15,7 +15,7 @@ interface BinderCardActionsMenuProps {
   className?: string;
   disabled?: boolean;
   onDelete: () => void;
-  triggerVariant?: "overlay" | "inline";
+  triggerVariant?: "card" | "overlay" | "inline";
 }
 
 export const BinderCardActionsMenu = ({
@@ -41,9 +41,12 @@ export const BinderCardActionsMenu = ({
             size="icon"
             className={cn(
               "size-8",
-              triggerVariant === "inline"
-                ? "bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground focus-visible:ring-ring/30 data-[state=open]:bg-transparent data-[state=open]:text-foreground"
-                : "border border-black/10 bg-black/65 text-white shadow-md hover:bg-black/80 hover:text-white focus-visible:ring-white/70 data-[state=open]:bg-black/80"
+              triggerVariant === "inline" &&
+                "bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground focus-visible:ring-ring/30 data-[state=open]:bg-transparent data-[state=open]:text-foreground",
+              triggerVariant === "overlay" &&
+                "border border-black/10 bg-black/65 text-white shadow-md hover:bg-black/80 hover:text-white focus-visible:ring-white/70 data-[state=open]:bg-black/80",
+              triggerVariant === "card" &&
+                "rounded-md border border-white/80 bg-white text-foreground shadow-lg shadow-black/20 hover:bg-white/90 hover:text-foreground focus-visible:ring-white/70 data-[state=open]:bg-white"
             )}
             aria-label={t("binder:actions.open", { name: cardName })}
           >

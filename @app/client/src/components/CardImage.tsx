@@ -1,10 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import { CardFinishOverlay } from "@/components/CardFinishOverlay";
-import {
-  type CardImageSize,
-  getCardImageUrls,
-} from "@/lib/cardImageUrl";
+import { type CardImageSize, getCardImageUrls } from "@/lib/cardImageUrl";
 import { cn } from "@/lib/utils";
 
 export interface CardImageProps {
@@ -42,7 +39,7 @@ export const CardImage = ({
   return (
     <div
       className={cn(
-        "relative flex aspect-[63/88] items-center justify-center overflow-hidden",
+        "relative flex aspect-[63/88] items-center justify-center overflow-hidden rounded-[4.75%_/_3.5%]",
         className,
         cardImagePlaceholderClassName
       )}

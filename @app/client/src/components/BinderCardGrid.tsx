@@ -30,7 +30,7 @@ export const BinderCardGrid = ({
   return (
     <div
       className={cn(
-        "grid h-full grid-cols-2 place-items-start content-start gap-2 gap-y-4 sm:grid-cols-4 lg:grid-cols-7",
+        "grid h-full grid-cols-2 place-items-start content-start gap-3 gap-y-6 sm:grid-cols-4 lg:grid-cols-7",
         className
       )}
     >

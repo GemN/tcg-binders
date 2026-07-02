@@ -1,4 +1,5 @@
-import type { LanguageCode } from "@app/graphql";
+import { type LanguageCode, MarketPriceSource } from "@app/graphql";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -9,7 +10,6 @@ import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { cardLanguageFlagCodes } from "@/config/card";
-import { marketPriceSourceClassNames } from "@/config/marketPriceSource";
 import {
   type BinderCardRecord,
   formatBinderCardPrice,
@@ -18,36 +18,71 @@ import {
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { cn } from "@/lib/utils";
 import {
+  type ConvertAmountToLocalCurrency,
   type SupportedPriceSource,
   usePricingSettings,
 } from "@/providers/PricingSettingsContext";
 
 export type BinderCardViewMode = "grid" | "list";
 
-interface BinderCardPriceStackProps {
-  marketPriceLabel: string;
-  priceLabel: string;
-  priceSource: SupportedPriceSource;
+type BinderCardValueDeltaDirection = "below" | "above" | "even";
+
+interface BinderCardValueDelta {
+  direction: BinderCardValueDeltaDirection;
+  label: string;
 }
 
-const BinderCardPriceStack = ({
+interface BinderCardMarketPriceOverlayProps {
+  marketPriceLabel: string;
+  priceSource: SupportedPriceSource;
+  priceSourceLabel: string;
+}
+
+const BinderCardMarketPriceOverlay = ({
   marketPriceLabel,
-  priceLabel,
   priceSource,
-}: BinderCardPriceStackProps) => (
-  <span className="absolute right-2 bottom-2 flex max-w-[calc(100%-3.25rem)] flex-col items-end overflow-hidden rounded-sm bg-black/75 px-2 py-1 text-white shadow-lg shadow-black/20">
-    <span
-      className={cn(
-        "flex max-w-full items-center gap-1.5 text-[11px] font-semibold leading-tight tabular-nums",
-        marketPriceSourceClassNames[priceSource]
-      )}
-    >
-      <MarketPriceSourceIcon source={priceSource} className="size-3.5" />
-      <span className="min-w-0 truncate">{marketPriceLabel}</span>
+  priceSourceLabel,
+}: BinderCardMarketPriceOverlayProps) => (
+  <span className="absolute right-0 bottom-7 z-10 flex max-w-[82%] items-center gap-1 overflow-hidden rounded-l-sm bg-[#22262A]/80 px-1 py-0.5 text-white">
+    <MarketPriceSourceIcon source={priceSource} className="size-4.5" />
+    <span className="grid min-w-0 text-left">
+      <span className="truncate text-[11px] text-[#C7C1BA] leading-[13px]">
+        {priceSourceLabel}
+      </span>
+      <span className="truncate text-xs font-bold tabular-nums text-white leading-[16px]">
+        {marketPriceLabel}
+      </span>
     </span>
-    <span className="my-0.5 h-px w-full bg-white/15" />
-    <span className="max-w-full truncate text-sm font-bold leading-tight tabular-nums text-white">
-      {priceLabel}
+  </span>
+);
+
+interface BinderCardStatusStackProps {
+  condition: BinderCardRecord["condition"];
+  language: BinderCardRecord["language"];
+  languageLabel: string;
+  quantityLabel: string;
+}
+
+const BinderCardStatusStack = ({
+  condition,
+  language,
+  languageLabel,
+  quantityLabel,
+}: BinderCardStatusStackProps) => (
+  <span className="absolute top-[18%] left-0 z-10 flex w-[35px] flex-col items-stretch gap-1 shadow-lg shadow-black/25">
+    <CardConditionBadge
+      condition={condition}
+      className="h-5 w-full min-w-0 rounded-l-none rounded-r-[4px] px-0 py-0 text-xs"
+    />
+    <span className="flex h-5 w-full items-center justify-center overflow-hidden rounded-r-[4px] bg-white">
+      <CountryFlag
+        code={cardLanguageFlagCodes[language as LanguageCode]}
+        className="aspect-[4/3] w-full rounded-none shadow-none"
+        label={languageLabel}
+      />
+    </span>
+    <span className="flex h-5 w-full items-center justify-center rounded-r-[4px] bg-[#22262A]/60 text-xs leading-none tabular-nums text-white">
+      x{quantityLabel}
     </span>
   </span>
 );
@@ -60,8 +95,8 @@ interface BinderCardImageProps {
   languageLabel: string;
   marketPriceLabel: string;
   noImageLabel: string;
-  priceLabel: string;
   priceSource: SupportedPriceSource;
+  priceSourceLabel: string;
   quantityLabel: string;
   scryfallId: string | null | undefined;
   className?: string;
@@ -75,8 +110,8 @@ const BinderCardImage = ({
   languageLabel,
   marketPriceLabel,
   noImageLabel,
-  priceLabel,
   priceSource,
+  priceSourceLabel,
   quantityLabel,
   scryfallId,
   className,
@@ -85,7 +120,7 @@ const BinderCardImage = ({
     <CardImage
       alt=""
       className={cn(
-        "rounded-md border border-primary/25 bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40",
+        "border border-primary/25 bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40",
         className
       )}
       fallbackClassName="text-muted-foreground"
@@ -95,51 +130,145 @@ const BinderCardImage = ({
       noImageLabel={noImageLabel}
       scryfallId={scryfallId}
     >
-      <BinderCardPriceStack
+      <BinderCardMarketPriceOverlay
         marketPriceLabel={marketPriceLabel}
-        priceLabel={priceLabel}
         priceSource={priceSource}
+        priceSourceLabel={priceSourceLabel}
       />
-      <span className="absolute bottom-2 left-2 flex w-7 flex-col items-stretch overflow-hidden rounded-sm bg-black/70 text-xs font-semibold tabular-nums text-white">
-        <span className="inline-flex w-full items-center justify-center py-0.5">
-          {quantityLabel}
-        </span>
-        <CardConditionBadge
-          condition={condition}
-          className="h-6 w-full min-w-0 rounded-none px-0 py-0 text-[13px]"
-        />
-        <CountryFlag
-          code={cardLanguageFlagCodes[language as LanguageCode]}
-          className="w-7 aspect-[4/3] rounded-none shadow-none"
-          label={languageLabel}
-        />
-      </span>
+      <BinderCardStatusStack
+        condition={condition}
+        language={language}
+        languageLabel={languageLabel}
+        quantityLabel={quantityLabel}
+      />
     </CardImage>
   );
 };
 
+interface BinderCardPriceSummaryProps {
+  listedAtLabel: string;
+  listedPriceLabel: string | null;
+  priceLabel: string;
+  valueDelta: BinderCardValueDelta | null;
+}
+
+const BinderCardPriceSummary = ({
+  listedAtLabel,
+  listedPriceLabel,
+  priceLabel,
+  valueDelta,
+}: BinderCardPriceSummaryProps) => (
+  <span className="grid min-h-12 items-start justify-items-end gap-0.5 text-right">
+    <span
+      className={cn(
+        "flex max-w-full items-center justify-end gap-1.5 overflow-hidden text-base font-bold leading-tight tabular-nums",
+        valueDelta?.direction === "below" && "text-success",
+        valueDelta?.direction === "above" && "text-destructive",
+        (!valueDelta || valueDelta.direction === "even") && "text-foreground"
+      )}
+    >
+      {valueDelta && valueDelta.direction !== "even" && (
+        <span
+          className={cn(
+            "inline-flex min-w-0 items-center gap-0.5 rounded-sm px-1.5 py-0.5 text-xs font-bold leading-none",
+            valueDelta.direction === "below" && "bg-success/15 text-success",
+            valueDelta.direction === "above" &&
+              "bg-destructive/15 text-destructive"
+          )}
+        >
+          {valueDelta.direction === "below" ? (
+            <ArrowDown aria-hidden="true" className="size-3" />
+          ) : (
+            <ArrowUp aria-hidden="true" className="size-3" />
+          )}
+          <span className="truncate">{valueDelta.label}</span>
+        </span>
+      )}
+      <span className="min-w-0 truncate">{priceLabel}</span>
+    </span>
+    {listedPriceLabel && (
+      <span className="max-w-full truncate text-xs leading-tight text-muted-foreground">
+        {listedAtLabel} {listedPriceLabel}
+      </span>
+    )}
+  </span>
+);
+
 interface BinderCardPriceLabels {
+  listedPriceLabel: string | null;
   marketPriceLabel: string;
   priceLabel: string;
   priceSource: SupportedPriceSource;
+  priceSourceLabel: string;
+  valueDelta: BinderCardValueDelta | null;
 }
 
 const fallbackPrice = "-";
+
+interface LocalCurrencyAmountInput {
+  amount: number | string | null | undefined;
+  sourceCurrency: BinderCardRecord["priceCurrency"] | null | undefined;
+}
+
+const getLocalCurrencyAmount = (
+  { amount, sourceCurrency }: LocalCurrencyAmountInput,
+  convertAmountToLocalCurrency: ConvertAmountToLocalCurrency
+): number | null => {
+  if (!sourceCurrency) return null;
+
+  const numericAmount = Number(amount);
+  if (!Number.isFinite(numericAmount)) return null;
+
+  return convertAmountToLocalCurrency(numericAmount, sourceCurrency);
+};
+
+const getBinderCardValueDelta = (
+  priceAmount: number | null,
+  marketPriceAmount: number | null,
+  locale: string
+): BinderCardValueDelta | null => {
+  if (priceAmount === null || marketPriceAmount === null) return null;
+  if (marketPriceAmount <= 0) return null;
+
+  const deltaRatio = (marketPriceAmount - priceAmount) / marketPriceAmount;
+  const direction =
+    deltaRatio > 0 ? "below" : deltaRatio < 0 ? "above" : "even";
+  const label = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 0,
+    style: "percent",
+  }).format(Math.abs(deltaRatio));
+
+  return { direction, label };
+};
 
 const useBinderCardPriceLabels = (
   binderCard: BinderCardRecord,
   showConvertedMarketPrices: boolean
 ): BinderCardPriceLabels => {
-  const { i18n } = useTranslation(["binder", "common"]);
+  const { i18n, t } = useTranslation(["binder", "common"]);
   const { convertAmountToLocalCurrency, currency, priceSource } =
     usePricingSettings();
   const marketPrice = getBinderCardMarketPrice(binderCard, priceSource);
+  const hasPriceSet =
+    binderCard.priceAmount !== null &&
+    binderCard.priceAmount !== undefined &&
+    !!binderCard.priceCurrency;
+  const shouldShowListedPrice =
+    hasPriceSet && binderCard.priceCurrency !== currency;
   const displayPrice = formatBinderCardPrice({
     amount: binderCard.priceAmount,
     convertAmountToLocalCurrency,
     displayCurrency: currency,
     locale: i18n.language,
     shouldConvert: true,
+    sourceCurrency: binderCard.priceCurrency,
+  });
+  const listedPrice = formatBinderCardPrice({
+    amount: binderCard.priceAmount,
+    convertAmountToLocalCurrency,
+    displayCurrency: currency,
+    locale: i18n.language,
+    shouldConvert: false,
     sourceCurrency: binderCard.priceCurrency,
   });
   const marketPriceLabel = formatBinderCardPrice({
@@ -150,11 +279,40 @@ const useBinderCardPriceLabels = (
     shouldConvert: showConvertedMarketPrices,
     sourceCurrency: marketPrice?.currency,
   });
+  const localPriceAmount = getLocalCurrencyAmount(
+    {
+      amount: binderCard.priceAmount,
+      sourceCurrency: binderCard.priceCurrency,
+    },
+    convertAmountToLocalCurrency
+  );
+  const localMarketPriceAmount = getLocalCurrencyAmount(
+    {
+      amount: marketPrice?.amount,
+      sourceCurrency: marketPrice?.currency,
+    },
+    convertAmountToLocalCurrency
+  );
+  const priceSourceLabel =
+    priceSource === MarketPriceSource.Cardkingdom
+      ? t("binder:list.cardkingdom_price")
+      : priceSource === MarketPriceSource.Cardmarket
+        ? t("binder:list.cardmarket_price")
+        : t("binder:list.tcgplayer_price");
 
   return {
+    listedPriceLabel: shouldShowListedPrice ? listedPrice : null,
     marketPriceLabel: marketPriceLabel || fallbackPrice,
     priceLabel: displayPrice || fallbackPrice,
     priceSource,
+    priceSourceLabel,
+    valueDelta: hasPriceSet
+      ? getBinderCardValueDelta(
+          localPriceAmount,
+          localMarketPriceAmount,
+          i18n.language
+        )
+      : null,
   };
 };
 
@@ -183,9 +341,16 @@ const BinderCardComponent = ({
   onToggleSelection,
 }: BinderCardProps) => {
   const { t } = useTranslation(["binder", "common"]);
-  const { marketPriceLabel, priceLabel, priceSource } =
-    useBinderCardPriceLabels(binderCard, showConvertedMarketPrices);
+  const {
+    listedPriceLabel,
+    marketPriceLabel,
+    priceLabel,
+    priceSource,
+    priceSourceLabel,
+    valueDelta,
+  } = useBinderCardPriceLabels(binderCard, showConvertedMarketPrices);
   const cardName = binderCard.card?.name || noImageLabel;
+  const listedAtLabel = t("binder:detail.listed_at");
   const languageLabel = t(`common:card.language.${binderCard.language}`, {
     defaultValue: binderCard.language.toUpperCase(),
   });
@@ -222,7 +387,7 @@ const BinderCardComponent = ({
             ? t("binder:selection.select_card", { name: cardName })
             : t("binder:detail.open_card", { name: cardName })
         }
-        className="group grid w-full cursor-pointer transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="group grid w-full cursor-pointer gap-2 transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         onClick={handlePrimaryClick}
       >
         <BinderCardImage
@@ -233,10 +398,16 @@ const BinderCardComponent = ({
           languageLabel={languageLabel}
           marketPriceLabel={marketPriceLabel}
           noImageLabel={noImageLabel}
-          priceLabel={priceLabel}
           priceSource={priceSource}
+          priceSourceLabel={priceSourceLabel}
           quantityLabel={String(binderCard.quantity)}
           scryfallId={scryfallId}
+        />
+        <BinderCardPriceSummary
+          listedAtLabel={listedAtLabel}
+          listedPriceLabel={listedPriceLabel}
+          priceLabel={priceLabel}
+          valueDelta={valueDelta}
         />
       </button>
       {onDelete && !isSelectionMode && (
@@ -245,6 +416,7 @@ const BinderCardComponent = ({
           className="absolute top-2 right-2"
           disabled={isDeleting}
           onDelete={handleDelete}
+          triggerVariant="card"
         />
       )}
     </div>
