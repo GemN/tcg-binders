@@ -47,6 +47,9 @@
   --color-binder-toolbar: var(--binder-toolbar);
   --color-binder-toolbar-foreground: var(--binder-toolbar-foreground);
   --color-binder-toolbar-input: var(--binder-toolbar-input);
+  --color-market-source-cardkingdom: var(--market-source-cardkingdom);
+  --color-market-source-cardmarket: var(--market-source-cardmarket);
+  --color-market-source-tcgplayer: var(--market-source-tcgplayer);
   --font-sans:
     "IBM Plex Sans Variable", "Noto Sans Thai Variable", ui-sans-serif,
     system-ui, sans-serif;
@@ -86,6 +89,9 @@
   --success: #6f8f1f;
   --info: #2f6fbe;
   --warning: #b7791f;
+  --market-source-cardkingdom: #4d8fe8;
+  --market-source-cardmarket: #6f8f1f;
+  --market-source-tcgplayer: #d64545;
 
   --chart-1: #bedb54;
   --chart-2: #1d2125;

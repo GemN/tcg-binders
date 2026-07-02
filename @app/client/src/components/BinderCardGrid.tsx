@@ -12,6 +12,7 @@ interface BinderCardGridProps {
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
   onToggleCardSelection?: (binderCard: BinderCardRecord) => void;
   selectedBinderCardIds?: Set<string>;
+  showConvertedMarketPrices: boolean;
 }
 
 export const BinderCardGrid = ({
@@ -24,6 +25,7 @@ export const BinderCardGrid = ({
   onOpenCard,
   onToggleCardSelection,
   selectedBinderCardIds,
+  showConvertedMarketPrices,
 }: BinderCardGridProps) => {
   return (
     <div
@@ -41,6 +43,7 @@ export const BinderCardGrid = ({
           isSelected={selectedBinderCardIds?.has(binderCard.id)}
           isSelectionMode={isSelectionMode}
           noImageLabel={noImageLabel}
+          showConvertedMarketPrices={showConvertedMarketPrices}
           onDelete={onDeleteCard}
           onOpen={onOpenCard}
           onToggleSelection={onToggleCardSelection}

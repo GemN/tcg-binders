@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/Tooltip";
 import { cardLanguageFlagCodes, isFoilCardFinish } from "@/config/card";
+import { marketPriceSourceClassNames } from "@/config/marketPriceSource";
 import {
   type BinderCardPriceInput,
   type BinderCardRecord,
@@ -68,7 +69,6 @@ interface BinderCardPreviewProps {
 }
 
 type FormatListPrice = (priceInput: BinderCardPriceInput) => string;
-type MarketPriceSourceClassNameMap = Record<MarketPriceSource, string>;
 type UpdateCardPreview = (
   binderCard: BinderCardRecord,
   event: MouseEvent<HTMLTableRowElement>
@@ -106,11 +106,6 @@ const fallbackPrice = "-";
 const highlightedMarketPriceClassName = "font-bold";
 const conditionColumnTooltipClassName = "bg-[#2f2933] text-[#fffdf7]";
 const conditionColumnTooltipArrowClassName = "bg-[#2f2933] fill-[#2f2933]";
-const marketPriceSourceClassNames: MarketPriceSourceClassNameMap = {
-  [MarketPriceSource.Cardkingdom]: "text-info",
-  [MarketPriceSource.Cardmarket]: "text-success",
-  [MarketPriceSource.Tcgplayer]: "text-destructive",
-};
 
 const getCardPreviewPosition = (
   event: MouseEvent

@@ -187,6 +187,7 @@ export const BinderCardViewPanel = ({
           onOpenCard={onOpenCard}
           onToggleCardSelection={onToggleCardSelection}
           selectedBinderCardIds={selectedBinderCardIds}
+          showConvertedMarketPrices={showConvertedMarketPrices}
         />
       ) : (
         <BinderCardList
