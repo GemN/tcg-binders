@@ -1,13 +1,16 @@
-import { NetworkStatus } from "@apollo/client";
+import { NetworkStatus, useApolloClient } from "@apollo/client";
 import {
+  BinderCardFilteredCountDocument,
+  type BinderCardFilteredCountQuery,
+  type BinderCardFilteredCountQueryVariables,
   useAddBinderCardMutation,
   useBinderByShortIdQuery,
   useDeleteBinderCardMutation,
 } from "@app/graphql";
-import { Share2 } from "lucide-react";
+import { Eye, Pencil, Share2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
@@ -17,13 +20,22 @@ import { ModalBinderShare } from "@/components/ModalBinderShare";
 import { Button } from "@/components/ui/Button";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
+import { useDebounce } from "@/hooks/useDebounce";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import { useIsMobile } from "@/hooks/useMobile";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
 import {
+  defaultBinderCardFilterState,
+  FILTERED_COUNT_PAGE_SIZE,
+  type BinderCardFilterState,
   type BinderSortMode,
+  getBinderCardActiveFilterCount,
+  getBinderCardFilterKey,
   getBinderCardOrderBy,
+  getBinderCardFilterSearchParams,
+  getBinderCardFilterStateFromSearchParams,
   getBinderCardsPerPage,
+  getBinderCardsFilter,
   getDefaultFinish,
   MOBILE_CARD_LIMIT,
   PRELOAD_PAGE_COUNT,
@@ -32,11 +44,43 @@ import { handleError } from "@/lib/error";
 import { NotFound } from "@/pages/NotFound";
 import { useSession } from "@/providers/SessionContext";
 
+interface FilteredBinderCardCountState {
+  count: number;
+  filterKey: string;
+  shortId: string;
+}
+
 export const BinderPage = () => {
   const { t } = useTranslation(["binder", "common"]);
+  const client = useApolloClient();
   const { session } = useSession();
   const { shortId = "" } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
+  const isPublicPreview = searchParams.get("public") === "true";
+  const searchParamFilterState = useMemo(
+    () => getBinderCardFilterStateFromSearchParams(searchParams),
+    [searchParams]
+  );
+  const filterState = searchParamFilterState;
+  const debouncedFilterState = useDebounce(filterState, 250);
+  const debouncedFilterKey = useMemo(
+    () => getBinderCardFilterKey(debouncedFilterState),
+    [debouncedFilterState]
+  );
+  const activeFilterCount = useMemo(
+    () => getBinderCardActiveFilterCount(filterState),
+    [filterState]
+  );
+  const debouncedActiveFilterCount = useMemo(
+    () => getBinderCardActiveFilterCount(debouncedFilterState),
+    [debouncedFilterState]
+  );
+  const cardFilter = useMemo(
+    () => getBinderCardsFilter(debouncedFilterState),
+    [debouncedFilterState]
+  );
+  const isFiltered = debouncedActiveFilterCount > 0;
   const [sortMode, setSortMode] = useState<BinderSortMode>("seller_order");
   const [viewMode, setViewMode] = useState<BinderCardViewMode>("grid");
   const [showConvertedMarketPrices, setShowConvertedMarketPrices] =
@@ -46,6 +90,12 @@ export const BinderPage = () => {
   const [isDeletingSelectedBinderCards, setIsDeletingSelectedBinderCards] =
     useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [filteredBinderCardCount, setFilteredBinderCardCount] =
+    useState<FilteredBinderCardCountState | null>(null);
+  const [
+    filteredBinderCardCountRefreshKey,
+    setFilteredBinderCardCountRefreshKey,
+  ] = useState(0);
   const cardsPerPage = getBinderCardsPerPage(viewMode);
   const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
   const cardFirst = isMobile
@@ -53,7 +103,13 @@ export const BinderPage = () => {
     : (PRELOAD_PAGE_COUNT + 1) * cardsPerPage;
   const cardOrderBy = useMemo(() => getBinderCardOrderBy(sortMode), [sortMode]);
   const { data, loading, networkStatus, refetch } = useBinderByShortIdQuery({
-    variables: { shortId, cardFirst, cardOffset, cardOrderBy },
+    variables: {
+      shortId,
+      cardFirst,
+      cardOffset,
+      cardFilter,
+      cardOrderBy,
+    },
     skip: !shortId,
     notifyOnNetworkStatusChange: true,
     returnPartialData: true,
@@ -73,7 +129,20 @@ export const BinderPage = () => {
   const visibleBinderCards = isMobile
     ? binderCards
     : binderCards.slice(0, cardsPerPage);
-  const totalBinderCards = data?.binderCardCountByShortId ?? binderCards.length;
+  const currentFilteredCardCount =
+    cardOffset +
+    binderCards.length +
+    (data?.binderCardsByShortId?.pageInfo.hasNextPage ? 1 : 0);
+  const exactFilteredBinderCardCount =
+    filteredBinderCardCount?.filterKey === debouncedFilterKey &&
+    filteredBinderCardCount.shortId === shortId
+      ? filteredBinderCardCount.count
+      : null;
+  const hasExactFilteredBinderCardCount =
+    isFiltered && exactFilteredBinderCardCount !== null;
+  const totalBinderCards = isFiltered
+    ? (exactFilteredBinderCardCount ?? currentFilteredCardCount)
+    : (data?.binderCardCountByShortId ?? binderCards.length);
   const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
   const canTurnPreviousPage = !isMobile && pageIndex > 0;
   const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
@@ -105,6 +174,7 @@ export const BinderPage = () => {
   } = useBinderCardDetailNavigation({
     binderCards,
     cardOffset,
+    cardFilter,
     cardOrderBy,
     shortId,
     totalBinderCards,
@@ -113,58 +183,156 @@ export const BinderPage = () => {
 
   useEffect(() => {
     setPageIndex(0);
+    setIsBulkPriceOpen(false);
     clearSelectedBinderCard();
     resetCardSelection();
-  }, [clearSelectedBinderCard, isMobile, resetCardSelection, shortId]);
+  }, [
+    clearSelectedBinderCard,
+    debouncedFilterKey,
+    isMobile,
+    isPublicPreview,
+    resetCardSelection,
+    shortId,
+  ]);
 
   useEffect(() => {
     selectedBinderCardIdRef.current = selectedBinderCard?.id ?? null;
   }, [selectedBinderCard?.id]);
 
-  const handleDeleteCard = useCallback(async (binderCard: BinderCardRecord) => {
-    try {
-      await deleteBinderCard({
-        variables: { id: binderCard.id },
-      });
+  const refreshFilteredBinderCardCount = useCallback(() => {
+    setFilteredBinderCardCountRefreshKey((refreshKey) => refreshKey + 1);
+  }, []);
 
-      if (selectedBinderCardIdRef.current === binderCard.id) {
-        clearSelectedBinderCard();
-      }
-      removeSelectedBinderCard(binderCard.id);
-
-      const nextTotalBinderCards = Math.max(totalBinderCards - 1, 0);
-      const nextLastPageIndex = Math.max(
-        Math.ceil(nextTotalBinderCards / cardsPerPage) - 1,
-        0
-      );
-      setPageIndex((currentPageIndex) =>
-        Math.min(currentPageIndex, nextLastPageIndex)
-      );
-
-      await refetch();
-    } catch (error) {
-      handleError(error, t("binder:delete_card_error"));
+  useEffect(() => {
+    if (!shortId || !isFiltered || !cardFilter) {
+      setFilteredBinderCardCount(null);
+      return;
     }
+
+    let isCurrent = true;
+
+    const countFilteredBinderCards = async () => {
+      let cardOffsetForCount = 0;
+      let nextFilteredBinderCardCount = 0;
+
+      setFilteredBinderCardCount(null);
+
+      try {
+        while (isCurrent) {
+          const { data: countData } = await client.query<
+            BinderCardFilteredCountQuery,
+            BinderCardFilteredCountQueryVariables
+          >({
+            query: BinderCardFilteredCountDocument,
+            variables: {
+              shortId,
+              cardFirst: FILTERED_COUNT_PAGE_SIZE,
+              cardOffset: cardOffsetForCount,
+              cardOrderBy,
+              cardFilter,
+            },
+            fetchPolicy: "no-cache",
+          });
+
+          const countConnection = countData.binderCardsByShortId;
+          const fetchedCardCount = countConnection?.edges.length ?? 0;
+
+          nextFilteredBinderCardCount += fetchedCardCount;
+
+          if (
+            !countConnection?.pageInfo.hasNextPage ||
+            fetchedCardCount === 0
+          ) {
+            break;
+          }
+
+          cardOffsetForCount += fetchedCardCount;
+        }
+
+        if (isCurrent) {
+          setFilteredBinderCardCount({
+            count: nextFilteredBinderCardCount,
+            filterKey: debouncedFilterKey,
+            shortId,
+          });
+        }
+      } catch (error) {
+        if (isCurrent) {
+          console.error(error);
+          setFilteredBinderCardCount(null);
+        }
+      }
+    };
+
+    void countFilteredBinderCards();
+
+    return () => {
+      isCurrent = false;
+    };
   }, [
-    cardsPerPage,
-    clearSelectedBinderCard,
-    deleteBinderCard,
-    refetch,
-    removeSelectedBinderCard,
-    t,
-    totalBinderCards,
+    cardFilter,
+    cardOrderBy,
+    client,
+    debouncedFilterKey,
+    filteredBinderCardCountRefreshKey,
+    isFiltered,
+    shortId,
   ]);
+
+  const handleDeleteCard = useCallback(
+    async (binderCard: BinderCardRecord) => {
+      try {
+        await deleteBinderCard({
+          variables: { id: binderCard.id },
+        });
+
+        if (selectedBinderCardIdRef.current === binderCard.id) {
+          clearSelectedBinderCard();
+        }
+        removeSelectedBinderCard(binderCard.id);
+
+        const nextTotalBinderCards = Math.max(totalBinderCards - 1, 0);
+        const nextLastPageIndex = Math.max(
+          Math.ceil(nextTotalBinderCards / cardsPerPage) - 1,
+          0
+        );
+        setPageIndex((currentPageIndex) =>
+          Math.min(currentPageIndex, nextLastPageIndex)
+        );
+
+        await refetch();
+        refreshFilteredBinderCardCount();
+      } catch (error) {
+        handleError(error, t("binder:delete_card_error"));
+      }
+    },
+    [
+      cardsPerPage,
+      clearSelectedBinderCard,
+      deleteBinderCard,
+      refetch,
+      removeSelectedBinderCard,
+      refreshFilteredBinderCardCount,
+      t,
+      totalBinderCards,
+    ]
+  );
 
   const handleOpenCard = useCallback(
     (binderCard: BinderCardRecord, index: number) => {
-      if (isSelectionMode) {
+      if (!isPublicPreview && isSelectionMode) {
         handleToggleCardSelection(binderCard);
         return;
       }
 
       openBinderCard(binderCard, index);
     },
-    [handleToggleCardSelection, isSelectionMode, openBinderCard]
+    [
+      handleToggleCardSelection,
+      isPublicPreview,
+      isSelectionMode,
+      openBinderCard,
+    ]
   );
 
   if (loading && !data) {
@@ -180,10 +348,48 @@ export const BinderPage = () => {
   }
 
   const isOwner = !!session?.user.id && session.user.id === binder.ownerId;
+  const canEditBinder = isOwner && !isPublicPreview;
+  const canSelectBinderCards = canEditBinder && isSelectionMode;
+  const ownerBinderUrl = `/binder/${binder.shortId}`;
+  const publicPreviewUrl = `${ownerBinderUrl}?public=true`;
   const binderShareUrl =
     typeof window === "undefined"
       ? `/binder/${binder.shortId}`
       : `${window.location.origin}/binder/${binder.shortId}`;
+  const shareButton = session ? (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => setIsShareDialogOpen(true)}
+    >
+      <Share2 className="size-4" />
+      {t("binder:share.button")}
+    </Button>
+  ) : undefined;
+  const headerAction = isOwner
+    ? isPublicPreview
+      ? undefined
+      : shareButton
+    : shareButton;
+  const titleAction = isOwner ? (
+    isPublicPreview ? (
+      <Link
+        to={ownerBinderUrl}
+        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-binder-toolbar-foreground/80 underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
+      >
+        <Pencil className="size-4" />
+        {t("binder:public_preview.owner_view")}
+      </Link>
+    ) : (
+      <Link
+        to={publicPreviewUrl}
+        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-binder-toolbar-foreground/80 underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
+      >
+        <Eye className="size-4" />
+        {t("binder:public_preview.button")}
+      </Link>
+    )
+  ) : undefined;
 
   const handleAddCard = async (card: DraftCardSnapshot) => {
     try {
@@ -197,6 +403,7 @@ export const BinderPage = () => {
         },
       });
       await refetch();
+      refreshFilteredBinderCardCount();
     } catch (error) {
       handleError(error, t("binder:add_card_error"));
     }
@@ -211,9 +418,27 @@ export const BinderPage = () => {
     handleSelectBinderCards(visibleBinderCards);
   };
 
+  const handleFilterStateChange = (nextFilterState: BinderCardFilterState) => {
+    setSearchParams(
+      getBinderCardFilterSearchParams(searchParams, nextFilterState),
+      { replace: true }
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSearchParams(
+      getBinderCardFilterSearchParams(
+        searchParams,
+        defaultBinderCardFilterState
+      ),
+      { replace: true }
+    );
+  };
+
   const handleBulkPriceApplied = async () => {
     handleSelectionModeChange(false);
     await refetch();
+    refreshFilteredBinderCardCount();
   };
 
   const handleDeleteSelectedBinderCards = async () => {
@@ -287,6 +512,7 @@ export const BinderPage = () => {
       );
       resetCardSelection();
       await refetch();
+      refreshFilteredBinderCardCount();
 
       if (failedCount > 0) {
         toast.error(
@@ -342,6 +568,7 @@ export const BinderPage = () => {
   return (
     <>
       <BinderPageView
+        activeFilterCount={activeFilterCount}
         binderId={binder.id}
         binderName={binder.name}
         binderNote={binder.note}
@@ -351,27 +578,18 @@ export const BinderPage = () => {
         canTurnNextPage={canTurnNextPage}
         canTurnPreviousPage={canTurnPreviousPage}
         cardsPerPage={cardsPerPage}
-        headerAction={
-          session ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsShareDialogOpen(true)}
-            >
-              <Share2 className="size-4" />
-              {t("binder:share.button")}
-            </Button>
-          ) : undefined
-        }
+        headerAction={headerAction}
         isAddingCard={isAddingCard}
         isDeletingCard={isDeletingCard}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
         isDetailLoading={isDetailLoading}
+        isFiltered={isFiltered}
+        isFilteredCountExact={hasExactFilteredBinderCardCount}
         isMobile={isMobile}
-        isOwner={isOwner}
+        isOwner={canEditBinder}
         isPageLoading={isPageLoading}
-        isSelectionMode={isSelectionMode}
-        isBulkPriceOpen={isBulkPriceOpen}
+        isSelectionMode={canSelectBinderCards}
+        isBulkPriceOpen={canEditBinder && isBulkPriceOpen}
         pageIndex={pageIndex}
         selectedBinderCard={selectedBinderCard}
         selectedBinderCardCount={selectedBinderCardCount}
@@ -380,6 +598,8 @@ export const BinderPage = () => {
         selectedCardIndex={selectedCardIndex}
         showConvertedMarketPrices={showConvertedMarketPrices}
         sortMode={sortMode}
+        filterState={filterState}
+        titleAction={titleAction}
         totalBinderCards={totalBinderCards}
         totalPages={totalPages}
         viewMode={viewMode}
@@ -388,14 +608,17 @@ export const BinderPage = () => {
         onBinderCardUpdated={(binderCard) => {
           setSelectedBinderCard(binderCard);
           void refetch();
+          refreshFilteredBinderCardCount();
         }}
         onBinderChanged={refetch}
         onBulkPriceApplied={handleBulkPriceApplied}
         onBulkPriceOpenChange={setIsBulkPriceOpen}
         onClearCardSelection={clearCardSelection}
-        onDeleteCard={isOwner ? handleDeleteCard : undefined}
+        onClearFilters={handleClearFilters}
+        onDeleteCard={canEditBinder ? handleDeleteCard : undefined}
         onDeleteSelectedBinderCards={handleDeleteSelectedBinderCards}
         onDetailOpenChange={handleDetailOpenChange}
+        onFilterStateChange={handleFilterStateChange}
         onGoNextDetailCard={goToNextDetailCard}
         onGoPreviousDetailCard={goToPreviousDetailCard}
         onNextPage={handleNextPage}

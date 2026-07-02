@@ -1,4 +1,5 @@
 import {
+  type BinderCardsFilter,
   type BinderCardsOrderBy,
   useBinderCardDetailWindowQuery,
 } from "@app/graphql";
@@ -16,6 +17,7 @@ import {
 interface UseBinderCardDetailNavigationParams {
   binderCards: BinderCardRecord[];
   cardOffset: number;
+  cardFilter?: BinderCardsFilter | null;
   cardOrderBy: BinderCardsOrderBy[];
   shortId: string;
   totalBinderCards: number;
@@ -24,6 +26,7 @@ interface UseBinderCardDetailNavigationParams {
 export const useBinderCardDetailNavigation = ({
   binderCards,
   cardOffset,
+  cardFilter,
   cardOrderBy,
   shortId,
   totalBinderCards,
@@ -47,6 +50,7 @@ export const useBinderCardDetailNavigation = ({
         shortId,
         cardFirst: DETAIL_WINDOW_CARD_COUNT,
         cardOffset: detailCardOffset,
+        cardFilter,
         cardOrderBy,
       },
       fetchPolicy: "cache-and-network",

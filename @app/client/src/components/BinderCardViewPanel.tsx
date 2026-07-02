@@ -20,6 +20,7 @@ interface BinderCardViewPanelProps {
   canTurnNextPage: boolean;
   canTurnPreviousPage: boolean;
   cardsPerPage: number;
+  emptyLabel: string;
   isDeletingCard?: boolean;
   isDetailOpen: boolean;
   isMobile: boolean;
@@ -40,6 +41,7 @@ export const BinderCardViewPanel = ({
   canTurnNextPage,
   canTurnPreviousPage,
   cardsPerPage,
+  emptyLabel,
   isDeletingCard,
   isDetailOpen,
   isMobile,
@@ -119,9 +121,7 @@ export const BinderCardViewPanel = ({
   if (!isPageLoading && binderCards.length === 0) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center rounded-md border border-dashed border-binder-toolbar/40 bg-binder-toolbar/15">
-        <p className="text-sm text-muted-foreground">
-          {t("binder:empty")}
-        </p>
+        <p className="text-sm text-muted-foreground">{emptyLabel}</p>
       </div>
     );
   }

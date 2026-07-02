@@ -2236,6 +2236,7 @@ export type BinderByShortIdQueryVariables = Exact<{
   cardFirst: Scalars['Int'];
   cardOffset: Scalars['Int'];
   cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
+  cardFilter?: Maybe<BinderCardsFilter>;
 }>;
 
 
@@ -2265,6 +2266,7 @@ export type BinderCardDetailWindowQueryVariables = Exact<{
   cardFirst: Scalars['Int'];
   cardOffset: Scalars['Int'];
   cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
+  cardFilter?: Maybe<BinderCardsFilter>;
 }>;
 
 
@@ -2317,6 +2319,32 @@ export type BinderCardDetailFieldsFragment = (
     )> }
   )> }
   & BinderCardSummaryFieldsFragment
+);
+
+export type BinderCardFilteredCountQueryVariables = Exact<{
+  shortId: Scalars['String'];
+  cardFirst: Scalars['Int'];
+  cardOffset: Scalars['Int'];
+  cardOrderBy?: Maybe<Array<BinderCardsOrderBy> | BinderCardsOrderBy>;
+  cardFilter?: Maybe<BinderCardsFilter>;
+}>;
+
+
+export type BinderCardFilteredCountQuery = (
+  { __typename?: 'Query' }
+  & { binderCardsByShortId: Maybe<(
+    { __typename?: 'BinderCardsConnection' }
+    & { pageInfo: (
+      { __typename?: 'PageInfo' }
+      & Pick<PageInfo, 'hasNextPage'>
+    ), edges: Array<(
+      { __typename?: 'BinderCardsEdge' }
+      & { node: (
+        { __typename?: 'BinderCards' }
+        & Pick<BinderCards, 'id'>
+      ) }
+    )> }
+  )> }
 );
 
 export type BinderCardVariantsQueryVariables = Exact<{
@@ -2790,7 +2818,7 @@ export type AddBinderCardsMutationHookResult = ReturnType<typeof useAddBinderCar
 export type AddBinderCardsMutationResult = Apollo.MutationResult<AddBinderCardsMutation>;
 export type AddBinderCardsMutationOptions = Apollo.BaseMutationOptions<AddBinderCardsMutation, AddBinderCardsMutationVariables>;
 export const BinderByShortIdDocument = gql`
-    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
+    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!, $cardFilter: BinderCardsFilter) {
   binderByShortId(binderShortId: $shortId) {
     id
     nodeId
@@ -2806,6 +2834,7 @@ export const BinderByShortIdDocument = gql`
     first: $cardFirst
     offset: $cardOffset
     orderBy: $cardOrderBy
+    filter: $cardFilter
   ) {
     pageInfo {
       hasNextPage
@@ -2835,6 +2864,7 @@ export const BinderByShortIdDocument = gql`
  *      cardFirst: // value for 'cardFirst'
  *      cardOffset: // value for 'cardOffset'
  *      cardOrderBy: // value for 'cardOrderBy'
+ *      cardFilter: // value for 'cardFilter'
  *   },
  * });
  */
@@ -2850,12 +2880,13 @@ export type BinderByShortIdQueryHookResult = ReturnType<typeof useBinderByShortI
 export type BinderByShortIdLazyQueryHookResult = ReturnType<typeof useBinderByShortIdLazyQuery>;
 export type BinderByShortIdQueryResult = Apollo.QueryResult<BinderByShortIdQuery, BinderByShortIdQueryVariables>;
 export const BinderCardDetailWindowDocument = gql`
-    query BinderCardDetailWindow($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!) {
+    query BinderCardDetailWindow($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!, $cardFilter: BinderCardsFilter) {
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
     offset: $cardOffset
     orderBy: $cardOrderBy
+    filter: $cardFilter
   ) {
     edges {
       node {
@@ -2882,6 +2913,7 @@ export const BinderCardDetailWindowDocument = gql`
  *      cardFirst: // value for 'cardFirst'
  *      cardOffset: // value for 'cardOffset'
  *      cardOrderBy: // value for 'cardOrderBy'
+ *      cardFilter: // value for 'cardFilter'
  *   },
  * });
  */
@@ -2896,6 +2928,58 @@ export function useBinderCardDetailWindowLazyQuery(baseOptions?: Apollo.LazyQuer
 export type BinderCardDetailWindowQueryHookResult = ReturnType<typeof useBinderCardDetailWindowQuery>;
 export type BinderCardDetailWindowLazyQueryHookResult = ReturnType<typeof useBinderCardDetailWindowLazyQuery>;
 export type BinderCardDetailWindowQueryResult = Apollo.QueryResult<BinderCardDetailWindowQuery, BinderCardDetailWindowQueryVariables>;
+export const BinderCardFilteredCountDocument = gql`
+    query BinderCardFilteredCount($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!], $cardFilter: BinderCardsFilter) {
+  binderCardsByShortId(
+    binderShortId: $shortId
+    first: $cardFirst
+    offset: $cardOffset
+    orderBy: $cardOrderBy
+    filter: $cardFilter
+  ) {
+    pageInfo {
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useBinderCardFilteredCountQuery__
+ *
+ * To run a query within a React component, call `useBinderCardFilteredCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderCardFilteredCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderCardFilteredCountQuery({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *      cardFirst: // value for 'cardFirst'
+ *      cardOffset: // value for 'cardOffset'
+ *      cardOrderBy: // value for 'cardOrderBy'
+ *      cardFilter: // value for 'cardFilter'
+ *   },
+ * });
+ */
+export function useBinderCardFilteredCountQuery(baseOptions: Apollo.QueryHookOptions<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>(BinderCardFilteredCountDocument, options);
+      }
+export function useBinderCardFilteredCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>(BinderCardFilteredCountDocument, options);
+        }
+export type BinderCardFilteredCountQueryHookResult = ReturnType<typeof useBinderCardFilteredCountQuery>;
+export type BinderCardFilteredCountLazyQueryHookResult = ReturnType<typeof useBinderCardFilteredCountLazyQuery>;
+export type BinderCardFilteredCountQueryResult = Apollo.QueryResult<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>;
 export const BinderCardVariantsDocument = gql`
     query BinderCardVariants($name: String!, $first: Int = 80) {
   cardsCollection(

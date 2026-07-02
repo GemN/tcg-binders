@@ -1,7 +1,7 @@
 import { CardCondition, LanguageCode } from "@app/graphql";
 import type { ReactNode } from "react";
 
-import { CardConditionDot } from "@/components/CardConditionBadge";
+import { CardConditionPicker } from "@/components/CardConditionPicker";
 import {
   BinderCardVariantSelect,
   type BinderCardVariantSelectCard,
@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
-import { CARD_CONDITION_OPTIONS } from "@/config/card";
 
 import type { BinderCardVariant, ModalBinderCardRecord } from "./types";
 
@@ -61,15 +60,15 @@ export const BinderCardEditableFields = ({
   translateCardOption,
   pricingFields,
 }: BinderCardEditableFieldsProps) => (
-  <div className="grid gap-4 rounded-md border border-[#d8d1c3] bg-[#fffdf7] p-4">
+  <div className="grid gap-4 rounded-md border border-border bg-card p-4">
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
+      <label className="grid gap-1 text-xs font-medium text-muted-foreground">
         {quantityLabel}
         <Input
           type="number"
           min={1}
           value={quantityInput}
-          className="bg-[#E8E8E8] text-[#343434]"
+          className="bg-input text-foreground"
           onChange={(event) => onQuantityChange(event.target.value)}
           onBlur={onQuantityCommit}
           onKeyDown={(event) => {
@@ -80,10 +79,10 @@ export const BinderCardEditableFields = ({
         />
       </label>
 
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
+      <label className="grid gap-1 text-xs font-medium text-muted-foreground">
         {finishLabel}
         <Select value={binderCard.finish} onValueChange={onFinishChange}>
-          <SelectTrigger className="w-full bg-[#E8E8E8] text-[#343434]">
+          <SelectTrigger className="w-full bg-input text-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -98,34 +97,25 @@ export const BinderCardEditableFields = ({
         </Select>
       </label>
 
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
-        {conditionLabel}
-        <Select
-          value={binderCard.condition}
-          onValueChange={(condition) =>
-            onConditionChange(condition as CardCondition)
-          }
-        >
-          <SelectTrigger className="w-full bg-[#E8E8E8] text-[#343434]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {CARD_CONDITION_OPTIONS.map((condition) => (
-              <SelectItem key={condition} value={condition}>
-                <span className="flex min-w-0 items-center gap-2">
-                  <CardConditionDot condition={condition} />
-                  <span>{translateCardOption("condition", condition)}</span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </label>
+      <CardConditionPicker
+        getConditionLabel={(condition) =>
+          translateCardOption("condition", condition)
+        }
+        label={conditionLabel}
+        labelClassName="text-xs text-muted-foreground"
+        triggerClassName="w-full bg-input text-foreground"
+        value={binderCard.condition}
+        onChange={(condition) => {
+          if (condition !== "all") onConditionChange(condition);
+        }}
+      />
 
       <LanguagePicker
         label={languageLabel}
         value={binderCard.language}
-        onChange={onLanguageChange}
+        onChange={(language) => {
+          if (language !== "all") onLanguageChange(language);
+        }}
         getLanguageLabel={(language) =>
           translateCardOption("language", language)
         }

@@ -2,6 +2,7 @@ import { Grid2X2, List, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
+import { BinderPageSearchFilters } from "@/components/BinderPageSearchFilters";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,10 +23,14 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
-import type { BinderSortMode } from "@/lib/binderPage";
+import type { BinderCardFilterState, BinderSortMode } from "@/lib/binderPage";
 
 interface BinderPageControlsProps {
+  activeFilterCount: number;
+  filterState: BinderCardFilterState;
   isMobile: boolean;
+  isFiltered: boolean;
+  isFilteredCountExact: boolean;
   isOwner: boolean;
   isPageLoading: boolean;
   isSelectionMode: boolean;
@@ -38,7 +43,9 @@ interface BinderPageControlsProps {
   viewMode: BinderCardViewMode;
   visibleBinderCardCount: number;
   onClearCardSelection: () => void;
+  onClearFilters: () => void;
   onDeleteSelectedBinderCards: () => void;
+  onFilterStateChange: (filterState: BinderCardFilterState) => void;
   onOpenBulkPrice: () => void;
   onSelectVisibleBinderCards: () => void;
   onSelectionModeChange: (nextIsSelectionMode: boolean) => void;
@@ -47,7 +54,11 @@ interface BinderPageControlsProps {
 }
 
 export const BinderPageControls = ({
+  activeFilterCount,
+  filterState,
   isMobile,
+  isFiltered,
+  isFilteredCountExact,
   isOwner,
   isPageLoading,
   isSelectionMode,
@@ -60,7 +71,9 @@ export const BinderPageControls = ({
   viewMode,
   visibleBinderCardCount,
   onClearCardSelection,
+  onClearFilters,
   onDeleteSelectedBinderCards,
+  onFilterStateChange,
   onOpenBulkPrice,
   onSelectVisibleBinderCards,
   onSelectionModeChange,
@@ -68,23 +81,38 @@ export const BinderPageControls = ({
   onViewChange,
 }: BinderPageControlsProps) => {
   const { t } = useTranslation(["binder", "common"]);
+  const cardCountLabel = isFiltered
+    ? t(
+        isFilteredCountExact
+          ? "binder:filter.matching_count"
+          : "binder:filter.matching_count_capped",
+        {
+          count: totalBinderCards,
+        }
+      )
+    : t("binder:unique_card_count", {
+        count: totalBinderCards,
+      });
 
   return (
-    <div className="-mt-2 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">
+    <div className="-mt-2 flex shrink-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
+      <p className="shrink-0 text-sm text-muted-foreground">
         {isMobile
-          ? t("binder:unique_card_count", {
-              count: totalBinderCards,
-            })
+          ? cardCountLabel
           : t("binder:page_progress", {
-              cardCount: t("binder:unique_card_count", {
-                count: totalBinderCards,
-              }),
+              cardCount: cardCountLabel,
               page: pageIndex + 1,
               pageCount: totalPages,
             })}
       </p>
-      <div className="flex flex-col gap-2 sm:ml-auto sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:ml-auto xl:flex-nowrap">
+        <BinderPageSearchFilters
+          activeFilterCount={activeFilterCount}
+          filterState={filterState}
+          isMobile={isMobile}
+          onClearFilters={onClearFilters}
+          onFilterStateChange={onFilterStateChange}
+        />
         {isOwner && (
           <div className="flex flex-wrap items-center gap-2">
             {isSelectionMode ? (

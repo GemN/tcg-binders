@@ -19,6 +19,7 @@ interface BinderPageHeaderProps {
   headerAction?: ReactNode;
   isOwner: boolean;
   showConvertedMarketPrices: boolean;
+  titleAction?: ReactNode;
   onAddCard: (card: DraftCardSnapshot) => void;
   onBinderChanged: () => Promise<unknown> | unknown;
   onImportCards?: ImportBinderCardsHandler;
@@ -35,6 +36,7 @@ export const BinderPageHeader = ({
   headerAction,
   isOwner,
   showConvertedMarketPrices,
+  titleAction,
   onAddCard,
   onBinderChanged,
   onImportCards,
@@ -47,6 +49,11 @@ export const BinderPageHeader = ({
   return (
     <div className="relative z-30 -mx-4 flex shrink-0 flex-col gap-4 border-y border-binder-toolbar-input/40 bg-binder-toolbar/95 px-4 py-3 text-binder-toolbar-foreground sm:-mx-6 sm:px-6 lg:-mx-20 lg:flex-row lg:items-start lg:justify-between lg:px-20">
       <div className="min-w-0">
+        {titleAction && (
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            {titleAction}
+          </div>
+        )}
         <BinderTitle
           binderId={binderId}
           isOwner={isOwner}

@@ -3,12 +3,14 @@ query BinderCardDetailWindow(
   $cardFirst: Int!
   $cardOffset: Int!
   $cardOrderBy: [BinderCardsOrderBy!]!
+  $cardFilter: BinderCardsFilter
 ) {
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
     offset: $cardOffset
     orderBy: $cardOrderBy
+    filter: $cardFilter
   ) {
     edges {
       node {

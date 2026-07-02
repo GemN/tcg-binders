@@ -19,6 +19,27 @@
     "title": "แชร์แฟ้ม",
     "url_label": "URL"
   },
+  "public_preview": {
+    "button": "ดูตัวอย่างแบบผู้ซื้อ",
+    "owner_view": "กลับไปมุมมองเจ้าของ"
+  },
+  "filter": {
+    "all": "ทั้งหมด",
+    "button": "ตัวกรอง",
+    "clear": "ล้างตัวกรอง",
+    "empty": "ไม่พบการ์ดที่ตรงกับตัวกรองนี้",
+    "foiling": "ฟอยล์",
+    "foiling_option": {
+      "foil": "ฟอยล์",
+      "normal": "ปกติ"
+    },
+    "matching_count_one": "พบ {{count}} การ์ด",
+    "matching_count_other": "พบ {{count}} การ์ด",
+    "matching_count_capped": "พบ {{count}}+ การ์ด",
+    "search_label": "ค้นหาในแฟ้มนี้",
+    "search_placeholder": "ค้นหาในแฟ้มนี้",
+    "title": "ตัวกรอง"
+  },
   "actions": {
     "open": "เปิดเมนูการทำงานของ {{name}}",
     "delete": "ลบ"
@@ -98,7 +119,10 @@
     "open_card": "เปิด {{name}}",
     "image_alt": "รูปการ์ด {{name}}",
     "binder_card": "การ์ดในแฟ้ม",
-    "user_price": "ราคาในแฟ้ม",
+    "listed_at": "ลงขายที่",
+    "add_to_basket": "เพิ่มลงตะกร้า",
+    "available_one": "มี {{count}} ใบ",
+    "available_other": "มี {{count}} ใบ",
     "text": "ข้อความการ์ด",
     "print": "ฉบับพิมพ์",
     "rarity": "ความหายาก",

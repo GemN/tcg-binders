@@ -1,20 +1,10 @@
-query BinderByShortId(
+query BinderCardFilteredCount(
   $shortId: String!
   $cardFirst: Int!
   $cardOffset: Int!
-  $cardOrderBy: [BinderCardsOrderBy!]!
+  $cardOrderBy: [BinderCardsOrderBy!]
   $cardFilter: BinderCardsFilter
 ) {
-  binderByShortId(binderShortId: $shortId) {
-    id
-    nodeId
-    name
-    note
-    ownerId
-    shortId
-    tcgId
-  }
-  binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
@@ -27,7 +17,7 @@ query BinderByShortId(
     }
     edges {
       node {
-        ...BinderCardSummaryFields
+        id
       }
     }
   }

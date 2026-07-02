@@ -17,9 +17,10 @@ import {
 } from "@/components/ModalBulkBinderCardPrice";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
-import type { BinderSortMode } from "@/lib/binderPage";
+import type { BinderCardFilterState, BinderSortMode } from "@/lib/binderPage";
 
 interface BinderPageViewProps {
+  activeFilterCount: number;
   binderId: string;
   binderName: string;
   binderNote: string;
@@ -34,6 +35,8 @@ interface BinderPageViewProps {
   isDeletingCard?: boolean;
   isDeletingSelectedBinderCards: boolean;
   isDetailLoading: boolean;
+  isFiltered: boolean;
+  isFilteredCountExact: boolean;
   isMobile: boolean;
   isOwner: boolean;
   isPageLoading: boolean;
@@ -47,6 +50,8 @@ interface BinderPageViewProps {
   selectedCardIndex: number | null;
   showConvertedMarketPrices: boolean;
   sortMode: BinderSortMode;
+  filterState: BinderCardFilterState;
+  titleAction?: ReactNode;
   totalBinderCards: number;
   totalPages: number;
   viewMode: BinderCardViewMode;
@@ -55,8 +60,10 @@ interface BinderPageViewProps {
   onBinderCardUpdated: (binderCard: ModalBinderCardRecord) => void;
   onBinderChanged: () => Promise<unknown> | unknown;
   onClearCardSelection: () => void;
+  onClearFilters: () => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onDeleteSelectedBinderCards: () => void;
+  onFilterStateChange: (filterState: BinderCardFilterState) => void;
   onGoNextDetailCard: () => void;
   onGoPreviousDetailCard: () => void;
   onImportCards?: ImportBinderCardsHandler;
@@ -80,6 +87,7 @@ interface BinderPageViewProps {
 }
 
 export const BinderPageView = ({
+  activeFilterCount,
   binderId,
   binderName,
   binderNote,
@@ -94,6 +102,8 @@ export const BinderPageView = ({
   isDeletingCard,
   isDeletingSelectedBinderCards,
   isDetailLoading,
+  isFiltered,
+  isFilteredCountExact,
   isMobile,
   isOwner,
   isPageLoading,
@@ -107,6 +117,8 @@ export const BinderPageView = ({
   selectedCardIndex,
   showConvertedMarketPrices,
   sortMode,
+  filterState,
+  titleAction,
   totalBinderCards,
   totalPages,
   viewMode,
@@ -117,9 +129,11 @@ export const BinderPageView = ({
   onBulkPriceApplied,
   onBulkPriceOpenChange,
   onClearCardSelection,
+  onClearFilters,
   onDeleteCard,
   onDeleteSelectedBinderCards,
   onDetailOpenChange,
+  onFilterStateChange,
   onGoNextDetailCard,
   onGoPreviousDetailCard,
   onImportCards,
@@ -151,6 +165,7 @@ export const BinderPageView = ({
           headerAction={headerAction}
           isOwner={isOwner}
           showConvertedMarketPrices={showConvertedMarketPrices}
+          titleAction={titleAction}
           onAddCard={onAddCard}
           onBinderChanged={onBinderChanged}
           onImportCards={onImportCards}
@@ -160,6 +175,10 @@ export const BinderPageView = ({
         />
 
         <BinderPageControls
+          activeFilterCount={activeFilterCount}
+          filterState={filterState}
+          isFiltered={isFiltered}
+          isFilteredCountExact={isFilteredCountExact}
           isMobile={isMobile}
           isOwner={isOwner}
           isPageLoading={isPageLoading}
@@ -173,7 +192,9 @@ export const BinderPageView = ({
           viewMode={viewMode}
           visibleBinderCardCount={visibleBinderCards.length}
           onClearCardSelection={onClearCardSelection}
+          onClearFilters={onClearFilters}
           onDeleteSelectedBinderCards={onDeleteSelectedBinderCards}
+          onFilterStateChange={onFilterStateChange}
           onOpenBulkPrice={onOpenBulkPrice}
           onSelectVisibleBinderCards={onSelectVisibleBinderCards}
           onSelectionModeChange={onSelectionModeChange}
@@ -194,6 +215,7 @@ export const BinderPageView = ({
           cardsPerPage={cardsPerPage}
           isDeletingCard={isDeletingCard || isDeletingSelectedBinderCards}
           isDetailOpen={selectedCardIndex !== null}
+          emptyLabel={isFiltered ? t("binder:filter.empty") : t("binder:empty")}
           isMobile={isMobile}
           isPageLoading={isPageLoading}
           isSelectionMode={isSelectionMode}

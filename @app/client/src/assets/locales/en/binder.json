@@ -19,6 +19,27 @@
     "title": "Share binder",
     "url_label": "URL"
   },
+  "public_preview": {
+    "button": "Preview as a buyer",
+    "owner_view": "Back to owner view"
+  },
+  "filter": {
+    "all": "Any",
+    "button": "Filters",
+    "clear": "Clear filters",
+    "empty": "No cards match these filters.",
+    "foiling": "Foiling",
+    "foiling_option": {
+      "foil": "Foil",
+      "normal": "Normal"
+    },
+    "matching_count_one": "{{count}} matching card",
+    "matching_count_other": "{{count}} matching cards",
+    "matching_count_capped": "{{count}}+ matching cards",
+    "search_label": "Search this binder",
+    "search_placeholder": "Search this binder",
+    "title": "Filters"
+  },
   "actions": {
     "open": "Open actions for {{name}}",
     "delete": "Delete"
@@ -98,7 +119,10 @@
     "open_card": "Open {{name}}",
     "image_alt": "{{name}} card image",
     "binder_card": "Binder card",
-    "user_price": "Binder price",
+    "listed_at": "Listed at",
+    "add_to_basket": "Add to basket",
+    "available_one": "{{count}} available",
+    "available_other": "{{count}} available",
     "text": "Card text",
     "print": "Print",
     "rarity": "Rarity",

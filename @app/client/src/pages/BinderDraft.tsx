@@ -34,7 +34,14 @@ import {
   sortDraftBinderCards,
 } from "@/lib/draftBinder";
 import {
+  defaultBinderCardFilterState,
+  type BinderCardFilterState,
   type BinderSortMode,
+  doesBinderCardMatchFilter,
+  getBinderCardActiveFilterCount,
+  getBinderCardFilterKey,
+  getBinderCardFilterSearchParams,
+  getBinderCardFilterStateFromSearchParams,
   getBinderCardsPerPage,
 } from "@/lib/binderPage";
 import { handleError } from "@/lib/error";
@@ -46,9 +53,22 @@ export const BinderDraft = () => {
   const { t } = useTranslation(["binder", "common"]);
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { session } = useSession();
   const isMobile = useIsMobile();
+  const filterState = useMemo(
+    () => getBinderCardFilterStateFromSearchParams(searchParams),
+    [searchParams]
+  );
+  const filterKey = useMemo(
+    () => getBinderCardFilterKey(filterState),
+    [filterState]
+  );
+  const activeFilterCount = useMemo(
+    () => getBinderCardActiveFilterCount(filterState),
+    [filterState]
+  );
+  const isFiltered = activeFilterCount > 0;
   const didShareAfterLoginRef = useRef(false);
   const {
     addCard,
@@ -91,8 +111,12 @@ export const BinderDraft = () => {
     [draftBinder.cards, sortMode]
   );
   const binderCards = useMemo(
-    () => draftBinderCardsToBinderCardRecords(sortedDraftCards),
-    [sortedDraftCards]
+    () =>
+      draftBinderCardsToBinderCardRecords(sortedDraftCards).filter(
+        (binderCard) =>
+          !isFiltered || doesBinderCardMatchFilter(binderCard, filterState)
+      ),
+    [filterState, isFiltered, sortedDraftCards]
   );
   const visibleBinderCards = isMobile
     ? binderCards
@@ -119,7 +143,8 @@ export const BinderDraft = () => {
     selectedCardIndex !== null && selectedCardIndex + 1 < totalBinderCards;
   const isShareInProgress =
     shareStatus === "creating" || shareStatus === "adding";
-  const isSharing = isCreatingBinder || isAddingBinderCards || isShareInProgress;
+  const isSharing =
+    isCreatingBinder || isAddingBinderCards || isShareInProgress;
   const {
     clearCardSelection,
     handleSelectBinderCards,
@@ -132,6 +157,13 @@ export const BinderDraft = () => {
     selectedBinderCardIds,
     selectedBinderCards,
   } = useBinderCardSelection();
+
+  useEffect(() => {
+    setPageIndex(0);
+    setIsBulkPriceOpen(false);
+    setSelectedBinderCardId(null);
+    resetCardSelection();
+  }, [filterKey, isMobile, resetCardSelection]);
 
   useEffect(() => {
     if (selectedBinderCardId && selectedCardIndex === null) {
@@ -154,6 +186,23 @@ export const BinderDraft = () => {
     handleSelectBinderCards(visibleBinderCards);
   };
 
+  const handleFilterStateChange = (nextFilterState: BinderCardFilterState) => {
+    setSearchParams(
+      getBinderCardFilterSearchParams(searchParams, nextFilterState),
+      { replace: true }
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSearchParams(
+      getBinderCardFilterSearchParams(
+        searchParams,
+        defaultBinderCardFilterState
+      ),
+      { replace: true }
+    );
+  };
+
   const handleOpenCard = (binderCard: BinderCardRecord) => {
     if (isSelectionMode) {
       handleToggleCardSelection(binderCard);
@@ -173,7 +222,9 @@ export const BinderDraft = () => {
   };
 
   const handleDeleteSelectedBinderCards = () => {
-    const binderCardIds = selectedBinderCards.map((binderCard) => binderCard.id);
+    const binderCardIds = selectedBinderCards.map(
+      (binderCard) => binderCard.id
+    );
 
     if (binderCardIds.length === 0 || isDeletingSelectedBinderCards) {
       return;
@@ -378,6 +429,7 @@ export const BinderDraft = () => {
   return (
     <>
       <BinderPageView
+        activeFilterCount={activeFilterCount}
         binderId={DRAFT_BINDER_ID}
         binderName={draftBinder.name || t("binder:draft.untitled_name")}
         binderNote={draftBinder.note}
@@ -402,6 +454,8 @@ export const BinderDraft = () => {
         isDeletingCard={false}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
         isDetailLoading={false}
+        isFiltered={isFiltered}
+        isFilteredCountExact
         isMobile={isMobile}
         isOwner
         isPageLoading={false}
@@ -415,6 +469,7 @@ export const BinderDraft = () => {
         selectedCardIndex={selectedCardIndex}
         showConvertedMarketPrices={showConvertedMarketPrices}
         sortMode={sortMode}
+        filterState={filterState}
         totalBinderCards={totalBinderCards}
         totalPages={totalPages}
         viewMode={viewMode}
@@ -425,9 +480,11 @@ export const BinderDraft = () => {
         onBulkPriceApplied={handleBulkPriceApplied}
         onBulkPriceOpenChange={setIsBulkPriceOpen}
         onClearCardSelection={clearCardSelection}
+        onClearFilters={handleClearFilters}
         onDeleteCard={handleDeleteCard}
         onDeleteSelectedBinderCards={handleDeleteSelectedBinderCards}
         onDetailOpenChange={handleDetailOpenChange}
+        onFilterStateChange={handleFilterStateChange}
         onGoNextDetailCard={() => {
           if (selectedCardIndex !== null && canGoNextDetailCard) {
             setSelectedBinderCardId(
