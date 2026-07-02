@@ -595,8 +595,8 @@ export const CurrentUserProfileDocument = gql `
   currentUserProfile {
     nodeId
     id
-    firstname
-    lastname
+    nickname
+    country
     isAdmin
   }
 }
@@ -831,5 +831,39 @@ export const UpdateBinderNoteDocument = gql `
 export function useUpdateBinderNoteMutation(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useMutation(UpdateBinderNoteDocument, options);
+}
+export const UpdateUserProfileDocument = gql `
+    mutation UpdateUserProfile($id: UUID!, $set: UserProfilesUpdateInput!) {
+  updateUserProfilesCollection(filter: {id: {eq: $id}}, set: $set, atMost: 1) {
+    affectedCount
+    records {
+      id
+      nickname
+      country
+    }
+  }
+}
+    `;
+/**
+ * __useUpdateUserProfileMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserProfileMutation, { data, loading, error }] = useUpdateUserProfileMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      set: // value for 'set'
+ *   },
+ * });
+ */
+export function useUpdateUserProfileMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(UpdateUserProfileDocument, options);
 }
 //# sourceMappingURL=index.js.map

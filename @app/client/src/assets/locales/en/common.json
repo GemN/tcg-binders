@@ -105,20 +105,6 @@
     "profile": "Profile",
     "organization": "Organization"
   },
-  "profile": {
-    "title": "Profile",
-    "subtitle": "User details from Supabase Auth.",
-    "details": "Profile details",
-    "firstname": "First name",
-    "lastname": "Last name"
-  },
-  "organization": {
-    "title": "Organization",
-    "subtitle": "The active organization context sent to the API.",
-    "details": "Organization details",
-    "name": "Name",
-    "role": "Role"
-  },
   "days_one": "day",
   "days_other": "days",
   "months_one": "month",

@@ -19,19 +19,23 @@ const avatarColors = {
 
 interface UserAvatarProps {
   className?: string;
-  firstname?: string | null;
-  lastname?: string | null;
+  name?: string | null;
   imageUrl?: string;
 }
 
 export const UserAvatar: FC<UserAvatarProps> = ({
   imageUrl,
-  firstname,
-  lastname,
+  name,
   className,
 }) => {
-  const fullName = [firstname, lastname].filter(Boolean).join(" ");
-  const fallbackText = `${firstname?.[0] || ""}${lastname?.[0] || ""}`;
+  const displayName = name?.trim() || "";
+  const fallbackText = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((namePart) => namePart[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
   const avatarColor = useMemo(() => {
     const colors = Object.values(avatarColors);
     const hash = fallbackText
@@ -45,7 +49,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   };
   return (
     <Avatar className={className}>
-      <AvatarImage src={imageUrl} alt={fullName} className="object-cover" />
+      <AvatarImage src={imageUrl} alt={displayName} className="object-cover" />
       <AvatarFallback style={style} className="text-white">
         <span className="no-underline">{fallbackText}</span>
       </AvatarFallback>

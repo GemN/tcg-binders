@@ -1,0 +1,14 @@
+mutation UpdateUserProfile($id: UUID!, $set: UserProfilesUpdateInput!) {
+  updateUserProfilesCollection(
+    filter: { id: { eq: $id } }
+    set: $set
+    atMost: 1
+  ) {
+    affectedCount
+    records {
+      id
+      nickname
+      country
+    }
+  }
+}

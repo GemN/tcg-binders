@@ -7,9 +7,11 @@ import { initReactI18next } from "react-i18next";
 import enBinder from "@/assets/locales/en/binder.json";
 import enCommon from "@/assets/locales/en/common.json";
 import enLogin from "@/assets/locales/en/login.json";
+import enSettings from "@/assets/locales/en/settings.json";
 import thBinder from "@/assets/locales/th/binder.json";
 import thCommon from "@/assets/locales/th/common.json";
 import thLogin from "@/assets/locales/th/login.json";
+import thSettings from "@/assets/locales/th/settings.json";
 
 export const defaultNS = "common";
 export const resources = {
@@ -17,11 +19,13 @@ export const resources = {
     binder: enBinder,
     common: enCommon,
     login: enLogin,
+    settings: enSettings,
   },
   th: {
     binder: thBinder,
     common: thCommon,
     login: thLogin,
+    settings: thSettings,
   },
 } as const;
 
@@ -34,7 +38,7 @@ i18n
     fallbackLng: "en",
     supportedLngs: ["en", "th"],
     load: "languageOnly",
-    ns: ["binder", "common", "login"],
+    ns: ["binder", "common", "login", "settings"],
     detection: {
       order: ["localStorage", "navigator"],
       caches: ["localStorage"],

@@ -1,0 +1,24 @@
+{
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage how your seller profile appears on binders.",
+    "details": "Profile details",
+    "nickname": "Nickname",
+    "nickname_description": "Your nickname is displayed on your binders.",
+    "nickname_required": "Nickname is required",
+    "country": "Selling country",
+    "country_placeholder": "Select a country",
+    "country_description": "Set the country where you sell your cards.",
+    "country_required": "Selling country is required",
+    "save": "Save profile",
+    "save_success": "Profile updated",
+    "save_error": "Failed to update profile. Please try again."
+  },
+  "organization": {
+    "title": "Organization",
+    "subtitle": "The active organization context sent to the API.",
+    "details": "Organization details",
+    "name": "Name",
+    "role": "Role"
+  }
+}

@@ -1845,11 +1845,11 @@ export type UuidListFilter = {
 };
 export type UserProfiles = Node & {
     __typename?: 'UserProfiles';
+    country: Scalars['String'];
     createdAt: Scalars['Datetime'];
-    firstname: Scalars['String'];
     id: Scalars['UUID'];
     isAdmin: Scalars['Boolean'];
-    lastname: Scalars['String'];
+    nickname: Scalars['String'];
     /** Globally Unique Record Identifier */
     nodeId: Scalars['ID'];
     updatedAt: Scalars['Datetime'];
@@ -1874,11 +1874,11 @@ export type UserProfilesEdge = {
 export type UserProfilesFilter = {
     /** Returns true only if all its inner filters are true, otherwise returns false */
     and?: Maybe<Array<UserProfilesFilter>>;
+    country?: Maybe<StringFilter>;
     createdAt?: Maybe<DatetimeFilter>;
-    firstname?: Maybe<StringFilter>;
     id?: Maybe<UuidFilter>;
     isAdmin?: Maybe<BooleanFilter>;
-    lastname?: Maybe<StringFilter>;
+    nickname?: Maybe<StringFilter>;
     nodeId?: Maybe<IdFilter>;
     /** Negates a filter */
     not?: Maybe<UserProfilesFilter>;
@@ -1887,11 +1887,11 @@ export type UserProfilesFilter = {
     updatedAt?: Maybe<DatetimeFilter>;
 };
 export type UserProfilesInsertInput = {
+    country?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Datetime']>;
-    firstname?: Maybe<Scalars['String']>;
     id?: Maybe<Scalars['UUID']>;
     isAdmin?: Maybe<Scalars['Boolean']>;
-    lastname?: Maybe<Scalars['String']>;
+    nickname?: Maybe<Scalars['String']>;
     updatedAt?: Maybe<Scalars['Datetime']>;
 };
 export type UserProfilesInsertResponse = {
@@ -1902,19 +1902,19 @@ export type UserProfilesInsertResponse = {
     records: Array<UserProfiles>;
 };
 export type UserProfilesOrderBy = {
+    country?: Maybe<OrderByDirection>;
     createdAt?: Maybe<OrderByDirection>;
-    firstname?: Maybe<OrderByDirection>;
     id?: Maybe<OrderByDirection>;
     isAdmin?: Maybe<OrderByDirection>;
-    lastname?: Maybe<OrderByDirection>;
+    nickname?: Maybe<OrderByDirection>;
     updatedAt?: Maybe<OrderByDirection>;
 };
 export type UserProfilesUpdateInput = {
+    country?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Datetime']>;
-    firstname?: Maybe<Scalars['String']>;
     id?: Maybe<Scalars['UUID']>;
     isAdmin?: Maybe<Scalars['Boolean']>;
-    lastname?: Maybe<Scalars['String']>;
+    nickname?: Maybe<Scalars['String']>;
     updatedAt?: Maybe<Scalars['Datetime']>;
 };
 export type UserProfilesUpdateResponse = {
@@ -2211,7 +2211,7 @@ export type CurrentUserProfileQuery = ({
 } & {
     currentUserProfile: Maybe<({
         __typename?: 'UserProfiles';
-    } & Pick<UserProfiles, 'nodeId' | 'id' | 'firstname' | 'lastname' | 'isAdmin'>)>;
+    } & Pick<UserProfiles, 'nodeId' | 'id' | 'nickname' | 'country' | 'isAdmin'>)>;
 });
 export type DeleteBinderMutationVariables = Exact<{
     id: Scalars['UUID'];
@@ -2314,6 +2314,21 @@ export type UpdateBinderNoteMutation = ({
         records: Array<({
             __typename?: 'Binders';
         } & Pick<Binders, 'id' | 'note'>)>;
+    });
+});
+export type UpdateUserProfileMutationVariables = Exact<{
+    id: Scalars['UUID'];
+    set: UserProfilesUpdateInput;
+}>;
+export type UpdateUserProfileMutation = ({
+    __typename?: 'Mutation';
+} & {
+    updateUserProfilesCollection: ({
+        __typename?: 'UserProfilesUpdateResponse';
+    } & Pick<UserProfilesUpdateResponse, 'affectedCount'> & {
+        records: Array<({
+            __typename?: 'UserProfiles';
+        } & Pick<UserProfiles, 'id' | 'nickname' | 'country'>)>;
     });
 });
 export declare const BinderCardSummaryFieldsFragmentDoc: Apollo.DocumentNode;
@@ -2805,4 +2820,31 @@ export declare function useUpdateBinderNoteMutation(baseOptions?: Apollo.Mutatio
 export type UpdateBinderNoteMutationHookResult = ReturnType<typeof useUpdateBinderNoteMutation>;
 export type UpdateBinderNoteMutationResult = Apollo.MutationResult<UpdateBinderNoteMutation>;
 export type UpdateBinderNoteMutationOptions = Apollo.BaseMutationOptions<UpdateBinderNoteMutation, UpdateBinderNoteMutationVariables>;
+export declare const UpdateUserProfileDocument: Apollo.DocumentNode;
+export type UpdateUserProfileMutationFn = Apollo.MutationFunction<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+/**
+ * __useUpdateUserProfileMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserProfileMutation, { data, loading, error }] = useUpdateUserProfileMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      set: // value for 'set'
+ *   },
+ * });
+ */
+export declare function useUpdateUserProfileMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>): Apollo.MutationTuple<UpdateUserProfileMutation, Exact<{
+    id: Scalars["UUID"];
+    set: UserProfilesUpdateInput;
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type UpdateUserProfileMutationHookResult = ReturnType<typeof useUpdateUserProfileMutation>;
+export type UpdateUserProfileMutationResult = Apollo.MutationResult<UpdateUserProfileMutation>;
+export type UpdateUserProfileMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
 //# sourceMappingURL=index.d.ts.map

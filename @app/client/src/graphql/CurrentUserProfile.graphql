@@ -2,8 +2,8 @@ query CurrentUserProfile {
   currentUserProfile {
     nodeId
     id
-    firstname
-    lastname
+    nickname
+    country
     isAdmin
   }
 }

@@ -31,28 +31,21 @@ export function UserNavigation() {
     return null;
   }
 
-  const emailName = session.user.email?.split("@")[0] || "";
-  const fullName = [profile?.firstname, profile?.lastname]
-    .filter(Boolean)
-    .join(" ");
-  const fallbackName = emailName || t("common:nav.account");
+  const displayName =
+    profile?.nickname.trim() || session.user.email || t("common:nav.account");
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <UserAvatar
-            className="h-8 w-8"
-            firstname={profile?.firstname || fallbackName}
-            lastname={profile?.lastname}
-          />
+          <UserAvatar className="h-8 w-8" name={displayName} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="truncate text-sm font-medium leading-none">
-              {fullName || session.user.email || t("common:nav.account")}
+              {displayName}
             </p>
           </div>
         </DropdownMenuLabel>
