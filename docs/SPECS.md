@@ -71,7 +71,7 @@ The biggest problem is to find specific cards.
 | [x]  | FR-007 | Users can set a price in a defined currency                        | Must     | Price can be set with helpers, like "CKD x25" (it's how thai do from USD to THB)             |
 | [ ]  | FR-008 | Users can set a dynamic pricing in a defined currency              | Should   | For ex, CKD x25 will always show the price depending on the market                           |
 | [x]  | FR-009 | Users can define condition, quantity, foil type, language          | Must     |                                                                                              |
-| [ ]  | FR-010 | Users can search by name and others domain filters                 | Must     | By domain filters, in MTG that would be mana, power, set, rarity etc                         |
+| [x]  | FR-010 | Users can search by name and others domain filters                 | Must     | By domain filters, in MTG that would be mana, power, set, rarity etc                         |
 | [x]  | FR-011 | Users can set a website language                                   | Must     | Starting with english, thai. Saved in account if logged, else local storage.                 |
 | [ ]  | FR-012 | Users can set up to two comparaison prices                         | Should   | Comparaison price is picked from a marketplace like CKD, TCGPlayer, Cardmarket               |
 | [ ]  | FR-013 | Users can add to a basket and checkout                             | Must     | The checkout will generate a message listing all cards, sum and show total to send to seller |

@@ -29,6 +29,7 @@ interface BinderCardPricingFieldsProps {
   pricePlaceholder: string;
   priceStrategyLabel: string;
   ckdMultiplierLabel: string;
+  titleLabel: string;
   getCurrencyLabel: (currencyCode: CurrencyCode) => string;
   onCkdMultiplierChange: (value: string) => void;
   onCustomCkdCommit: () => void;
@@ -55,6 +56,7 @@ export const BinderCardPricingFields = ({
   pricePlaceholder,
   priceStrategyLabel,
   ckdMultiplierLabel,
+  titleLabel,
   getCurrencyLabel,
   onCkdMultiplierChange,
   onCustomCkdCommit,
@@ -65,12 +67,14 @@ export const BinderCardPricingFields = ({
   onPresetCkd,
   onDynamicPriceStrategyChange,
 }: BinderCardPricingFieldsProps) => (
-  <div className="grid gap-3 border-t border-[#ece2d2] pt-4">
+  <div className="grid gap-3 border-t border-border pt-4">
+    <h3 className="text-sm font-semibold text-foreground">{titleLabel}</h3>
+
     <ToggleGroup
       type="single"
       value={priceMode}
       size="sm"
-      className="w-full border border-[#d8d1c3] bg-[#E8E8E8] p-1 text-[#343434] sm:w-fit"
+      className="w-full border border-border bg-muted p-1 text-foreground sm:w-fit"
       onValueChange={(value) => {
         if (!value) return;
         onPriceModeChange(value as PriceMode);
@@ -79,21 +83,21 @@ export const BinderCardPricingFields = ({
       <ToggleGroupItem
         value="manual"
         size="sm"
-        className="h-8 flex-1 px-3 text-[#343434] hover:bg-[#f2ebdd] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
+        className="h-8 flex-1 px-3 text-foreground hover:bg-accent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
       >
         {priceModeLabels.manual}
       </ToggleGroupItem>
       <ToggleGroupItem
         value="dynamic"
         size="sm"
-        className="h-8 flex-1 px-3 text-[#343434] hover:bg-[#f2ebdd] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
+        className="h-8 flex-1 px-3 text-foreground hover:bg-accent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
       >
         {priceModeLabels.dynamic}
       </ToggleGroupItem>
     </ToggleGroup>
 
     <div className="grid gap-3 sm:grid-cols-[10rem_1fr]">
-      <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
+      <label className="grid gap-1 text-xs font-medium text-muted-foreground">
         {currencyLabel}
         <Select
           value={priceCurrency}
@@ -101,7 +105,7 @@ export const BinderCardPricingFields = ({
             onPriceCurrencyChange(nextCurrency as CurrencyCode)
           }
         >
-          <SelectTrigger className="w-full bg-[#E8E8E8] text-[#343434]">
+          <SelectTrigger className="w-full bg-input text-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -115,7 +119,7 @@ export const BinderCardPricingFields = ({
       </label>
 
       {priceMode === "dynamic" ? (
-        <label className="grid gap-1 text-xs font-medium text-[#6f6570]">
+        <label className="grid gap-1 text-xs font-medium text-muted-foreground">
           {priceStrategyLabel}
           <Select
             value={dynamicPriceStrategy}
@@ -132,14 +136,14 @@ export const BinderCardPricingFields = ({
           </Select>
         </label>
       ) : (
-        <div className="grid gap-1 text-xs font-medium text-[#6f6570]">
+        <div className="grid gap-1 text-xs font-medium text-muted-foreground">
           <label htmlFor={priceInputId}>{priceLabel}</label>
           <div className="flex flex-wrap gap-2">
             <Input
               id={priceInputId}
               value={priceInput}
               placeholder={pricePlaceholder}
-              className="bg-[#E8E8E8] text-[#343434] placeholder:text-[#9f9688]"
+              className="bg-input text-foreground placeholder:text-muted-foreground"
               onChange={(event) => onPriceInputChange(event.target.value)}
               onBlur={onManualPriceCommit}
               onKeyDown={(event) => {
@@ -178,7 +182,7 @@ export const BinderCardPricingFields = ({
                   id={ckdMultiplierInputId}
                   inputMode="decimal"
                   value={ckdMultiplierInput}
-                  className="h-9 w-14 rounded-none border-0 bg-[#E8E8E8] px-2 text-xs  focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="h-9 w-14 rounded-none border-0 bg-input px-2 text-xs text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                   placeholder="X"
                   onChange={(event) =>
                     onCkdMultiplierChange(event.target.value)

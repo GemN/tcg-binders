@@ -137,6 +137,7 @@
     "buy_at": "Buy @ {{source}}",
     "saving": "Saving...",
     "variant": "Variant",
+    "pricing": "Pricing",
     "price": "Price",
     "price_placeholder": "Price",
     "price_mode": {

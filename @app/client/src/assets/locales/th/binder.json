@@ -137,6 +137,7 @@
     "buy_at": "ซื้อ @ {{source}}",
     "saving": "กำลังบันทึก...",
     "variant": "เวอร์ชัน",
+    "pricing": "การตั้งราคา",
     "price": "ราคา",
     "price_placeholder": "ราคา",
     "price_mode": {

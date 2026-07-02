@@ -10,6 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/Select";
+import { isFoilCardFinish } from "@/config/card";
 import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
@@ -83,7 +84,7 @@ export const BinderCardVariantSelect = ({
   };
 
   return (
-    <label className="grid gap-1 text-xs font-medium text-[#6f6570] sm:col-span-2">
+    <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-2">
       {label}
       <Select
         disabled={!card?.id}
@@ -91,7 +92,7 @@ export const BinderCardVariantSelect = ({
         onOpenChange={handleOpenChange}
         onValueChange={handleVariantChange}
       >
-        <SelectTrigger className="w-full bg-[#E8E8E8] text-[#343434]">
+        <SelectTrigger className="w-full bg-input text-foreground">
           <span className="truncate">{selectedVariantLabel}</span>
         </SelectTrigger>
         <SelectContent>
@@ -112,8 +113,11 @@ export const BinderCardVariantSelect = ({
               const variantFinishes = variant.finishes.filter(
                 (finish): finish is string => !!finish
               );
-              const variantFinish =
-                variantFinishes.length === 1 ? variantFinishes[0] : null;
+              const variantFinish = variant.finishes.some(isFoilCardFinish)
+                ? "foil"
+                : variantFinishes.length === 1
+                  ? variantFinishes[0]
+                  : null;
 
               return (
                 <SelectItem
@@ -126,7 +130,7 @@ export const BinderCardVariantSelect = ({
                     <span className="flex min-w-0 flex-1 items-center gap-2">
                       <CardImage
                         alt=""
-                        className="h-12 shrink-0 rounded-sm border border-[#d8dce0]"
+                        className="h-12 shrink-0 rounded-sm border border-border"
                         finish={variantFinish}
                         imageSize="thumbnail"
                         imageUrl={variantImageUrl}

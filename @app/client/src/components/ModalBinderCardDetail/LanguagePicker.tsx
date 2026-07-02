@@ -18,8 +18,13 @@ interface CardLanguageLabelProps {
 
 const CardLanguageLabel = ({ label, language }: CardLanguageLabelProps) => (
   <span className="flex min-w-0 items-center gap-2">
-    <CountryFlag code={cardLanguageFlagCodes[language]} className="h-3.5 w-5" />
-    <span>{label}</span>
+    <span className="flex h-5 w-6 shrink-0 items-center justify-center">
+      <CountryFlag
+        code={cardLanguageFlagCodes[language]}
+        className="h-3.5 w-5"
+      />
+    </span>
+    <span className="truncate">{label}</span>
   </span>
 );
 

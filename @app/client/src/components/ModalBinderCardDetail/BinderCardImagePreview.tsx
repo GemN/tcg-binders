@@ -17,7 +17,7 @@ export const BinderCardImagePreview = ({
 }: BinderCardImagePreviewProps) => (
   <PreloadedCardImage
     alt={imageAlt}
-    className="mx-auto w-full max-w-[22rem] rounded-[4.75%_/_3.5%] border border-[#d8dce0] shadow-xl"
+    className="mx-auto w-full max-w-[22rem] rounded-[4.75%_/_3.5%] border border-border shadow-xl"
     finish={finish}
     imageSize="detail"
     imageUrl={imageUrl}

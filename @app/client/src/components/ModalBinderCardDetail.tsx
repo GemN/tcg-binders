@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { Loading } from "@/components/Loading";
 import { BinderCardEditableFields } from "@/components/ModalBinderCardDetail/BinderCardEditableFields";
 import { BinderCardMediaPanel } from "@/components/ModalBinderCardDetail/BinderCardMediaPanel";
+import { BinderCardOfferPanel } from "@/components/ModalBinderCardDetail/BinderCardOfferPanel";
 import { BinderCardPricingFields } from "@/components/ModalBinderCardDetail/BinderCardPricingFields";
 import { BinderCardTextPanel } from "@/components/ModalBinderCardDetail/BinderCardTextPanel";
 import { ModalDetailHeader } from "@/components/ModalBinderCardDetail/ModalDetailHeader";
@@ -507,7 +508,7 @@ export const ModalBinderCardDetail = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="overflow-visible border-[#d8d1c3] bg-background p-0 text-[#343434] sm:max-w-6xl"
+        className="overflow-visible border-border bg-background p-0 text-foreground sm:max-w-6xl"
         onKeyDown={handleKeyDown}
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>
@@ -562,56 +563,91 @@ export const ModalBinderCardDetail = ({
               <div className="flex min-w-0 flex-col gap-4">
                 <BinderCardTextPanel detail={detail} title={title} />
 
-                {isEditable && binderCard && (
-                  <BinderCardEditableFields
-                    binderCard={binderCard}
-                    card={card}
-                    conditionLabel={t("binder:field.condition")}
-                    finishLabel={t("binder:field.finish")}
-                    finishOptions={finishOptions}
-                    languageLabel={t("binder:field.language")}
-                    quantityInput={quantityInput}
-                    quantityLabel={t("binder:field.quantity")}
-                    variantLabel={t("binder:detail.variant")}
-                    onConditionChange={handleConditionChange}
-                    onFinishChange={handleFinishChange}
-                    onLanguageChange={handleLanguageChange}
-                    onQuantityChange={setQuantityInput}
-                    onQuantityCommit={handleQuantityCommit}
-                    onVariantChange={handleVariantChange}
-                    translateCardOption={translateCardOption}
-                    pricingFields={
-                      <BinderCardPricingFields
-                        applyLabel={t("common:apply")}
-                        ckdMultiplierInput={ckdMultiplierInput}
-                        ckdMultiplierInputId={ckdMultiplierInputId}
-                        currencyLabel={t("binder:field.currency")}
-                        dynamicPriceStrategy={dynamicPriceStrategy}
-                        priceCurrency={priceCurrency}
-                        priceInput={priceInput}
-                        priceInputId={priceInputId}
-                        priceMode={priceMode}
-                        priceModeLabels={{
-                          manual: t("binder:detail.price_mode.manual"),
-                          dynamic: t("binder:detail.price_mode.dynamic"),
-                        }}
-                        priceLabel={t("binder:detail.price")}
-                        pricePlaceholder={t("binder:detail.price_placeholder")}
-                        priceStrategyLabel={t("binder:detail.price_strategy")}
-                        ckdMultiplierLabel={t("binder:detail.ckd_multiplier")}
-                        getCurrencyLabel={getCurrencyLabel}
-                        onCkdMultiplierChange={setCkdMultiplierInput}
-                        onCustomCkdCommit={handleCustomCkdCommit}
-                        onManualPriceCommit={() => handleManualPriceCommit()}
-                        onPriceCurrencyChange={handlePriceCurrencyChange}
-                        onPriceInputChange={setPriceInput}
-                        onPriceModeChange={handlePriceModeChange}
-                        onPresetCkd={handleCkdPreset}
-                        onDynamicPriceStrategyChange={applyDynamicPriceStrategy}
-                      />
-                    }
-                  />
-                )}
+                {binderCard &&
+                  (isEditable ? (
+                    <BinderCardEditableFields
+                      binderCard={binderCard}
+                      card={card}
+                      conditionLabel={t("binder:field.condition")}
+                      finishLabel={t("binder:field.finish")}
+                      finishOptions={finishOptions}
+                      languageLabel={t("binder:field.language")}
+                      quantityInput={quantityInput}
+                      quantityLabel={t("binder:field.quantity")}
+                      variantLabel={t("binder:detail.variant")}
+                      onConditionChange={handleConditionChange}
+                      onFinishChange={handleFinishChange}
+                      onLanguageChange={handleLanguageChange}
+                      onQuantityChange={setQuantityInput}
+                      onQuantityCommit={handleQuantityCommit}
+                      onVariantChange={handleVariantChange}
+                      translateCardOption={translateCardOption}
+                      pricingFields={
+                        <BinderCardPricingFields
+                          applyLabel={t("common:apply")}
+                          ckdMultiplierInput={ckdMultiplierInput}
+                          ckdMultiplierInputId={ckdMultiplierInputId}
+                          currencyLabel={t("binder:field.currency")}
+                          dynamicPriceStrategy={dynamicPriceStrategy}
+                          priceCurrency={priceCurrency}
+                          priceInput={priceInput}
+                          priceInputId={priceInputId}
+                          priceMode={priceMode}
+                          priceModeLabels={{
+                            manual: t("binder:detail.price_mode.manual"),
+                            dynamic: t("binder:detail.price_mode.dynamic"),
+                          }}
+                          priceLabel={t("binder:detail.price")}
+                          pricePlaceholder={t(
+                            "binder:detail.price_placeholder"
+                          )}
+                          priceStrategyLabel={t("binder:detail.price_strategy")}
+                          ckdMultiplierLabel={t("binder:detail.ckd_multiplier")}
+                          titleLabel={t("binder:detail.pricing")}
+                          getCurrencyLabel={getCurrencyLabel}
+                          onCkdMultiplierChange={setCkdMultiplierInput}
+                          onCustomCkdCommit={handleCustomCkdCommit}
+                          onManualPriceCommit={() => handleManualPriceCommit()}
+                          onPriceCurrencyChange={handlePriceCurrencyChange}
+                          onPriceInputChange={setPriceInput}
+                          onPriceModeChange={handlePriceModeChange}
+                          onPresetCkd={handleCkdPreset}
+                          onDynamicPriceStrategyChange={
+                            applyDynamicPriceStrategy
+                          }
+                        />
+                      }
+                    />
+                  ) : (
+                    <BinderCardOfferPanel
+                      addToBasketLabel={t("binder:detail.add_to_basket")}
+                      availableLabel={t("binder:detail.available", {
+                        count: binderCard.quantity,
+                      })}
+                      binderCard={binderCard}
+                      convertedPriceValue={
+                        showConvertedMarketPrices &&
+                        binderCard.priceCurrency &&
+                        binderCard.priceCurrency !== currency &&
+                        binderCard.priceAmount !== null &&
+                        binderCard.priceAmount !== undefined
+                          ? formatPrice({
+                              amount: binderCard.priceAmount,
+                              shouldConvert: true,
+                              sourceCurrency: binderCard.priceCurrency,
+                            })
+                          : null
+                      }
+                      notAvailableLabel={t("common:not_available")}
+                      priceValue={formatPrice({
+                        amount: binderCard.priceAmount,
+                        shouldConvert: false,
+                        sourceCurrency: binderCard.priceCurrency,
+                      })}
+                      titleLabel={t("binder:detail.listed_at")}
+                      translateCardOption={translateCardOption}
+                    />
+                  ))}
               </div>
             </div>
           )}
