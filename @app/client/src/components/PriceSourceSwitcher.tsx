@@ -1,5 +1,5 @@
 import { MarketPriceSource } from "@app/graphql";
-import { BadgeDollarSign, CheckIcon } from "lucide-react";
+import { CheckIcon, Database } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
@@ -29,7 +29,7 @@ export const PriceSourceSwitcher = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="link" className="h-9 px-2 sm:px-3">
-          <BadgeDollarSign className="size-4" />
+          <Database className="size-4" />
           <span>{priceSourceLabels[priceSource]}</span>
           <span className="sr-only">{t("common:nav.price_source")}</span>
         </Button>
