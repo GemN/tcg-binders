@@ -6,18 +6,17 @@ import { useTranslation } from "react-i18next";
 
 import { CardImage } from "@/components/CardImage";
 import { InputSearch } from "@/components/InputSearch";
+import { MarketPriceSummary } from "@/components/MarketPriceSummary";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   createDraftCardSnapshot,
   type DraftCardSnapshot,
 } from "@/hooks/useDraftBinder";
+import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
-import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
-
-type CardSearchMarketPrice = DraftCardSnapshot["marketPrices"][number];
 
 interface CardSearchPickerProps {
   containerClassName?: string;
@@ -84,21 +83,6 @@ const getSetScopedCards = (data: CardSearchQuery | undefined) => {
   );
 };
 
-const getCardSearchMarketPrice = (
-  card: DraftCardSnapshot,
-  priceSource: CardSearchMarketPrice["source"]
-): CardSearchMarketPrice | null => {
-  const sourcePrices = card.marketPrices.filter(
-    (price) => price.source === priceSource
-  );
-
-  return (
-    sourcePrices.find((price) => price.finish === "normal") ||
-    sourcePrices[0] ||
-    null
-  );
-};
-
 export const CardSearchPicker = ({
   containerClassName,
   className,
@@ -106,9 +90,8 @@ export const CardSearchPicker = ({
   placeholder,
   onSelect,
 }: CardSearchPickerProps) => {
-  const { i18n, t } = useTranslation(["common"]);
-  const { convertAmountToLocalCurrency, currency, priceSource } =
-    usePricingSettings();
+  const { t } = useTranslation(["common"]);
+  const { priceSource } = usePricingSettings();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -168,23 +151,11 @@ export const CardSearchPicker = ({
           ) : cards.length > 0 ? (
             <div className="max-h-[420px] overflow-y-auto p-1">
               {cards.map((card) => {
-                const marketPrice = getCardSearchMarketPrice(
-                  card,
-                  priceSource
+                const marketPrice = getMarketPriceBySourceAndFinish(
+                  card.marketPrices,
+                  priceSource,
+                  ["normal"]
                 );
-                const convertedMarketPriceAmount = marketPrice
-                  ? convertAmountToLocalCurrency(
-                      marketPrice.amount,
-                      marketPrice.currency
-                    )
-                  : null;
-                const formattedOriginalMarketPrice = marketPrice
-                  ? formatCurrency(
-                      marketPrice.amount,
-                      marketPrice.currency,
-                      i18n.language
-                    )
-                  : null;
                 const cardFinish =
                   card.finishes.length === 1 ? card.finishes[0] : null;
 
@@ -216,25 +187,11 @@ export const CardSearchPicker = ({
                         )}
                       </div>
                     </div>
-                    {marketPrice && convertedMarketPriceAmount !== null && (
-                      <div className="shrink-0 text-right text-xs">
-                        <div className="font-medium">
-                          {formatCurrency(
-                            convertedMarketPriceAmount,
-                            currency,
-                            i18n.language
-                          )}
-                          {formattedOriginalMarketPrice && (
-                            <span className="ml-1 font-normal text-current/60">
-                              ({formattedOriginalMarketPrice})
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-current/70">
-                          {marketPrice.source}
-                        </div>
-                      </div>
-                    )}
+                    <MarketPriceSummary
+                      amount={marketPrice?.amount}
+                      currency={marketPrice?.currency}
+                      source={marketPrice?.source}
+                    />
                   </button>
                 );
               })}

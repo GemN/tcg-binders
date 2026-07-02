@@ -6,7 +6,10 @@ import {
 } from "@app/graphql";
 
 import { formatCurrency } from "@/lib/currency";
-import type { ConvertAmountToLocalCurrency } from "@/providers/PricingSettingsContext";
+import {
+  type ConvertAmountToLocalCurrency,
+  supportedPriceSources,
+} from "@/providers/PricingSettingsContext";
 
 export type BinderCardRecord = BinderCardSummaryFieldsFragment;
 export type BinderCardDetailRecord = BinderCardDetailFieldsFragment;
@@ -18,6 +21,11 @@ type BinderCardMarketPrice = NonNullable<
 export interface ComparableMarketPriceInput {
   amount: number | string | null | undefined;
   currency: CurrencyCode | null | undefined;
+}
+
+export interface SelectableMarketPriceInput {
+  finish: string | null | undefined;
+  source: MarketPriceSource | null | undefined;
 }
 
 export interface FormatBinderCardPriceParams {
@@ -35,11 +43,6 @@ export type BinderCardPriceInput = Pick<
 >;
 
 const MARKET_PRICE_COMPARE_EPSILON = 0.000001;
-const marketPriceSources = [
-  MarketPriceSource.Cardkingdom,
-  MarketPriceSource.Tcgplayer,
-  MarketPriceSource.Cardmarket,
-] as const;
 
 const getComparableMarketPriceAmount = (
   marketPrice: ComparableMarketPriceInput | null,
@@ -53,20 +56,32 @@ const getComparableMarketPriceAmount = (
   return convertAmountToLocalCurrency(amount, marketPrice.currency);
 };
 
+export const getMarketPriceBySourceAndFinish = <
+  TMarketPrice extends SelectableMarketPriceInput
+>(
+  marketPrices: readonly TMarketPrice[] | null | undefined,
+  priceSource: MarketPriceSource,
+  finishes: readonly string[]
+): TMarketPrice | null => {
+  const sourcePrices =
+    marketPrices?.filter((price) => price.source === priceSource) || [];
+
+  for (const finish of finishes) {
+    const marketPrice = sourcePrices.find((price) => price.finish === finish);
+    if (marketPrice) return marketPrice;
+  }
+
+  return sourcePrices[0] || null;
+};
+
 export const getBinderCardMarketPrice = (
   binderCard: BinderCardRecord,
   priceSource: MarketPriceSource
 ): BinderCardMarketPrice | null => {
-  const sourcePrices =
-    binderCard.card?.marketPrices?.edges
-      .map(({ node }) => node)
-      .filter((price) => price.source === priceSource) || [];
-
-  return (
-    sourcePrices.find((price) => price.finish === binderCard.finish) ||
-    sourcePrices.find((price) => price.finish === "normal") ||
-    sourcePrices[0] ||
-    null
+  return getMarketPriceBySourceAndFinish(
+    binderCard.card?.marketPrices?.edges.map(({ node }) => node),
+    priceSource,
+    [binderCard.finish, "normal"]
   );
 };
 
@@ -105,7 +120,7 @@ export const getCheapestMarketPriceSources = (
   marketPrices: Record<MarketPriceSource, ComparableMarketPriceInput | null>,
   convertAmountToLocalCurrency: ConvertAmountToLocalCurrency
 ): Set<MarketPriceSource> => {
-  const comparablePrices = marketPriceSources
+  const comparablePrices = supportedPriceSources
     .map((source) => ({
       amount: getComparableMarketPriceAmount(
         marketPrices[source],

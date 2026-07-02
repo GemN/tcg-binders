@@ -3,13 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { CardImage } from "@/components/CardImage";
+import { MarketPriceSummary } from "@/components/MarketPriceSummary";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/Select";
+import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
+import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
 import type { BinderCardVariant, ModalBinderCardRecord } from "./types";
 import { getVariantLabel } from "./utils";
@@ -41,6 +44,7 @@ export const BinderCardVariantSelect = ({
   onVariantChange,
 }: BinderCardVariantSelectProps) => {
   const { t } = useTranslation(["common"]);
+  const { priceSource } = usePricingSettings();
   const [variantQueryCardId, setVariantQueryCardId] = useState<string | null>(
     null
   );
@@ -100,6 +104,11 @@ export const BinderCardVariantSelect = ({
               const variantImageUrl = getCardImageBaseUrl(variant);
               const variantScryfallId = getCardScryfallId(variant);
               const variantLabel = getVariantLabel(variant);
+              const marketPrice = getMarketPriceBySourceAndFinish(
+                variant.marketPrices?.edges.map(({ node }) => node),
+                priceSource,
+                ["normal"]
+              );
               const variantFinishes = variant.finishes.filter(
                 (finish): finish is string => !!finish
               );
@@ -109,20 +118,29 @@ export const BinderCardVariantSelect = ({
               return (
                 <SelectItem
                   key={variant.id}
+                  className="py-2 [&>span:last-child]:min-w-0 [&>span:last-child]:w-full"
                   value={variant.id}
                   textValue={variantLabel}
                 >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <CardImage
-                      alt=""
-                      className="h-12 shrink-0 rounded-sm border border-[#d8dce0]"
-                      finish={variantFinish}
-                      imageSize="thumbnail"
-                      imageUrl={variantImageUrl}
-                      noImageLabel=""
-                      scryfallId={variantScryfallId}
+                  <span className="flex min-w-0 flex-1 items-center gap-2">
+                    <span className="flex min-w-0 flex-1 items-center gap-2">
+                      <CardImage
+                        alt=""
+                        className="h-12 shrink-0 rounded-sm border border-[#d8dce0]"
+                        finish={variantFinish}
+                        imageSize="thumbnail"
+                        imageUrl={variantImageUrl}
+                        noImageLabel=""
+                        scryfallId={variantScryfallId}
+                      />
+                      <span className="truncate">{variantLabel}</span>
+                    </span>
+                    <MarketPriceSummary
+                      amount={marketPrice?.amount}
+                      className="ml-auto leading-tight"
+                      currency={marketPrice?.currency}
+                      source={marketPrice?.source}
                     />
-                    <span className="truncate">{variantLabel}</span>
                   </span>
                 </SelectItem>
               );
