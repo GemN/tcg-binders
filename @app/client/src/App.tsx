@@ -45,6 +45,11 @@ const SettingsUserProfile = lazy(() =>
     default: module.SettingsUserProfile,
   }))
 );
+const UserProfile = lazy(() =>
+  import("@/pages/UserProfile").then((module) => ({
+    default: module.UserProfile,
+  }))
+);
 
 interface ProvidersProps {
   children: ReactNode;
@@ -89,6 +94,10 @@ function App() {
               <Route
                 path="binder/:shortId"
                 element={renderPage(<BinderPage />)}
+              />
+              <Route
+                path="user/:nickname"
+                element={renderPage(<UserProfile />)}
               />
               <Route path="login" element={renderPage(<Login />)} />
               <Route path="logout" element={renderPage(<Logout />)} />

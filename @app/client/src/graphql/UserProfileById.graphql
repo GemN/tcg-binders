@@ -1,0 +1,11 @@
+query UserProfileById($id: UUID!) {
+  userProfilesCollection(filter: { id: { eq: $id } }, first: 1) {
+    edges {
+      node {
+        id
+        nickname
+        country
+      }
+    }
+  }
+}

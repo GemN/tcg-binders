@@ -1,0 +1,11 @@
+query UserProfileByNickname($nickname: String!) {
+  userProfilesCollection(filter: { nickname: { eq: $nickname } }, first: 1) {
+    edges {
+      node {
+        id
+        nickname
+        country
+      }
+    }
+  }
+}

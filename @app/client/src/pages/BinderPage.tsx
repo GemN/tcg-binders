@@ -6,6 +6,7 @@ import {
   useAddBinderCardMutation,
   useBinderByShortIdQuery,
   useDeleteBinderCardMutation,
+  useUserProfileByIdQuery,
 } from "@app/graphql";
 import { Eye, Pencil, Share2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -14,6 +15,7 @@ import { Link, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
+import { BinderOwnerLink } from "@/components/BinderOwnerLink";
 import { BinderPageView } from "@/components/BinderPageView";
 import { Loading } from "@/components/Loading";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
@@ -119,6 +121,14 @@ export const BinderPage = () => {
     useDeleteBinderCardMutation();
 
   const binder = data?.binderByShortId;
+  const isOwner = !!session?.user.id && session.user.id === binder?.ownerId;
+  const isPublicView = !!binder && (!isOwner || isPublicPreview);
+  const ownerId = binder?.ownerId ?? "";
+  const { data: ownerProfileData } = useUserProfileByIdQuery({
+    variables: { id: ownerId },
+    skip: !ownerId || !isPublicView,
+  });
+  const ownerProfile = ownerProfileData?.userProfilesCollection?.edges[0]?.node;
   const binderCards = useMemo(() => {
     return (
       data?.binderCardsByShortId?.edges
@@ -347,7 +357,6 @@ export const BinderPage = () => {
     return <NotFound />;
   }
 
-  const isOwner = !!session?.user.id && session.user.id === binder.ownerId;
   const canEditBinder = isOwner && !isPublicPreview;
   const canSelectBinderCards = canEditBinder && isSelectionMode;
   const ownerBinderUrl = `/binder/${binder.shortId}`;
@@ -371,7 +380,14 @@ export const BinderPage = () => {
       ? undefined
       : shareButton
     : shareButton;
-  const titleAction = isOwner ? (
+  const ownerProfileLink =
+    isPublicView && ownerProfile ? (
+      <BinderOwnerLink
+        country={ownerProfile.country}
+        nickname={ownerProfile.nickname}
+      />
+    ) : undefined;
+  const ownerViewAction = isOwner ? (
     isPublicPreview ? (
       <Link
         to={ownerBinderUrl}
@@ -390,6 +406,7 @@ export const BinderPage = () => {
       </Link>
     )
   ) : undefined;
+  const titleAction = ownerViewAction;
 
   const handleAddCard = async (card: DraftCardSnapshot) => {
     try {
@@ -590,6 +607,7 @@ export const BinderPage = () => {
         isPageLoading={isPageLoading}
         isSelectionMode={canSelectBinderCards}
         isBulkPriceOpen={canEditBinder && isBulkPriceOpen}
+        ownerByline={ownerProfileLink}
         pageIndex={pageIndex}
         selectedBinderCard={selectedBinderCard}
         selectedBinderCardCount={selectedBinderCardCount}

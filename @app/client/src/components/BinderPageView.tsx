@@ -42,6 +42,7 @@ interface BinderPageViewProps {
   isPageLoading: boolean;
   isSelectionMode: boolean;
   isBulkPriceOpen: boolean;
+  ownerByline?: ReactNode;
   pageIndex: number;
   selectedBinderCard: ModalBinderCardRecord | null;
   selectedBinderCardCount: number;
@@ -109,6 +110,7 @@ export const BinderPageView = ({
   isPageLoading,
   isSelectionMode,
   isBulkPriceOpen,
+  ownerByline,
   pageIndex,
   selectedBinderCard,
   selectedBinderCardCount,
@@ -164,6 +166,7 @@ export const BinderPageView = ({
           binderTcgId={binderTcgId}
           headerAction={headerAction}
           isOwner={isOwner}
+          ownerByline={ownerByline}
           showConvertedMarketPrices={showConvertedMarketPrices}
           titleAction={titleAction}
           onAddCard={onAddCard}

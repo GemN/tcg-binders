@@ -2654,6 +2654,44 @@ export type UpdateUserProfileMutation = (
   ) }
 );
 
+export type UserProfileByIdQueryVariables = Exact<{
+  id: Scalars['UUID'];
+}>;
+
+
+export type UserProfileByIdQuery = (
+  { __typename?: 'Query' }
+  & { userProfilesCollection: Maybe<(
+    { __typename?: 'UserProfilesConnection' }
+    & { edges: Array<(
+      { __typename?: 'UserProfilesEdge' }
+      & { node: (
+        { __typename?: 'UserProfiles' }
+        & Pick<UserProfiles, 'id' | 'nickname' | 'country'>
+      ) }
+    )> }
+  )> }
+);
+
+export type UserProfileByNicknameQueryVariables = Exact<{
+  nickname: Scalars['String'];
+}>;
+
+
+export type UserProfileByNicknameQuery = (
+  { __typename?: 'Query' }
+  & { userProfilesCollection: Maybe<(
+    { __typename?: 'UserProfilesConnection' }
+    & { edges: Array<(
+      { __typename?: 'UserProfilesEdge' }
+      & { node: (
+        { __typename?: 'UserProfiles' }
+        & Pick<UserProfiles, 'id' | 'nickname' | 'country'>
+      ) }
+    )> }
+  )> }
+);
+
 export const BinderCardSummaryFieldsFragmentDoc = gql`
     fragment BinderCardSummaryFields on BinderCards {
   id
@@ -3572,3 +3610,85 @@ export function useUpdateUserProfileMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateUserProfileMutationHookResult = ReturnType<typeof useUpdateUserProfileMutation>;
 export type UpdateUserProfileMutationResult = Apollo.MutationResult<UpdateUserProfileMutation>;
 export type UpdateUserProfileMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+export const UserProfileByIdDocument = gql`
+    query UserProfileById($id: UUID!) {
+  userProfilesCollection(filter: {id: {eq: $id}}, first: 1) {
+    edges {
+      node {
+        id
+        nickname
+        country
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useUserProfileByIdQuery__
+ *
+ * To run a query within a React component, call `useUserProfileByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserProfileByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserProfileByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUserProfileByIdQuery(baseOptions: Apollo.QueryHookOptions<UserProfileByIdQuery, UserProfileByIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserProfileByIdQuery, UserProfileByIdQueryVariables>(UserProfileByIdDocument, options);
+      }
+export function useUserProfileByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserProfileByIdQuery, UserProfileByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserProfileByIdQuery, UserProfileByIdQueryVariables>(UserProfileByIdDocument, options);
+        }
+export type UserProfileByIdQueryHookResult = ReturnType<typeof useUserProfileByIdQuery>;
+export type UserProfileByIdLazyQueryHookResult = ReturnType<typeof useUserProfileByIdLazyQuery>;
+export type UserProfileByIdQueryResult = Apollo.QueryResult<UserProfileByIdQuery, UserProfileByIdQueryVariables>;
+export const UserProfileByNicknameDocument = gql`
+    query UserProfileByNickname($nickname: String!) {
+  userProfilesCollection(filter: {nickname: {eq: $nickname}}, first: 1) {
+    edges {
+      node {
+        id
+        nickname
+        country
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useUserProfileByNicknameQuery__
+ *
+ * To run a query within a React component, call `useUserProfileByNicknameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserProfileByNicknameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserProfileByNicknameQuery({
+ *   variables: {
+ *      nickname: // value for 'nickname'
+ *   },
+ * });
+ */
+export function useUserProfileByNicknameQuery(baseOptions: Apollo.QueryHookOptions<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>(UserProfileByNicknameDocument, options);
+      }
+export function useUserProfileByNicknameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>(UserProfileByNicknameDocument, options);
+        }
+export type UserProfileByNicknameQueryHookResult = ReturnType<typeof useUserProfileByNicknameQuery>;
+export type UserProfileByNicknameLazyQueryHookResult = ReturnType<typeof useUserProfileByNicknameLazyQuery>;
+export type UserProfileByNicknameQueryResult = Apollo.QueryResult<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>;

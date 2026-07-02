@@ -2358,6 +2358,42 @@ export type UpdateUserProfileMutation = ({
         } & Pick<UserProfiles, 'id' | 'nickname' | 'country'>)>;
     });
 });
+export type UserProfileByIdQueryVariables = Exact<{
+    id: Scalars['UUID'];
+}>;
+export type UserProfileByIdQuery = ({
+    __typename?: 'Query';
+} & {
+    userProfilesCollection: Maybe<({
+        __typename?: 'UserProfilesConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'UserProfilesEdge';
+        } & {
+            node: ({
+                __typename?: 'UserProfiles';
+            } & Pick<UserProfiles, 'id' | 'nickname' | 'country'>);
+        })>;
+    })>;
+});
+export type UserProfileByNicknameQueryVariables = Exact<{
+    nickname: Scalars['String'];
+}>;
+export type UserProfileByNicknameQuery = ({
+    __typename?: 'Query';
+} & {
+    userProfilesCollection: Maybe<({
+        __typename?: 'UserProfilesConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'UserProfilesEdge';
+        } & {
+            node: ({
+                __typename?: 'UserProfiles';
+            } & Pick<UserProfiles, 'id' | 'nickname' | 'country'>);
+        })>;
+    })>;
+});
 export declare const BinderCardSummaryFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const BinderCardDetailFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const CardSearchFieldsFragmentDoc: Apollo.DocumentNode;
@@ -2918,4 +2954,56 @@ export declare function useUpdateUserProfileMutation(baseOptions?: Apollo.Mutati
 export type UpdateUserProfileMutationHookResult = ReturnType<typeof useUpdateUserProfileMutation>;
 export type UpdateUserProfileMutationResult = Apollo.MutationResult<UpdateUserProfileMutation>;
 export type UpdateUserProfileMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+export declare const UserProfileByIdDocument: Apollo.DocumentNode;
+/**
+ * __useUserProfileByIdQuery__
+ *
+ * To run a query within a React component, call `useUserProfileByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserProfileByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserProfileByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export declare function useUserProfileByIdQuery(baseOptions: Apollo.QueryHookOptions<UserProfileByIdQuery, UserProfileByIdQueryVariables>): Apollo.QueryResult<UserProfileByIdQuery, Exact<{
+    id: Scalars["UUID"];
+}>>;
+export declare function useUserProfileByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserProfileByIdQuery, UserProfileByIdQueryVariables>): Apollo.LazyQueryResultTuple<UserProfileByIdQuery, Exact<{
+    id: Scalars["UUID"];
+}>>;
+export type UserProfileByIdQueryHookResult = ReturnType<typeof useUserProfileByIdQuery>;
+export type UserProfileByIdLazyQueryHookResult = ReturnType<typeof useUserProfileByIdLazyQuery>;
+export type UserProfileByIdQueryResult = Apollo.QueryResult<UserProfileByIdQuery, UserProfileByIdQueryVariables>;
+export declare const UserProfileByNicknameDocument: Apollo.DocumentNode;
+/**
+ * __useUserProfileByNicknameQuery__
+ *
+ * To run a query within a React component, call `useUserProfileByNicknameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserProfileByNicknameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserProfileByNicknameQuery({
+ *   variables: {
+ *      nickname: // value for 'nickname'
+ *   },
+ * });
+ */
+export declare function useUserProfileByNicknameQuery(baseOptions: Apollo.QueryHookOptions<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>): Apollo.QueryResult<UserProfileByNicknameQuery, Exact<{
+    nickname: Scalars["String"];
+}>>;
+export declare function useUserProfileByNicknameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>): Apollo.LazyQueryResultTuple<UserProfileByNicknameQuery, Exact<{
+    nickname: Scalars["String"];
+}>>;
+export type UserProfileByNicknameQueryHookResult = ReturnType<typeof useUserProfileByNicknameQuery>;
+export type UserProfileByNicknameLazyQueryHookResult = ReturnType<typeof useUserProfileByNicknameLazyQuery>;
+export type UserProfileByNicknameQueryResult = Apollo.QueryResult<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>;
 //# sourceMappingURL=index.d.ts.map

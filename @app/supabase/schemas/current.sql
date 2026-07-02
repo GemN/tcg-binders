@@ -32,6 +32,17 @@ alter table public.user_profiles
   drop column if exists firstname,
   drop column if exists lastname;
 
+drop policy if exists user_profiles_select_own on public.user_profiles;
+drop policy if exists user_profiles_select_all on public.user_profiles;
+create policy user_profiles_select_all
+  on public.user_profiles
+  for select
+  to anon, authenticated
+  using (true);
+
+grant select on public.user_profiles
+  to anon, authenticated;
+
 grant update(nickname, country) on public.user_profiles
   to authenticated;
 

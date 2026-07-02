@@ -18,6 +18,7 @@ interface BinderPageHeaderProps {
   binderTcgId: string;
   headerAction?: ReactNode;
   isOwner: boolean;
+  ownerByline?: ReactNode;
   showConvertedMarketPrices: boolean;
   titleAction?: ReactNode;
   onAddCard: (card: DraftCardSnapshot) => void;
@@ -35,6 +36,7 @@ export const BinderPageHeader = ({
   binderTcgId,
   headerAction,
   isOwner,
+  ownerByline,
   showConvertedMarketPrices,
   titleAction,
   onAddCard,
@@ -49,11 +51,6 @@ export const BinderPageHeader = ({
   return (
     <div className="relative z-30 -mx-4 flex shrink-0 flex-col gap-4 border-y border-binder-toolbar-input/40 bg-binder-toolbar/95 px-4 py-3 text-binder-toolbar-foreground sm:-mx-6 sm:px-6 lg:-mx-20 lg:flex-row lg:items-start lg:justify-between lg:px-20">
       <div className="min-w-0">
-        {titleAction && (
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            {titleAction}
-          </div>
-        )}
         <BinderTitle
           binderId={binderId}
           isOwner={isOwner}
@@ -61,6 +58,11 @@ export const BinderPageHeader = ({
           onRename={onRenameBinder}
           onRenamed={onBinderChanged}
         />
+        {ownerByline && (
+          <div className="mt-0.5 mb-3 flex min-w-0 items-center">
+            {ownerByline}
+          </div>
+        )}
         <BinderNote
           binderId={binderId}
           isOwner={isOwner}
@@ -89,7 +91,14 @@ export const BinderPageHeader = ({
           )}
           {headerAction}
         </div>
-        <div className="flex justify-end">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+          {titleAction}
+          {titleAction && (
+            <span
+              aria-hidden="true"
+              className="hidden h-4 w-px bg-binder-toolbar-foreground/25 sm:block"
+            />
+          )}
           <label className="inline-flex w-fit items-center gap-2 text-sm text-binder-toolbar-foreground/80">
             <Switch
               checked={showConvertedMarketPrices}
