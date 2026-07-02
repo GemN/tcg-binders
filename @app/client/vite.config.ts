@@ -23,6 +23,57 @@ export default defineConfig({
     commonjsOptions: {
       include: [/node_modules/, /@app\/config/],
     },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+
+          if (
+            id.includes("react/") ||
+            id.includes("react-dom") ||
+            id.includes("react-router")
+          ) {
+            return "vendor-react";
+          }
+
+          if (
+            id.includes("@apollo") ||
+            id.includes("graphql") ||
+            id.includes("graphql-tag")
+          ) {
+            return "vendor-graphql";
+          }
+
+          if (id.includes("@supabase")) {
+            return "vendor-supabase";
+          }
+
+          if (
+            id.includes("@radix-ui") ||
+            id.includes("cmdk") ||
+            id.includes("lucide-react") ||
+            id.includes("sonner") ||
+            id.includes("vaul")
+          ) {
+            return "vendor-ui";
+          }
+
+          if (id.includes("i18next") || id.includes("react-i18next")) {
+            return "vendor-i18n";
+          }
+
+          if (
+            id.includes("react-hook-form") ||
+            id.includes("@hookform") ||
+            id.includes("yup")
+          ) {
+            return "vendor-forms";
+          }
+
+          return "vendor";
+        },
+      },
+    },
   },
   define: {
     "process.env": {},
