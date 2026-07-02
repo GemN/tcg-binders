@@ -192,7 +192,7 @@ export const BinderCardViewPanel = ({
       ) : (
         <BinderCardList
           binderCards={binderCards}
-          className="min-h-full w-full"
+          className="w-full"
           isDeletingCard={isDeletingCard}
           isSelectionMode={isSelectionMode}
           onDeleteCard={onDeleteCard}

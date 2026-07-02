@@ -15,7 +15,7 @@ export type BinderSortMode =
   | "price_desc";
 
 export const GRID_PAGE_SIZE = 14;
-export const LIST_PAGE_SIZE = 12;
+export const LIST_PAGE_SIZE = 100;
 export const PRELOAD_PAGE_COUNT = 1;
 export const DETAIL_WINDOW_BEFORE_COUNT = 1;
 export const DETAIL_WINDOW_CARD_COUNT = 3;

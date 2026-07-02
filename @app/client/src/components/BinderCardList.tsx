@@ -478,12 +478,12 @@ export const BinderCardList = ({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-sm",
+        "rounded-md border border-border bg-card text-card-foreground shadow-sm",
         className
       )}
     >
-      <Table className="text-sm">
-        <TableHeader className="bg-muted/70">
+      <Table className="text-sm" containerClassName="overflow-visible">
+        <TableHeader className="bg-muted/70 [&_th]:sticky [&_th]:top-[5.75rem] [&_th]:z-20 [&_th]:bg-muted sm:[&_th]:top-[3.25rem]">
           <TableRow className="border-border hover:bg-transparent">
             {isSelectionMode && (
               <TableHead className="h-9 w-10 px-3">

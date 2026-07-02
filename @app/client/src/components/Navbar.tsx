@@ -1,6 +1,6 @@
+import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { Plus } from "lucide-react";
 
 import { ButtonNewBinder } from "@/components/ButtonNewBinder";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
@@ -16,7 +16,7 @@ export const Navbar = () => {
   const isLoggedIn = !!session;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-card text-foreground">
+    <header className="sticky top-0 z-40 border-b border-border bg-card text-foreground">
       <nav className="flex h-14 w-full items-center gap-2 px-4 sm:px-6 lg:px-20">
         <Link
           to="/"

@@ -31,7 +31,7 @@ export const BinderCardListSkeleton = ({ count }: { count: number }) => {
   );
 
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-card shadow-sm">
+    <div className="rounded-md border border-border bg-card shadow-sm">
       <div className="grid grid-cols-[5rem_5rem_minmax(15rem,1fr)_4rem_6rem_repeat(4,minmax(7rem,1fr))] gap-0 bg-muted/70 px-3 py-3">
         {skeletonColumns.map((skeletonColumn) => (
           <Skeleton

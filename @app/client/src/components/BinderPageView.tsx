@@ -141,8 +141,8 @@ export const BinderPageView = ({
   const { t } = useTranslation(["binder"]);
 
   return (
-    <div className="relative isolate flex min-h-[calc(100svh-3.5rem)] w-full flex-1 overflow-y-auto bg-background text-foreground md:overflow-hidden">
-      <div className="relative z-10 flex min-h-[calc(100svh-3.5rem)] w-full flex-col gap-5 px-4 pb-4 sm:px-6 lg:px-20">
+    <div className="relative isolate flex h-[calc(100svh-3.5rem)] w-full flex-1 overflow-y-auto bg-background text-foreground">
+      <div className="relative z-10 flex min-h-full w-full flex-col gap-5 px-4 pb-4 sm:px-6 lg:px-20">
         <BinderPageHeader
           binderId={binderId}
           binderName={binderName}
