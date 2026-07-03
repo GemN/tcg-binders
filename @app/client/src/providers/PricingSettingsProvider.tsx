@@ -29,7 +29,7 @@ const currencyStorageKey = "tcgbinder.currency";
 const priceSourceStorageKey = "tcgbinder.price_source";
 
 const fallbackCurrency = CurrencyCode.Usd;
-const defaultPriceSource = MarketPriceSource.Tcgplayer;
+const fallbackPriceSource = MarketPriceSource.Cardkingdom;
 
 const europeanRegionCodes = new Set([
   "AD",
@@ -157,6 +157,13 @@ const getDefaultCurrencyForLocale = (
   return null;
 };
 
+const isEuropeanLocale = (locale: string): boolean => {
+  const { language, region } = getLocaleParts(locale);
+
+  if (region) return europeanRegionCodes.has(region);
+  return europeanLanguageCodes.has(language);
+};
+
 const getBrowserDefaultCurrency = (): SupportedCurrency => {
   for (const locale of getBrowserLocales()) {
     const defaultCurrency = getDefaultCurrencyForLocale(locale);
@@ -164,6 +171,12 @@ const getBrowserDefaultCurrency = (): SupportedCurrency => {
   }
 
   return fallbackCurrency;
+};
+
+const getBrowserDefaultPriceSource = (): SupportedPriceSource => {
+  return getBrowserLocales().some(isEuropeanLocale)
+    ? MarketPriceSource.Cardmarket
+    : fallbackPriceSource;
 };
 
 const readStoredCurrency = (): SupportedCurrency => {
@@ -176,12 +189,12 @@ const readStoredCurrency = (): SupportedCurrency => {
 };
 
 const readStoredPriceSource = (): SupportedPriceSource => {
-  if (typeof window === "undefined") return defaultPriceSource;
+  if (typeof window === "undefined") return fallbackPriceSource;
 
   const storedPriceSource = window.localStorage.getItem(priceSourceStorageKey);
   return storedPriceSource && isSupportedPriceSource(storedPriceSource)
     ? storedPriceSource
-    : defaultPriceSource;
+    : getBrowserDefaultPriceSource();
 };
 
 export const PricingSettingsProvider = ({
