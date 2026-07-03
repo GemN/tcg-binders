@@ -248,6 +248,7 @@ export const BinderByShortIdDocument = gql `
     ownerId
     shortId
     tcgId
+    visibility
   }
   binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
@@ -883,6 +884,43 @@ export const UpdateBinderNoteDocument = gql `
 export function useUpdateBinderNoteMutation(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useMutation(UpdateBinderNoteDocument, options);
+}
+export const UpdateBinderVisibilityDocument = gql `
+    mutation UpdateBinderVisibility($id: UUID!, $visibility: BinderVisibility!) {
+  updateBindersCollection(
+    filter: {id: {eq: $id}}
+    set: {visibility: $visibility}
+    atMost: 1
+  ) {
+    affectedCount
+    records {
+      id
+      visibility
+    }
+  }
+}
+    `;
+/**
+ * __useUpdateBinderVisibilityMutation__
+ *
+ * To run a mutation, you first call `useUpdateBinderVisibilityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBinderVisibilityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBinderVisibilityMutation, { data, loading, error }] = useUpdateBinderVisibilityMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      visibility: // value for 'visibility'
+ *   },
+ * });
+ */
+export function useUpdateBinderVisibilityMutation(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation(UpdateBinderVisibilityDocument, options);
 }
 export const UpdateUserProfileDocument = gql `
     mutation UpdateUserProfile($id: UUID!, $set: UserProfilesUpdateInput!) {

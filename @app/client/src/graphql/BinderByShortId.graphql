@@ -13,6 +13,7 @@ query BinderByShortId(
     ownerId
     shortId
     tcgId
+    visibility
   }
   binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(

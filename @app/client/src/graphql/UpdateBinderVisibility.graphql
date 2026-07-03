@@ -1,0 +1,13 @@
+mutation UpdateBinderVisibility($id: UUID!, $visibility: BinderVisibility!) {
+  updateBindersCollection(
+    filter: { id: { eq: $id } }
+    set: { visibility: $visibility }
+    atMost: 1
+  ) {
+    affectedCount
+    records {
+      id
+      visibility
+    }
+  }
+}

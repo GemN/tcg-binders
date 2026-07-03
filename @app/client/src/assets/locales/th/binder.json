@@ -23,6 +23,30 @@
     "button": "ดูตัวอย่างแบบผู้ซื้อ",
     "owner_view": "กลับไปมุมมองเจ้าของ"
   },
+  "settings": {
+    "button": "ตั้งค่า",
+    "title": "ตั้งค่าแฟ้ม",
+    "description": "จัดการว่าใครสามารถดูแฟ้มนี้ได้",
+    "visibility_label": "การมองเห็น",
+    "visibility": {
+      "listed": "แสดงสาธารณะ",
+      "listed_description": "ทุกคนสามารถดูแฟ้มนี้ได้ และแฟ้มอาจปรากฏในพื้นที่เรียกดูสาธารณะ",
+      "unlisted": "ไม่แสดงในรายการ",
+      "unlisted_description": "คนที่มีลิงก์แฟ้มสามารถดูได้ แต่แฟ้มจะไม่แสดงในรายการสาธารณะ",
+      "private": "ส่วนตัว",
+      "private_description": "มีเพียงคุณเท่านั้นที่ดูแฟ้มนี้ได้"
+    },
+    "update_visibility_success": "อัปเดตการมองเห็นแล้ว",
+    "update_visibility_error": "อัปเดตการมองเห็นไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "delete_title": "ลบแฟ้ม",
+    "delete_description": "ลบแฟ้มนี้และการ์ดทุกใบในแฟ้ม",
+    "delete_button": "ลบแฟ้ม",
+    "delete_confirm_title": "ลบแฟ้มนี้?",
+    "delete_confirm_description": "การดำเนินการนี้จะลบ \"{{name}}\" และการ์ดทุกใบในแฟ้มอย่างถาวร และไม่สามารถย้อนกลับได้",
+    "delete_confirm": "ลบแฟ้ม",
+    "delete_success": "ลบแฟ้มแล้ว",
+    "delete_error": "ลบแฟ้มไม่สำเร็จ กรุณาลองอีกครั้ง"
+  },
   "filter": {
     "all": "ทั้งหมด",
     "button": "ตัวกรอง",

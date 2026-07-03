@@ -2245,7 +2245,7 @@ export type BinderByShortIdQuery = (
   & Pick<Query, 'binderCardCountByShortId'>
   & { binderByShortId: Maybe<(
     { __typename?: 'Binders' }
-    & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId'>
+    & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId' | 'visibility'>
   )>, binderCardsByShortId: Maybe<(
     { __typename?: 'BinderCardsConnection' }
     & { pageInfo: (
@@ -2636,6 +2636,24 @@ export type UpdateBinderNoteMutation = (
   ) }
 );
 
+export type UpdateBinderVisibilityMutationVariables = Exact<{
+  id: Scalars['UUID'];
+  visibility: BinderVisibility;
+}>;
+
+
+export type UpdateBinderVisibilityMutation = (
+  { __typename?: 'Mutation' }
+  & { updateBindersCollection: (
+    { __typename?: 'BindersUpdateResponse' }
+    & Pick<BindersUpdateResponse, 'affectedCount'>
+    & { records: Array<(
+      { __typename?: 'Binders' }
+      & Pick<Binders, 'id' | 'visibility'>
+    )> }
+  ) }
+);
+
 export type UpdateUserProfileMutationVariables = Exact<{
   id: Scalars['UUID'];
   set: UserProfilesUpdateInput;
@@ -2865,6 +2883,7 @@ export const BinderByShortIdDocument = gql`
     ownerId
     shortId
     tcgId
+    visibility
   }
   binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
@@ -3571,6 +3590,48 @@ export function useUpdateBinderNoteMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdateBinderNoteMutationHookResult = ReturnType<typeof useUpdateBinderNoteMutation>;
 export type UpdateBinderNoteMutationResult = Apollo.MutationResult<UpdateBinderNoteMutation>;
 export type UpdateBinderNoteMutationOptions = Apollo.BaseMutationOptions<UpdateBinderNoteMutation, UpdateBinderNoteMutationVariables>;
+export const UpdateBinderVisibilityDocument = gql`
+    mutation UpdateBinderVisibility($id: UUID!, $visibility: BinderVisibility!) {
+  updateBindersCollection(
+    filter: {id: {eq: $id}}
+    set: {visibility: $visibility}
+    atMost: 1
+  ) {
+    affectedCount
+    records {
+      id
+      visibility
+    }
+  }
+}
+    `;
+export type UpdateBinderVisibilityMutationFn = Apollo.MutationFunction<UpdateBinderVisibilityMutation, UpdateBinderVisibilityMutationVariables>;
+
+/**
+ * __useUpdateBinderVisibilityMutation__
+ *
+ * To run a mutation, you first call `useUpdateBinderVisibilityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBinderVisibilityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBinderVisibilityMutation, { data, loading, error }] = useUpdateBinderVisibilityMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      visibility: // value for 'visibility'
+ *   },
+ * });
+ */
+export function useUpdateBinderVisibilityMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBinderVisibilityMutation, UpdateBinderVisibilityMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateBinderVisibilityMutation, UpdateBinderVisibilityMutationVariables>(UpdateBinderVisibilityDocument, options);
+      }
+export type UpdateBinderVisibilityMutationHookResult = ReturnType<typeof useUpdateBinderVisibilityMutation>;
+export type UpdateBinderVisibilityMutationResult = Apollo.MutationResult<UpdateBinderVisibilityMutation>;
+export type UpdateBinderVisibilityMutationOptions = Apollo.BaseMutationOptions<UpdateBinderVisibilityMutation, UpdateBinderVisibilityMutationVariables>;
 export const UpdateUserProfileDocument = gql`
     mutation UpdateUserProfile($id: UUID!, $set: UserProfilesUpdateInput!) {
   updateUserProfilesCollection(filter: {id: {eq: $id}}, set: $set, atMost: 1) {

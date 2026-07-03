@@ -23,6 +23,30 @@
     "button": "Preview as a buyer",
     "owner_view": "Back to owner view"
   },
+  "settings": {
+    "button": "Settings",
+    "title": "Binder settings",
+    "description": "Manage who can view this binder.",
+    "visibility_label": "Visibility",
+    "visibility": {
+      "listed": "Listed",
+      "listed_description": "Anyone can view this binder, and it can appear in public browsing surfaces.",
+      "unlisted": "Unlisted",
+      "unlisted_description": "Anyone with the binder link can view it, but it is not listed publicly.",
+      "private": "Private",
+      "private_description": "Only you can view this binder."
+    },
+    "update_visibility_success": "Visibility updated.",
+    "update_visibility_error": "Failed to update visibility. Please try again.",
+    "delete_title": "Delete binder",
+    "delete_description": "Delete this binder and every card in it.",
+    "delete_button": "Delete binder",
+    "delete_confirm_title": "Delete this binder?",
+    "delete_confirm_description": "This will permanently delete \"{{name}}\" and every card in it. This action cannot be undone.",
+    "delete_confirm": "Delete binder",
+    "delete_success": "Binder deleted.",
+    "delete_error": "Failed to delete binder. Please try again."
+  },
   "filter": {
     "all": "Any",
     "button": "Filters",

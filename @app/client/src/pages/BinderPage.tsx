@@ -8,16 +8,17 @@ import {
   useDeleteBinderCardMutation,
   useUserProfileByIdQuery,
 } from "@app/graphql";
-import { Eye, Pencil, Share2 } from "lucide-react";
+import { Eye, Pencil, Settings, Share2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams, useSearchParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
 import { BinderOwnerLink } from "@/components/BinderOwnerLink";
 import { BinderPageView } from "@/components/BinderPageView";
 import { Loading } from "@/components/Loading";
+import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
 import { Button } from "@/components/ui/Button";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
@@ -56,6 +57,7 @@ export const BinderPage = () => {
   const { t } = useTranslation(["binder", "common"]);
   const client = useApolloClient();
   const { session } = useSession();
+  const navigate = useNavigate();
   const { shortId = "" } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
@@ -91,6 +93,7 @@ export const BinderPage = () => {
   const [isBulkPriceOpen, setIsBulkPriceOpen] = useState(false);
   const [isDeletingSelectedBinderCards, setIsDeletingSelectedBinderCards] =
     useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [filteredBinderCardCount, setFilteredBinderCardCount] =
     useState<FilteredBinderCardCountState | null>(null);
@@ -375,10 +378,25 @@ export const BinderPage = () => {
       {t("binder:share.button")}
     </Button>
   ) : undefined;
+  const settingsButton = canEditBinder ? (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => setIsSettingsDialogOpen(true)}
+    >
+      <Settings className="size-4" />
+      {t("binder:settings.button")}
+    </Button>
+  ) : undefined;
   const headerAction = isOwner
     ? isPublicPreview
       ? undefined
-      : shareButton
+      : (
+          <>
+            {shareButton}
+            {settingsButton}
+          </>
+        )
     : shareButton;
   const ownerProfileLink =
     isPublicView && ownerProfile ? (
@@ -655,6 +673,15 @@ export const BinderPage = () => {
         open={isShareDialogOpen}
         shareUrl={binderShareUrl}
         onOpenChange={setIsShareDialogOpen}
+      />
+      <ModalBinderSettings
+        binderId={binder.id}
+        binderName={binder.name}
+        binderVisibility={binder.visibility}
+        open={isSettingsDialogOpen}
+        onDeleted={() => navigate("/my-binders")}
+        onOpenChange={setIsSettingsDialogOpen}
+        onVisibilityUpdated={refetch}
       />
     </>
   );
