@@ -3,17 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
 import { BinderPageSearchFilters } from "@/components/BinderPageSearchFilters";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/AlertDialog";
+import { ModalConfirmation } from "@/components/ModalConfirmation";
 import { Button } from "@/components/ui/Button";
 import {
   Select,
@@ -141,8 +131,15 @@ export const BinderPageControls = ({
                 >
                   {t("binder:selection.clear")}
                 </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
+                <ModalConfirmation
+                  buttonConfirmLabel={t("binder:bulk_delete.confirm")}
+                  confirmButtonClassName="bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40"
+                  confirmDisabled={isDeletingSelectedBinderCards}
+                  description={t("binder:bulk_delete.description", {
+                    count: selectedBinderCardCount,
+                  })}
+                  title={t("binder:bulk_delete.title")}
+                  trigger={
                     <Button
                       type="button"
                       variant="destructive"
@@ -156,31 +153,10 @@ export const BinderPageControls = ({
                       <Trash2 className="size-4" />
                       {t("binder:bulk_delete.button")}
                     </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {t("binder:bulk_delete.title")}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("binder:bulk_delete.description", {
-                          count: selectedBinderCardCount,
-                        })}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>
-                        {t("common:cancel")}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40"
-                        onClick={onDeleteSelectedBinderCards}
-                      >
-                        {t("binder:bulk_delete.confirm")}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                  }
+                  onCancel={() => undefined}
+                  onConfirm={onDeleteSelectedBinderCards}
+                />
                 <Button
                   type="button"
                   variant="default"

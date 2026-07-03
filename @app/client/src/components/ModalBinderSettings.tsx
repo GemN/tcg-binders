@@ -9,17 +9,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { BinderVisibilitySelect } from "@/components/BinderVisibilitySelect";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/AlertDialog";
+import { ModalConfirmation } from "@/components/ModalConfirmation";
 import { Button } from "@/components/ui/Button";
 import {
   Dialog,
@@ -140,8 +130,15 @@ export const ModalBinderSettings = ({
             </p>
           </div>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+          <ModalConfirmation
+            buttonConfirmLabel={t("binder:settings.delete_confirm")}
+            confirmButtonClassName="bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40"
+            confirmDisabled={isDeletingBinder}
+            description={t("binder:settings.delete_confirm_description", {
+              name: binderName,
+            })}
+            title={t("binder:settings.delete_confirm_title")}
+            trigger={
               <Button
                 type="button"
                 variant="destructive"
@@ -151,30 +148,10 @@ export const ModalBinderSettings = ({
                 <Trash2 className="size-4" />
                 {t("binder:settings.delete_button")}
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {t("binder:settings.delete_confirm_title")}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t("binder:settings.delete_confirm_description", {
-                    name: binderName,
-                  })}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40"
-                  disabled={isDeletingBinder}
-                  onClick={handleDeleteBinder}
-                >
-                  {t("binder:settings.delete_confirm")}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            }
+            onCancel={() => undefined}
+            onConfirm={handleDeleteBinder}
+          />
         </div>
       </DialogContent>
     </Dialog>
