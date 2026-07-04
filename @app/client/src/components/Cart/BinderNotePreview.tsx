@@ -11,7 +11,7 @@ export const BinderNotePreview = ({ note }: BinderNotePreviewProps) => {
   if (!displayedNote) return null;
 
   return (
-    <div className="border-t border-border bg-muted/35 px-3 py-3 lg:px-4">
+    <div className="bg-muted/35 px-3 py-3 lg:px-4">
       <p className="text-sm font-semibold text-foreground">
         {t("checkout:binder_note")}
       </p>

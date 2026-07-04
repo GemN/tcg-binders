@@ -30,13 +30,21 @@
   "estimated_total_hint": "แปลงเป็นสกุลเงินที่พบมากที่สุดในตะกร้า",
   "no_price": "ยังไม่มีราคา",
   "generate_messages": "สร้างข้อความสั่งซื้อ",
+  "back_to_cart": "กลับไปที่ตะกร้า",
+  "complete_messages": "เสร็จสิ้นทั้งหมด",
+  "complete_messages_hint": "การดำเนินการนี้จะล้างการ์ดที่เลือกทั้งหมดออกจากตะกร้า",
+  "clear_seller": "เสร็จสิ้น",
+  "completion_title": "เรียบร้อยแล้ว",
+  "completion_description_one": "ล้างการ์ดที่เลือก {{count}} ใบออกจากตะกร้าแล้ว",
+  "completion_description_other": "ล้างการ์ดที่เลือก {{count}} ใบออกจากตะกร้าแล้ว",
+  "completion_hint": "ข้อความสั่งซื้อของคุณเสร็จสมบูรณ์แล้ว",
   "no_selected_items": "เลือกการ์ดอย่างน้อย 1 รายการเพื่อสร้างข้อความ",
   "select_all": "เลือกทั้งหมด",
   "select_seller": "เลือกการ์ดทั้งหมดจาก {{seller}}",
   "select_binder": "เลือกการ์ดทั้งหมดจาก {{binder}}",
   "select_card": "เลือก {{card}}",
-  "messages_title": "ข้อความถึงผู้ขาย",
-  "messages_description": "คัดลอกแต่ละข้อความแล้วส่งให้ผู้ขายที่ตรงกัน",
+  "messages_title": "ข้อความสั่งซื้อ",
+  "message_copy_instruction": "คัดลอกข้อความนี้แล้วส่งให้ผู้ขายรายนี้",
   "message_for": "ข้อความถึง {{seller}}",
   "empty_seller_cart": "ล้างตะกร้าผู้ขายนี้",
   "empty_binder_cart": "ล้างตะกร้า binder นี้",
@@ -65,11 +73,10 @@
   "message": {
     "greeting": "สวัสดี {{seller}} ต้องการซื้อการ์ดเหล่านี้:",
     "binder": "Binder: {{binder}}",
-    "binder_note": "โน้ตของ binder:",
     "unpriced_title": "การ์ดที่ยังไม่มีราคา:",
     "unpriced_notice": "บางรายการยังไม่มีราคา กรุณายืนยันราคาด้วย",
     "total": "รวม: {{total}}",
     "estimated_total": "ยอดรวมโดยประมาณ: {{total}}",
-    "price_each": "@ {{unitPrice}} = {{lineTotal}}"
+    "price_each": "@ {{unitPrice}}"
   }
 }

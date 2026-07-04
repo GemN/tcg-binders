@@ -5,6 +5,7 @@ import { formatAmount } from "@/components/Cart/cartFormat";
 import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/Separator";
 import type { CartCurrencyTotal, CartEstimatedTotal } from "@/lib/cart";
+import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
 interface CartSummaryPanelProps {
   binderCount: number;
@@ -32,9 +33,25 @@ export const CartSummaryPanel = ({
   onGenerateMessages,
 }: CartSummaryPanelProps) => {
   const { t } = useTranslation(["checkout"]);
+  const { convertAmountToLocalCurrency, currency } = usePricingSettings();
+  const convertedEstimatedTotalAmount =
+    estimatedTotal && estimatedTotal.currency !== currency
+      ? convertAmountToLocalCurrency(
+          estimatedTotal.amount,
+          estimatedTotal.currency
+        )
+      : null;
+  const convertedEstimatedTotalLabel =
+    convertedEstimatedTotalAmount !== null
+      ? formatAmount({
+          amount: convertedEstimatedTotalAmount,
+          currency,
+          locale,
+        })
+      : null;
 
   return (
-    <aside className="rounded-md border border-border bg-card p-4 text-card-foreground shadow-sm lg:sticky lg:top-20">
+    <aside className="rounded-md border border-border bg-card p-4 text-card-foreground lg:sticky lg:top-20">
       <h2 className="font-display text-xl font-semibold">
         {t("checkout:cart_summary")}
       </h2>
@@ -103,12 +120,19 @@ export const CartSummaryPanel = ({
               <span className="font-semibold">
                 {t("checkout:estimated_total")}
               </span>
-              <span className="font-display text-xl font-bold tabular-nums">
-                {formatAmount({
-                  amount: estimatedTotal.amount,
-                  currency: estimatedTotal.currency,
-                  locale,
-                })}
+              <span className="flex flex-col items-end">
+                <span className="font-display text-xl font-bold tabular-nums">
+                  {formatAmount({
+                    amount: estimatedTotal.amount,
+                    currency: estimatedTotal.currency,
+                    locale,
+                  })}
+                </span>
+                {convertedEstimatedTotalLabel && (
+                  <span className="mt-1 text-xs tabular-nums text-muted-foreground">
+                    ~ {convertedEstimatedTotalLabel}
+                  </span>
+                )}
               </span>
             </div>
             <p className="text-xs leading-5 text-muted-foreground">

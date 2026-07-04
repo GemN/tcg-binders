@@ -1,6 +1,7 @@
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, CheckCircle2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 import { CartEmptyState } from "@/components/Cart/CartEmptyState";
 import { CartMobileSummaryBar } from "@/components/Cart/CartMobileSummaryBar";
@@ -19,12 +20,14 @@ import {
   getCartItemPrintLabel,
 } from "@/components/Cart/cartFormat";
 import { getCartSelectionState } from "@/components/Cart/cartSelection";
+import { Button } from "@/components/ui/Button";
 import {
   type CartCurrencyTotal,
   type CartEstimatedTotal,
   type CartItem,
   type CartSellerGroup,
   getCartCurrencyTotals,
+  getCartItemCount,
   getCartUnpricedItemCount,
   getDominantCartCurrency,
   getEstimatedCartTotal,
@@ -51,6 +54,14 @@ const getSellerEstimatedTotal = ({
   );
 };
 
+const shouldShowFinishInCartMessage = (finish: string | null): boolean => {
+  const normalizedFinish = finish?.trim().toLowerCase();
+
+  return (
+    !!normalizedFinish && !["normal", "nonfoil"].includes(normalizedFinish)
+  );
+};
+
 interface GetCartItemDescriptionParams {
   item: CartItem;
   t: CartTranslate;
@@ -72,11 +83,13 @@ const getCartItemDescription = ({
       t,
       value: item.language,
     }),
-    getCartItemOptionLabel({
-      group: "finish",
-      t,
-      value: item.finish,
-    }),
+    shouldShowFinishInCartMessage(item.finish)
+      ? getCartItemOptionLabel({
+          group: "finish",
+          t,
+          value: item.finish,
+        })
+      : null,
   ].filter((label): label is string => !!label);
   const printSuffix = printLabel ? ` (${printLabel})` : "";
   const optionSuffix =
@@ -112,10 +125,16 @@ const getCartMessageLine = ({
     locale,
   });
 
-  return `- ${itemDescription} ${t("checkout:message.price_each", {
-    lineTotal,
-    unitPrice,
-  })}`;
+  if (item.quantity === 1) {
+    return `- ${lineTotal} | ${itemDescription}`;
+  }
+
+  return `- ${lineTotal} | ${itemDescription} (${t(
+    "checkout:message.price_each",
+    {
+      unitPrice,
+    }
+  )})`;
 };
 
 interface BuildSellerMessageParams {
@@ -147,12 +166,6 @@ const buildSellerMessage = ({
     lines.push(
       t("checkout:message.binder", { binder: binderGroup.binder.name })
     );
-
-    const binderNote = binderGroup.binder.note.trim();
-    if (binderNote) {
-      lines.push(t("checkout:message.binder_note"));
-      lines.push(binderNote);
-    }
 
     lines.push("");
 
@@ -223,6 +236,13 @@ const areStringSetsEqual = (
   return true;
 };
 
+type CartStep = "review" | "messages" | "completed";
+
+interface CompleteCartItemsResult {
+  completedItemCount: number;
+  didCompleteAllSelected: boolean;
+}
+
 export const Cart = () => {
   const { i18n, t } = useTranslation(["checkout", "common"]);
   const {
@@ -236,11 +256,13 @@ export const Cart = () => {
   } = useCart();
   const { convertAmountToTargetCurrency } = usePricingSettings();
   const translate = t as unknown as CartTranslate;
-  const [hasGeneratedMessages, setHasGeneratedMessages] = useState(false);
+  const [cartStep, setCartStep] = useState<CartStep>("review");
+  const [completedItemCount, setCompletedItemCount] = useState(0);
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(
     () => new Set()
   );
   const previousItemIdsRef = useRef<Set<string>>(new Set());
+  const messagesHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const sellerGroups = useMemo(() => groupCartItems(items), [items]);
   const cartItemIds = useMemo(
     () => items.map((item) => item.binderCardId),
@@ -294,8 +316,20 @@ export const Cart = () => {
         convertAmountToTargetCurrency,
         totals: sellerTotals,
       });
+      const sellerTotalLabel =
+        sellerEstimatedTotal
+          ? formatAmount({
+              amount: sellerEstimatedTotal.amount,
+              currency: sellerEstimatedTotal.currency,
+              locale: i18n.language,
+            })
+          : sellerTotals.length > 0
+          ? formatTotals({ locale: i18n.language, totals: sellerTotals })
+          : translate("checkout:no_price");
 
       return {
+        binderCardIds: group.items.map((item) => item.binderCardId),
+        itemCount: getCartItemCount(group.items),
         message: buildSellerMessage({
           estimatedTotal: sellerEstimatedTotal,
           group,
@@ -303,8 +337,10 @@ export const Cart = () => {
           t: translate,
           totals: sellerTotals,
         }),
+        sellerCountry: group.seller.country,
         sellerId: group.seller.id,
         sellerName: group.seller.nickname,
+        totalLabel: sellerTotalLabel,
       };
     });
   }, [
@@ -348,9 +384,94 @@ export const Cart = () => {
     [handleGroupSelectionChange]
   );
 
+  const handleCreateOrderMessages = useCallback(() => {
+    if (selectedItems.length === 0) return;
+
+    setCompletedItemCount(0);
+    setCartStep("messages");
+  }, [selectedItems.length]);
+
+  const handleBackToCart = useCallback(() => {
+    setCompletedItemCount(0);
+    setCartStep("review");
+  }, []);
+
+  const removeSelectedCartItems = useCallback(
+    (binderCardIds: string[]): CompleteCartItemsResult => {
+      const selectedBinderCardIds = binderCardIds.filter((binderCardId) =>
+        selectedItemIds.has(binderCardId)
+      );
+      const binderCardIdSet = new Set(selectedBinderCardIds);
+      const nextCompletedItemCount = selectedItems.reduce((total, item) => {
+        return binderCardIdSet.has(item.binderCardId)
+          ? total + item.quantity
+          : total;
+      }, 0);
+
+      selectedBinderCardIds.forEach((binderCardId) => {
+        removeCartItem(binderCardId);
+      });
+
+      setSelectedItemIds((currentItemIds) => {
+        const nextItemIds = new Set(currentItemIds);
+
+        binderCardIdSet.forEach((binderCardId) => {
+          nextItemIds.delete(binderCardId);
+        });
+
+        return nextItemIds;
+      });
+
+      return {
+        completedItemCount: nextCompletedItemCount,
+        didCompleteAllSelected:
+          selectedBinderCardIds.length > 0 &&
+          [...selectedItemIds].every((binderCardId) =>
+            binderCardIdSet.has(binderCardId)
+          ),
+      };
+    },
+    [removeCartItem, selectedItemIds, selectedItems]
+  );
+
+  const handleCompleteSellerOrderMessage = useCallback(
+    (binderCardIds: string[]) => {
+      const result = removeSelectedCartItems(binderCardIds);
+      if (result.completedItemCount === 0) return;
+
+      setCompletedItemCount(
+        (currentItemCount) => currentItemCount + result.completedItemCount
+      );
+
+      if (result.didCompleteAllSelected) {
+        setCartStep("completed");
+      }
+    },
+    [removeSelectedCartItems]
+  );
+
+  const handleCompleteOrderMessages = useCallback(() => {
+    const result = removeSelectedCartItems([...selectedItemIds]);
+    if (result.completedItemCount === 0) return;
+
+    setCompletedItemCount(
+      (currentItemCount) => currentItemCount + result.completedItemCount
+    );
+
+    if (result.didCompleteAllSelected) {
+      setCartStep("completed");
+    }
+  }, [removeSelectedCartItems, selectedItemIds]);
+
   useEffect(() => {
-    setHasGeneratedMessages(false);
-  }, [items, selectedItemIds]);
+    if (cartStep !== "messages") return;
+
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    messagesHeadingRef.current?.focus();
+  }, [cartStep]);
 
   useEffect(() => {
     const itemIds = new Set(cartItemIds);
@@ -378,11 +499,87 @@ export const Cart = () => {
     previousItemIdsRef.current = itemIds;
   }, [cartItemIds]);
 
+  const isMessageStep = cartStep === "messages" && selectedItems.length > 0;
+
   return (
     <div className="flex flex-1 flex-col bg-background">
       <div className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col px-4 pb-28 sm:px-6 lg:px-8 lg:pb-8">
-        {items.length === 0 ? (
+        {cartStep === "completed" ? (
+          <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
+            <div className="animate-in zoom-in-95 flex size-20 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <CheckCircle2 className="size-11" />
+            </div>
+            <h1 className="mt-6 font-display text-3xl font-bold">
+              {t("checkout:completion_title")}
+            </h1>
+            <p className="mt-2 max-w-md text-muted-foreground">
+              {t("checkout:completion_description", {
+                count: completedItemCount,
+              })}
+            </p>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              {t("checkout:completion_hint")}
+            </p>
+            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row">
+              {items.length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleBackToCart}
+                >
+                  {t("checkout:review_cart")}
+                </Button>
+              )}
+              <Button asChild>
+                <Link to="/">{t("checkout:continue_browsing")}</Link>
+              </Button>
+            </div>
+          </div>
+        ) : items.length === 0 ? (
           <CartEmptyState />
+        ) : isMessageStep ? (
+          <div className="grid flex-1 content-start gap-5 py-5">
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBackToCart}
+              >
+                <ArrowLeft className="size-4" />
+                {t("checkout:back_to_cart")}
+              </Button>
+            </div>
+            <header>
+              <div>
+                <h1
+                  ref={messagesHeadingRef}
+                  tabIndex={-1}
+                  className="font-display text-3xl font-bold outline-none"
+                >
+                  {t("checkout:messages_title")}
+                </h1>
+              </div>
+            </header>
+
+            <SellerMessagesSection
+              messages={sellerMessages}
+              showHeader={false}
+              onCompleteSeller={handleCompleteSellerOrderMessage}
+            />
+
+            <div className="flex flex-col items-center gap-2 text-center">
+              <Button
+                type="button"
+                onClick={handleCompleteOrderMessages}
+              >
+                <Check className="size-4" />
+                {t("checkout:complete_messages")}
+              </Button>
+              <p className="max-w-sm text-sm text-muted-foreground">
+                {t("checkout:complete_messages_hint")}
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="grid flex-1 gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
             <div className="grid min-w-0 content-start gap-5">
@@ -433,10 +630,6 @@ export const Cart = () => {
                   />
                 ))}
               </div>
-
-              {hasGeneratedMessages && (
-                <SellerMessagesSection messages={sellerMessages} />
-              )}
             </div>
 
             <div className="hidden lg:block">
@@ -450,20 +643,20 @@ export const Cart = () => {
                 unpricedItemCount={selectedUnpricedItemCount}
                 isGenerateDisabled={selectedItems.length === 0}
                 onClearCart={clearCart}
-                onGenerateMessages={() => setHasGeneratedMessages(true)}
+                onGenerateMessages={handleCreateOrderMessages}
               />
             </div>
           </div>
         )}
       </div>
 
-      {items.length > 0 && (
+      {items.length > 0 && cartStep === "review" && (
         <CartMobileSummaryBar
           isGenerateDisabled={selectedItems.length === 0}
           itemCount={selectedItemCount}
           locale={i18n.language}
           totals={selectedTotals}
-          onGenerateMessages={() => setHasGeneratedMessages(true)}
+          onGenerateMessages={handleCreateOrderMessages}
         />
       )}
     </div>

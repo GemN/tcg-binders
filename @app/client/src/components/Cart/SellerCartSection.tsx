@@ -50,7 +50,7 @@ export const SellerCartSection = ({
   const sellerName = group.seller.nickname.trim();
 
   return (
-    <section className="overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-sm">
+    <section className="overflow-hidden rounded-md border border-border bg-card text-card-foreground">
       <div className="flex flex-col gap-3 border-b border-border px-3 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-4">
         <div className="flex min-w-0 items-center gap-4">
           <Checkbox

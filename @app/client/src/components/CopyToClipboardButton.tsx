@@ -13,6 +13,7 @@ interface CopyToClipboardButtonProps
   extends Omit<ButtonProps, "asChild" | "children" | "onClick"> {
   copiedLabel?: string;
   label?: string;
+  showLabel?: boolean;
   value: string;
 }
 
@@ -38,6 +39,7 @@ export const CopyToClipboardButton = ({
   copiedLabel,
   disabled,
   label,
+  showLabel = false,
   value,
   variant = "outline",
   size = "icon",
@@ -99,6 +101,7 @@ export const CopyToClipboardButton = ({
           ) : (
             <Clipboard className="size-4" />
           )}
+          {showLabel && <span>{hasCopied ? copiedText : copyLabel}</span>}
         </Button>
       </TooltipTrigger>
       <TooltipContent>{hasCopied ? copiedText : copyLabel}</TooltipContent>

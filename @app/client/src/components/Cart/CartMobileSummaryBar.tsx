@@ -23,7 +23,7 @@ export const CartMobileSummaryBar = ({
   const { t } = useTranslation(["checkout"]);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card p-3 shadow-2xl lg:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card p-3 lg:hidden">
       <div className="mx-auto flex max-w-[92rem] items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs text-muted-foreground">

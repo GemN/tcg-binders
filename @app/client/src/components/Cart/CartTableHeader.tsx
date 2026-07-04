@@ -15,10 +15,11 @@ export const CartTableHeader = ({
   const { t } = useTranslation(["checkout"]);
 
   return (
-    <div className="flex h-12 items-center gap-3 rounded-md border border-border bg-card px-4 text-xs font-semibold uppercase text-muted-foreground lg:grid lg:grid-cols-[2rem_minmax(0,1fr)_8rem_9rem_8rem_5rem] lg:gap-x-3">
+    <div className="flex h-12 items-center gap-3 rounded-md border border-border bg-card px-3 text-xs font-semibold uppercase text-muted-foreground lg:grid lg:grid-cols-[2rem_minmax(0,1fr)_8rem_9rem_8rem_5rem] lg:gap-x-3 lg:px-8">
       <Checkbox
         aria-label={t("checkout:select_all")}
         checked={selectionState}
+        className="lg:-translate-x-4"
         onCheckedChange={(checked) => onSelectionChange(checked === true)}
       />
       <span className="lg:hidden">{t("checkout:select_all")}</span>

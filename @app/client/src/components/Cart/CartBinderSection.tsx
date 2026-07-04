@@ -40,8 +40,8 @@ export const CartBinderSection = ({
   const binderCardIds = binderGroup.items.map((item) => item.binderCardId);
 
   return (
-    <section className="overflow-hidden border-t border-border first:border-t-0">
-      <div className="flex flex-col gap-2 bg-muted/20 px-3 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-4">
+    <section className="m-3 overflow-hidden rounded-md border border-border first:mt-3 lg:m-4 lg:first:mt-4">
+      <div className="flex flex-col gap-2 border-b border-border bg-muted/20 px-3 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-4">
         <div className="flex min-w-0 items-start gap-4">
           <Checkbox
             aria-label={t("checkout:select_binder", {

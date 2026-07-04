@@ -30,13 +30,21 @@
   "estimated_total_hint": "Converted to the most common cart currency.",
   "no_price": "No price listed",
   "generate_messages": "Create order messages",
+  "back_to_cart": "Back to cart",
+  "complete_messages": "Complete all",
+  "complete_messages_hint": "This will clear all selected cards from your cart.",
+  "clear_seller": "Complete",
+  "completion_title": "All set",
+  "completion_description_one": "{{count}} selected card was cleared from your cart.",
+  "completion_description_other": "{{count}} selected cards were cleared from your cart.",
+  "completion_hint": "Your order messages are complete.",
   "no_selected_items": "Select at least one card to generate messages.",
   "select_all": "Select all",
   "select_seller": "Select all cards from {{seller}}",
   "select_binder": "Select all cards from {{binder}}",
   "select_card": "Select {{card}}",
-  "messages_title": "Seller messages",
-  "messages_description": "Copy each message and send it to the matching seller.",
+  "messages_title": "Order messages",
+  "message_copy_instruction": "Copy this message and send it to this seller.",
   "message_for": "Message for {{seller}}",
   "empty_seller_cart": "Empty seller cart",
   "empty_binder_cart": "Empty binder cart",
@@ -65,11 +73,10 @@
   "message": {
     "greeting": "Hi {{seller}}, I would like to buy these cards:",
     "binder": "Binder: {{binder}}",
-    "binder_note": "Binder note:",
     "unpriced_title": "Cards without listed price:",
     "unpriced_notice": "Some selected cards do not have a listed price. Please confirm pricing.",
     "total": "Total: {{total}}",
     "estimated_total": "Estimated total: {{total}}",
-    "price_each": "@ {{unitPrice}} = {{lineTotal}}"
+    "price_each": "@ {{unitPrice}}"
   }
 }
