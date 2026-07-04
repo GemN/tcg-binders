@@ -185,6 +185,7 @@ comment on <table|column|function|...> <fully.qualified.name> is
 #### SQL
 Do not create sql/pgsql code without my acknowledgement.
 If needed only use current.sql for new sql code.
+To get count on table, use comment on table "Table" is e'@graphql({"totalCount": {"enabled": true}})';
 
 #### Types
 Prefer to not use anonymous types. Use type or interface whenever possible.

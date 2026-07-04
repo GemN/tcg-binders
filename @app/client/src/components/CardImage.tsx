@@ -14,6 +14,7 @@ export interface CardImageProps {
   imageUrl: string | null | undefined;
   loading?: "eager" | "lazy";
   noImageLabel: string;
+  showBadgeFinish?: boolean;
   scryfallId?: string | null;
   style?: CSSProperties;
 }
@@ -31,6 +32,7 @@ export const CardImage = ({
   imageUrl,
   loading = "lazy",
   noImageLabel,
+  showBadgeFinish = true,
   scryfallId,
   style,
 }: CardImageProps) => {
@@ -68,7 +70,9 @@ export const CardImage = ({
           {noImageLabel}
         </span>
       )}
-      {imageUrls.fallbackUrl && <CardFinishOverlay finish={finish} />}
+      {imageUrls.fallbackUrl && (
+        <CardFinishOverlay finish={finish} showBadge={showBadgeFinish} />
+      )}
       {children}
     </div>
   );

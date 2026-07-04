@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 interface CardFinishOverlayProps {
   className?: string;
   finish: string | null | undefined;
+  showBadge?: boolean;
 }
 
 const getNormalizedFinish = (finish: string | null | undefined) => {
@@ -22,6 +23,7 @@ const formatFinishFallbackLabel = (finish: string): string => {
 export const CardFinishOverlay = ({
   className,
   finish,
+  showBadge = true,
 }: CardFinishOverlayProps) => {
   const { t } = useTranslation("common");
   const normalizedFinish = getNormalizedFinish(finish);
@@ -29,11 +31,12 @@ export const CardFinishOverlay = ({
   if (!normalizedFinish || !isFoilCardFinish(normalizedFinish)) return null;
 
   const shouldShowBadge = normalizedFinish !== "foil";
-  const finishLabel = shouldShowBadge
-    ? t(`card.finish.${normalizedFinish}`, {
-        defaultValue: formatFinishFallbackLabel(normalizedFinish),
-      })
-    : null;
+  const finishLabel =
+    showBadge && shouldShowBadge
+      ? t(`card.finish.${normalizedFinish}`, {
+          defaultValue: formatFinishFallbackLabel(normalizedFinish),
+        })
+      : null;
 
   return (
     <div

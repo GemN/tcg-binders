@@ -4,6 +4,7 @@ query BinderByShortId(
   $cardOffset: Int!
   $cardOrderBy: [BinderCardsOrderBy!]!
   $cardFilter: BinderCardsFilter
+  $includeFilteredTotalCount: Boolean!
 ) {
   binderByShortId(binderShortId: $shortId) {
     id
@@ -14,8 +15,8 @@ query BinderByShortId(
     shortId
     tcgId
     visibility
+    binderCardCount
   }
-  binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
@@ -23,6 +24,7 @@ query BinderByShortId(
     orderBy: $cardOrderBy
     filter: $cardFilter
   ) {
+    totalCount @include(if: $includeFilteredTotalCount)
     pageInfo {
       hasNextPage
     }

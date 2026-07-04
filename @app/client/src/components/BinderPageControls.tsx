@@ -18,10 +18,10 @@ import type { BinderCardFilterState, BinderSortMode } from "@/lib/binderPage";
 interface BinderPageControlsProps {
   activeFilterCount: number;
   filterState: BinderCardFilterState;
+  canEditBinder: boolean;
   isMobile: boolean;
   isFiltered: boolean;
   isFilteredCountExact: boolean;
-  isOwner: boolean;
   isPageLoading: boolean;
   isSelectionMode: boolean;
   isDeletingSelectedBinderCards: boolean;
@@ -46,10 +46,10 @@ interface BinderPageControlsProps {
 export const BinderPageControls = ({
   activeFilterCount,
   filterState,
+  canEditBinder,
   isMobile,
   isFiltered,
   isFilteredCountExact,
-  isOwner,
   isPageLoading,
   isSelectionMode,
   isDeletingSelectedBinderCards,
@@ -103,7 +103,7 @@ export const BinderPageControls = ({
           onClearFilters={onClearFilters}
           onFilterStateChange={onFilterStateChange}
         />
-        {isOwner && (
+        {canEditBinder && (
           <div className="flex flex-wrap items-center gap-2">
             {isSelectionMode ? (
               <>
@@ -190,7 +190,7 @@ export const BinderPageControls = ({
             )}
           </div>
         )}
-        {isOwner && (
+        {canEditBinder && (
           <div
             className="h-px w-full bg-border sm:h-9 sm:w-px"
             aria-hidden="true"

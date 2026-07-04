@@ -5,6 +5,7 @@ import { Link } from "react-router";
 import { ButtonNewBinder } from "@/components/ButtonNewBinder";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { NavbarCartButton } from "@/components/NavbarCartButton";
 import { PriceSourceSwitcher } from "@/components/PriceSourceSwitcher";
 import { Button } from "@/components/ui/Button";
 import { UserNavigation } from "@/components/UserNavigation";
@@ -58,6 +59,7 @@ export const Navbar = () => {
           <LanguageSwitcher />
           <CurrencySwitcher />
           <PriceSourceSwitcher />
+          <NavbarCartButton />
           {!isSessionLoading && (
             <>
               {isLoggedIn ? (

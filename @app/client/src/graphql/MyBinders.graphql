@@ -1,7 +1,7 @@
 query MyBinders($ownerId: UUID!) {
   bindersCollection(
     filter: { ownerId: { eq: $ownerId } }
-    orderBy: [{ updatedAt: DescNullsLast }]
+    orderBy: [{ createdAt: DescNullsLast }]
   ) {
     edges {
       node {
@@ -10,6 +10,8 @@ query MyBinders($ownerId: UUID!) {
         name
         shortId
         updatedAt
+        visibility
+        binderCardCount
         binderCards(first: 1, orderBy: [{ position: AscNullsLast }]) {
           edges {
             node {

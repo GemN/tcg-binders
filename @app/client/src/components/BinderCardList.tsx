@@ -1,10 +1,10 @@
 import { LanguageCode, MarketPriceSource } from "@app/graphql";
-import { Star } from "lucide-react";
 import { memo, type MouseEvent, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import { CardConditionBadge } from "@/components/CardConditionBadge";
+import { CardFinishBadge } from "@/components/CardFinishBadge";
 import { CardImage } from "@/components/CardImage";
 import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
@@ -17,12 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/Tooltip";
-import { cardLanguageFlagCodes, isFoilCardFinish } from "@/config/card";
+import { cardLanguageFlagCodes } from "@/config/card";
 import { marketPriceSourceClassNames } from "@/config/marketPriceSource";
 import {
   type BinderCardPriceInput,
@@ -104,8 +99,6 @@ const CARD_PREVIEW_OFFSET = 18;
 const CARD_PREVIEW_MARGIN = 12;
 const fallbackPrice = "-";
 const highlightedMarketPriceClassName = "font-bold";
-const conditionColumnTooltipClassName = "bg-[#2f2933] text-[#fffdf7]";
-const conditionColumnTooltipArrowClassName = "bg-[#2f2933] fill-[#2f2933]";
 
 const getCardPreviewPosition = (
   event: MouseEvent
@@ -253,14 +246,8 @@ const BinderCardListRowComponent = ({
   const selectCardLabel = t("binder:selection.select_card", {
     name: cardName,
   });
-  const conditionLabel = t(`common:card.condition.${binderCard.condition}`);
   const languageLabel = t(`common:card.language.${binderCard.language}`, {
     defaultValue: binderCard.language.toUpperCase(),
-  });
-  const finishLabel = t(`common:card.finish.${binderCard.finish}`, {
-    defaultValue: binderCard.finish
-      .replace(/[-_]/g, " ")
-      .replace(/\b\w/g, (letter) => letter.toUpperCase()),
   });
   const imageUrl = getCardImageBaseUrl(binderCard.card);
   const scryfallId = getCardScryfallId(binderCard.card);
@@ -344,62 +331,18 @@ const BinderCardListRowComponent = ({
       </TableCell>
       <TableCell className="cursor-pointer px-3 py-2">
         <span className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="flex items-center justify-center">
-                <CardConditionBadge
-                  condition={binderCard.condition}
-                  className="py-0.5 rounded-sm"
-                />
-              </span>
-            </TooltipTrigger>
-            <TooltipContent
-              side="bottom"
-              className={conditionColumnTooltipClassName}
-              arrowClassName={conditionColumnTooltipArrowClassName}
-            >
-              {conditionLabel}
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="flex items-center justify-center">
-                <CountryFlag
-                  code={
-                    cardLanguageFlagCodes[binderCard.language as LanguageCode]
-                  }
-                  className="w-5 aspect-[4/3]"
-                  label={languageLabel}
-                />
-              </span>
-            </TooltipTrigger>
-            <TooltipContent
-              side="bottom"
-              className={conditionColumnTooltipClassName}
-              arrowClassName={conditionColumnTooltipArrowClassName}
-            >
-              {languageLabel}
-            </TooltipContent>
-          </Tooltip>
-          {isFoilCardFinish(binderCard.finish) && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span aria-label={finishLabel}>
-                  <Star
-                    aria-hidden="true"
-                    className="size-4 fill-[#ffd21f] text-[#ffd21f]"
-                  />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                className={conditionColumnTooltipClassName}
-                arrowClassName={conditionColumnTooltipArrowClassName}
-              >
-                {finishLabel}
-              </TooltipContent>
-            </Tooltip>
-          )}
+          <CardConditionBadge
+            condition={binderCard.condition}
+            className="rounded-sm py-0.5"
+            showTooltip
+          />
+          <CountryFlag
+            code={cardLanguageFlagCodes[binderCard.language as LanguageCode]}
+            className="aspect-[4/3] w-5"
+            label={languageLabel}
+            showTooltip
+          />
+          <CardFinishBadge finish={binderCard.finish} display="icon" />
         </span>
       </TableCell>
       <TableCell className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground">

@@ -1,6 +1,6 @@
 import { type LanguageCode, MarketPriceSource } from "@app/graphql";
-import { ArrowDown, ArrowUp } from "lucide-react";
-import { memo, useCallback } from "react";
+import { ArrowDown, ArrowUp, ShoppingCart } from "lucide-react";
+import { memo, type MouseEvent, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
@@ -8,6 +8,7 @@ import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CardImage } from "@/components/CardImage";
 import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
+import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { cardLanguageFlagCodes } from "@/config/card";
 import {
@@ -120,7 +121,7 @@ const BinderCardImage = ({
     <CardImage
       alt=""
       className={cn(
-        "border border-primary/25 bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40",
+        "border border-primary/25 bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40 outline outline-4 outline-offset-0 outline-transparent transition-[outline-color] group-hover/card-image:outline-primary/70 group-focus-within/card-image:outline-primary",
         className
       )}
       fallbackClassName="text-muted-foreground"
@@ -324,6 +325,8 @@ interface BinderCardProps {
   isSelectionMode?: boolean;
   noImageLabel: string;
   showConvertedMarketPrices: boolean;
+  isCartPreview?: boolean;
+  onAddToCart?: (binderCard: BinderCardRecord) => void;
   onDelete?: (binderCard: BinderCardRecord) => void;
   onOpen: (binderCard: BinderCardRecord, index: number) => void;
   onToggleSelection?: (binderCard: BinderCardRecord) => void;
@@ -336,11 +339,13 @@ const BinderCardComponent = ({
   isSelectionMode = false,
   noImageLabel,
   showConvertedMarketPrices,
+  isCartPreview,
+  onAddToCart,
   onDelete,
   onOpen,
   onToggleSelection,
 }: BinderCardProps) => {
-  const { t } = useTranslation(["binder", "common"]);
+  const { t } = useTranslation(["binder", "checkout", "common"]);
   const {
     listedPriceLabel,
     marketPriceLabel,
@@ -367,9 +372,19 @@ const BinderCardComponent = ({
   const handleDelete = useCallback(() => {
     onDelete?.(binderCard);
   }, [binderCard, onDelete]);
+  const handleAddToCartClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    onAddToCart?.(binderCard);
+
+    if (event.detail > 0) {
+      event.currentTarget.blur();
+    }
+  }, [binderCard, onAddToCart]);
+  const addToCartLabel = isCartPreview
+    ? t("checkout:add_preview_item")
+    : t("binder:detail.add_to_basket");
 
   return (
-    <div className="relative w-full max-w-[12rem] text-left text-foreground">
+    <div className="group/card-image relative w-full max-w-[12rem] text-left text-foreground">
       {isSelectionMode && (
         <Checkbox
           checked={isSelected}
@@ -380,36 +395,67 @@ const BinderCardComponent = ({
           onCheckedChange={() => onToggleSelection?.(binderCard)}
         />
       )}
-      <button
-        type="button"
-        aria-label={
-          isSelectionMode
-            ? t("binder:selection.select_card", { name: cardName })
-            : t("binder:detail.open_card", { name: cardName })
-        }
-        className="group grid w-full cursor-pointer gap-2 transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-        onClick={handlePrimaryClick}
-      >
-        <BinderCardImage
-          condition={binderCard.condition}
-          finish={binderCard.finish}
-          imageUrl={imageUrl}
-          language={binderCard.language}
-          languageLabel={languageLabel}
-          marketPriceLabel={marketPriceLabel}
-          noImageLabel={noImageLabel}
-          priceSource={priceSource}
-          priceSourceLabel={priceSourceLabel}
-          quantityLabel={String(binderCard.quantity)}
-          scryfallId={scryfallId}
-        />
-        <BinderCardPriceSummary
-          listedAtLabel={listedAtLabel}
-          listedPriceLabel={listedPriceLabel}
-          priceLabel={priceLabel}
-          valueDelta={valueDelta}
-        />
-      </button>
+      <div className="grid w-full gap-2">
+        <div className="relative">
+          <button
+            type="button"
+            aria-label={
+              isSelectionMode
+                ? t("binder:selection.select_card", { name: cardName })
+                : t("binder:detail.open_card", { name: cardName })
+            }
+            className="block w-full cursor-pointer focus-visible:outline-none"
+            onClick={handlePrimaryClick}
+          >
+            <BinderCardImage
+              condition={binderCard.condition}
+              finish={binderCard.finish}
+              imageUrl={imageUrl}
+              language={binderCard.language}
+              languageLabel={languageLabel}
+              marketPriceLabel={marketPriceLabel}
+              noImageLabel={noImageLabel}
+              priceSource={priceSource}
+              priceSourceLabel={priceSourceLabel}
+              quantityLabel={String(binderCard.quantity)}
+              scryfallId={scryfallId}
+            />
+          </button>
+          {onAddToCart && !isSelectionMode && (
+            <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[4.75%_/_3.5%]">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label={addToCartLabel}
+                title={addToCartLabel}
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-9 translate-y-full overflow-hidden rounded-t-none rounded-b-[inherit] border-x-0 border-t border-b-0 border-white/80 bg-white px-2 text-slate-950 opacity-0 shadow-lg shadow-black/20 transition-[opacity,transform,background-color,color,border-color] duration-200 ease-out hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:border-primary focus-visible:bg-primary focus-visible:text-primary-foreground group-hover/card-image:pointer-events-auto group-hover/card-image:translate-y-0 group-hover/card-image:opacity-100 group-focus-within/card-image:pointer-events-auto group-focus-within/card-image:translate-y-0 group-focus-within/card-image:opacity-100"
+                onClick={handleAddToCartClick}
+              >
+                <ShoppingCart className="size-4" />
+                <span className="min-w-0 truncate">{addToCartLabel}</span>
+              </Button>
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          aria-label={
+            isSelectionMode
+              ? t("binder:selection.select_card", { name: cardName })
+              : t("binder:detail.open_card", { name: cardName })
+          }
+          className="w-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          onClick={handlePrimaryClick}
+        >
+          <BinderCardPriceSummary
+            listedAtLabel={listedAtLabel}
+            listedPriceLabel={listedPriceLabel}
+            priceLabel={priceLabel}
+            valueDelta={valueDelta}
+          />
+        </button>
+      </div>
       {onDelete && !isSelectionMode && (
         <BinderCardActionsMenu
           cardName={cardName}

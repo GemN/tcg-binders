@@ -74,7 +74,7 @@ The biggest problem is to find specific cards.
 | [x]  | FR-010 | Users can search by name and others domain filters                 | Must     | By domain filters, in MTG that would be mana, power, set, rarity etc                         |
 | [x]  | FR-011 | Users can set a website language                                   | Must     | Starting with english, thai. Saved in account if logged, else local storage.                 |
 | [ ]  | FR-012 | Users can set up to two comparaison prices                         | Should   | Comparaison price is picked from a marketplace like CKD, TCGPlayer, Cardmarket               |
-| [ ]  | FR-013 | Users can add to a basket and checkout                             | Must     | The checkout will generate a message listing all cards, sum and show total to send to seller |
+| [x]  | FR-013 | Users can add to a basket and checkout                             | Must     | The checkout will generate a message listing all cards, sum and show total to send to seller |
 | [x]  | FR-014 | Users can browse cards from pages left to right in "binder view"   | Must     | On mobile, this must be a vertical scrollable list                                           |
 | [x]  | FR-015 | Users can set "lists" view                                         | Should   | List view is a table, with no images                                                         |
 | [ ]  | FR-016 | Users can drag and drop to reorder cards in their binders          | Should   | Only in sorting "seller order"                                                               |

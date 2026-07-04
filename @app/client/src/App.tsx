@@ -7,10 +7,14 @@ import { Loading } from "@/components/Loading";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Toaster } from "@/components/ui/Sonner";
 import apolloClient from "@/lib/apollo";
+import { CartProvider } from "@/providers/CartProvider";
 import { PricingSettingsProvider } from "@/providers/PricingSettingsProvider";
 import { SessionProvider } from "@/providers/SessionProvider";
 import { UserContextProvider } from "@/providers/UserContextProvider";
 
+const Cart = lazy(() =>
+  import("@/pages/Cart").then((module) => ({ default: module.Cart }))
+);
 const BinderDraft = lazy(() =>
   import("@/pages/BinderDraft").then((module) => ({
     default: module.BinderDraft,
@@ -60,7 +64,9 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
     <UserContextProvider>
       <ApolloProvider client={apolloClient}>
         <PricingSettingsProvider>
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <CartProvider>{children}</CartProvider>
+          </SessionProvider>
         </PricingSettingsProvider>
       </ApolloProvider>
     </UserContextProvider>
@@ -99,6 +105,7 @@ function App() {
                 path="user/:nickname"
                 element={renderPage(<UserProfile />)}
               />
+              <Route path="cart" element={renderPage(<Cart />)} />
               <Route path="login" element={renderPage(<Login />)} />
               <Route path="logout" element={renderPage(<Logout />)} />
               <Route

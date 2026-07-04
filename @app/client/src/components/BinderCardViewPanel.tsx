@@ -22,6 +22,7 @@ interface BinderCardViewPanelProps {
   cardsPerPage: number;
   emptyLabel: string;
   isDeletingCard?: boolean;
+  isCartPreview?: boolean;
   isDetailOpen: boolean;
   isMobile: boolean;
   isPageLoading: boolean;
@@ -29,6 +30,7 @@ interface BinderCardViewPanelProps {
   selectedBinderCardIds?: Set<string>;
   showConvertedMarketPrices: boolean;
   viewMode: BinderCardViewMode;
+  onAddToCart?: (binderCard: BinderCardRecord) => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onNextPage: () => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
@@ -43,6 +45,7 @@ export const BinderCardViewPanel = ({
   cardsPerPage,
   emptyLabel,
   isDeletingCard,
+  isCartPreview,
   isDetailOpen,
   isMobile,
   isPageLoading,
@@ -50,6 +53,7 @@ export const BinderCardViewPanel = ({
   selectedBinderCardIds,
   showConvertedMarketPrices,
   viewMode,
+  onAddToCart,
   onDeleteCard,
   onNextPage,
   onOpenCard,
@@ -180,9 +184,11 @@ export const BinderCardViewPanel = ({
         <BinderCardGrid
           binderCards={binderCards}
           className="min-h-full"
+          isCartPreview={isCartPreview}
           isDeletingCard={isDeletingCard}
           isSelectionMode={isSelectionMode}
           noImageLabel={t("binder:no_image")}
+          onAddToCart={onAddToCart}
           onDeleteCard={onDeleteCard}
           onOpenCard={onOpenCard}
           onToggleCardSelection={onToggleCardSelection}

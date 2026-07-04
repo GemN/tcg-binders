@@ -1,4 +1,4 @@
-import { PackageCheck, ShoppingBasket } from "lucide-react";
+import { Info, PackageCheck, ShoppingBasket } from "lucide-react";
 
 import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CountryFlag } from "@/components/CountryFlag";
@@ -9,13 +9,17 @@ import { cardLanguageFlagCodes, isFoilCardFinish } from "@/config/card";
 import type { ModalBinderCardRecord } from "./types";
 
 interface BinderCardOfferPanelProps {
+  addPreviewItemLabel: string;
   addToBasketLabel: string;
   availableLabel: string;
   binderCard: ModalBinderCardRecord;
+  cartPreviewNoticeLabel: string;
   convertedPriceValue: string | null;
+  isCartPreview: boolean;
   notAvailableLabel: string;
   priceValue: string;
   titleLabel: string;
+  onAddToCart: () => void;
   translateCardOption: (
     group: "condition" | "finish" | "language",
     value: string | null | undefined
@@ -23,13 +27,17 @@ interface BinderCardOfferPanelProps {
 }
 
 export const BinderCardOfferPanel = ({
+  addPreviewItemLabel,
   addToBasketLabel,
   availableLabel,
   binderCard,
+  cartPreviewNoticeLabel,
   convertedPriceValue,
+  isCartPreview,
   notAvailableLabel,
   priceValue,
   titleLabel,
+  onAddToCart,
   translateCardOption,
 }: BinderCardOfferPanelProps) => {
   const conditionValue =
@@ -65,9 +73,21 @@ export const BinderCardOfferPanel = ({
             )}
           </div>
 
-          <Button type="button" size="lg" className="w-full">
+          {isCartPreview && (
+            <p className="flex items-start gap-2 rounded-md border border-warning/30 bg-yellow-100 px-3 py-2 text-sm leading-5 text-yellow-900">
+              <Info className="mt-0.5 size-4 shrink-0" />
+              <span>{cartPreviewNoticeLabel}</span>
+            </p>
+          )}
+
+          <Button
+            type="button"
+            size="lg"
+            className="w-full"
+            onClick={onAddToCart}
+          >
             <ShoppingBasket className="size-4" />
-            {addToBasketLabel}
+            {isCartPreview ? addPreviewItemLabel : addToBasketLabel}
           </Button>
         </div>
 

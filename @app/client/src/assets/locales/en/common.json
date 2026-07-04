@@ -1,8 +1,10 @@
 {
   "ok": "Ok",
   "cancel": "Cancel",
+  "close": "Close",
   "confirm": "Confirm",
   "apply": "Apply",
+  "add": "Add",
   "loading": "Loading...",
   "next": "Next",
   "previous": "Previous",

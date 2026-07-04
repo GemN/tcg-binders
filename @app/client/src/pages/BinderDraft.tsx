@@ -123,7 +123,6 @@ export const BinderDraft = () => {
     : binderCards.slice(cardOffset, cardOffset + cardsPerPage);
   const totalBinderCards = binderCards.length;
   const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
-  const canTurnPreviousPage = !isMobile && pageIndex > 0;
   const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
   const selectedCardIndex = useMemo(() => {
     if (!selectedBinderCardId) return null;
@@ -436,8 +435,7 @@ export const BinderDraft = () => {
         binderTcgId={draftBinder.tcgId}
         canGoNextDetailCard={canGoNextDetailCard}
         canGoPreviousDetailCard={canGoPreviousDetailCard}
-        canTurnNextPage={canTurnNextPage}
-        canTurnPreviousPage={canTurnPreviousPage}
+        canEditBinder
         cardsPerPage={cardsPerPage}
         headerAction={
           <Button
@@ -451,13 +449,13 @@ export const BinderDraft = () => {
           </Button>
         }
         isAddingCard={false}
+        isCartPreview={false}
         isDeletingCard={false}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
         isDetailLoading={false}
         isFiltered={isFiltered}
         isFilteredCountExact
         isMobile={isMobile}
-        isOwner
         isPageLoading={false}
         isSelectionMode={isSelectionMode}
         isBulkPriceOpen={isBulkPriceOpen}
@@ -471,10 +469,10 @@ export const BinderDraft = () => {
         sortMode={sortMode}
         filterState={filterState}
         totalBinderCards={totalBinderCards}
-        totalPages={totalPages}
         viewMode={viewMode}
         visibleBinderCards={visibleBinderCards}
         onAddCard={addCard}
+        onAddToCart={() => undefined}
         onBinderCardUpdated={() => undefined}
         onBinderChanged={() => undefined}
         onBulkPriceApplied={handleBulkPriceApplied}

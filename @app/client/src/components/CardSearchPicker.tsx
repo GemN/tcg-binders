@@ -156,8 +156,6 @@ export const CardSearchPicker = ({
                   priceSource,
                   ["normal"]
                 );
-                const cardFinish =
-                  card.finishes.length === 1 ? card.finishes[0] : null;
 
                 return (
                   <button
@@ -170,10 +168,11 @@ export const CardSearchPicker = ({
                       alt=""
                       className="h-16 w-12 shrink-0 rounded-sm border bg-muted"
                       fallbackClassName="text-xs text-current/70"
-                      finish={cardFinish}
+                      finish={card.finishes[0]}
                       imageSize="thumbnail"
                       imageUrl={card.imageUrl}
                       noImageLabel={t("common:card_search.no_image")}
+                      showBadgeFinish={false}
                       scryfallId={getCardScryfallId(card)}
                     />
                     <div className="min-w-0 flex-1">

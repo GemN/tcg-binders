@@ -58,10 +58,12 @@ interface ModalBinderCardDetailProps {
   canGoPrevious: boolean;
   currentIndex: number | null;
   isEditable: boolean;
+  isCartPreview: boolean;
   isLoading: boolean;
   open: boolean;
   showConvertedMarketPrices: boolean;
   totalCards: number;
+  onAddToCart: (binderCard: ModalBinderCardRecord) => void;
   onBinderCardUpdated: (binderCard: ModalBinderCardRecord) => void;
   onGoNext: () => void;
   onGoPrevious: () => void;
@@ -75,17 +77,19 @@ export const ModalBinderCardDetail = ({
   canGoPrevious,
   currentIndex,
   isEditable,
+  isCartPreview,
   isLoading,
   open,
   showConvertedMarketPrices,
   totalCards,
+  onAddToCart,
   onBinderCardUpdated,
   onGoNext,
   onGoPrevious,
   onOpenChange,
   onUpdateBinderCard,
 }: ModalBinderCardDetailProps) => {
-  const { i18n, t } = useTranslation(["binder", "common"]);
+  const { i18n, t } = useTranslation(["binder", "checkout", "common"]);
   const {
     convertAmountToLocalCurrency,
     convertAmountToTargetCurrency,
@@ -231,6 +235,12 @@ export const ModalBinderCardDetail = ({
       event.preventDefault();
       onGoNext();
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!binderCard) return;
+
+    onAddToCart(binderCard);
   };
 
   const handleQuantityCommit = () => {
@@ -620,11 +630,13 @@ export const ModalBinderCardDetail = ({
                     />
                   ) : (
                     <BinderCardOfferPanel
+                      addPreviewItemLabel={t("checkout:add_preview_item")}
                       addToBasketLabel={t("binder:detail.add_to_basket")}
                       availableLabel={t("binder:detail.available", {
                         count: binderCard.quantity,
                       })}
                       binderCard={binderCard}
+                      cartPreviewNoticeLabel={t("checkout:preview_notice")}
                       convertedPriceValue={
                         showConvertedMarketPrices &&
                         binderCard.priceCurrency &&
@@ -638,6 +650,7 @@ export const ModalBinderCardDetail = ({
                             })
                           : null
                       }
+                      isCartPreview={isCartPreview}
                       notAvailableLabel={t("common:not_available")}
                       priceValue={formatPrice({
                         amount: binderCard.priceAmount,
@@ -645,6 +658,7 @@ export const ModalBinderCardDetail = ({
                         sourceCurrency: binderCard.priceCurrency,
                       })}
                       titleLabel={t("binder:detail.listed_at")}
+                      onAddToCart={handleAddToCart}
                       translateCardOption={translateCardOption}
                     />
                   ))}

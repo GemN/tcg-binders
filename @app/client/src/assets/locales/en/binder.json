@@ -23,14 +23,20 @@
     "button": "Preview as a buyer",
     "owner_view": "Back to owner view"
   },
+  "gallery": {
+    "card_count_one": "{{count}} card",
+    "card_count_other": "{{count}} cards",
+    "card_count_loading": "Loading card count"
+  },
   "settings": {
     "button": "Settings",
+    "open_for": "Open settings for {{name}}",
     "title": "Binder settings",
     "description": "Manage who can view this binder.",
     "visibility_label": "Visibility",
     "visibility": {
-      "listed": "Listed",
-      "listed_description": "Anyone can view this binder, and it can appear in public browsing surfaces.",
+      "listed": "Public",
+      "listed_description": "Anyone can view this binder, and it can appear on your profile and in website search.",
       "unlisted": "Unlisted",
       "unlisted_description": "Anyone with the binder link can view it, but it is not listed publicly.",
       "private": "Private",

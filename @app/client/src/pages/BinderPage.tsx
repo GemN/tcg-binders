@@ -1,8 +1,5 @@
-import { NetworkStatus, useApolloClient } from "@apollo/client";
+import { NetworkStatus } from "@apollo/client";
 import {
-  BinderCardFilteredCountDocument,
-  type BinderCardFilteredCountQuery,
-  type BinderCardFilteredCountQueryVariables,
   useAddBinderCardMutation,
   useBinderByShortIdQuery,
   useDeleteBinderCardMutation,
@@ -21,15 +18,16 @@ import { Loading } from "@/components/Loading";
 import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
 import { Button } from "@/components/ui/Button";
+import { useBinderCartActions } from "@/hooks/useBinderCartActions";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import { useIsMobile } from "@/hooks/useMobile";
+import type { CartSellerSnapshot } from "@/lib/cart";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
 import {
   defaultBinderCardFilterState,
-  FILTERED_COUNT_PAGE_SIZE,
   type BinderCardFilterState,
   type BinderSortMode,
   getBinderCardActiveFilterCount,
@@ -47,15 +45,8 @@ import { handleError } from "@/lib/error";
 import { NotFound } from "@/pages/NotFound";
 import { useSession } from "@/providers/SessionContext";
 
-interface FilteredBinderCardCountState {
-  count: number;
-  filterKey: string;
-  shortId: string;
-}
-
 export const BinderPage = () => {
-  const { t } = useTranslation(["binder", "common"]);
-  const client = useApolloClient();
+  const { t } = useTranslation(["binder", "checkout", "common"]);
   const { session } = useSession();
   const navigate = useNavigate();
   const { shortId = "" } = useParams();
@@ -95,12 +86,6 @@ export const BinderPage = () => {
     useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [filteredBinderCardCount, setFilteredBinderCardCount] =
-    useState<FilteredBinderCardCountState | null>(null);
-  const [
-    filteredBinderCardCountRefreshKey,
-    setFilteredBinderCardCountRefreshKey,
-  ] = useState(0);
   const cardsPerPage = getBinderCardsPerPage(viewMode);
   const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
   const cardFirst = isMobile
@@ -114,6 +99,7 @@ export const BinderPage = () => {
       cardOffset,
       cardFilter,
       cardOrderBy,
+      includeFilteredTotalCount: isFiltered,
     },
     skip: !shortId,
     notifyOnNetworkStatusChange: true,
@@ -126,12 +112,29 @@ export const BinderPage = () => {
   const binder = data?.binderByShortId;
   const isOwner = !!session?.user.id && session.user.id === binder?.ownerId;
   const isPublicView = !!binder && (!isOwner || isPublicPreview);
+  const isCartPreview = isOwner && isPublicPreview;
   const ownerId = binder?.ownerId ?? "";
-  const { data: ownerProfileData } = useUserProfileByIdQuery({
-    variables: { id: ownerId },
-    skip: !ownerId || !isPublicView,
-  });
+  const { data: ownerProfileData, loading: isOwnerProfileLoading } =
+    useUserProfileByIdQuery({
+      variables: { id: ownerId },
+      skip: !ownerId || !isPublicView,
+    });
   const ownerProfile = ownerProfileData?.userProfilesCollection?.edges[0]?.node;
+  const cartSeller = useMemo<CartSellerSnapshot | null>(() => {
+    if (!ownerId || !ownerProfile) return null;
+
+    return {
+      country: ownerProfile.country,
+      id: ownerId,
+      nickname: ownerProfile.nickname,
+    };
+  }, [ownerId, ownerProfile]);
+  const { handleAddToCart } = useBinderCartActions({
+    binder,
+    isCartPreview,
+    isSellerLoading: isPublicView && isOwnerProfileLoading,
+    seller: cartSeller,
+  });
   const binderCards = useMemo(() => {
     return (
       data?.binderCardsByShortId?.edges
@@ -147,18 +150,17 @@ export const BinderPage = () => {
     binderCards.length +
     (data?.binderCardsByShortId?.pageInfo.hasNextPage ? 1 : 0);
   const exactFilteredBinderCardCount =
-    filteredBinderCardCount?.filterKey === debouncedFilterKey &&
-    filteredBinderCardCount.shortId === shortId
-      ? filteredBinderCardCount.count
+    isFiltered && typeof data?.binderCardsByShortId?.totalCount === "number"
+      ? data.binderCardsByShortId.totalCount
       : null;
   const hasExactFilteredBinderCardCount =
-    isFiltered && exactFilteredBinderCardCount !== null;
+    exactFilteredBinderCardCount !== null;
   const totalBinderCards = isFiltered
     ? (exactFilteredBinderCardCount ?? currentFilteredCardCount)
-    : (data?.binderCardCountByShortId ?? binderCards.length);
-  const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
-  const canTurnPreviousPage = !isMobile && pageIndex > 0;
-  const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
+    : (binder?.binderCardCount ?? binderCards.length);
+  const canTurnNextPage =
+    !isMobile &&
+    pageIndex + 1 < Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
   const isPageLoading =
     !isMobile && networkStatus === NetworkStatus.setVariables;
   const {
@@ -212,86 +214,6 @@ export const BinderPage = () => {
     selectedBinderCardIdRef.current = selectedBinderCard?.id ?? null;
   }, [selectedBinderCard?.id]);
 
-  const refreshFilteredBinderCardCount = useCallback(() => {
-    setFilteredBinderCardCountRefreshKey((refreshKey) => refreshKey + 1);
-  }, []);
-
-  useEffect(() => {
-    if (!shortId || !isFiltered || !cardFilter) {
-      setFilteredBinderCardCount(null);
-      return;
-    }
-
-    let isCurrent = true;
-
-    const countFilteredBinderCards = async () => {
-      let cardOffsetForCount = 0;
-      let nextFilteredBinderCardCount = 0;
-
-      setFilteredBinderCardCount(null);
-
-      try {
-        while (isCurrent) {
-          const { data: countData } = await client.query<
-            BinderCardFilteredCountQuery,
-            BinderCardFilteredCountQueryVariables
-          >({
-            query: BinderCardFilteredCountDocument,
-            variables: {
-              shortId,
-              cardFirst: FILTERED_COUNT_PAGE_SIZE,
-              cardOffset: cardOffsetForCount,
-              cardOrderBy,
-              cardFilter,
-            },
-            fetchPolicy: "no-cache",
-          });
-
-          const countConnection = countData.binderCardsByShortId;
-          const fetchedCardCount = countConnection?.edges.length ?? 0;
-
-          nextFilteredBinderCardCount += fetchedCardCount;
-
-          if (
-            !countConnection?.pageInfo.hasNextPage ||
-            fetchedCardCount === 0
-          ) {
-            break;
-          }
-
-          cardOffsetForCount += fetchedCardCount;
-        }
-
-        if (isCurrent) {
-          setFilteredBinderCardCount({
-            count: nextFilteredBinderCardCount,
-            filterKey: debouncedFilterKey,
-            shortId,
-          });
-        }
-      } catch (error) {
-        if (isCurrent) {
-          console.error(error);
-          setFilteredBinderCardCount(null);
-        }
-      }
-    };
-
-    void countFilteredBinderCards();
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [
-    cardFilter,
-    cardOrderBy,
-    client,
-    debouncedFilterKey,
-    filteredBinderCardCountRefreshKey,
-    isFiltered,
-    shortId,
-  ]);
-
   const handleDeleteCard = useCallback(
     async (binderCard: BinderCardRecord) => {
       try {
@@ -314,7 +236,6 @@ export const BinderPage = () => {
         );
 
         await refetch();
-        refreshFilteredBinderCardCount();
       } catch (error) {
         handleError(error, t("binder:delete_card_error"));
       }
@@ -325,7 +246,6 @@ export const BinderPage = () => {
       deleteBinderCard,
       refetch,
       removeSelectedBinderCard,
-      refreshFilteredBinderCardCount,
       t,
       totalBinderCards,
     ]
@@ -438,7 +358,6 @@ export const BinderPage = () => {
         },
       });
       await refetch();
-      refreshFilteredBinderCardCount();
     } catch (error) {
       handleError(error, t("binder:add_card_error"));
     }
@@ -473,7 +392,6 @@ export const BinderPage = () => {
   const handleBulkPriceApplied = async () => {
     handleSelectionModeChange(false);
     await refetch();
-    refreshFilteredBinderCardCount();
   };
 
   const handleDeleteSelectedBinderCards = async () => {
@@ -547,7 +465,6 @@ export const BinderPage = () => {
       );
       resetCardSelection();
       await refetch();
-      refreshFilteredBinderCardCount();
 
       if (failedCount > 0) {
         toast.error(
@@ -610,18 +527,17 @@ export const BinderPage = () => {
         binderTcgId={binder.tcgId}
         canGoNextDetailCard={canGoNextDetailCard}
         canGoPreviousDetailCard={canGoPreviousDetailCard}
-        canTurnNextPage={canTurnNextPage}
-        canTurnPreviousPage={canTurnPreviousPage}
+        canEditBinder={canEditBinder}
         cardsPerPage={cardsPerPage}
         headerAction={headerAction}
         isAddingCard={isAddingCard}
+        isCartPreview={isCartPreview}
         isDeletingCard={isDeletingCard}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
         isDetailLoading={isDetailLoading}
         isFiltered={isFiltered}
         isFilteredCountExact={hasExactFilteredBinderCardCount}
         isMobile={isMobile}
-        isOwner={canEditBinder}
         isPageLoading={isPageLoading}
         isSelectionMode={canSelectBinderCards}
         isBulkPriceOpen={canEditBinder && isBulkPriceOpen}
@@ -637,14 +553,13 @@ export const BinderPage = () => {
         filterState={filterState}
         titleAction={titleAction}
         totalBinderCards={totalBinderCards}
-        totalPages={totalPages}
         viewMode={viewMode}
         visibleBinderCards={visibleBinderCards}
         onAddCard={handleAddCard}
+        onAddToCart={handleAddToCart}
         onBinderCardUpdated={(binderCard) => {
           setSelectedBinderCard(binderCard);
           void refetch();
-          refreshFilteredBinderCardCount();
         }}
         onBinderChanged={refetch}
         onBulkPriceApplied={handleBulkPriceApplied}

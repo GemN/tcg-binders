@@ -10,7 +10,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/Select";
-import { isFoilCardFinish } from "@/config/card";
 import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
@@ -110,15 +109,6 @@ export const BinderCardVariantSelect = ({
                 priceSource,
                 ["normal"]
               );
-              const variantFinishes = variant.finishes.filter(
-                (finish): finish is string => !!finish
-              );
-              const variantFinish = variant.finishes.some(isFoilCardFinish)
-                ? "foil"
-                : variantFinishes.length === 1
-                  ? variantFinishes[0]
-                  : null;
-
               return (
                 <SelectItem
                   key={variant.id}
@@ -131,10 +121,11 @@ export const BinderCardVariantSelect = ({
                       <CardImage
                         alt=""
                         className="h-12 shrink-0 rounded-sm border border-border"
-                        finish={variantFinish}
+                        finish={variant.finishes[0]}
                         imageSize="thumbnail"
                         imageUrl={variantImageUrl}
                         noImageLabel=""
+                        showBadgeFinish={false}
                         scryfallId={variantScryfallId}
                       />
                       <span className="truncate">{variantLabel}</span>

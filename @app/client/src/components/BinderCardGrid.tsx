@@ -6,8 +6,10 @@ interface BinderCardGridProps {
   binderCards: BinderCardRecord[];
   className?: string;
   isDeletingCard?: boolean;
+  isCartPreview?: boolean;
   isSelectionMode?: boolean;
   noImageLabel: string;
+  onAddToCart?: (binderCard: BinderCardRecord) => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
   onToggleCardSelection?: (binderCard: BinderCardRecord) => void;
@@ -19,8 +21,10 @@ export const BinderCardGrid = ({
   binderCards,
   className,
   isDeletingCard,
+  isCartPreview,
   isSelectionMode,
   noImageLabel,
+  onAddToCart,
   onDeleteCard,
   onOpenCard,
   onToggleCardSelection,
@@ -40,10 +44,12 @@ export const BinderCardGrid = ({
           binderCard={binderCard}
           index={index}
           isDeleting={isDeletingCard}
+          isCartPreview={isCartPreview}
           isSelected={selectedBinderCardIds?.has(binderCard.id)}
           isSelectionMode={isSelectionMode}
           noImageLabel={noImageLabel}
           showConvertedMarketPrices={showConvertedMarketPrices}
+          onAddToCart={onAddToCart}
           onDelete={onDeleteCard}
           onOpen={onOpenCard}
           onToggleSelection={onToggleCardSelection}

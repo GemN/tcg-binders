@@ -96,6 +96,8 @@ export type BinderCardsConnection = {
     __typename?: 'BinderCardsConnection';
     edges: Array<BinderCardsEdge>;
     pageInfo: PageInfo;
+    /** The total number of records matching the `filter` criteria */
+    totalCount: Scalars['Int'];
 };
 export type BinderCardsDeleteResponse = {
     __typename?: 'BinderCardsDeleteResponse';
@@ -220,6 +222,7 @@ export type BinderVisibilityFilter = {
 };
 export type Binders = Node & {
     __typename?: 'Binders';
+    binderCardCount: Maybe<Scalars['Int']>;
     binderCards: Maybe<BinderCardsConnection>;
     createdAt: Scalars['Datetime'];
     id: Scalars['UUID'];
@@ -1962,16 +1965,17 @@ export type BinderByShortIdQueryVariables = Exact<{
     cardOffset: Scalars['Int'];
     cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
     cardFilter?: Maybe<BinderCardsFilter>;
+    includeFilteredTotalCount: Scalars['Boolean'];
 }>;
 export type BinderByShortIdQuery = ({
     __typename?: 'Query';
-} & Pick<Query, 'binderCardCountByShortId'> & {
+} & {
     binderByShortId: Maybe<({
         __typename?: 'Binders';
-    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId' | 'visibility'>)>;
+    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId' | 'visibility' | 'binderCardCount'>)>;
     binderCardsByShortId: Maybe<({
         __typename?: 'BinderCardsConnection';
-    } & {
+    } & MakeMaybe<Pick<BinderCardsConnection, 'totalCount'>, 'totalCount'> & {
         pageInfo: ({
             __typename?: 'PageInfo';
         } & Pick<PageInfo, 'hasNextPage'>);
@@ -2042,31 +2046,6 @@ export type BinderCardDetailFieldsFragment = ({
         } & Pick<MtgCardDetails, 'scryfallId' | 'typeLine' | 'oracleText'>)>;
     })>;
 } & BinderCardSummaryFieldsFragment);
-export type BinderCardFilteredCountQueryVariables = Exact<{
-    shortId: Scalars['String'];
-    cardFirst: Scalars['Int'];
-    cardOffset: Scalars['Int'];
-    cardOrderBy?: Maybe<Array<BinderCardsOrderBy> | BinderCardsOrderBy>;
-    cardFilter?: Maybe<BinderCardsFilter>;
-}>;
-export type BinderCardFilteredCountQuery = ({
-    __typename?: 'Query';
-} & {
-    binderCardsByShortId: Maybe<({
-        __typename?: 'BinderCardsConnection';
-    } & {
-        pageInfo: ({
-            __typename?: 'PageInfo';
-        } & Pick<PageInfo, 'hasNextPage'>);
-        edges: Array<({
-            __typename?: 'BinderCardsEdge';
-        } & {
-            node: ({
-                __typename?: 'BinderCards';
-            } & Pick<BinderCards, 'id'>);
-        })>;
-    })>;
-});
 export type BinderCardVariantsQueryVariables = Exact<{
     name: Scalars['String'];
     first?: Maybe<Scalars['Int']>;
@@ -2274,7 +2253,7 @@ export type MyBindersQuery = ({
         } & {
             node: ({
                 __typename?: 'Binders';
-            } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'shortId' | 'updatedAt'> & {
+            } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'shortId' | 'updatedAt' | 'visibility' | 'binderCardCount'> & {
                 binderCards: Maybe<({
                     __typename?: 'BinderCardsConnection';
                 } & {
@@ -2488,6 +2467,7 @@ export declare const BinderByShortIdDocument: Apollo.DocumentNode;
  *      cardOffset: // value for 'cardOffset'
  *      cardOrderBy: // value for 'cardOrderBy'
  *      cardFilter: // value for 'cardFilter'
+ *      includeFilteredTotalCount: // value for 'includeFilteredTotalCount'
  *   },
  * });
  */
@@ -2497,6 +2477,7 @@ export declare function useBinderByShortIdQuery(baseOptions: Apollo.QueryHookOpt
     cardOffset: Scalars["Int"];
     cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
     cardFilter?: Maybe<BinderCardsFilter>;
+    includeFilteredTotalCount: Scalars["Boolean"];
 }>>;
 export declare function useBinderByShortIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderByShortIdQuery, BinderByShortIdQueryVariables>): Apollo.LazyQueryResultTuple<BinderByShortIdQuery, Exact<{
     shortId: Scalars["String"];
@@ -2504,6 +2485,7 @@ export declare function useBinderByShortIdLazyQuery(baseOptions?: Apollo.LazyQue
     cardOffset: Scalars["Int"];
     cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
     cardFilter?: Maybe<BinderCardsFilter>;
+    includeFilteredTotalCount: Scalars["Boolean"];
 }>>;
 export type BinderByShortIdQueryHookResult = ReturnType<typeof useBinderByShortIdQuery>;
 export type BinderByShortIdLazyQueryHookResult = ReturnType<typeof useBinderByShortIdLazyQuery>;
@@ -2546,44 +2528,6 @@ export declare function useBinderCardDetailWindowLazyQuery(baseOptions?: Apollo.
 export type BinderCardDetailWindowQueryHookResult = ReturnType<typeof useBinderCardDetailWindowQuery>;
 export type BinderCardDetailWindowLazyQueryHookResult = ReturnType<typeof useBinderCardDetailWindowLazyQuery>;
 export type BinderCardDetailWindowQueryResult = Apollo.QueryResult<BinderCardDetailWindowQuery, BinderCardDetailWindowQueryVariables>;
-export declare const BinderCardFilteredCountDocument: Apollo.DocumentNode;
-/**
- * __useBinderCardFilteredCountQuery__
- *
- * To run a query within a React component, call `useBinderCardFilteredCountQuery` and pass it any options that fit your needs.
- * When your component renders, `useBinderCardFilteredCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useBinderCardFilteredCountQuery({
- *   variables: {
- *      shortId: // value for 'shortId'
- *      cardFirst: // value for 'cardFirst'
- *      cardOffset: // value for 'cardOffset'
- *      cardOrderBy: // value for 'cardOrderBy'
- *      cardFilter: // value for 'cardFilter'
- *   },
- * });
- */
-export declare function useBinderCardFilteredCountQuery(baseOptions: Apollo.QueryHookOptions<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>): Apollo.QueryResult<BinderCardFilteredCountQuery, Exact<{
-    shortId: Scalars["String"];
-    cardFirst: Scalars["Int"];
-    cardOffset: Scalars["Int"];
-    cardOrderBy?: Maybe<Array<BinderCardsOrderBy> | BinderCardsOrderBy>;
-    cardFilter?: Maybe<BinderCardsFilter>;
-}>>;
-export declare function useBinderCardFilteredCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>): Apollo.LazyQueryResultTuple<BinderCardFilteredCountQuery, Exact<{
-    shortId: Scalars["String"];
-    cardFirst: Scalars["Int"];
-    cardOffset: Scalars["Int"];
-    cardOrderBy?: Maybe<Array<BinderCardsOrderBy> | BinderCardsOrderBy>;
-    cardFilter?: Maybe<BinderCardsFilter>;
-}>>;
-export type BinderCardFilteredCountQueryHookResult = ReturnType<typeof useBinderCardFilteredCountQuery>;
-export type BinderCardFilteredCountLazyQueryHookResult = ReturnType<typeof useBinderCardFilteredCountLazyQuery>;
-export type BinderCardFilteredCountQueryResult = Apollo.QueryResult<BinderCardFilteredCountQuery, BinderCardFilteredCountQueryVariables>;
 export declare const BinderCardVariantsDocument: Apollo.DocumentNode;
 /**
  * __useBinderCardVariantsQuery__

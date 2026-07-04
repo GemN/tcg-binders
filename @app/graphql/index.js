@@ -239,7 +239,7 @@ export function useAddBinderCardsMutation(baseOptions) {
     return Apollo.useMutation(AddBinderCardsDocument, options);
 }
 export const BinderByShortIdDocument = gql `
-    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!, $cardFilter: BinderCardsFilter) {
+    query BinderByShortId($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!]!, $cardFilter: BinderCardsFilter, $includeFilteredTotalCount: Boolean!) {
   binderByShortId(binderShortId: $shortId) {
     id
     nodeId
@@ -249,8 +249,8 @@ export const BinderByShortIdDocument = gql `
     shortId
     tcgId
     visibility
+    binderCardCount
   }
-  binderCardCountByShortId(binderShortId: $shortId)
   binderCardsByShortId(
     binderShortId: $shortId
     first: $cardFirst
@@ -258,6 +258,7 @@ export const BinderByShortIdDocument = gql `
     orderBy: $cardOrderBy
     filter: $cardFilter
   ) {
+    totalCount @include(if: $includeFilteredTotalCount)
     pageInfo {
       hasNextPage
     }
@@ -286,6 +287,7 @@ export const BinderByShortIdDocument = gql `
  *      cardOffset: // value for 'cardOffset'
  *      cardOrderBy: // value for 'cardOrderBy'
  *      cardFilter: // value for 'cardFilter'
+ *      includeFilteredTotalCount: // value for 'includeFilteredTotalCount'
  *   },
  * });
  */
@@ -341,54 +343,6 @@ export function useBinderCardDetailWindowQuery(baseOptions) {
 export function useBinderCardDetailWindowLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(BinderCardDetailWindowDocument, options);
-}
-export const BinderCardFilteredCountDocument = gql `
-    query BinderCardFilteredCount($shortId: String!, $cardFirst: Int!, $cardOffset: Int!, $cardOrderBy: [BinderCardsOrderBy!], $cardFilter: BinderCardsFilter) {
-  binderCardsByShortId(
-    binderShortId: $shortId
-    first: $cardFirst
-    offset: $cardOffset
-    orderBy: $cardOrderBy
-    filter: $cardFilter
-  ) {
-    pageInfo {
-      hasNextPage
-    }
-    edges {
-      node {
-        id
-      }
-    }
-  }
-}
-    `;
-/**
- * __useBinderCardFilteredCountQuery__
- *
- * To run a query within a React component, call `useBinderCardFilteredCountQuery` and pass it any options that fit your needs.
- * When your component renders, `useBinderCardFilteredCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useBinderCardFilteredCountQuery({
- *   variables: {
- *      shortId: // value for 'shortId'
- *      cardFirst: // value for 'cardFirst'
- *      cardOffset: // value for 'cardOffset'
- *      cardOrderBy: // value for 'cardOrderBy'
- *      cardFilter: // value for 'cardFilter'
- *   },
- * });
- */
-export function useBinderCardFilteredCountQuery(baseOptions) {
-    const options = { ...defaultOptions, ...baseOptions };
-    return Apollo.useQuery(BinderCardFilteredCountDocument, options);
-}
-export function useBinderCardFilteredCountLazyQuery(baseOptions) {
-    const options = { ...defaultOptions, ...baseOptions };
-    return Apollo.useLazyQuery(BinderCardFilteredCountDocument, options);
 }
 export const BinderCardVariantsDocument = gql `
     query BinderCardVariants($name: String!, $first: Int = 80) {
@@ -737,7 +691,7 @@ export const MyBindersDocument = gql `
     query MyBinders($ownerId: UUID!) {
   bindersCollection(
     filter: {ownerId: {eq: $ownerId}}
-    orderBy: [{updatedAt: DescNullsLast}]
+    orderBy: [{createdAt: DescNullsLast}]
   ) {
     edges {
       node {
@@ -746,6 +700,8 @@ export const MyBindersDocument = gql `
         name
         shortId
         updatedAt
+        visibility
+        binderCardCount
         binderCards(first: 1, orderBy: [{position: AscNullsLast}]) {
           edges {
             node {

@@ -27,18 +27,17 @@ interface BinderPageViewProps {
   binderTcgId: string;
   canGoNextDetailCard: boolean;
   canGoPreviousDetailCard: boolean;
-  canTurnNextPage: boolean;
-  canTurnPreviousPage: boolean;
+  canEditBinder: boolean;
   cardsPerPage: number;
   headerAction?: ReactNode;
   isAddingCard?: boolean;
+  isCartPreview: boolean;
   isDeletingCard?: boolean;
   isDeletingSelectedBinderCards: boolean;
   isDetailLoading: boolean;
   isFiltered: boolean;
   isFilteredCountExact: boolean;
   isMobile: boolean;
-  isOwner: boolean;
   isPageLoading: boolean;
   isSelectionMode: boolean;
   isBulkPriceOpen: boolean;
@@ -54,10 +53,10 @@ interface BinderPageViewProps {
   filterState: BinderCardFilterState;
   titleAction?: ReactNode;
   totalBinderCards: number;
-  totalPages: number;
   viewMode: BinderCardViewMode;
   visibleBinderCards: BinderCardRecord[];
   onAddCard: (card: DraftCardSnapshot) => Promise<unknown> | unknown;
+  onAddToCart: (binderCard: ModalBinderCardRecord) => void;
   onBinderCardUpdated: (binderCard: ModalBinderCardRecord) => void;
   onBinderChanged: () => Promise<unknown> | unknown;
   onClearCardSelection: () => void;
@@ -95,18 +94,17 @@ export const BinderPageView = ({
   binderTcgId,
   canGoNextDetailCard,
   canGoPreviousDetailCard,
-  canTurnNextPage,
-  canTurnPreviousPage,
+  canEditBinder,
   cardsPerPage,
   headerAction,
   isAddingCard,
+  isCartPreview,
   isDeletingCard,
   isDeletingSelectedBinderCards,
   isDetailLoading,
   isFiltered,
   isFilteredCountExact,
   isMobile,
-  isOwner,
   isPageLoading,
   isSelectionMode,
   isBulkPriceOpen,
@@ -122,10 +120,10 @@ export const BinderPageView = ({
   filterState,
   titleAction,
   totalBinderCards,
-  totalPages,
   viewMode,
   visibleBinderCards,
   onAddCard,
+  onAddToCart,
   onBinderCardUpdated,
   onBinderChanged,
   onBulkPriceApplied,
@@ -155,6 +153,9 @@ export const BinderPageView = ({
   onViewChange,
 }: BinderPageViewProps) => {
   const { t } = useTranslation(["binder"]);
+  const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
+  const canTurnPreviousPage = !isMobile && pageIndex > 0;
+  const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
 
   return (
     <div className="relative isolate flex h-[calc(100svh-3.5rem)] w-full flex-1 overflow-y-auto bg-background text-foreground">
@@ -164,8 +165,8 @@ export const BinderPageView = ({
           binderName={binderName}
           binderNote={binderNote}
           binderTcgId={binderTcgId}
+          canEditBinder={canEditBinder}
           headerAction={headerAction}
-          isOwner={isOwner}
           ownerByline={ownerByline}
           showConvertedMarketPrices={showConvertedMarketPrices}
           titleAction={titleAction}
@@ -183,7 +184,7 @@ export const BinderPageView = ({
           isFiltered={isFiltered}
           isFilteredCountExact={isFilteredCountExact}
           isMobile={isMobile}
-          isOwner={isOwner}
+          canEditBinder={canEditBinder}
           isPageLoading={isPageLoading}
           isSelectionMode={isSelectionMode}
           isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
@@ -225,6 +226,8 @@ export const BinderPageView = ({
           selectedBinderCardIds={selectedBinderCardIds}
           showConvertedMarketPrices={showConvertedMarketPrices}
           viewMode={viewMode}
+          isCartPreview={isCartPreview}
+          onAddToCart={canEditBinder ? undefined : onAddToCart}
           onDeleteCard={onDeleteCard}
           onNextPage={onNextPage}
           onOpenCard={onOpenCard}
@@ -237,11 +240,13 @@ export const BinderPageView = ({
         canGoNext={canGoNextDetailCard}
         canGoPrevious={canGoPreviousDetailCard}
         currentIndex={selectedCardIndex}
-        isEditable={isOwner}
+        isCartPreview={isCartPreview}
+        isEditable={canEditBinder}
         isLoading={isDetailLoading}
         open={selectedCardIndex !== null}
         showConvertedMarketPrices={showConvertedMarketPrices}
         totalCards={totalBinderCards}
+        onAddToCart={onAddToCart}
         onBinderCardUpdated={onBinderCardUpdated}
         onGoNext={onGoNextDetailCard}
         onGoPrevious={onGoPreviousDetailCard}

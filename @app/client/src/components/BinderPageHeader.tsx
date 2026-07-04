@@ -16,8 +16,8 @@ interface BinderPageHeaderProps {
   binderName: string;
   binderNote: string;
   binderTcgId: string;
+  canEditBinder: boolean;
   headerAction?: ReactNode;
-  isOwner: boolean;
   ownerByline?: ReactNode;
   showConvertedMarketPrices: boolean;
   titleAction?: ReactNode;
@@ -34,8 +34,8 @@ export const BinderPageHeader = ({
   binderName,
   binderNote,
   binderTcgId,
+  canEditBinder,
   headerAction,
-  isOwner,
   ownerByline,
   showConvertedMarketPrices,
   titleAction,
@@ -53,7 +53,7 @@ export const BinderPageHeader = ({
       <div className="min-w-0">
         <BinderTitle
           binderId={binderId}
-          isOwner={isOwner}
+          isOwner={canEditBinder}
           name={binderName}
           onRename={onRenameBinder}
           onRenamed={onBinderChanged}
@@ -65,7 +65,7 @@ export const BinderPageHeader = ({
         )}
         <BinderNote
           binderId={binderId}
-          isOwner={isOwner}
+          isOwner={canEditBinder}
           note={binderNote}
           onUpdate={onUpdateBinderNote}
           onUpdated={onBinderChanged}
@@ -73,7 +73,7 @@ export const BinderPageHeader = ({
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          {isOwner && (
+          {canEditBinder && (
             <>
               <CardSearchPicker
                 containerClassName="w-full sm:w-80"

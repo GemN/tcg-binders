@@ -19,9 +19,17 @@ import flagVaIconUrl from "flag-icons/flags/4x3/va.svg?url";
 import flagXxIconUrl from "flag-icons/flags/4x3/xx.svg?url";
 import { useEffect, useState } from "react";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/Tooltip";
 import { cn } from "@/lib/utils";
 
 type FlagIconLoader = () => Promise<string>;
+
+const flagTooltipClassName = "bg-[#2f2933] text-[#fffdf7]";
+const flagTooltipArrowClassName = "bg-[#2f2933] fill-[#2f2933]";
 
 const preloadedFlagIconUrls: Record<string, string> = {
   cn: flagCnIconUrl,
@@ -101,9 +109,15 @@ interface CountryFlagProps {
   className?: string;
   code: string;
   label?: string;
+  showTooltip?: boolean;
 }
 
-export const CountryFlag = ({ className, code, label }: CountryFlagProps) => {
+export const CountryFlag = ({
+  className,
+  code,
+  label,
+  showTooltip = false,
+}: CountryFlagProps) => {
   const [flagIconUrl, setFlagIconUrl] = useState<string | null>(() =>
     getPreloadedFlagIconUrl(code)
   );
@@ -136,21 +150,7 @@ export const CountryFlag = ({ className, code, label }: CountryFlagProps) => {
     };
   }, [code]);
 
-  if (!flagIconUrl) {
-    return (
-      <span
-        aria-hidden={label ? undefined : true}
-        aria-label={label}
-        className={cn(
-          "inline-block shrink-0 rounded-[2px] bg-muted shadow-[0_0_0_1px_rgba(0,0,0,0.16)]",
-          className
-        )}
-        role={label ? "img" : undefined}
-      />
-    );
-  }
-
-  return (
+  const flag = flagIconUrl ? (
     <img
       alt={label || ""}
       aria-hidden={label ? undefined : true}
@@ -160,5 +160,30 @@ export const CountryFlag = ({ className, code, label }: CountryFlagProps) => {
       )}
       src={flagIconUrl}
     />
+  ) : (
+    <span
+      aria-hidden={label ? undefined : true}
+      aria-label={label}
+      className={cn(
+        "inline-block shrink-0 rounded-[2px] bg-muted shadow-[0_0_0_1px_rgba(0,0,0,0.16)]",
+        className
+      )}
+      role={label ? "img" : undefined}
+    />
+  );
+
+  if (!showTooltip || !label) return flag;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{flag}</TooltipTrigger>
+      <TooltipContent
+        side="bottom"
+        className={flagTooltipClassName}
+        arrowClassName={flagTooltipArrowClassName}
+      >
+        {label}
+      </TooltipContent>
+    </Tooltip>
   );
 };

@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
@@ -19,7 +19,11 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { handleError } from "@/lib/error";
 
-export const ButtonNewBinder = () => {
+interface ButtonNewBinderProps {
+  trigger?: ReactElement;
+}
+
+export const ButtonNewBinder = ({ trigger }: ButtonNewBinderProps) => {
   const { t } = useTranslation(["common"]);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -72,10 +76,12 @@ export const ButtonNewBinder = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="h-9 px-2 sm:px-3">
-          <Plus className="size-4" />
-          {t("common:new_binder.button")}
-        </Button>
+        {trigger || (
+          <Button className="h-9 px-2 sm:px-3">
+            <Plus className="size-4" />
+            {t("common:new_binder.button")}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit} className="grid gap-4">
