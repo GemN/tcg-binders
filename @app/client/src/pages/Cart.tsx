@@ -4,14 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { CartEmptyState } from "@/components/Cart/CartEmptyState";
-import { CartMobileSummaryBar } from "@/components/Cart/CartMobileSummaryBar";
-import { CartSummaryPanel } from "@/components/Cart/CartSummaryPanel";
-import { CartTableHeader } from "@/components/Cart/CartTableHeader";
-import { SellerCartSection } from "@/components/Cart/SellerCartSection";
-import {
-  type SellerMessage,
-  SellerMessagesSection,
-} from "@/components/Cart/SellerMessagesSection";
 import {
   type CartTranslate,
   formatAmount,
@@ -19,7 +11,15 @@ import {
   getCartItemOptionLabel,
   getCartItemPrintLabel,
 } from "@/components/Cart/cartFormat";
+import { CartMobileSummaryBar } from "@/components/Cart/CartMobileSummaryBar";
 import { getCartSelectionState } from "@/components/Cart/cartSelection";
+import { CartSummaryPanel } from "@/components/Cart/CartSummaryPanel";
+import { CartTableHeader } from "@/components/Cart/CartTableHeader";
+import { SellerCartSection } from "@/components/Cart/SellerCartSection";
+import {
+  type SellerMessage,
+  SellerMessagesSection,
+} from "@/components/Cart/SellerMessagesSection";
 import { Button } from "@/components/ui/Button";
 import {
   type CartCurrencyTotal,
@@ -316,14 +316,13 @@ export const Cart = () => {
         convertAmountToTargetCurrency,
         totals: sellerTotals,
       });
-      const sellerTotalLabel =
-        sellerEstimatedTotal
-          ? formatAmount({
-              amount: sellerEstimatedTotal.amount,
-              currency: sellerEstimatedTotal.currency,
-              locale: i18n.language,
-            })
-          : sellerTotals.length > 0
+      const sellerTotalLabel = sellerEstimatedTotal
+        ? formatAmount({
+            amount: sellerEstimatedTotal.amount,
+            currency: sellerEstimatedTotal.currency,
+            locale: i18n.language,
+          })
+        : sellerTotals.length > 0
           ? formatTotals({ locale: i18n.language, totals: sellerTotals })
           : translate("checkout:no_price");
 
@@ -568,10 +567,7 @@ export const Cart = () => {
             />
 
             <div className="flex flex-col items-center gap-2 text-center">
-              <Button
-                type="button"
-                onClick={handleCompleteOrderMessages}
-              >
+              <Button type="button" onClick={handleCompleteOrderMessages}>
                 <Check className="size-4" />
                 {t("checkout:complete_messages")}
               </Button>

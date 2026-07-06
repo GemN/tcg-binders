@@ -73,7 +73,7 @@ export const SellerMessagesSection = ({
                   </p>
                   <span
                     aria-hidden="true"
-                    className="h-3 w-px self-center bg-border"
+                    className="h-4 w-px self-center bg-border"
                   />
                   <p className="text-sm font-medium text-muted-foreground">
                     {t("checkout:item_count", { count: message.itemCount })}
