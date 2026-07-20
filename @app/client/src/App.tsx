@@ -1,5 +1,5 @@
 import { ApolloProvider } from "@apollo/client";
-import { lazy, Suspense, type FC, type ReactNode } from "react";
+import { type FC, lazy, type ReactNode, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 
 import { LayoutPage } from "@/components/LayoutPage";
@@ -7,6 +7,9 @@ import { Loading } from "@/components/Loading";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Toaster } from "@/components/ui/Sonner";
 import apolloClient from "@/lib/apollo";
+import { Home } from "@/pages/Home";
+import { Login } from "@/pages/Login";
+import { OAuthCallback } from "@/pages/OAuthCallback";
 import { CartProvider } from "@/providers/CartProvider";
 import { PricingSettingsProvider } from "@/providers/PricingSettingsProvider";
 import { SessionProvider } from "@/providers/SessionProvider";
@@ -25,11 +28,10 @@ const BinderPage = lazy(() =>
     default: module.BinderPage,
   }))
 );
-const Home = lazy(() =>
-  import("@/pages/Home").then((module) => ({ default: module.Home }))
-);
-const Login = lazy(() =>
-  import("@/pages/Login").then((module) => ({ default: module.Login }))
+const ForgotPassword = lazy(() =>
+  import("@/pages/ForgotPassword").then((module) => ({
+    default: module.ForgotPassword,
+  }))
 );
 const Logout = lazy(() => import("@/pages/Logout"));
 const MyBinders = lazy(() =>
@@ -91,8 +93,14 @@ function App() {
       <Providers>
         <BrowserRouter>
           <Routes>
+            <Route path="login" element={<Login />} />
+            <Route path="auth/callback" element={<OAuthCallback />} />
+            <Route
+              path="forgot-password"
+              element={renderPage(<ForgotPassword />)}
+            />
             <Route element={<LayoutPage />}>
-              <Route index element={renderPage(<Home />)} />
+              <Route index element={<Home />} />
               <Route
                 path="binder/draft"
                 element={renderPage(<BinderDraft />)}
@@ -106,7 +114,6 @@ function App() {
                 element={renderPage(<UserProfile />)}
               />
               <Route path="cart" element={renderPage(<Cart />)} />
-              <Route path="login" element={renderPage(<Login />)} />
               <Route path="logout" element={renderPage(<Logout />)} />
               <Route
                 path="set-password"

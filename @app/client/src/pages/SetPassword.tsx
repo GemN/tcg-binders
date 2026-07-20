@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { InputPassword } from "@/components/ui/InputPassword";
@@ -25,6 +25,13 @@ import {
 } from "../components/ui/Form";
 import { handleError } from "../lib/error";
 
+const getSafeNextPath = (value: string | null) => {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/";
+  }
+  return value;
+};
+
 interface FormData {
   password: string;
   confirmPassword: string;
@@ -35,6 +42,8 @@ export default function SetPassword() {
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = getSafeNextPath(searchParams.get("next"));
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -54,7 +63,7 @@ export default function SetPassword() {
         throw error;
       }
       toast.success(t("login:set_password.success"));
-      navigate("/");
+      navigate(nextPath);
     } catch (error) {
       handleError(error, t("login:set_password.error"));
     } finally {

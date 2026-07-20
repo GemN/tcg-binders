@@ -4,6 +4,48 @@
     "email_label": "Email",
     "password_label": "Password"
   },
+  "page": {
+    "sign_in": "Sign in",
+    "sign_up": "Sign up",
+    "sign_in_title": "Welcome back",
+    "sign_in_subtitle": "Sign in to your account",
+    "sign_up_title": "Get started",
+    "sign_up_subtitle": "Create a new account",
+    "no_account": "Don't have an account?",
+    "have_account": "Have an account?",
+    "oauth_google": "Continue with Google",
+    "oauth_facebook": "Continue with Facebook",
+    "oauth_line": "Continue with LINE",
+    "or": "or",
+    "email": "Email",
+    "email_placeholder": "you@example.com",
+    "password": "Password",
+    "forgot_password": "Forgot password?",
+    "password_placeholder": "At least 8 characters",
+    "submit_sign_in": "Sign in with email",
+    "submit_sign_up": "Create account"
+  },
+  "forgot_password": {
+    "title": "Forgot your password?",
+    "description": "Enter your email address and we'll send you a password reset link.",
+    "submit": "Send reset link",
+    "back_to_sign_in": "Back to sign in"
+  },
+  "messages": {
+    "check_email": "Check your email to confirm your account.",
+    "email_error": "Email login failed. Please try again.",
+    "oauth_error": "Social login failed. Please try again.",
+    "reset_email_sent": "Check your email for a password reset link.",
+    "reset_email_error": "Password reset failed. Please try again."
+  },
+  "oauth_callback": {
+    "loading_title": "Finishing sign in",
+    "loading_description": "Please wait while we connect your account.",
+    "error_title": "We couldn't sign you in",
+    "default_error": "Social login failed. Please try again.",
+    "error_code": "Error code: {{code}}",
+    "back_to_sign_in": "Back to sign in"
+  },
   "set_password": {
     "title": "Welcome",
     "description": "Finish your setup by creating a password.",
