@@ -2,7 +2,7 @@
   "profile": {
     "title": "Profile",
     "subtitle": "Manage how your seller profile appears on binders.",
-    "details": "Profile details",
+    "details": "Public details",
     "nickname": "Nickname",
     "nickname_description": "Your nickname is displayed on your binders.",
     "nickname_required": "Nickname is required",

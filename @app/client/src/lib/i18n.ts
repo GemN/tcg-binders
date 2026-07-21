@@ -8,11 +8,13 @@ import enBinder from "@/assets/locales/en/binder.json";
 import enCheckout from "@/assets/locales/en/checkout.json";
 import enCommon from "@/assets/locales/en/common.json";
 import enLogin from "@/assets/locales/en/login.json";
+import enOnboarding from "@/assets/locales/en/onboarding.json";
 import enSettings from "@/assets/locales/en/settings.json";
 import thBinder from "@/assets/locales/th/binder.json";
 import thCheckout from "@/assets/locales/th/checkout.json";
 import thCommon from "@/assets/locales/th/common.json";
 import thLogin from "@/assets/locales/th/login.json";
+import thOnboarding from "@/assets/locales/th/onboarding.json";
 import thSettings from "@/assets/locales/th/settings.json";
 
 export const defaultNS = "common";
@@ -22,6 +24,7 @@ export const resources = {
     checkout: enCheckout,
     common: enCommon,
     login: enLogin,
+    onboarding: enOnboarding,
     settings: enSettings,
   },
   th: {
@@ -29,6 +32,7 @@ export const resources = {
     checkout: thCheckout,
     common: thCommon,
     login: thLogin,
+    onboarding: thOnboarding,
     settings: thSettings,
   },
 } as const;
@@ -42,7 +46,7 @@ i18n
     fallbackLng: "en",
     supportedLngs: ["en", "th"],
     load: "languageOnly",
-    ns: ["binder", "checkout", "common", "login", "settings"],
+    ns: ["binder", "checkout", "common", "login", "onboarding", "settings"],
     detection: {
       order: ["localStorage", "navigator"],
       caches: ["localStorage"],

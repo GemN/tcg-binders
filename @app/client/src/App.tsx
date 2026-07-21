@@ -40,6 +40,11 @@ const MyBinders = lazy(() =>
 const NotFound = lazy(() =>
   import("@/pages/NotFound").then((module) => ({ default: module.NotFound }))
 );
+const Onboarding = lazy(() =>
+  import("@/pages/Onboarding").then((module) => ({
+    default: module.Onboarding,
+  }))
+);
 const SetPassword = lazy(() => import("@/pages/SetPassword"));
 const SettingsOrganization = lazy(() =>
   import("@/pages/settings/SettingsOrganization").then((module) => ({
@@ -95,6 +100,14 @@ function App() {
           <Routes>
             <Route path="login" element={<Login />} />
             <Route path="auth/callback" element={<OAuthCallback />} />
+            <Route
+              path="onboarding"
+              element={renderPage(
+                <RequireAuth>
+                  <Onboarding />
+                </RequireAuth>
+              )}
+            />
             <Route
               path="forgot-password"
               element={renderPage(<ForgotPassword />)}
