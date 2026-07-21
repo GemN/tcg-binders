@@ -48,6 +48,7 @@
     "graphql": "^15.4.0",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
+    "shadcn": "^4.13.0",
     "supabase": "2.107.0"
   },
   "dependencies": {

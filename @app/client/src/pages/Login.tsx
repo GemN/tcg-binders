@@ -16,9 +16,12 @@ import supabaseClient, { isAuthenticated } from "@/lib/supabase";
 
 type LoginAuthMode = "sign_in" | "sign_up";
 type OAuthProvider = "google" | "facebook" | "line";
-type SupabaseOAuthProvider = Parameters<
-  typeof supabaseClient.auth.signInWithOAuth
->[0]["provider"];
+
+const supabaseOAuthProviderByProvider = {
+  google: "google",
+  facebook: "facebook",
+  line: "custom:line",
+} as const;
 
 const getSafeNextPath = (value: string | null) => {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
@@ -97,7 +100,7 @@ export const Login: FC<LoginProps> = () => {
     try {
       window.sessionStorage.setItem(OAUTH_NEXT_PATH_STORAGE_KEY, nextPath);
       const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: provider as SupabaseOAuthProvider,
+        provider: supabaseOAuthProviderByProvider[provider],
         options: {
           redirectTo: oAuthCallbackUrl,
         },
