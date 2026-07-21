@@ -1,3 +1,4 @@
+import type { BinderVisibility } from "@app/graphql";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -25,6 +26,7 @@ interface BinderPageViewProps {
   binderName: string;
   binderNote: string;
   binderTcgId: string;
+  binderVisibility: BinderVisibility;
   canGoNextDetailCard: boolean;
   canGoPreviousDetailCard: boolean;
   canEditBinder: boolean;
@@ -92,6 +94,7 @@ export const BinderPageView = ({
   binderName,
   binderNote,
   binderTcgId,
+  binderVisibility,
   canGoNextDetailCard,
   canGoPreviousDetailCard,
   canEditBinder,
@@ -165,6 +168,7 @@ export const BinderPageView = ({
           binderName={binderName}
           binderNote={binderNote}
           binderTcgId={binderTcgId}
+          binderVisibility={binderVisibility}
           canEditBinder={canEditBinder}
           headerAction={headerAction}
           ownerByline={ownerByline}

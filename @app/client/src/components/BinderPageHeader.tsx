@@ -1,8 +1,10 @@
+import type { BinderVisibility } from "@app/graphql";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderNote } from "@/components/BinderNote";
 import { BinderTitle } from "@/components/BinderTitle";
+import { BinderVisibilityIcon } from "@/components/BinderVisibilityIcon";
 import {
   ButtonImportBinder,
   type ImportBinderCardsHandler,
@@ -16,6 +18,7 @@ interface BinderPageHeaderProps {
   binderName: string;
   binderNote: string;
   binderTcgId: string;
+  binderVisibility: BinderVisibility;
   canEditBinder: boolean;
   headerAction?: ReactNode;
   ownerByline?: ReactNode;
@@ -34,6 +37,7 @@ export const BinderPageHeader = ({
   binderName,
   binderNote,
   binderTcgId,
+  binderVisibility,
   canEditBinder,
   headerAction,
   ownerByline,
@@ -51,13 +55,23 @@ export const BinderPageHeader = ({
   return (
     <div className="relative z-30 -mx-4 flex shrink-0 flex-col gap-4 border-y border-binder-toolbar-input/40 bg-binder-toolbar/95 px-4 py-3 text-binder-toolbar-foreground sm:-mx-6 sm:px-6 lg:-mx-20 lg:flex-row lg:items-start lg:justify-between lg:px-20">
       <div className="min-w-0">
-        <BinderTitle
-          binderId={binderId}
-          isOwner={canEditBinder}
-          name={binderName}
-          onRename={onRenameBinder}
-          onRenamed={onBinderChanged}
-        />
+        <div className="flex min-w-0 items-center gap-2">
+          {canEditBinder && (
+            <BinderVisibilityIcon
+              className="size-6 text-binder-toolbar-foreground/80"
+              visibility={binderVisibility}
+            />
+          )}
+          <div className="min-w-0">
+            <BinderTitle
+              binderId={binderId}
+              isOwner={canEditBinder}
+              name={binderName}
+              onRename={onRenameBinder}
+              onRenamed={onBinderChanged}
+            />
+          </div>
+        </div>
         {ownerByline && (
           <div className="mt-0.5 mb-3 flex min-w-0 items-center">
             {ownerByline}

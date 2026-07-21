@@ -525,6 +525,7 @@ export const BinderPage = () => {
         binderName={binder.name}
         binderNote={binder.note}
         binderTcgId={binder.tcgId}
+        binderVisibility={binder.visibility}
         canGoNextDetailCard={canGoNextDetailCard}
         canGoPreviousDetailCard={canGoPreviousDetailCard}
         canEditBinder={canEditBinder}

@@ -1,15 +1,9 @@
-import { BinderVisibility } from "@app/graphql";
-import {
-  EyeOff,
-  Globe,
-  Lock,
-  Plus,
-  Settings,
-  type LucideIcon,
-} from "lucide-react";
+import type { BinderVisibility } from "@app/graphql";
+import { Plus, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
+import { BinderVisibilityIcon } from "@/components/BinderVisibilityIcon";
 import { ButtonNewBinder } from "@/components/ButtonNewBinder";
 import { Button } from "@/components/ui/Button";
 import {
@@ -33,41 +27,6 @@ interface BinderGalleryProps {
   binders: BinderGalleryBinder[];
   onOpenSettings: (binder: BinderGalleryBinder) => void;
 }
-
-type BinderVisibilityLabelKey =
-  | "binder:settings.visibility.listed"
-  | "binder:settings.visibility.unlisted"
-  | "binder:settings.visibility.private";
-
-interface BinderVisibilityOption {
-  Icon: LucideIcon;
-  labelKey: BinderVisibilityLabelKey;
-  value: BinderVisibility;
-}
-
-const binderVisibilityOptions: BinderVisibilityOption[] = [
-  {
-    Icon: Globe,
-    labelKey: "binder:settings.visibility.listed",
-    value: BinderVisibility.Listed,
-  },
-  {
-    Icon: EyeOff,
-    labelKey: "binder:settings.visibility.unlisted",
-    value: BinderVisibility.Unlisted,
-  },
-  {
-    Icon: Lock,
-    labelKey: "binder:settings.visibility.private",
-    value: BinderVisibility.Private,
-  },
-];
-
-const getBinderVisibilityOption = (
-  visibility: BinderVisibility
-): BinderVisibilityOption =>
-  binderVisibilityOptions.find((option) => option.value === visibility) ??
-  binderVisibilityOptions[1];
 
 export const BinderGallery = ({
   binders,
@@ -102,9 +61,6 @@ const BinderGalleryItem = ({
     "art",
     binder.coverScryfallId
   );
-  const visibilityOption = getBinderVisibilityOption(binder.visibility);
-  const VisibilityIcon = visibilityOption.Icon;
-  const visibilityLabel = t(visibilityOption.labelKey);
 
   return (
     <div className="group relative grid gap-2">
@@ -143,19 +99,10 @@ const BinderGalleryItem = ({
           <div className="absolute inset-x-3 bottom-3">
             <div className="grid max-w-full gap-1 rounded-sm bg-foreground/85 px-3 py-2 text-left shadow-sm">
               <div className="flex min-w-0 items-start gap-1.5">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span
-                      className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center text-white/85"
-                      aria-label={visibilityLabel}
-                    >
-                      <VisibilityIcon className="size-4" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent sideOffset={4}>
-                    {visibilityLabel}
-                  </TooltipContent>
-                </Tooltip>
+                <BinderVisibilityIcon
+                  className="mt-0.5 text-white/85"
+                  visibility={binder.visibility}
+                />
                 <div className="line-clamp-2 min-w-0 text-sm font-semibold leading-5 text-white">
                   {binder.name}
                 </div>

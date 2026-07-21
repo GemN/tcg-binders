@@ -1,4 +1,5 @@
 import {
+  BinderVisibility,
   useAddBinderCardsMutation,
   useCreateBinderMutation,
   useDeleteBinderMutation,
@@ -433,6 +434,7 @@ export const BinderDraft = () => {
         binderName={draftBinder.name || t("binder:draft.untitled_name")}
         binderNote={draftBinder.note}
         binderTcgId={draftBinder.tcgId}
+        binderVisibility={BinderVisibility.Unlisted}
         canGoNextDetailCard={canGoNextDetailCard}
         canGoPreviousDetailCard={canGoPreviousDetailCard}
         canEditBinder
