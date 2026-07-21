@@ -208,6 +208,78 @@ export type BinderCardsUpdateResponse = {
     /** Array of records impacted by the mutation */
     records: Array<BinderCards>;
 };
+export type BinderStats = Node & {
+    __typename?: 'BinderStats';
+    binder: Maybe<Binders>;
+    binderId: Scalars['UUID'];
+    createdAt: Scalars['Datetime'];
+    /** Globally Unique Record Identifier */
+    nodeId: Scalars['ID'];
+    updatedAt: Scalars['Datetime'];
+    viewCount: Scalars['BigInt'];
+};
+export type BinderStatsConnection = {
+    __typename?: 'BinderStatsConnection';
+    edges: Array<BinderStatsEdge>;
+    pageInfo: PageInfo;
+};
+export type BinderStatsDeleteResponse = {
+    __typename?: 'BinderStatsDeleteResponse';
+    /** Count of the records impacted by the mutation */
+    affectedCount: Scalars['Int'];
+    /** Array of records impacted by the mutation */
+    records: Array<BinderStats>;
+};
+export type BinderStatsEdge = {
+    __typename?: 'BinderStatsEdge';
+    cursor: Scalars['String'];
+    node: BinderStats;
+};
+export type BinderStatsFilter = {
+    /** Returns true only if all its inner filters are true, otherwise returns false */
+    and?: Maybe<Array<BinderStatsFilter>>;
+    binderId?: Maybe<UuidFilter>;
+    createdAt?: Maybe<DatetimeFilter>;
+    nodeId?: Maybe<IdFilter>;
+    /** Negates a filter */
+    not?: Maybe<BinderStatsFilter>;
+    /** Returns true if at least one of its inner filters is true, otherwise returns false */
+    or?: Maybe<Array<BinderStatsFilter>>;
+    updatedAt?: Maybe<DatetimeFilter>;
+    viewCount?: Maybe<BigIntFilter>;
+};
+export type BinderStatsInsertInput = {
+    binderId?: Maybe<Scalars['UUID']>;
+    createdAt?: Maybe<Scalars['Datetime']>;
+    updatedAt?: Maybe<Scalars['Datetime']>;
+    viewCount?: Maybe<Scalars['BigInt']>;
+};
+export type BinderStatsInsertResponse = {
+    __typename?: 'BinderStatsInsertResponse';
+    /** Count of the records impacted by the mutation */
+    affectedCount: Scalars['Int'];
+    /** Array of records impacted by the mutation */
+    records: Array<BinderStats>;
+};
+export type BinderStatsOrderBy = {
+    binderId?: Maybe<OrderByDirection>;
+    createdAt?: Maybe<OrderByDirection>;
+    updatedAt?: Maybe<OrderByDirection>;
+    viewCount?: Maybe<OrderByDirection>;
+};
+export type BinderStatsUpdateInput = {
+    binderId?: Maybe<Scalars['UUID']>;
+    createdAt?: Maybe<Scalars['Datetime']>;
+    updatedAt?: Maybe<Scalars['Datetime']>;
+    viewCount?: Maybe<Scalars['BigInt']>;
+};
+export type BinderStatsUpdateResponse = {
+    __typename?: 'BinderStatsUpdateResponse';
+    /** Count of the records impacted by the mutation */
+    affectedCount: Scalars['Int'];
+    /** Array of records impacted by the mutation */
+    records: Array<BinderStats>;
+};
 export declare enum BinderVisibility {
     Listed = "listed",
     Private = "private",
@@ -232,6 +304,7 @@ export type Binders = Node & {
     note: Scalars['String'];
     ownerId: Scalars['UUID'];
     shortId: Scalars['String'];
+    stats: Maybe<BinderStats>;
     tcg: Maybe<Tcg>;
     tcgId: Scalars['String'];
     updatedAt: Scalars['Datetime'];
@@ -1070,6 +1143,8 @@ export type Mutation = {
     createOrganization: Maybe<Organizations>;
     /** Deletes zero or more records from the `BinderCards` collection */
     deleteFromBinderCardsCollection: BinderCardsDeleteResponse;
+    /** Deletes zero or more records from the `BinderStats` collection */
+    deleteFromBinderStatsCollection: BinderStatsDeleteResponse;
     /** Deletes zero or more records from the `Binders` collection */
     deleteFromBindersCollection: BindersDeleteResponse;
     /** Deletes zero or more records from the `CardMarketPrices` collection */
@@ -1092,6 +1167,8 @@ export type Mutation = {
     deleteFromUserProfilesCollection: UserProfilesDeleteResponse;
     /** Adds one or more `BinderCards` records to the collection */
     insertIntoBinderCardsCollection: Maybe<BinderCardsInsertResponse>;
+    /** Adds one or more `BinderStats` records to the collection */
+    insertIntoBinderStatsCollection: Maybe<BinderStatsInsertResponse>;
     /** Adds one or more `Binders` records to the collection */
     insertIntoBindersCollection: Maybe<BindersInsertResponse>;
     /** Adds one or more `CardMarketPrices` records to the collection */
@@ -1112,8 +1189,11 @@ export type Mutation = {
     insertIntoTcgCollection: Maybe<TcgInsertResponse>;
     /** Adds one or more `UserProfiles` records to the collection */
     insertIntoUserProfilesCollection: Maybe<UserProfilesInsertResponse>;
+    recordBinderView: Maybe<Scalars['Boolean']>;
     /** Updates zero or more records in the `BinderCards` collection */
     updateBinderCardsCollection: BinderCardsUpdateResponse;
+    /** Updates zero or more records in the `BinderStats` collection */
+    updateBinderStatsCollection: BinderStatsUpdateResponse;
     /** Updates zero or more records in the `Binders` collection */
     updateBindersCollection: BindersUpdateResponse;
     /** Updates zero or more records in the `CardMarketPrices` collection */
@@ -1143,6 +1223,11 @@ export type MutationCreateOrganizationArgs = {
 export type MutationDeleteFromBinderCardsCollectionArgs = {
     atMost?: Scalars['Int'];
     filter?: Maybe<BinderCardsFilter>;
+};
+/** The root type for creating and mutating data */
+export type MutationDeleteFromBinderStatsCollectionArgs = {
+    atMost?: Scalars['Int'];
+    filter?: Maybe<BinderStatsFilter>;
 };
 /** The root type for creating and mutating data */
 export type MutationDeleteFromBindersCollectionArgs = {
@@ -1199,6 +1284,10 @@ export type MutationInsertIntoBinderCardsCollectionArgs = {
     objects: Array<BinderCardsInsertInput>;
 };
 /** The root type for creating and mutating data */
+export type MutationInsertIntoBinderStatsCollectionArgs = {
+    objects: Array<BinderStatsInsertInput>;
+};
+/** The root type for creating and mutating data */
 export type MutationInsertIntoBindersCollectionArgs = {
     objects: Array<BindersInsertInput>;
 };
@@ -1239,10 +1328,20 @@ export type MutationInsertIntoUserProfilesCollectionArgs = {
     objects: Array<UserProfilesInsertInput>;
 };
 /** The root type for creating and mutating data */
+export type MutationRecordBinderViewArgs = {
+    binderShortId: Scalars['String'];
+};
+/** The root type for creating and mutating data */
 export type MutationUpdateBinderCardsCollectionArgs = {
     atMost?: Scalars['Int'];
     filter?: Maybe<BinderCardsFilter>;
     set: BinderCardsUpdateInput;
+};
+/** The root type for creating and mutating data */
+export type MutationUpdateBinderStatsCollectionArgs = {
+    atMost?: Scalars['Int'];
+    filter?: Maybe<BinderStatsFilter>;
+    set: BinderStatsUpdateInput;
 };
 /** The root type for creating and mutating data */
 export type MutationUpdateBindersCollectionArgs = {
@@ -1519,6 +1618,8 @@ export type Query = {
     binderCardsByShortId: Maybe<BinderCardsConnection>;
     /** A pagable collection of type `BinderCards` */
     binderCardsCollection: Maybe<BinderCardsConnection>;
+    /** A pagable collection of type `BinderStats` */
+    binderStatsCollection: Maybe<BinderStatsConnection>;
     /** A pagable collection of type `Binders` */
     bindersCollection: Maybe<BindersConnection>;
     /** A pagable collection of type `CardMarketPrices` */
@@ -1572,6 +1673,16 @@ export type QueryBinderCardsCollectionArgs = {
     last?: Maybe<Scalars['Int']>;
     offset?: Maybe<Scalars['Int']>;
     orderBy?: Maybe<Array<BinderCardsOrderBy>>;
+};
+/** The root type for querying data */
+export type QueryBinderStatsCollectionArgs = {
+    after?: Maybe<Scalars['Cursor']>;
+    before?: Maybe<Scalars['Cursor']>;
+    filter?: Maybe<BinderStatsFilter>;
+    first?: Maybe<Scalars['Int']>;
+    last?: Maybe<Scalars['Int']>;
+    offset?: Maybe<Scalars['Int']>;
+    orderBy?: Maybe<Array<BinderStatsOrderBy>>;
 };
 /** The root type for querying data */
 export type QueryBindersCollectionArgs = {
@@ -1972,7 +2083,11 @@ export type BinderByShortIdQuery = ({
 } & {
     binderByShortId: Maybe<({
         __typename?: 'Binders';
-    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId' | 'visibility' | 'binderCardCount'>)>;
+    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId' | 'visibility' | 'binderCardCount'> & {
+        stats: Maybe<({
+            __typename?: 'BinderStats';
+        } & Pick<BinderStats, 'viewCount'>)>;
+    })>;
     binderCardsByShortId: Maybe<({
         __typename?: 'BinderCardsConnection';
     } & MakeMaybe<Pick<BinderCardsConnection, 'totalCount'>, 'totalCount'> & {
@@ -2277,6 +2392,12 @@ export type MyBindersQuery = ({
         })>;
     })>;
 });
+export type RecordBinderViewMutationVariables = Exact<{
+    shortId: Scalars['String'];
+}>;
+export type RecordBinderViewMutation = ({
+    __typename?: 'Mutation';
+} & Pick<Mutation, 'recordBinderView'>);
 export type RenameBinderMutationVariables = Exact<{
     id: Scalars['UUID'];
     name: Scalars['String'];
@@ -2805,6 +2926,31 @@ export declare function useMyBindersLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type MyBindersQueryHookResult = ReturnType<typeof useMyBindersQuery>;
 export type MyBindersLazyQueryHookResult = ReturnType<typeof useMyBindersLazyQuery>;
 export type MyBindersQueryResult = Apollo.QueryResult<MyBindersQuery, MyBindersQueryVariables>;
+export declare const RecordBinderViewDocument: Apollo.DocumentNode;
+export type RecordBinderViewMutationFn = Apollo.MutationFunction<RecordBinderViewMutation, RecordBinderViewMutationVariables>;
+/**
+ * __useRecordBinderViewMutation__
+ *
+ * To run a mutation, you first call `useRecordBinderViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRecordBinderViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [recordBinderViewMutation, { data, loading, error }] = useRecordBinderViewMutation({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *   },
+ * });
+ */
+export declare function useRecordBinderViewMutation(baseOptions?: Apollo.MutationHookOptions<RecordBinderViewMutation, RecordBinderViewMutationVariables>): Apollo.MutationTuple<RecordBinderViewMutation, Exact<{
+    shortId: Scalars["String"];
+}>, Apollo.DefaultContext, Apollo.ApolloCache<any>>;
+export type RecordBinderViewMutationHookResult = ReturnType<typeof useRecordBinderViewMutation>;
+export type RecordBinderViewMutationResult = Apollo.MutationResult<RecordBinderViewMutation>;
+export type RecordBinderViewMutationOptions = Apollo.BaseMutationOptions<RecordBinderViewMutation, RecordBinderViewMutationVariables>;
 export declare const RenameBinderDocument: Apollo.DocumentNode;
 export type RenameBinderMutationFn = Apollo.MutationFunction<RenameBinderMutation, RenameBinderMutationVariables>;
 /**

@@ -1,4 +1,5 @@
 import type { BinderVisibility } from "@app/graphql";
+import { Eye } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -11,6 +12,11 @@ import {
 } from "@/components/ButtonImportBinder";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import { Switch } from "@/components/ui/Switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/Tooltip";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 
 interface BinderPageHeaderProps {
@@ -24,6 +30,7 @@ interface BinderPageHeaderProps {
   ownerByline?: ReactNode;
   showConvertedMarketPrices: boolean;
   titleAction?: ReactNode;
+  viewCount?: number;
   onAddCard: (card: DraftCardSnapshot) => void;
   onBinderChanged: () => Promise<unknown> | unknown;
   onImportCards?: ImportBinderCardsHandler;
@@ -43,6 +50,7 @@ export const BinderPageHeader = ({
   ownerByline,
   showConvertedMarketPrices,
   titleAction,
+  viewCount,
   onAddCard,
   onBinderChanged,
   onImportCards,
@@ -72,6 +80,23 @@ export const BinderPageHeader = ({
             />
           </div>
         </div>
+        {canEditBinder && viewCount !== undefined && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                className="mt-0.5 inline-flex items-center gap-1.5 text-sm text-binder-toolbar-foreground/80 tabular-nums"
+                aria-label={`${t("binder:stats.views")}: ${viewCount}`}
+                tabIndex={0}
+              >
+                <Eye aria-hidden="true" className="size-4" />
+                {viewCount}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={4}>
+              {t("binder:stats.views")}
+            </TooltipContent>
+          </Tooltip>
+        )}
         {ownerByline && (
           <div className="mt-0.5 mb-3 flex min-w-0 items-center">
             {ownerByline}

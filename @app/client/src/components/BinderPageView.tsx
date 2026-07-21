@@ -55,6 +55,7 @@ interface BinderPageViewProps {
   filterState: BinderCardFilterState;
   titleAction?: ReactNode;
   totalBinderCards: number;
+  viewCount?: number;
   viewMode: BinderCardViewMode;
   visibleBinderCards: BinderCardRecord[];
   onAddCard: (card: DraftCardSnapshot) => Promise<unknown> | unknown;
@@ -123,6 +124,7 @@ export const BinderPageView = ({
   filterState,
   titleAction,
   totalBinderCards,
+  viewCount,
   viewMode,
   visibleBinderCards,
   onAddCard,
@@ -174,6 +176,7 @@ export const BinderPageView = ({
           ownerByline={ownerByline}
           showConvertedMarketPrices={showConvertedMarketPrices}
           titleAction={titleAction}
+          viewCount={viewCount}
           onAddCard={onAddCard}
           onBinderChanged={onBinderChanged}
           onImportCards={onImportCards}

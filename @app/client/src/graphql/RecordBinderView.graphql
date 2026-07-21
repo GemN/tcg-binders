@@ -1,0 +1,3 @@
+mutation RecordBinderView($shortId: String!) {
+  recordBinderView(binderShortId: $shortId)
+}

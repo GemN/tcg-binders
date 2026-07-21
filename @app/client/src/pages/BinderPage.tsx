@@ -3,6 +3,7 @@ import {
   useAddBinderCardMutation,
   useBinderByShortIdQuery,
   useDeleteBinderCardMutation,
+  useRecordBinderViewMutation,
   useUserProfileByIdQuery,
 } from "@app/graphql";
 import { Eye, Pencil, Settings, Share2 } from "lucide-react";
@@ -18,36 +19,39 @@ import { Loading } from "@/components/Loading";
 import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
 import { Button } from "@/components/ui/Button";
-import { useBinderCartActions } from "@/hooks/useBinderCartActions";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
+import { useBinderCartActions } from "@/hooks/useBinderCartActions";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import { useIsMobile } from "@/hooks/useMobile";
-import type { CartSellerSnapshot } from "@/lib/cart";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
 import {
-  defaultBinderCardFilterState,
   type BinderCardFilterState,
   type BinderSortMode,
+  defaultBinderCardFilterState,
   getBinderCardActiveFilterCount,
   getBinderCardFilterKey,
-  getBinderCardOrderBy,
   getBinderCardFilterSearchParams,
   getBinderCardFilterStateFromSearchParams,
-  getBinderCardsPerPage,
+  getBinderCardOrderBy,
   getBinderCardsFilter,
+  getBinderCardsPerPage,
   getDefaultFinish,
   MOBILE_CARD_LIMIT,
   PRELOAD_PAGE_COUNT,
 } from "@/lib/binderPage";
+import type { CartSellerSnapshot } from "@/lib/cart";
 import { handleError } from "@/lib/error";
 import { NotFound } from "@/pages/NotFound";
 import { useSession } from "@/providers/SessionContext";
 
+const BINDER_VIEW_COOLDOWN_MS = 30 * 60 * 1000;
+const BINDER_VIEW_STORAGE_KEY_PREFIX = "tcgbinder:binder-view:";
+
 export const BinderPage = () => {
   const { t } = useTranslation(["binder", "checkout", "common"]);
-  const { session } = useSession();
+  const { isLoading: isSessionLoading, session } = useSession();
   const navigate = useNavigate();
   const { shortId = "" } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -108,11 +112,59 @@ export const BinderPage = () => {
   const [addBinderCard, { loading: isAddingCard }] = useAddBinderCardMutation();
   const [deleteBinderCard, { loading: isDeletingCard }] =
     useDeleteBinderCardMutation();
+  const [recordBinderView] = useRecordBinderViewMutation();
+  const recordedBinderViewShortIdRef = useRef<string | null>(null);
 
   const binder = data?.binderByShortId;
   const isOwner = !!session?.user.id && session.user.id === binder?.ownerId;
   const isPublicView = !!binder && (!isOwner || isPublicPreview);
   const isCartPreview = isOwner && isPublicPreview;
+
+  useEffect(() => {
+    if (!binder || isSessionLoading || isOwner) return;
+    if (recordedBinderViewShortIdRef.current === binder.shortId) return;
+
+    recordedBinderViewShortIdRef.current = binder.shortId;
+    const recordedAt = Date.now();
+    const recordedAtValue = String(recordedAt);
+    const storageKey = `${BINDER_VIEW_STORAGE_KEY_PREFIX}${binder.shortId}`;
+    let didStoreCooldown = false;
+
+    try {
+      const storedValue = window.localStorage.getItem(storageKey);
+      const lastRecordedAt = storedValue === null ? null : Number(storedValue);
+      const elapsed = lastRecordedAt === null ? null : recordedAt - lastRecordedAt;
+
+      if (
+        elapsed !== null &&
+        Number.isFinite(elapsed) &&
+        elapsed >= 0 &&
+        elapsed < BINDER_VIEW_COOLDOWN_MS
+      ) {
+        return;
+      }
+
+      window.localStorage.setItem(storageKey, recordedAtValue);
+      didStoreCooldown = true;
+    } catch {
+      // Record the view when localStorage is unavailable.
+    }
+
+    void recordBinderView({
+      variables: { shortId: binder.shortId },
+    }).catch(() => {
+      if (!didStoreCooldown) return;
+
+      try {
+        if (window.localStorage.getItem(storageKey) === recordedAtValue) {
+          window.localStorage.removeItem(storageKey);
+        }
+      } catch {
+        // Ignore localStorage failures after the request.
+      }
+    });
+  }, [binder, isOwner, isSessionLoading, recordBinderView]);
+
   const ownerId = binder?.ownerId ?? "";
   const { data: ownerProfileData, loading: isOwnerProfileLoading } =
     useUserProfileByIdQuery({
@@ -153,8 +205,7 @@ export const BinderPage = () => {
     isFiltered && typeof data?.binderCardsByShortId?.totalCount === "number"
       ? data.binderCardsByShortId.totalCount
       : null;
-  const hasExactFilteredBinderCardCount =
-    exactFilteredBinderCardCount !== null;
+  const hasExactFilteredBinderCardCount = exactFilteredBinderCardCount !== null;
   const totalBinderCards = isFiltered
     ? (exactFilteredBinderCardCount ?? currentFilteredCardCount)
     : (binder?.binderCardCount ?? binderCards.length);
@@ -308,16 +359,16 @@ export const BinderPage = () => {
       {t("binder:settings.button")}
     </Button>
   ) : undefined;
-  const headerAction = isOwner
-    ? isPublicPreview
-      ? undefined
-      : (
-          <>
-            {shareButton}
-            {settingsButton}
-          </>
-        )
-    : shareButton;
+  const headerAction = isOwner ? (
+    isPublicPreview ? undefined : (
+      <>
+        {shareButton}
+        {settingsButton}
+      </>
+    )
+  ) : (
+    shareButton
+  );
   const ownerProfileLink =
     isPublicView && ownerProfile ? (
       <BinderOwnerLink
@@ -554,6 +605,7 @@ export const BinderPage = () => {
         filterState={filterState}
         titleAction={titleAction}
         totalBinderCards={totalBinderCards}
+        viewCount={isOwner ? Number(binder.stats?.viewCount ?? 0) : undefined}
         viewMode={viewMode}
         visibleBinderCards={visibleBinderCards}
         onAddCard={handleAddCard}

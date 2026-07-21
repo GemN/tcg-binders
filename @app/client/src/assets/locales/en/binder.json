@@ -10,6 +10,9 @@
   "no_image": "No image",
   "page": "Page {{page}}",
   "show_converted_market_prices": "Show converted market prices",
+  "stats": {
+    "views": "Views"
+  },
   "unique_card_count_one": "{{count}} unique card",
   "unique_card_count_other": "{{count}} unique cards",
   "page_progress": "{{cardCount}} - Page {{page}}/{{pageCount}}",

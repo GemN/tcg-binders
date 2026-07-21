@@ -10,6 +10,9 @@
   "no_image": "ไม่มีรูปภาพ",
   "page": "หน้า {{page}}",
   "show_converted_market_prices": "แสดงราคาตลาดที่แปลงแล้ว",
+  "stats": {
+    "views": "ยอดเข้าชม"
+  },
   "unique_card_count_one": "{{count}} การ์ดไม่ซ้ำ",
   "unique_card_count_other": "{{count}} การ์ดไม่ซ้ำ",
   "page_progress": "{{cardCount}} - หน้า {{page}}/{{pageCount}}",

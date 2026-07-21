@@ -16,6 +16,9 @@ query BinderByShortId(
     tcgId
     visibility
     binderCardCount
+    stats {
+      viewCount
+    }
   }
   binderCardsByShortId(
     binderShortId: $shortId
