@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
+import { getOnboardingPath } from "@/lib/onboarding";
 import { OAUTH_NEXT_PATH_STORAGE_KEY } from "@/lib/oauth";
 import supabaseClient from "@/lib/supabase";
 
@@ -68,7 +69,7 @@ export const OAuthCallback: FC<OAuthCallbackProps> = () => {
 
       if (session) {
         window.sessionStorage.removeItem(OAUTH_NEXT_PATH_STORAGE_KEY);
-        navigate(nextPath, { replace: true });
+        navigate(getOnboardingPath(nextPath), { replace: true });
         return;
       }
 

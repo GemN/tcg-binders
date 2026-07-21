@@ -11,6 +11,7 @@ import { InputPassword } from "@/components/ui/InputPassword";
 import { Label } from "@/components/ui/Label";
 import { Separator } from "@/components/ui/Separator";
 import { handleError } from "@/lib/error";
+import { getOnboardingPath, getRegistrationCountry } from "@/lib/onboarding";
 import { OAUTH_NEXT_PATH_STORAGE_KEY } from "@/lib/oauth";
 import supabaseClient, { isAuthenticated } from "@/lib/supabase";
 
@@ -38,7 +39,8 @@ export const Login: FC<LoginProps> = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const nextPath = getSafeNextPath(searchParams.get("next"));
-  const emailCallbackUrl = `${window.location.origin}${nextPath}`;
+  const onboardingPath = getOnboardingPath(nextPath);
+  const emailCallbackUrl = `${window.location.origin}${onboardingPath}`;
   const oAuthCallbackUrl = `${window.location.origin}/auth/callback`;
   const forgotPasswordPath = `/forgot-password?returnTo=${encodeURIComponent(
     nextPath
@@ -61,7 +63,7 @@ export const Login: FC<LoginProps> = () => {
   useEffect(() => {
     const checkSession = async () => {
       if (await isAuthenticated()) {
-        navigate(nextPath, { replace: true });
+        navigate(onboardingPath, { replace: true });
       }
     };
 
@@ -71,14 +73,14 @@ export const Login: FC<LoginProps> = () => {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        navigate(nextPath, { replace: true });
+        navigate(onboardingPath, { replace: true });
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, nextPath]);
+  }, [navigate, onboardingPath]);
 
   const updateSearchParam = (key: string, value: string | null) => {
     const nextSearchParams = new URLSearchParams(searchParams);
@@ -126,6 +128,9 @@ export const Login: FC<LoginProps> = () => {
           password,
           options: {
             emailRedirectTo: emailCallbackUrl,
+            data: {
+              country: getRegistrationCountry() || "",
+            },
           },
         });
 
@@ -134,7 +139,7 @@ export const Login: FC<LoginProps> = () => {
         }
 
         if (data.session) {
-          navigate(nextPath, { replace: true });
+          navigate(onboardingPath, { replace: true });
           return;
         }
 
@@ -151,7 +156,7 @@ export const Login: FC<LoginProps> = () => {
         throw error;
       }
 
-      navigate(nextPath, { replace: true });
+      navigate(onboardingPath, { replace: true });
     } catch (error) {
       handleError(error, t("login:messages.email_error"));
     } finally {

@@ -14,7 +14,8 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   }
 
   if (!session) {
-    const nextUrl = `/login?next=${encodeURIComponent(location.pathname)}`;
+    const requestedPath = `${location.pathname}${location.search}`;
+    const nextUrl = `/login?next=${encodeURIComponent(requestedPath)}`;
     if (location.pathname !== "/login") {
       return <Navigate to={nextUrl} replace />;
     }

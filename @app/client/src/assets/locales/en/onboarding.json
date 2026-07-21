@@ -1,0 +1,12 @@
+{
+  "title": "Set up your seller profile",
+  "subtitle": "Tell buyers who you are and where you sell from. You can change this later.",
+  "nickname": "What should we call you?",
+  "nickname_description": "This name appears on your binders.",
+  "nickname_required": "Nickname is required",
+  "country": "Where will you sell from?",
+  "country_placeholder": "Select a country",
+  "country_required": "Selling country is required",
+  "continue": "Continue",
+  "save_error": "Failed to save your profile. Please try again."
+}
