@@ -2,7 +2,7 @@ import supabase from "./utils/supabase";
 
 const baseCurrency = "USD";
 const provider = "frankfurter";
-const targetCurrencies = ["EUR", "USD", "THB", "GBP"] as const;
+const targetCurrencies = ["EUR", "USD", "THB", "GBP", "JPY"] as const;
 const quoteCurrencies = targetCurrencies.filter(
   (currency) => currency !== baseCurrency
 );
@@ -29,21 +29,23 @@ export async function fetchCurrencyRates(): Promise<CurrentCurrencyRateRow[]> {
   const providerRates = await fetchProviderRates();
   const fetchedAt = new Date().toISOString();
   const rateDate = getRateDate(providerRates);
-  const rows: CurrentCurrencyRateRow[] = targetCurrencies.map((quoteCurrency) => {
-    const rate =
-      quoteCurrency === baseCurrency
-        ? 1
-        : getProviderRate(providerRates, quoteCurrency);
+  const rows: CurrentCurrencyRateRow[] = targetCurrencies.map(
+    (quoteCurrency) => {
+      const rate =
+        quoteCurrency === baseCurrency
+          ? 1
+          : getProviderRate(providerRates, quoteCurrency);
 
-    return {
-      base_currency: baseCurrency,
-      quote_currency: quoteCurrency,
-      rate: String(rate),
-      rate_date: rateDate,
-      provider,
-      fetched_at: fetchedAt,
-    };
-  });
+      return {
+        base_currency: baseCurrency,
+        quote_currency: quoteCurrency,
+        rate: String(rate),
+        rate_date: rateDate,
+        provider,
+        fetched_at: fetchedAt,
+      };
+    }
+  );
 
   const { error } = await supabase
     .from("currency_rates")
@@ -80,7 +82,9 @@ function parseProviderRates(payload: unknown): ProviderRate[] {
   const rates = payload.map(parseProviderRate);
   const missingQuotes = quoteCurrencies.filter(
     (quoteCurrency) =>
-      !rates.some((rate) => rate.base === baseCurrency && rate.quote === quoteCurrency)
+      !rates.some(
+        (rate) => rate.base === baseCurrency && rate.quote === quoteCurrency
+      )
   );
 
   if (missingQuotes.length > 0) {

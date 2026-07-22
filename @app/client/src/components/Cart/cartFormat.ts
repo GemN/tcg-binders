@@ -63,6 +63,23 @@ export const getCartItemOptionLabel = ({
   });
 };
 
+interface GetCardPrintLabelParams {
+  collectorNumber: string | null | undefined;
+  setCode: string | null | undefined;
+}
+
+export const getCardPrintLabel = ({
+  collectorNumber,
+  setCode,
+}: GetCardPrintLabelParams): string | null => {
+  const printParts = [
+    setCode,
+    collectorNumber ? `#${collectorNumber}` : null,
+  ].filter((part): part is string => !!part);
+
+  return printParts.length > 0 ? printParts.join(" ") : null;
+};
+
 interface GetCartItemPrintLabelParams {
   item: CartItem;
 }
@@ -70,10 +87,8 @@ interface GetCartItemPrintLabelParams {
 export const getCartItemPrintLabel = ({
   item,
 }: GetCartItemPrintLabelParams): string | null => {
-  const printParts = [
-    item.card.setCode,
-    item.card.collectorNumber ? `#${item.card.collectorNumber}` : null,
-  ].filter((part): part is string => !!part);
-
-  return printParts.length > 0 ? printParts.join(" ") : null;
+  return getCardPrintLabel({
+    collectorNumber: item.card.collectorNumber,
+    setCode: item.card.setCode,
+  });
 };

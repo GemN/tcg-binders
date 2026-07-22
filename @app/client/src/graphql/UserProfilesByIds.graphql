@@ -1,0 +1,20 @@
+query UserProfilesByIds($ids: [UUID!]!, $first: Int!, $after: Cursor) {
+  userProfilesCollection(
+    first: $first
+    after: $after
+    filter: { id: { in: $ids } }
+    orderBy: [{ id: AscNullsLast }]
+  ) {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+        nickname
+        country
+      }
+    }
+  }
+}

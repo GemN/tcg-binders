@@ -19,6 +19,7 @@ import { Loading } from "@/components/Loading";
 import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
 import { Button } from "@/components/ui/Button";
+import { getPreferredCardFinish } from "@/config/card";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import { useBinderCartActions } from "@/hooks/useBinderCartActions";
@@ -37,7 +38,6 @@ import {
   getBinderCardOrderBy,
   getBinderCardsFilter,
   getBinderCardsPerPage,
-  getDefaultFinish,
   MOBILE_CARD_LIMIT,
   PRELOAD_PAGE_COUNT,
 } from "@/lib/binderPage";
@@ -403,7 +403,7 @@ export const BinderPage = () => {
         variables: {
           binderId: binder.id,
           cardId: card.id,
-          finish: getDefaultFinish(card),
+          finish: getPreferredCardFinish(card.finishes),
           position: 0,
           tcgId: binder.tcgId,
         },

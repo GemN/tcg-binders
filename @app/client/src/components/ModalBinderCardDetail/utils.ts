@@ -18,15 +18,6 @@ export const formatFallbackLabel = (value: string): string => {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 };
 
-export const getDefaultFinish = (
-  finishes: readonly (string | null)[]
-): string => {
-  const cleanFinishes = finishes.filter((finish): finish is string => !!finish);
-  if (cleanFinishes.includes("normal")) return "normal";
-  if (cleanFinishes.includes("nonfoil")) return "nonfoil";
-  return cleanFinishes[0] || "normal";
-};
-
 export const formatPriceInputValue = (
   amount: number | string | null | undefined
 ): string => {

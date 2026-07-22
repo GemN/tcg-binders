@@ -1,0 +1,37 @@
+query CardListings($filter: BinderCardsFilter!, $first: Int!, $after: Cursor) {
+  binderCardsCollection(
+    first: $first
+    after: $after
+    filter: $filter
+    orderBy: [{ priceAmount: AscNullsLast }, { createdAt: AscNullsLast }]
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ...CardListingFields
+      }
+    }
+  }
+}
+
+fragment CardListingFields on BinderCards {
+  ...BinderCardSummaryFields
+  binder {
+    id
+    nodeId
+    name
+    note
+    ownerId
+    shortId
+    tcgId
+    visibility
+    binderCardCount
+    stats {
+      viewCount
+    }
+  }
+}

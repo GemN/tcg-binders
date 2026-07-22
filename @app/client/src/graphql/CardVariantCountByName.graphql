@@ -1,0 +1,8 @@
+query CardVariantCountByName($cardName: String!) {
+  cardsCollection(
+    first: 1
+    filter: { tcgId: { eq: "mtg" }, name: { eq: $cardName } }
+  ) {
+    totalCount
+  }
+}

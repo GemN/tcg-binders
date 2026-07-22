@@ -11,6 +11,7 @@ fragment BinderCardSummaryFields on BinderCards {
     id
     name
     collectorNumber
+    rarity
     finishes
     imageUrl
     releasedAt

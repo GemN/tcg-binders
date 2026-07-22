@@ -1,0 +1,8 @@
+query CardListingCountByName($cardName: String!) {
+  binderCardsCollection(
+    first: 1
+    filter: { tcgId: { eq: "mtg" }, cardName: { eq: $cardName } }
+  ) {
+    totalCount
+  }
+}

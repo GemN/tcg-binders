@@ -56,7 +56,16 @@ export const defaultCardCondition = CardCondition.NearMint;
 export const defaultCardFinish = "normal";
 export const defaultCardLanguage = LanguageCode.En;
 
+export const getPreferredCardFinish = (
+  finishes: readonly (string | null)[]
+): string => {
+  if (finishes.includes(defaultCardFinish)) return defaultCardFinish;
+  return (
+    finishes.find((finish): finish is string => !!finish) || defaultCardFinish
+  );
+};
+
 export const isFoilCardFinish = (finish: string | null | undefined) => {
   const normalizedFinish = finish?.trim().toLowerCase();
-  return !!normalizedFinish && !["normal", "nonfoil"].includes(normalizedFinish);
+  return !!normalizedFinish && normalizedFinish !== defaultCardFinish;
 };

@@ -26,6 +26,8 @@
     "price_source": "แหล่งราคา",
     "price_source_description": "ใช้เป็นแหล่งอ้างอิงราคาหลักทั่วทั้งเว็บไซต์",
     "register": "สมัครสมาชิก",
+    "search_cards": "ค้นหาการ์ด",
+    "search_cards_description": "ค้นหาการ์ดทั้งหมดตามชื่อหรือชุด",
     "settings": "การตั้งค่า",
     "sign_in": "เข้าสู่ระบบ",
     "switch_language": "เปลี่ยนภาษา",
@@ -52,7 +54,7 @@
     "create_error": "สร้างแฟ้มไม่สำเร็จ กรุณาลองอีกครั้ง"
   },
   "card_search": {
-    "placeholder": "ค้นหาการ์ด Magic",
+    "placeholder": "ค้นหาตามชื่อหรือชุด",
     "no_image": "ไม่มีรูปภาพ",
     "no_cards_found": "ไม่พบการ์ด",
     "minimum_query": "พิมพ์อย่างน้อย {{count}} ตัวอักษร"
@@ -69,9 +71,16 @@
     },
     "finish": {
       "normal": "ปกติ",
-      "nonfoil": "ไม่ฟอยล์",
       "foil": "ฟอยล์",
       "etched": "เอทช์"
+    },
+    "rarity": {
+      "common": "คอมมอน",
+      "uncommon": "อันคอมมอน",
+      "rare": "แรร์",
+      "mythic": "มิติกแรร์",
+      "special": "พิเศษ",
+      "bonus": "โบนัส"
     },
     "language": {
       "en": "อังกฤษ",
@@ -84,7 +93,8 @@
       "ko": "เกาหลี",
       "zhs": "จีนตัวย่อ",
       "zht": "จีนตัวเต็ม"
-    }
+    },
+    "released": "วันที่ออก {{date}}"
   },
   "my_binders": {
     "title": "แฟ้มของคุณ",

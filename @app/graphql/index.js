@@ -99,6 +99,7 @@ export const BinderCardSummaryFieldsFragmentDoc = gql `
     id
     name
     collectorNumber
+    rarity
     finishes
     imageUrl
     releasedAt
@@ -135,6 +136,25 @@ export const BinderCardDetailFieldsFragmentDoc = gql `
   }
 }
     ${BinderCardSummaryFieldsFragmentDoc}`;
+export const CardListingFieldsFragmentDoc = gql `
+    fragment CardListingFields on BinderCards {
+  ...BinderCardSummaryFields
+  binder {
+    id
+    nodeId
+    name
+    note
+    ownerId
+    shortId
+    tcgId
+    visibility
+    binderCardCount
+    stats {
+      viewCount
+    }
+  }
+}
+    ${BinderCardSummaryFieldsFragmentDoc}`;
 export const CardSearchFieldsFragmentDoc = gql `
     fragment CardSearchFields on Cards {
   id
@@ -165,6 +185,99 @@ export const CardSearchFieldsFragmentDoc = gql `
         currency
         priceDate
         buyUrl
+      }
+    }
+  }
+}
+    `;
+export const CardVariantFieldsFragmentDoc = gql `
+    fragment CardVariantFields on Cards {
+  id
+  name
+  collectorNumber
+  rarity
+  finishes
+  imageUrl
+  releasedAt
+  cardSet {
+    id
+    code
+    name
+    releaseAt
+  }
+  mtgCardDetail {
+    scryfallId
+  }
+  marketPrices(first: 12, orderBy: [{source: AscNullsLast}]) {
+    edges {
+      node {
+        source
+        finish
+        amount
+        currency
+      }
+    }
+  }
+  publicBinderCards: binderCards(first: 0) {
+    totalCount
+  }
+  lowestUsdBinderCards: binderCards(
+    first: 1
+    filter: {priceAmount: {is: NOT_NULL}, priceCurrency: {eq: USD}}
+    orderBy: [{priceAmount: AscNullsLast}, {createdAt: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestThbBinderCards: binderCards(
+    first: 1
+    filter: {priceAmount: {is: NOT_NULL}, priceCurrency: {eq: THB}}
+    orderBy: [{priceAmount: AscNullsLast}, {createdAt: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestEurBinderCards: binderCards(
+    first: 1
+    filter: {priceAmount: {is: NOT_NULL}, priceCurrency: {eq: EUR}}
+    orderBy: [{priceAmount: AscNullsLast}, {createdAt: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestGbpBinderCards: binderCards(
+    first: 1
+    filter: {priceAmount: {is: NOT_NULL}, priceCurrency: {eq: GBP}}
+    orderBy: [{priceAmount: AscNullsLast}, {createdAt: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestJpyBinderCards: binderCards(
+    first: 1
+    filter: {priceAmount: {is: NOT_NULL}, priceCurrency: {eq: JPY}}
+    orderBy: [{priceAmount: AscNullsLast}, {createdAt: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
       }
     }
   }
@@ -387,6 +500,209 @@ export function useBinderCardVariantsLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(BinderCardVariantsDocument, options);
 }
+export const CardByIdDocument = gql `
+    query CardById($cardId: UUID!) {
+  cardsCollection(first: 1, filter: {id: {eq: $cardId}}) {
+    edges {
+      node {
+        ...CardSearchFields
+      }
+    }
+  }
+}
+    ${CardSearchFieldsFragmentDoc}`;
+/**
+ * __useCardByIdQuery__
+ *
+ * To run a query within a React component, call `useCardByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardByIdQuery({
+ *   variables: {
+ *      cardId: // value for 'cardId'
+ *   },
+ * });
+ */
+export function useCardByIdQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardByIdDocument, options);
+}
+export function useCardByIdLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardByIdDocument, options);
+}
+export const CardLatestVariantByNameDocument = gql `
+    query CardLatestVariantByName($cardName: String!) {
+  cardsCollection(
+    first: 1
+    filter: {tcgId: {eq: "mtg"}, name: {eq: $cardName}}
+    orderBy: [{releasedAt: DescNullsLast}, {collectorNumber: AscNullsLast}]
+  ) {
+    edges {
+      node {
+        ...CardSearchFields
+      }
+    }
+  }
+}
+    ${CardSearchFieldsFragmentDoc}`;
+/**
+ * __useCardLatestVariantByNameQuery__
+ *
+ * To run a query within a React component, call `useCardLatestVariantByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardLatestVariantByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardLatestVariantByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *   },
+ * });
+ */
+export function useCardLatestVariantByNameQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardLatestVariantByNameDocument, options);
+}
+export function useCardLatestVariantByNameLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardLatestVariantByNameDocument, options);
+}
+export const CardListingCountByNameDocument = gql `
+    query CardListingCountByName($cardName: String!) {
+  binderCardsCollection(
+    first: 1
+    filter: {tcgId: {eq: "mtg"}, cardName: {eq: $cardName}}
+  ) {
+    totalCount
+  }
+}
+    `;
+/**
+ * __useCardListingCountByNameQuery__
+ *
+ * To run a query within a React component, call `useCardListingCountByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardListingCountByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardListingCountByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *   },
+ * });
+ */
+export function useCardListingCountByNameQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardListingCountByNameDocument, options);
+}
+export function useCardListingCountByNameLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardListingCountByNameDocument, options);
+}
+export const CardListingPricesDocument = gql `
+    query CardListingPrices($filter: BinderCardsFilter!, $first: Int!, $after: Cursor) {
+  binderCardsCollection(
+    first: $first
+    after: $after
+    filter: $filter
+    orderBy: [{id: AscNullsLast}]
+  ) {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+}
+    `;
+/**
+ * __useCardListingPricesQuery__
+ *
+ * To run a query within a React component, call `useCardListingPricesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardListingPricesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardListingPricesQuery({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useCardListingPricesQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardListingPricesDocument, options);
+}
+export function useCardListingPricesLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardListingPricesDocument, options);
+}
+export const CardListingsDocument = gql `
+    query CardListings($filter: BinderCardsFilter!, $first: Int!, $after: Cursor) {
+  binderCardsCollection(
+    first: $first
+    after: $after
+    filter: $filter
+    orderBy: [{priceAmount: AscNullsLast}, {createdAt: AscNullsLast}]
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ...CardListingFields
+      }
+    }
+  }
+}
+    ${CardListingFieldsFragmentDoc}`;
+/**
+ * __useCardListingsQuery__
+ *
+ * To run a query within a React component, call `useCardListingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardListingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardListingsQuery({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useCardListingsQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardListingsDocument, options);
+}
+export function useCardListingsLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardListingsDocument, options);
+}
 export const CardSearchDocument = gql `
     query CardSearch($query: String!, $nameQuery: String!, $setCode: String!, $hasSetCode: Boolean!, $first: Int = 8) {
   cardsCollection(
@@ -447,6 +763,84 @@ export function useCardSearchQuery(baseOptions) {
 export function useCardSearchLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(CardSearchDocument, options);
+}
+export const CardVariantCountByNameDocument = gql `
+    query CardVariantCountByName($cardName: String!) {
+  cardsCollection(first: 1, filter: {tcgId: {eq: "mtg"}, name: {eq: $cardName}}) {
+    totalCount
+  }
+}
+    `;
+/**
+ * __useCardVariantCountByNameQuery__
+ *
+ * To run a query within a React component, call `useCardVariantCountByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardVariantCountByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardVariantCountByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *   },
+ * });
+ */
+export function useCardVariantCountByNameQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardVariantCountByNameDocument, options);
+}
+export function useCardVariantCountByNameLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardVariantCountByNameDocument, options);
+}
+export const CardVariantsByNameDocument = gql `
+    query CardVariantsByName($cardName: String!, $first: Int!, $after: Cursor) {
+  cardsCollection(
+    first: $first
+    after: $after
+    filter: {tcgId: {eq: "mtg"}, name: {eq: $cardName}}
+    orderBy: [{releasedAt: DescNullsLast}, {collectorNumber: AscNullsLast}]
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ...CardVariantFields
+      }
+    }
+  }
+}
+    ${CardVariantFieldsFragmentDoc}`;
+/**
+ * __useCardVariantsByNameQuery__
+ *
+ * To run a query within a React component, call `useCardVariantsByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardVariantsByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardVariantsByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useCardVariantsByNameQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(CardVariantsByNameDocument, options);
+}
+export function useCardVariantsByNameLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(CardVariantsByNameDocument, options);
 }
 export const CardsForBinderImportDocument = gql `
     query CardsForBinderImport($filter: CardsFilter!, $first: Int!, $after: Cursor) {
@@ -1014,5 +1408,53 @@ export function useUserProfileByNicknameQuery(baseOptions) {
 export function useUserProfileByNicknameLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(UserProfileByNicknameDocument, options);
+}
+export const UserProfilesByIdsDocument = gql `
+    query UserProfilesByIds($ids: [UUID!]!, $first: Int!, $after: Cursor) {
+  userProfilesCollection(
+    first: $first
+    after: $after
+    filter: {id: {in: $ids}}
+    orderBy: [{id: AscNullsLast}]
+  ) {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+        nickname
+        country
+      }
+    }
+  }
+}
+    `;
+/**
+ * __useUserProfilesByIdsQuery__
+ *
+ * To run a query within a React component, call `useUserProfilesByIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserProfilesByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserProfilesByIdsQuery({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useUserProfilesByIdsQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(UserProfilesByIdsDocument, options);
+}
+export function useUserProfilesByIdsLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(UserProfilesByIdsDocument, options);
 }
 //# sourceMappingURL=index.js.map

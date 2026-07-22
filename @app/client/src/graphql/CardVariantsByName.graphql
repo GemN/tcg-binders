@@ -1,0 +1,111 @@
+query CardVariantsByName($cardName: String!, $first: Int!, $after: Cursor) {
+  cardsCollection(
+    first: $first
+    after: $after
+    filter: { tcgId: { eq: "mtg" }, name: { eq: $cardName } }
+    orderBy: [{ releasedAt: DescNullsLast }, { collectorNumber: AscNullsLast }]
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ...CardVariantFields
+      }
+    }
+  }
+}
+
+fragment CardVariantFields on Cards {
+  id
+  name
+  collectorNumber
+  rarity
+  finishes
+  imageUrl
+  releasedAt
+  cardSet {
+    id
+    code
+    name
+    releaseAt
+  }
+  mtgCardDetail {
+    scryfallId
+  }
+  marketPrices(first: 12, orderBy: [{ source: AscNullsLast }]) {
+    edges {
+      node {
+        source
+        finish
+        amount
+        currency
+      }
+    }
+  }
+  publicBinderCards: binderCards(first: 0) {
+    totalCount
+  }
+  lowestUsdBinderCards: binderCards(
+    first: 1
+    filter: { priceAmount: { is: NOT_NULL }, priceCurrency: { eq: USD } }
+    orderBy: [{ priceAmount: AscNullsLast }, { createdAt: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestThbBinderCards: binderCards(
+    first: 1
+    filter: { priceAmount: { is: NOT_NULL }, priceCurrency: { eq: THB } }
+    orderBy: [{ priceAmount: AscNullsLast }, { createdAt: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestEurBinderCards: binderCards(
+    first: 1
+    filter: { priceAmount: { is: NOT_NULL }, priceCurrency: { eq: EUR } }
+    orderBy: [{ priceAmount: AscNullsLast }, { createdAt: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestGbpBinderCards: binderCards(
+    first: 1
+    filter: { priceAmount: { is: NOT_NULL }, priceCurrency: { eq: GBP } }
+    orderBy: [{ priceAmount: AscNullsLast }, { createdAt: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+  lowestJpyBinderCards: binderCards(
+    first: 1
+    filter: { priceAmount: { is: NOT_NULL }, priceCurrency: { eq: JPY } }
+    orderBy: [{ priceAmount: AscNullsLast }, { createdAt: AscNullsLast }]
+  ) {
+    edges {
+      node {
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+}

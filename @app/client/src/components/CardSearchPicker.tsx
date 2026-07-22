@@ -7,6 +7,13 @@ import { useTranslation } from "react-i18next";
 import { CardImage } from "@/components/CardImage";
 import { InputSearch } from "@/components/InputSearch";
 import { MarketPriceSummary } from "@/components/MarketPriceSummary";
+import {
+  Command,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/Command";
+import { getPreferredCardFinish } from "@/config/card";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
@@ -101,7 +108,8 @@ export const CardSearchPicker = ({
     [debouncedQuery]
   );
   const canSearch = parsedQuery.searchText.length >= MINIMUM_SEARCH_LENGTH;
-  const { data, loading } = useCardSearchQuery({
+  const { data, loading, previousData } = useCardSearchQuery({
+    fetchPolicy: "cache-and-network",
     variables: {
       hasSetCode: parsedQuery.hasSetCode,
       nameQuery: `%${parsedQuery.cardName}%`,
@@ -112,15 +120,18 @@ export const CardSearchPicker = ({
     skip: !canSearch,
   });
 
-  const setScopedCards = getSetScopedCards(data);
-  const hasMatchingSet = !!data?.cardSetsCollection?.edges.length;
-  const cardNodes =
-    parsedQuery.hasSetCode && hasMatchingSet
-      ? setScopedCards
-      : data?.cardsCollection?.edges.map(({ node }) => node) || [];
+  const displayedData = canSearch
+    ? data || (loading ? previousData : undefined)
+    : undefined;
+  const setScopedCards = getSetScopedCards(displayedData);
+  const hasMatchingSet = !!displayedData?.cardSetsCollection?.edges.length;
+  const cardNodes = hasMatchingSet
+    ? setScopedCards
+    : displayedData?.cardsCollection?.edges.map(({ node }) => node) || [];
   const cards = cardNodes.map((card) => createDraftCardSnapshot(card));
+  const isLoadingWithResults = loading && cards.length > 0;
 
-  const handleSelect = (card: DraftCardSnapshot) => () => {
+  const handleSelect = (card: DraftCardSnapshot) => {
     onSelect(card);
     setQuery("");
     setIsOpen(false);
@@ -128,86 +139,110 @@ export const CardSearchPicker = ({
 
   useClickOutside(containerRef, () => setIsOpen(false), { skip: !isOpen });
 
+  const isListboxOpen = isOpen && query.trim().length > 0;
+
   return (
     <div ref={containerRef} className={cn("relative", containerClassName)}>
-      <InputSearch
-        value={query}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setIsOpen(true);
-        }}
-        onFocus={() => setIsOpen(true)}
-        placeholder={placeholder || t("common:card_search.placeholder")}
-        iconClassName={iconClassName}
-        containerClassName="w-full"
-        className={className}
-      />
-      {isOpen && query.trim().length > 0 && (
-        <div className="absolute z-[100] mt-2 w-full rounded-md border border-border bg-background text-foreground shadow-lg">
-          {loading ? (
-            <div className="flex h-20 items-center justify-center">
-              <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : cards.length > 0 ? (
-            <div className="max-h-[420px] overflow-y-auto p-1">
-              {cards.map((card) => {
-                const marketPrice = getMarketPriceBySourceAndFinish(
-                  card.marketPrices,
-                  priceSource,
-                  ["normal"]
-                );
+      <Command
+        shouldFilter={false}
+        className="h-auto overflow-visible bg-transparent"
+      >
+        <InputSearch
+          isLoading={isLoadingWithResults}
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          onKeyDown={(event) => {
+            if (event.nativeEvent.isComposing) return;
 
-                return (
-                  <button
-                    key={card.id}
-                    type="button"
-                    className="group flex w-full items-center gap-3 rounded-md p-2 text-left hover:bg-primary hover:text-primary-foreground focus-visible:bg-primary focus-visible:text-primary-foreground focus-visible:outline-none"
-                    onClick={handleSelect(card)}
-                  >
-                    <CardImage
-                      alt=""
-                      className="h-16 w-12 shrink-0 rounded-sm border bg-muted"
-                      fallbackClassName="text-xs text-current/70"
-                      finish={card.finishes[0]}
-                      imageSize="thumbnail"
-                      imageUrl={card.imageUrl}
-                      noImageLabel={t("common:card_search.no_image")}
-                      showBadgeFinish={false}
-                      scryfallId={getCardScryfallId(card)}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">
-                        {card.name}
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-current/70">
-                        <span>{card.setCode || "MTG"}</span>
-                        {card.collectorNumber && (
-                          <span>#{card.collectorNumber}</span>
-                        )}
-                      </div>
-                    </div>
-                    <MarketPriceSummary
-                      amount={marketPrice?.amount}
-                      currency={marketPrice?.currency}
-                      source={marketPrice?.source}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          ) : canSearch ? (
-            <div className="flex h-20 items-center justify-center text-sm text-muted-foreground">
-              {t("common:card_search.no_cards_found")}
-            </div>
-          ) : (
-            <div className="flex h-16 items-center justify-center text-sm text-muted-foreground">
-              {t("common:card_search.minimum_query", {
-                count: MINIMUM_SEARCH_LENGTH,
-              })}
-            </div>
-          )}
-        </div>
-      )}
+            if (event.key === "Escape" && isOpen) {
+              event.preventDefault();
+              setIsOpen(false);
+            }
+          }}
+          placeholder={placeholder || t("common:card_search.placeholder")}
+          iconClassName={iconClassName}
+          containerClassName="w-full"
+          className={cn(className, isLoadingWithResults && "pr-9")}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={isListboxOpen}
+        />
+        {isListboxOpen && (
+          <div className="absolute top-full z-[100] mt-2 w-full rounded-md border border-border bg-background text-foreground shadow-lg">
+            {loading && cards.length === 0 ? (
+              <div className="flex h-20 items-center justify-center">
+                <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : cards.length > 0 ? (
+              <CommandList className="max-h-[420px] p-1">
+                <CommandGroup className="p-0">
+                  {cards.map((card) => {
+                    const preferredFinish = getPreferredCardFinish(
+                      card.finishes
+                    );
+                    const marketPrice = getMarketPriceBySourceAndFinish(
+                      card.marketPrices,
+                      priceSource,
+                      [preferredFinish]
+                    );
+
+                    return (
+                      <CommandItem
+                        key={card.id}
+                        value={card.id}
+                        className="group w-full cursor-pointer gap-3 rounded-md p-2 text-left data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground"
+                        onSelect={() => handleSelect(card)}
+                      >
+                        <CardImage
+                          alt=""
+                          className="h-16 shrink-0 bg-muted"
+                          fallbackClassName="text-xs text-current/70"
+                          finish={preferredFinish}
+                          imageSize="thumbnail"
+                          imageUrl={card.imageUrl}
+                          noImageLabel={t("common:card_search.no_image")}
+                          showBadgeFinish={false}
+                          scryfallId={getCardScryfallId(card)}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">
+                            {card.name}
+                          </div>
+                          <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-current/70">
+                            <span>{card.setCode || "MTG"}</span>
+                            {card.collectorNumber && (
+                              <span>#{card.collectorNumber}</span>
+                            )}
+                          </div>
+                        </div>
+                        <MarketPriceSummary
+                          amount={marketPrice?.amount}
+                          currency={marketPrice?.currency}
+                          source={marketPrice?.source}
+                        />
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            ) : canSearch ? (
+              <div className="flex h-20 items-center justify-center text-sm text-muted-foreground">
+                {t("common:card_search.no_cards_found")}
+              </div>
+            ) : (
+              <div className="flex h-16 items-center justify-center text-sm text-muted-foreground">
+                {t("common:card_search.minimum_query", {
+                  count: MINIMUM_SEARCH_LENGTH,
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </Command>
     </div>
   );
 };

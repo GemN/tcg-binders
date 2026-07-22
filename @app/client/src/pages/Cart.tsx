@@ -21,6 +21,7 @@ import {
   SellerMessagesSection,
 } from "@/components/Cart/SellerMessagesSection";
 import { Button } from "@/components/ui/Button";
+import { isFoilCardFinish } from "@/config/card";
 import {
   type CartCurrencyTotal,
   type CartEstimatedTotal,
@@ -55,11 +56,7 @@ const getSellerEstimatedTotal = ({
 };
 
 const shouldShowFinishInCartMessage = (finish: string | null): boolean => {
-  const normalizedFinish = finish?.trim().toLowerCase();
-
-  return (
-    !!normalizedFinish && !["normal", "nonfoil"].includes(normalizedFinish)
-  );
+  return isFoilCardFinish(finish);
 };
 
 interface GetCartItemDescriptionParams {

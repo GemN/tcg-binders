@@ -4,6 +4,7 @@ import { Link } from "react-router";
 
 import { ButtonNewBinder } from "@/components/ButtonNewBinder";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
+import { GlobalCardSearch } from "@/components/GlobalCardSearch";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { NavbarCartButton } from "@/components/NavbarCartButton";
 import { PriceSourceSwitcher } from "@/components/PriceSourceSwitcher";
@@ -53,7 +54,7 @@ export const Navbar = () => {
           )}
         </div>
 
-        <div className="flex-1" />
+        <GlobalCardSearch />
 
         <div className="flex min-w-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />

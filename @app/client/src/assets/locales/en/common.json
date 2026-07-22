@@ -26,6 +26,8 @@
     "price_source": "Price source",
     "price_source_description": "Used as the primary pricing reference across the site",
     "register": "Register",
+    "search_cards": "Search cards",
+    "search_cards_description": "Search all cards by name or set.",
     "settings": "Settings",
     "sign_in": "Sign in",
     "switch_language": "Switch language",
@@ -52,7 +54,7 @@
     "create_error": "Failed to create binder. Please try again."
   },
   "card_search": {
-    "placeholder": "Search a Magic card",
+    "placeholder": "Search by name, set",
     "no_image": "No image",
     "no_cards_found": "No cards found",
     "minimum_query": "Type at least {{count}} characters"
@@ -69,9 +71,16 @@
     },
     "finish": {
       "normal": "Normal",
-      "nonfoil": "Nonfoil",
       "foil": "Foil",
       "etched": "Etched"
+    },
+    "rarity": {
+      "common": "Common",
+      "uncommon": "Uncommon",
+      "rare": "Rare",
+      "mythic": "Mythic rare",
+      "special": "Special",
+      "bonus": "Bonus"
     },
     "language": {
       "en": "English",
@@ -84,7 +93,8 @@
       "ko": "Korean",
       "zhs": "Chinese Simplified",
       "zht": "Chinese Traditional"
-    }
+    },
+    "released": "Released {{date}}"
   },
   "my_binders": {
     "title": "Your Binders",

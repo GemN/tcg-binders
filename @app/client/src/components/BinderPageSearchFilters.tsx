@@ -40,6 +40,15 @@ interface BinderPageSearchFiltersProps {
   onFilterStateChange: (filterState: BinderCardFilterState) => void;
 }
 
+interface BinderCardFiltersProps {
+  activeFilterCount: number;
+  filterState: BinderCardFilterState;
+  idPrefix: string;
+  isMobile: boolean;
+  onClearFilters: () => void;
+  onFilterStateChange: (filterState: BinderCardFilterState) => void;
+}
+
 interface BinderPageFilterFieldsProps {
   filterState: BinderCardFilterState;
   idPrefix: string;
@@ -127,23 +136,22 @@ const BinderPageFilterFields = ({
   );
 };
 
-export const BinderPageSearchFilters = ({
+export const BinderCardFilters = ({
   activeFilterCount,
   filterState,
+  idPrefix,
   isMobile,
   onClearFilters,
   onFilterStateChange,
-}: BinderPageSearchFiltersProps) => {
-  const { t } = useTranslation(["binder", "common"]);
-
+}: BinderCardFiltersProps) => {
+  const { t } = useTranslation("binder");
   const filterFields = (
     <BinderPageFilterFields
       filterState={filterState}
-      idPrefix={isMobile ? "binder-filter-sheet" : "binder-filter-popover"}
+      idPrefix={`${idPrefix}-${isMobile ? "sheet" : "popover"}`}
       onFilterStateChange={onFilterStateChange}
     />
   );
-
   const filterButton = (
     <Button
       type="button"
@@ -152,7 +160,7 @@ export const BinderPageSearchFilters = ({
       className="h-9 w-full sm:w-auto"
     >
       <SlidersHorizontal className="size-4" />
-      {t("binder:filter.button")}
+      {t("filter.button")}
       {activeFilterCount > 0 && (
         <span className="ml-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-background/20 px-1.5 text-xs tabular-nums">
           {activeFilterCount}
@@ -160,14 +168,6 @@ export const BinderPageSearchFilters = ({
       )}
     </Button>
   );
-
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onFilterStateChange({
-      ...filterState,
-      query: event.target.value,
-    });
-  };
-
   const clearFiltersButton = (
     <Button
       type="button"
@@ -177,9 +177,50 @@ export const BinderPageSearchFilters = ({
       disabled={activeFilterCount === 0}
       onClick={onClearFilters}
     >
-      {t("binder:filter.clear")}
+      {t("filter.clear")}
     </Button>
   );
+
+  return isMobile ? (
+    <Sheet>
+      <SheetTrigger asChild>{filterButton}</SheetTrigger>
+      <SheetContent side="bottom" className="max-h-[85svh] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>{t("filter.title")}</SheetTitle>
+        </SheetHeader>
+        <div className="px-4 pb-4">
+          {filterFields}
+          <div className="mt-4 border-t pt-3">{clearFiltersButton}</div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  ) : (
+    <Popover>
+      <PopoverTrigger asChild>{filterButton}</PopoverTrigger>
+      <PopoverContent align="end" className="w-80">
+        <h2 className="mb-4 text-sm font-semibold">{t("filter.title")}</h2>
+        {filterFields}
+        <div className="mt-4 border-t pt-3">{clearFiltersButton}</div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export const BinderPageSearchFilters = ({
+  activeFilterCount,
+  filterState,
+  isMobile,
+  onClearFilters,
+  onFilterStateChange,
+}: BinderPageSearchFiltersProps) => {
+  const { t } = useTranslation(["binder", "common"]);
+
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onFilterStateChange({
+      ...filterState,
+      query: event.target.value,
+    });
+  };
 
   return (
     <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
@@ -191,31 +232,14 @@ export const BinderPageSearchFilters = ({
         value={filterState.query}
         onChange={handleSearchChange}
       />
-      {isMobile ? (
-        <Sheet>
-          <SheetTrigger asChild>{filterButton}</SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[85svh] overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>{t("binder:filter.title")}</SheetTitle>
-            </SheetHeader>
-            <div className="px-4 pb-4">
-              {filterFields}
-              <div className="mt-4 border-t pt-3">{clearFiltersButton}</div>
-            </div>
-          </SheetContent>
-        </Sheet>
-      ) : (
-        <Popover>
-          <PopoverTrigger asChild>{filterButton}</PopoverTrigger>
-          <PopoverContent align="end" className="w-80">
-            <h2 className="mb-4 text-sm font-semibold">
-              {t("binder:filter.title")}
-            </h2>
-            {filterFields}
-            <div className="mt-4 border-t pt-3">{clearFiltersButton}</div>
-          </PopoverContent>
-        </Popover>
-      )}
+      <BinderCardFilters
+        activeFilterCount={activeFilterCount}
+        filterState={filterState}
+        idPrefix="binder-filter"
+        isMobile={isMobile}
+        onClearFilters={onClearFilters}
+        onFilterStateChange={onFilterStateChange}
+      />
     </div>
   );
 };

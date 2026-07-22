@@ -7,7 +7,6 @@ import {
 } from "@app/graphql";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
-import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 
 export type BinderSortMode =
   | "seller_order"
@@ -294,11 +293,6 @@ export const doesBinderCardMatchFilter = (
 
 export const getBinderCardsPerPage = (viewMode: BinderCardViewMode): number => {
   return viewMode === "grid" ? GRID_PAGE_SIZE : LIST_PAGE_SIZE;
-};
-
-export const getDefaultFinish = (card: DraftCardSnapshot): string => {
-  if (card.finishes.includes("normal")) return "normal";
-  return card.finishes[0] || "normal";
 };
 
 export const shouldIgnoreBinderViewFocus = (

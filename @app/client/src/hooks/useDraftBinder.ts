@@ -7,6 +7,8 @@ import {
 } from "@app/graphql";
 import { useCallback, useMemo, useRef, useState } from "react";
 
+import { getPreferredCardFinish } from "@/config/card";
+
 const DRAFT_BINDER_STORAGE_KEY = "tcgbinder:draft-binder";
 
 export type DraftCardCondition = CardCondition;
@@ -80,12 +82,6 @@ const emptyDraftBinder: DraftBinder = {
   note: "",
   tcgId: "mtg",
   cards: [],
-};
-
-const getDefaultFinish = (finishes: string[]): string => {
-  if (finishes.includes("normal")) return "normal";
-  if (finishes.includes("nonfoil")) return "normal";
-  return finishes[0] || "normal";
 };
 
 const createDraftId = (): string => {
@@ -165,7 +161,7 @@ const normalizeDraftCard = (
     draftId: draftCard.draftId || createDraftId(),
     cardId: draftCard.cardId,
     quantity: Math.max(1, Number(draftCard.quantity) || 1),
-    finish: draftCard.finish || getDefaultFinish(finishes),
+    finish: draftCard.finish || getPreferredCardFinish(finishes),
     condition: draftCard.condition || CardCondition.NearMint,
     language: draftCard.language || LanguageCode.En,
     dynamicPriceRule: draftCard.dynamicPriceRule || null,
@@ -240,7 +236,7 @@ const appendDraftCard = (
   card: DraftCardSnapshot,
   options: AddDraftCardOptions = {}
 ): DraftBinder => {
-  const finish = options.finish || getDefaultFinish(card.finishes);
+  const finish = options.finish || getPreferredCardFinish(card.finishes);
   const quantity = Math.max(1, Number(options.quantity) || 1);
   const existingCard = currentDraft.cards.find(
     (draftCard) => draftCard.cardId === card.id && draftCard.finish === finish

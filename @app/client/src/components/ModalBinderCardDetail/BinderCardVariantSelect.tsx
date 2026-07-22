@@ -10,6 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/Select";
+import { getPreferredCardFinish } from "@/config/card";
 import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
@@ -104,10 +105,11 @@ export const BinderCardVariantSelect = ({
               const variantImageUrl = getCardImageBaseUrl(variant);
               const variantScryfallId = getCardScryfallId(variant);
               const variantLabel = getVariantLabel(variant);
+              const preferredFinish = getPreferredCardFinish(variant.finishes);
               const marketPrice = getMarketPriceBySourceAndFinish(
                 variant.marketPrices?.edges.map(({ node }) => node),
                 priceSource,
-                ["normal"]
+                [preferredFinish]
               );
               return (
                 <SelectItem
@@ -120,8 +122,8 @@ export const BinderCardVariantSelect = ({
                     <span className="flex min-w-0 flex-1 items-center gap-2">
                       <CardImage
                         alt=""
-                        className="h-12 shrink-0 rounded-sm border border-border"
-                        finish={variant.finishes[0]}
+                        className="h-12 shrink-0"
+                        finish={preferredFinish}
                         imageSize="thumbnail"
                         imageUrl={variantImageUrl}
                         noImageLabel=""

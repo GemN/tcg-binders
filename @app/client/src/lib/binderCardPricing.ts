@@ -57,7 +57,7 @@ const getComparableMarketPriceAmount = (
 };
 
 export const getMarketPriceBySourceAndFinish = <
-  TMarketPrice extends SelectableMarketPriceInput
+  TMarketPrice extends SelectableMarketPriceInput,
 >(
   marketPrices: readonly TMarketPrice[] | null | undefined,
   priceSource: MarketPriceSource,
@@ -147,6 +147,44 @@ export const getCheapestMarketPriceSources = (
       )
       .map(({ source }) => source)
   );
+};
+
+export interface ComparableBinderCardPriceInput {
+  priceAmount: number | string | null | undefined;
+  priceCurrency: CurrencyCode | null | undefined;
+}
+
+export const getLowestConvertedBinderCardPrice = (
+  prices: readonly (ComparableBinderCardPriceInput | null | undefined)[],
+  convertAmountToLocalCurrency: ConvertAmountToLocalCurrency
+): number | null => {
+  let lowestPrice: number | null = null;
+
+  for (const price of prices) {
+    if (!price) continue;
+    if (price.priceAmount === null || price.priceAmount === undefined) {
+      return null;
+    }
+    if (!price.priceCurrency) return null;
+
+    const amount = Number(price.priceAmount);
+    if (!Number.isFinite(amount)) return null;
+
+    const convertedAmount = convertAmountToLocalCurrency(
+      amount,
+      price.priceCurrency
+    );
+    if (convertedAmount === null || !Number.isFinite(convertedAmount)) {
+      return null;
+    }
+
+    lowestPrice =
+      lowestPrice === null
+        ? convertedAmount
+        : Math.min(lowestPrice, convertedAmount);
+  }
+
+  return lowestPrice;
 };
 
 export const formatBinderCardPrice = ({

@@ -28,6 +28,21 @@ const BinderPage = lazy(() =>
     default: module.BinderPage,
   }))
 );
+const CardPage = lazy(() =>
+  import("@/pages/CardPage").then((module) => ({
+    default: module.CardPage,
+  }))
+);
+const CardAllListingsPage = lazy(() =>
+  import("@/pages/CardAllListingsPage").then((module) => ({
+    default: module.CardAllListingsPage,
+  }))
+);
+const CardVariantsPage = lazy(() =>
+  import("@/pages/CardVariantsPage").then((module) => ({
+    default: module.CardVariantsPage,
+  }))
+);
 const ForgotPassword = lazy(() =>
   import("@/pages/ForgotPassword").then((module) => ({
     default: module.ForgotPassword,
@@ -121,6 +136,15 @@ function App() {
               <Route
                 path="binder/:shortId"
                 element={renderPage(<BinderPage />)}
+              />
+              <Route path="card/:cardId" element={renderPage(<CardPage />)} />
+              <Route
+                path="card/:cardId/listings"
+                element={renderPage(<CardAllListingsPage />)}
+              />
+              <Route
+                path="card/:cardId/variants"
+                element={renderPage(<CardVariantsPage />)}
               />
               <Route
                 path="user/:nickname"

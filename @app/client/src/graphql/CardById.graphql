@@ -1,0 +1,9 @@
+query CardById($cardId: UUID!) {
+  cardsCollection(first: 1, filter: { id: { eq: $cardId } }) {
+    edges {
+      node {
+        ...CardSearchFields
+      }
+    }
+  }
+}

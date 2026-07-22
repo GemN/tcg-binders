@@ -224,15 +224,11 @@ export const PricingSettingsProvider = ({
   }, [error]);
 
   const rates = useMemo(() => {
-    const nextRates: Partial<Record<SupportedCurrency, number>> = {
+    const nextRates: Partial<Record<CurrencyCode, number>> = {
       [CurrencyCode.Usd]: 1,
     };
 
     data?.currencyRatesCollection?.edges.forEach(({ node }) => {
-      if (!isSupportedCurrency(node.quoteCurrency)) {
-        return;
-      }
-
       const rate = Number(node.rate);
       if (Number.isFinite(rate) && rate > 0) {
         nextRates[node.quoteCurrency] = rate;
@@ -246,7 +242,6 @@ export const PricingSettingsProvider = ({
     useCallback<ConvertAmountToTargetCurrency>(
       (amount, sourceCurrency, targetCurrency) => {
         if (!Number.isFinite(amount) || amount < 0) return null;
-        if (!isSupportedCurrency(sourceCurrency)) return null;
         if (!isSupportedCurrency(targetCurrency)) return null;
         if (sourceCurrency === targetCurrency) return amount;
 

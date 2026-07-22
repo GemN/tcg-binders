@@ -689,6 +689,8 @@ export type CardsConnection = {
     __typename?: 'CardsConnection';
     edges: Array<CardsEdge>;
     pageInfo: PageInfo;
+    /** The total number of records matching the `filter` criteria */
+    totalCount: Scalars['Int'];
 };
 export type CardsDeleteResponse = {
     __typename?: 'CardsDeleteResponse';
@@ -2130,7 +2132,7 @@ export type BinderCardSummaryFieldsFragment = ({
 } & Pick<BinderCards, 'id' | 'condition' | 'dynamicPriceRule' | 'finish' | 'language' | 'priceAmount' | 'priceCurrency' | 'quantity'> & {
     card: Maybe<({
         __typename?: 'Cards';
-    } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'finishes' | 'imageUrl' | 'releasedAt'> & {
+    } & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageUrl' | 'releasedAt'> & {
         mtgCardDetail: Maybe<({
             __typename?: 'MtgCardDetails';
         } & Pick<MtgCardDetails, 'scryfallId'>)>;
@@ -2180,6 +2182,109 @@ export type BinderCardVariantsQuery = ({
         })>;
     })>;
 });
+export type CardByIdQueryVariables = Exact<{
+    cardId: Scalars['UUID'];
+}>;
+export type CardByIdQuery = ({
+    __typename?: 'Query';
+} & {
+    cardsCollection: Maybe<({
+        __typename?: 'CardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'CardsEdge';
+        } & {
+            node: ({
+                __typename?: 'Cards';
+            } & CardSearchFieldsFragment);
+        })>;
+    })>;
+});
+export type CardLatestVariantByNameQueryVariables = Exact<{
+    cardName: Scalars['String'];
+}>;
+export type CardLatestVariantByNameQuery = ({
+    __typename?: 'Query';
+} & {
+    cardsCollection: Maybe<({
+        __typename?: 'CardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'CardsEdge';
+        } & {
+            node: ({
+                __typename?: 'Cards';
+            } & CardSearchFieldsFragment);
+        })>;
+    })>;
+});
+export type CardListingCountByNameQueryVariables = Exact<{
+    cardName: Scalars['String'];
+}>;
+export type CardListingCountByNameQuery = ({
+    __typename?: 'Query';
+} & {
+    binderCardsCollection: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & Pick<BinderCardsConnection, 'totalCount'>)>;
+});
+export type CardListingPricesQueryVariables = Exact<{
+    filter: BinderCardsFilter;
+    first: Scalars['Int'];
+    after?: Maybe<Scalars['Cursor']>;
+}>;
+export type CardListingPricesQuery = ({
+    __typename?: 'Query';
+} & {
+    binderCardsCollection: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        pageInfo: ({
+            __typename?: 'PageInfo';
+        } & Pick<PageInfo, 'endCursor' | 'hasNextPage'>);
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & Pick<BinderCards, 'id' | 'priceAmount' | 'priceCurrency'>);
+        })>;
+    })>;
+});
+export type CardListingsQueryVariables = Exact<{
+    filter: BinderCardsFilter;
+    first: Scalars['Int'];
+    after?: Maybe<Scalars['Cursor']>;
+}>;
+export type CardListingsQuery = ({
+    __typename?: 'Query';
+} & {
+    binderCardsCollection: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & Pick<BinderCardsConnection, 'totalCount'> & {
+        pageInfo: ({
+            __typename?: 'PageInfo';
+        } & Pick<PageInfo, 'endCursor' | 'hasNextPage'>);
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & CardListingFieldsFragment);
+        })>;
+    })>;
+});
+export type CardListingFieldsFragment = ({
+    __typename?: 'BinderCards';
+} & {
+    binder: Maybe<({
+        __typename?: 'Binders';
+    } & Pick<Binders, 'id' | 'nodeId' | 'name' | 'note' | 'ownerId' | 'shortId' | 'tcgId' | 'visibility' | 'binderCardCount'> & {
+        stats: Maybe<({
+            __typename?: 'BinderStats';
+        } & Pick<BinderStats, 'viewCount'>)>;
+    })>;
+} & BinderCardSummaryFieldsFragment);
 export type CardSearchQueryVariables = Exact<{
     query: Scalars['String'];
     nameQuery: Scalars['String'];
@@ -2243,6 +2348,118 @@ export type CardSearchFieldsFragment = ({
             node: ({
                 __typename?: 'CardMarketPrices';
             } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'priceDate' | 'buyUrl'>);
+        })>;
+    })>;
+});
+export type CardVariantCountByNameQueryVariables = Exact<{
+    cardName: Scalars['String'];
+}>;
+export type CardVariantCountByNameQuery = ({
+    __typename?: 'Query';
+} & {
+    cardsCollection: Maybe<({
+        __typename?: 'CardsConnection';
+    } & Pick<CardsConnection, 'totalCount'>)>;
+});
+export type CardVariantsByNameQueryVariables = Exact<{
+    cardName: Scalars['String'];
+    first: Scalars['Int'];
+    after?: Maybe<Scalars['Cursor']>;
+}>;
+export type CardVariantsByNameQuery = ({
+    __typename?: 'Query';
+} & {
+    cardsCollection: Maybe<({
+        __typename?: 'CardsConnection';
+    } & Pick<CardsConnection, 'totalCount'> & {
+        pageInfo: ({
+            __typename?: 'PageInfo';
+        } & Pick<PageInfo, 'endCursor' | 'hasNextPage'>);
+        edges: Array<({
+            __typename?: 'CardsEdge';
+        } & {
+            node: ({
+                __typename?: 'Cards';
+            } & CardVariantFieldsFragment);
+        })>;
+    })>;
+});
+export type CardVariantFieldsFragment = ({
+    __typename?: 'Cards';
+} & Pick<Cards, 'id' | 'name' | 'collectorNumber' | 'rarity' | 'finishes' | 'imageUrl' | 'releasedAt'> & {
+    cardSet: Maybe<({
+        __typename?: 'CardSets';
+    } & Pick<CardSets, 'id' | 'code' | 'name' | 'releaseAt'>)>;
+    mtgCardDetail: Maybe<({
+        __typename?: 'MtgCardDetails';
+    } & Pick<MtgCardDetails, 'scryfallId'>)>;
+    marketPrices: Maybe<({
+        __typename?: 'CardMarketPricesConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'CardMarketPricesEdge';
+        } & {
+            node: ({
+                __typename?: 'CardMarketPrices';
+            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency'>);
+        })>;
+    })>;
+    publicBinderCards: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & Pick<BinderCardsConnection, 'totalCount'>)>;
+    lowestUsdBinderCards: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & Pick<BinderCards, 'priceAmount' | 'priceCurrency'>);
+        })>;
+    })>;
+    lowestThbBinderCards: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & Pick<BinderCards, 'priceAmount' | 'priceCurrency'>);
+        })>;
+    })>;
+    lowestEurBinderCards: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & Pick<BinderCards, 'priceAmount' | 'priceCurrency'>);
+        })>;
+    })>;
+    lowestGbpBinderCards: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & Pick<BinderCards, 'priceAmount' | 'priceCurrency'>);
+        })>;
+    })>;
+    lowestJpyBinderCards: Maybe<({
+        __typename?: 'BinderCardsConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BinderCardsEdge';
+        } & {
+            node: ({
+                __typename?: 'BinderCards';
+            } & Pick<BinderCards, 'priceAmount' | 'priceCurrency'>);
         })>;
     })>;
 });
@@ -2509,9 +2726,34 @@ export type UserProfileByNicknameQuery = ({
         })>;
     })>;
 });
+export type UserProfilesByIdsQueryVariables = Exact<{
+    ids: Array<Scalars['UUID']> | Scalars['UUID'];
+    first: Scalars['Int'];
+    after?: Maybe<Scalars['Cursor']>;
+}>;
+export type UserProfilesByIdsQuery = ({
+    __typename?: 'Query';
+} & {
+    userProfilesCollection: Maybe<({
+        __typename?: 'UserProfilesConnection';
+    } & {
+        pageInfo: ({
+            __typename?: 'PageInfo';
+        } & Pick<PageInfo, 'endCursor' | 'hasNextPage'>);
+        edges: Array<({
+            __typename?: 'UserProfilesEdge';
+        } & {
+            node: ({
+                __typename?: 'UserProfiles';
+            } & Pick<UserProfiles, 'id' | 'nickname' | 'country'>);
+        })>;
+    })>;
+});
 export declare const BinderCardSummaryFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const BinderCardDetailFieldsFragmentDoc: Apollo.DocumentNode;
+export declare const CardListingFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const CardSearchFieldsFragmentDoc: Apollo.DocumentNode;
+export declare const CardVariantFieldsFragmentDoc: Apollo.DocumentNode;
 export declare const AddBinderCardDocument: Apollo.DocumentNode;
 export type AddBinderCardMutationFn = Apollo.MutationFunction<AddBinderCardMutation, AddBinderCardMutationVariables>;
 /**
@@ -2678,6 +2920,148 @@ export declare function useBinderCardVariantsLazyQuery(baseOptions?: Apollo.Lazy
 export type BinderCardVariantsQueryHookResult = ReturnType<typeof useBinderCardVariantsQuery>;
 export type BinderCardVariantsLazyQueryHookResult = ReturnType<typeof useBinderCardVariantsLazyQuery>;
 export type BinderCardVariantsQueryResult = Apollo.QueryResult<BinderCardVariantsQuery, BinderCardVariantsQueryVariables>;
+export declare const CardByIdDocument: Apollo.DocumentNode;
+/**
+ * __useCardByIdQuery__
+ *
+ * To run a query within a React component, call `useCardByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardByIdQuery({
+ *   variables: {
+ *      cardId: // value for 'cardId'
+ *   },
+ * });
+ */
+export declare function useCardByIdQuery(baseOptions: Apollo.QueryHookOptions<CardByIdQuery, CardByIdQueryVariables>): Apollo.QueryResult<CardByIdQuery, Exact<{
+    cardId: Scalars["UUID"];
+}>>;
+export declare function useCardByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardByIdQuery, CardByIdQueryVariables>): Apollo.LazyQueryResultTuple<CardByIdQuery, Exact<{
+    cardId: Scalars["UUID"];
+}>>;
+export type CardByIdQueryHookResult = ReturnType<typeof useCardByIdQuery>;
+export type CardByIdLazyQueryHookResult = ReturnType<typeof useCardByIdLazyQuery>;
+export type CardByIdQueryResult = Apollo.QueryResult<CardByIdQuery, CardByIdQueryVariables>;
+export declare const CardLatestVariantByNameDocument: Apollo.DocumentNode;
+/**
+ * __useCardLatestVariantByNameQuery__
+ *
+ * To run a query within a React component, call `useCardLatestVariantByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardLatestVariantByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardLatestVariantByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *   },
+ * });
+ */
+export declare function useCardLatestVariantByNameQuery(baseOptions: Apollo.QueryHookOptions<CardLatestVariantByNameQuery, CardLatestVariantByNameQueryVariables>): Apollo.QueryResult<CardLatestVariantByNameQuery, Exact<{
+    cardName: Scalars["String"];
+}>>;
+export declare function useCardLatestVariantByNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardLatestVariantByNameQuery, CardLatestVariantByNameQueryVariables>): Apollo.LazyQueryResultTuple<CardLatestVariantByNameQuery, Exact<{
+    cardName: Scalars["String"];
+}>>;
+export type CardLatestVariantByNameQueryHookResult = ReturnType<typeof useCardLatestVariantByNameQuery>;
+export type CardLatestVariantByNameLazyQueryHookResult = ReturnType<typeof useCardLatestVariantByNameLazyQuery>;
+export type CardLatestVariantByNameQueryResult = Apollo.QueryResult<CardLatestVariantByNameQuery, CardLatestVariantByNameQueryVariables>;
+export declare const CardListingCountByNameDocument: Apollo.DocumentNode;
+/**
+ * __useCardListingCountByNameQuery__
+ *
+ * To run a query within a React component, call `useCardListingCountByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardListingCountByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardListingCountByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *   },
+ * });
+ */
+export declare function useCardListingCountByNameQuery(baseOptions: Apollo.QueryHookOptions<CardListingCountByNameQuery, CardListingCountByNameQueryVariables>): Apollo.QueryResult<CardListingCountByNameQuery, Exact<{
+    cardName: Scalars["String"];
+}>>;
+export declare function useCardListingCountByNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardListingCountByNameQuery, CardListingCountByNameQueryVariables>): Apollo.LazyQueryResultTuple<CardListingCountByNameQuery, Exact<{
+    cardName: Scalars["String"];
+}>>;
+export type CardListingCountByNameQueryHookResult = ReturnType<typeof useCardListingCountByNameQuery>;
+export type CardListingCountByNameLazyQueryHookResult = ReturnType<typeof useCardListingCountByNameLazyQuery>;
+export type CardListingCountByNameQueryResult = Apollo.QueryResult<CardListingCountByNameQuery, CardListingCountByNameQueryVariables>;
+export declare const CardListingPricesDocument: Apollo.DocumentNode;
+/**
+ * __useCardListingPricesQuery__
+ *
+ * To run a query within a React component, call `useCardListingPricesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardListingPricesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardListingPricesQuery({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export declare function useCardListingPricesQuery(baseOptions: Apollo.QueryHookOptions<CardListingPricesQuery, CardListingPricesQueryVariables>): Apollo.QueryResult<CardListingPricesQuery, Exact<{
+    filter: BinderCardsFilter;
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export declare function useCardListingPricesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardListingPricesQuery, CardListingPricesQueryVariables>): Apollo.LazyQueryResultTuple<CardListingPricesQuery, Exact<{
+    filter: BinderCardsFilter;
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export type CardListingPricesQueryHookResult = ReturnType<typeof useCardListingPricesQuery>;
+export type CardListingPricesLazyQueryHookResult = ReturnType<typeof useCardListingPricesLazyQuery>;
+export type CardListingPricesQueryResult = Apollo.QueryResult<CardListingPricesQuery, CardListingPricesQueryVariables>;
+export declare const CardListingsDocument: Apollo.DocumentNode;
+/**
+ * __useCardListingsQuery__
+ *
+ * To run a query within a React component, call `useCardListingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardListingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardListingsQuery({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export declare function useCardListingsQuery(baseOptions: Apollo.QueryHookOptions<CardListingsQuery, CardListingsQueryVariables>): Apollo.QueryResult<CardListingsQuery, Exact<{
+    filter: BinderCardsFilter;
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export declare function useCardListingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardListingsQuery, CardListingsQueryVariables>): Apollo.LazyQueryResultTuple<CardListingsQuery, Exact<{
+    filter: BinderCardsFilter;
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export type CardListingsQueryHookResult = ReturnType<typeof useCardListingsQuery>;
+export type CardListingsLazyQueryHookResult = ReturnType<typeof useCardListingsLazyQuery>;
+export type CardListingsQueryResult = Apollo.QueryResult<CardListingsQuery, CardListingsQueryVariables>;
 export declare const CardSearchDocument: Apollo.DocumentNode;
 /**
  * __useCardSearchQuery__
@@ -2716,6 +3100,64 @@ export declare function useCardSearchLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type CardSearchQueryHookResult = ReturnType<typeof useCardSearchQuery>;
 export type CardSearchLazyQueryHookResult = ReturnType<typeof useCardSearchLazyQuery>;
 export type CardSearchQueryResult = Apollo.QueryResult<CardSearchQuery, CardSearchQueryVariables>;
+export declare const CardVariantCountByNameDocument: Apollo.DocumentNode;
+/**
+ * __useCardVariantCountByNameQuery__
+ *
+ * To run a query within a React component, call `useCardVariantCountByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardVariantCountByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardVariantCountByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *   },
+ * });
+ */
+export declare function useCardVariantCountByNameQuery(baseOptions: Apollo.QueryHookOptions<CardVariantCountByNameQuery, CardVariantCountByNameQueryVariables>): Apollo.QueryResult<CardVariantCountByNameQuery, Exact<{
+    cardName: Scalars["String"];
+}>>;
+export declare function useCardVariantCountByNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardVariantCountByNameQuery, CardVariantCountByNameQueryVariables>): Apollo.LazyQueryResultTuple<CardVariantCountByNameQuery, Exact<{
+    cardName: Scalars["String"];
+}>>;
+export type CardVariantCountByNameQueryHookResult = ReturnType<typeof useCardVariantCountByNameQuery>;
+export type CardVariantCountByNameLazyQueryHookResult = ReturnType<typeof useCardVariantCountByNameLazyQuery>;
+export type CardVariantCountByNameQueryResult = Apollo.QueryResult<CardVariantCountByNameQuery, CardVariantCountByNameQueryVariables>;
+export declare const CardVariantsByNameDocument: Apollo.DocumentNode;
+/**
+ * __useCardVariantsByNameQuery__
+ *
+ * To run a query within a React component, call `useCardVariantsByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCardVariantsByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCardVariantsByNameQuery({
+ *   variables: {
+ *      cardName: // value for 'cardName'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export declare function useCardVariantsByNameQuery(baseOptions: Apollo.QueryHookOptions<CardVariantsByNameQuery, CardVariantsByNameQueryVariables>): Apollo.QueryResult<CardVariantsByNameQuery, Exact<{
+    cardName: Scalars["String"];
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export declare function useCardVariantsByNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardVariantsByNameQuery, CardVariantsByNameQueryVariables>): Apollo.LazyQueryResultTuple<CardVariantsByNameQuery, Exact<{
+    cardName: Scalars["String"];
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export type CardVariantsByNameQueryHookResult = ReturnType<typeof useCardVariantsByNameQuery>;
+export type CardVariantsByNameLazyQueryHookResult = ReturnType<typeof useCardVariantsByNameLazyQuery>;
+export type CardVariantsByNameQueryResult = Apollo.QueryResult<CardVariantsByNameQuery, CardVariantsByNameQueryVariables>;
 export declare const CardsForBinderImportDocument: Apollo.DocumentNode;
 /**
  * __useCardsForBinderImportQuery__
@@ -3138,4 +3580,36 @@ export declare function useUserProfileByNicknameLazyQuery(baseOptions?: Apollo.L
 export type UserProfileByNicknameQueryHookResult = ReturnType<typeof useUserProfileByNicknameQuery>;
 export type UserProfileByNicknameLazyQueryHookResult = ReturnType<typeof useUserProfileByNicknameLazyQuery>;
 export type UserProfileByNicknameQueryResult = Apollo.QueryResult<UserProfileByNicknameQuery, UserProfileByNicknameQueryVariables>;
+export declare const UserProfilesByIdsDocument: Apollo.DocumentNode;
+/**
+ * __useUserProfilesByIdsQuery__
+ *
+ * To run a query within a React component, call `useUserProfilesByIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserProfilesByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserProfilesByIdsQuery({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export declare function useUserProfilesByIdsQuery(baseOptions: Apollo.QueryHookOptions<UserProfilesByIdsQuery, UserProfilesByIdsQueryVariables>): Apollo.QueryResult<UserProfilesByIdsQuery, Exact<{
+    ids: Array<Scalars["UUID"]> | Scalars["UUID"];
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export declare function useUserProfilesByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserProfilesByIdsQuery, UserProfilesByIdsQueryVariables>): Apollo.LazyQueryResultTuple<UserProfilesByIdsQuery, Exact<{
+    ids: Array<Scalars["UUID"]> | Scalars["UUID"];
+    first: Scalars["Int"];
+    after?: Maybe<Scalars["Cursor"]>;
+}>>;
+export type UserProfilesByIdsQueryHookResult = ReturnType<typeof useUserProfilesByIdsQuery>;
+export type UserProfilesByIdsLazyQueryHookResult = ReturnType<typeof useUserProfilesByIdsLazyQuery>;
+export type UserProfilesByIdsQueryResult = Apollo.QueryResult<UserProfilesByIdsQuery, UserProfilesByIdsQueryVariables>;
 //# sourceMappingURL=index.d.ts.map

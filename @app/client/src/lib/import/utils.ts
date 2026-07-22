@@ -2,8 +2,8 @@ import { CardCondition, CurrencyCode, LanguageCode } from "@app/graphql";
 
 import {
   defaultCardCondition,
-  defaultCardFinish,
   defaultCardLanguage,
+  getPreferredCardFinish,
 } from "@/config/card";
 
 import type { BinderImportCardRecord, BinderImportItem } from "./types";
@@ -68,11 +68,7 @@ export const getAvailableFinish = (
     return preferredFinish;
   }
 
-  if (availableFinishes.includes(defaultCardFinish)) {
-    return defaultCardFinish;
-  }
-
-  return availableFinishes[0] || defaultCardFinish;
+  return getPreferredCardFinish(availableFinishes);
 };
 
 export const chunkItems = <T>(items: T[], size: number): T[][] => {

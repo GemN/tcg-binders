@@ -1,0 +1,24 @@
+query CardListingPrices(
+  $filter: BinderCardsFilter!
+  $first: Int!
+  $after: Cursor
+) {
+  binderCardsCollection(
+    first: $first
+    after: $after
+    filter: $filter
+    orderBy: [{ id: AscNullsLast }]
+  ) {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+        priceAmount
+        priceCurrency
+      }
+    }
+  }
+}

@@ -3,19 +3,18 @@ import {
   CardCondition,
   CurrencyCode,
   LanguageCode,
-  MarketPriceSource,
   useUpdateBinderCardMutation,
 } from "@app/graphql";
 import { type KeyboardEvent, useCallback } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { CardDetailTextPanel } from "@/components/CardDetailTextPanel";
 import { Loading } from "@/components/Loading";
 import { BinderCardEditableFields } from "@/components/ModalBinderCardDetail/BinderCardEditableFields";
 import { BinderCardMediaPanel } from "@/components/ModalBinderCardDetail/BinderCardMediaPanel";
 import { BinderCardOfferPanel } from "@/components/ModalBinderCardDetail/BinderCardOfferPanel";
 import { BinderCardPricingFields } from "@/components/ModalBinderCardDetail/BinderCardPricingFields";
-import { BinderCardTextPanel } from "@/components/ModalBinderCardDetail/BinderCardTextPanel";
 import { ModalDetailHeader } from "@/components/ModalBinderCardDetail/ModalDetailHeader";
 import { ModalDetailNavigation } from "@/components/ModalBinderCardDetail/ModalDetailNavigation";
 import type {
@@ -26,12 +25,12 @@ import type {
   UpdateBinderCardContext,
   UpdateBinderCardHandler,
 } from "@/components/ModalBinderCardDetail/types";
+import { getPreferredCardFinish } from "@/config/card";
 import {
   arePriceAmountsEqual,
   formatFallbackLabel,
   formatPriceInputValue,
   getCardDetail,
-  getDefaultFinish,
   readStoredBinderCardPriceCurrency,
   readStoredCustomCkdMultiplier,
   shouldIgnoreModalNavigationKey,
@@ -128,11 +127,6 @@ export const ModalBinderCardDetail = ({
 
     return cardFinishes;
   }, [binderCard?.finish, card?.finishes]);
-  const marketPriceLabels: Record<MarketPriceSource, string> = {
-    [MarketPriceSource.Cardkingdom]: t("binder:list.cardkingdom_price"),
-    [MarketPriceSource.Cardmarket]: t("binder:list.cardmarket_price"),
-    [MarketPriceSource.Tcgplayer]: t("binder:list.tcgplayer_price"),
-  };
   const formatPrice = ({
     amount,
     shouldConvert,
@@ -493,7 +487,7 @@ export const ModalBinderCardDetail = ({
     );
     const nextFinish = variantFinishes.includes(binderCard.finish)
       ? binderCard.finish
-      : getDefaultFinish(variantFinishes);
+      : getPreferredCardFinish(variantFinishes);
 
     void persistBinderCard(
       {
@@ -563,15 +557,14 @@ export const ModalBinderCardDetail = ({
                 scryfallId={scryfallId}
                 showConvertedMarketPrices={showConvertedMarketPrices}
                 formatPrice={formatPrice}
-                getBuyLabel={(source) =>
-                  t("binder:detail.buy_at", {
-                    source: marketPriceLabels[source],
-                  })
-                }
               />
 
               <div className="flex min-w-0 flex-col gap-4">
-                <BinderCardTextPanel detail={detail} title={title} />
+                <CardDetailTextPanel
+                  card={card}
+                  detail={detail}
+                  title={title}
+                />
 
                 {binderCard &&
                   (isEditable ? (

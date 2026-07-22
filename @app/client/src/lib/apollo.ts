@@ -41,6 +41,10 @@ const httpLink = createHttpLink({
   uri: `${import.meta.env.VITE_SUPABASE_URL}/graphql/v1`,
 });
 
+export const publicGraphqlRequestContext = {
+  useAnonymousSession: true,
+} as const;
+
 const getBinderShortIdFromPath = (): string | undefined => {
   if (typeof window === "undefined") {
     return undefined;
@@ -50,8 +54,10 @@ const getBinderShortIdFromPath = (): string | undefined => {
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 };
 
-const authLink = setContext(async (_, { headers }) => {
-  const token = (await supabase.auth.getSession()).data.session?.access_token;
+const authLink = setContext(async (_, { headers, useAnonymousSession }) => {
+  const token = useAnonymousSession
+    ? undefined
+    : (await supabase.auth.getSession()).data.session?.access_token;
   const context = getGlobalUserContext();
   const binderShortId = getBinderShortIdFromPath();
 
