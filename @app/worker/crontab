@@ -16,3 +16,6 @@
 
 # Fetch latest USD-based exchange rates after daily provider updates.
 0 17 * * * fetch_currency_rates
+
+# Sync the MTG card catalog from MTGJSON.
+0 15 * * * sync_mtg_catalog

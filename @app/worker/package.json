@@ -5,9 +5,11 @@
   "scripts": {
     "build": "tsc -b",
     "fetch-currency-rates": "yarn build && node -r @app/config/env dist/scripts/fetch_currency_rates.js",
+    "sync-cards": "yarn build && node -r @app/config/env dist/scripts/sync_cards.js",
     "gw": "cd dist && cross-env NODE_OPTIONS=\"${NODE_OPTIONS:-} -r @app/config/env\" graphile-worker --crontab ../crontab --config ../graphile.config.js",
     "dev": "cd dist && cross-env NODE_OPTIONS=\"${NODE_OPTIONS:-} -r @app/config/env \" nodemon --watch ./ --exec 'graphile-worker --crontab ../crontab --config ../graphile.config.js'",
     "start": "yarn gw",
+    "test:mtg-catalog": "yarn build && node --test test/mtg_catalog.test.js",
     "install-db-schema": "mkdir -p dist && yarn gw --schema-only"
   },
   "packageManager": "yarn@4.9.2",

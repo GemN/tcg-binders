@@ -25,11 +25,25 @@ const cardIdentifiersCsv = path.resolve(
     path.join(repoRoot, "scripts/cardIdentifiers.csv")
 );
 const sqlPath = path.join(repoRoot, "scripts/import-mtg-catalog.sql");
+const psqlStderrMaxBuffer = 16 * 1024 * 1024;
+const catalogCsvPaths = [
+  setsCsv,
+  cardsCsv,
+  cardPricesCsv,
+  cardPurchaseUrlsCsv,
+  cardIdentifiersCsv,
+];
+const generatedCatalogTempPaths = catalogCsvPaths.flatMap((csvPath) => {
+  const csvDirectory = path.dirname(csvPath);
+
+  return path.basename(csvDirectory).startsWith("tcgbinder-mtg-catalog-")
+    ? [csvPath, csvDirectory]
+    : [];
+});
 
 function requireFile(filePath) {
   if (!fs.existsSync(filePath)) {
-    console.error(`Missing required file: ${filePath}`);
-    process.exit(1);
+    throw new Error(`Missing required file: ${filePath}`);
   }
 }
 
@@ -71,6 +85,45 @@ function escapeCopyPath(filePath) {
   return filePath.replace(/\\/g, "\\\\").replace(/'/g, "''");
 }
 
+function sanitizeGeneratedTempPaths(
+  output,
+  catalogTempPaths = generatedCatalogTempPaths,
+  importTempPaths = []
+) {
+  const knownTempPaths = [
+    ...catalogTempPaths.map((tempPath) => ({
+      replacement: "<temporary MTG catalog path>",
+      tempPath,
+    })),
+    ...importTempPaths.map((tempPath) => ({
+      replacement: "<temporary MTG import path>",
+      tempPath,
+    })),
+  ].sort((left, right) => right.tempPath.length - left.tempPath.length);
+
+  return knownTempPaths.reduce(
+    (sanitizedOutput, { replacement, tempPath }) =>
+      sanitizedOutput.replaceAll(tempPath, replacement),
+    String(output)
+  );
+}
+
+function sanitizePsqlOutput(output, databaseUrl, importTempPaths) {
+  return sanitizeGeneratedTempPaths(
+    output,
+    generatedCatalogTempPaths,
+    importTempPaths
+  ).replaceAll(databaseUrl, "<database URL>");
+}
+
+function writeProcessStderr(message) {
+  process.stderr.write(message);
+}
+
+function removeImportTempDirectory(tempDirectory) {
+  fs.rmSync(tempDirectory, { recursive: true, force: true });
+}
+
 function createRunnableSqlFile(tempDir) {
   const sql = fs
     .readFileSync(sqlPath, "utf8")
@@ -92,40 +145,140 @@ function createRunnableSqlFile(tempDir) {
   return { tempSqlPath };
 }
 
-requireFile(setsCsv);
-requireFile(cardsCsv);
-requireFile(cardPricesCsv);
-requireFile(cardPurchaseUrlsCsv);
-requireFile(cardIdentifiersCsv);
-requireFile(sqlPath);
+async function main(
+  spawnPsql = spawnSync,
+  writeStderr = writeProcessStderr,
+  removeTempDirectory = removeImportTempDirectory,
+  logProgress = console.log
+) {
+  requireFile(setsCsv);
+  requireFile(cardsCsv);
+  requireFile(cardPricesCsv);
+  requireFile(cardPurchaseUrlsCsv);
+  requireFile(cardIdentifiersCsv);
+  requireFile(sqlPath);
 
-async function main() {
   const databaseUrl = getDatabaseUrl();
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "tcgbinder-mtg-import-"));
+  const tempDirectoryPrefix = path.join(os.tmpdir(), "tcgbinder-mtg-import-");
+  let tempDir;
+
+  try {
+    tempDir = fs.mkdtempSync(tempDirectoryPrefix);
+  } catch (error) {
+    throw sanitizeImporterError(error, databaseUrl, [
+      `${tempDirectoryPrefix}XXXXXX`,
+      tempDirectoryPrefix,
+    ]);
+  }
+
+  logProgress(`MTG catalog import temp folder: ${tempDir}`);
+  const importTempPaths = [tempDir];
+  let operationError;
+  let psqlExitCode;
 
   try {
     const { tempSqlPath } = createRunnableSqlFile(tempDir);
-    const result = spawnSync(
+    importTempPaths.unshift(tempSqlPath);
+    const result = spawnPsql(
       "psql",
       ["-d", databaseUrl, "-v", "ON_ERROR_STOP=1", "-f", tempSqlPath],
       {
         cwd: repoRoot,
-        stdio: "inherit",
+        encoding: "utf8",
+        maxBuffer: psqlStderrMaxBuffer,
+        stdio: ["inherit", "inherit", "pipe"],
       }
     );
 
-    if (result.error) {
-      console.error(result.error.message);
-      process.exit(1);
+    if (result.stderr) {
+      writeStderr(
+        sanitizePsqlOutput(result.stderr, databaseUrl, importTempPaths)
+      );
     }
 
-    process.exit(result.status || 0);
-  } finally {
-    fs.rmSync(tempDir, { recursive: true, force: true });
+    if (result.error) {
+      console.error(
+        sanitizePsqlOutput(result.error.message, databaseUrl, importTempPaths)
+      );
+      psqlExitCode = 1;
+    } else if (result.signal) {
+      console.error(`psql terminated by signal ${result.signal}`);
+      psqlExitCode = 1;
+    } else if (result.status === null) {
+      console.error("psql terminated without an exit status");
+      psqlExitCode = 1;
+    } else {
+      psqlExitCode = result.status;
+    }
+  } catch (error) {
+    operationError = sanitizeImporterError(error, databaseUrl, importTempPaths);
   }
+
+  let cleanupError;
+
+  try {
+    removeTempDirectory(tempDir);
+  } catch (error) {
+    cleanupError = sanitizeImporterError(error, databaseUrl, importTempPaths);
+  }
+
+  if (cleanupError) {
+    const cleanupFailureMessage = `MTG catalog importer cleanup failed: ${cleanupError.message}`;
+
+    if (operationError || psqlExitCode !== 0) {
+      try {
+        writeStderr(`${cleanupFailureMessage}\n`);
+      } catch {
+        // Preserve the primary importer failure if reporting cleanup also fails.
+      }
+    } else {
+      throw new Error(cleanupFailureMessage);
+    }
+  }
+
+  if (operationError) {
+    throw operationError;
+  }
+
+  return psqlExitCode;
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+function sanitizeImporterError(error, databaseUrl, importTempPaths) {
+  const originalError =
+    error instanceof Error ? error : new Error(String(error));
+  const sanitizedMessage = sanitizePsqlOutput(
+    originalError.message,
+    databaseUrl,
+    importTempPaths
+  );
+  const sanitizedStack = originalError.stack
+    ? sanitizePsqlOutput(originalError.stack, databaseUrl, importTempPaths)
+    : undefined;
+
+  if (
+    sanitizedMessage === originalError.message &&
+    sanitizedStack === originalError.stack
+  ) {
+    return originalError;
+  }
+
+  const sanitizedError = new Error(sanitizedMessage);
+  sanitizedError.name = originalError.name;
+  sanitizedError.stack = sanitizedStack;
+  return sanitizedError;
+}
+
+if (require.main === module) {
+  main()
+    .then((exitCode) => {
+      process.exitCode = exitCode;
+    })
+    .catch((error) => {
+      const output =
+        error instanceof Error ? (error.stack ?? error.message) : String(error);
+      console.error(sanitizeGeneratedTempPaths(output));
+      process.exitCode = 1;
+    });
+}
+
+module.exports = { main, sanitizeGeneratedTempPaths };

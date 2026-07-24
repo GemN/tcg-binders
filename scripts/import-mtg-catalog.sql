@@ -4,12 +4,12 @@ begin;
 
 create temp table import_mtg_sets_raw (
   code text,
-  mtgo_code text,
   name text,
   release_date text,
   set_type text,
   is_online_only text,
   is_foil_only text,
+  tcgplayer_group_id text,
   is_non_foil_only text,
   parent_code text,
   total_set_size text,
@@ -19,12 +19,12 @@ create temp table import_mtg_sets_raw (
   is_foreign_only text,
   is_paper_only text,
   languages text,
-  tcgplayer_group_id text,
   token_set_code text,
+  mtgo_code text,
+  block text,
   mcm_id text,
   mcm_name text,
-  mcm_id_extras text,
-  block text
+  mcm_id_extras text
 ) on commit drop;
 
 create temp table import_mtg_cards_raw (
