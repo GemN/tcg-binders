@@ -6,7 +6,7 @@ import {
   useRecordBinderViewMutation,
   useUserProfileByIdQuery,
 } from "@app/graphql";
-import { Eye, Pencil, Settings, Share2 } from "lucide-react";
+import { Eye, Image, Pencil, Settings, Share2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
@@ -18,6 +18,7 @@ import { BinderPageView } from "@/components/BinderPageView";
 import { Loading } from "@/components/Loading";
 import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
+import { ModalBinderShareImage } from "@/components/ModalBinderShareImage";
 import { Button } from "@/components/ui/Button";
 import { getPreferredCardFinish } from "@/config/card";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
@@ -90,6 +91,7 @@ export const BinderPage = () => {
     useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isShareImageDialogOpen, setIsShareImageDialogOpen] = useState(false);
   const cardsPerPage = getBinderCardsPerPage(viewMode);
   const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
   const cardFirst = isMobile
@@ -133,7 +135,8 @@ export const BinderPage = () => {
     try {
       const storedValue = window.localStorage.getItem(storageKey);
       const lastRecordedAt = storedValue === null ? null : Number(storedValue);
-      const elapsed = lastRecordedAt === null ? null : recordedAt - lastRecordedAt;
+      const elapsed =
+        lastRecordedAt === null ? null : recordedAt - lastRecordedAt;
 
       if (
         elapsed !== null &&
@@ -169,7 +172,9 @@ export const BinderPage = () => {
   const { data: ownerProfileData, loading: isOwnerProfileLoading } =
     useUserProfileByIdQuery({
       variables: { id: ownerId },
-      skip: !ownerId || !isPublicView,
+      skip:
+        !ownerId ||
+        (!isPublicView && !isShareDialogOpen && !isShareImageDialogOpen),
     });
   const ownerProfile = ownerProfileData?.userProfilesCollection?.edges[0]?.node;
   const cartSeller = useMemo<CartSellerSnapshot | null>(() => {
@@ -339,7 +344,7 @@ export const BinderPage = () => {
     typeof window === "undefined"
       ? `/binder/${binder.shortId}`
       : `${window.location.origin}/binder/${binder.shortId}`;
-  const shareButton = session ? (
+  const shareButton = (
     <Button
       type="button"
       variant="outline"
@@ -348,7 +353,17 @@ export const BinderPage = () => {
       <Share2 className="size-4" />
       {t("binder:share.button")}
     </Button>
-  ) : undefined;
+  );
+  const shareImageButton = (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => setIsShareImageDialogOpen(true)}
+    >
+      <Image className="size-4" />
+      {t("binder:share.image_action")}
+    </Button>
+  );
   const settingsButton = canEditBinder ? (
     <Button
       type="button"
@@ -363,11 +378,15 @@ export const BinderPage = () => {
     isPublicPreview ? undefined : (
       <>
         {shareButton}
+        {shareImageButton}
         {settingsButton}
       </>
     )
   ) : (
-    shareButton
+    <>
+      {shareButton}
+      {shareImageButton}
+    </>
   );
   const ownerProfileLink =
     isPublicView && ownerProfile ? (
@@ -641,6 +660,20 @@ export const BinderPage = () => {
         open={isShareDialogOpen}
         shareUrl={binderShareUrl}
         onOpenChange={setIsShareDialogOpen}
+      />
+      <ModalBinderShareImage
+        binderName={binder.name}
+        binderVisibility={binder.visibility}
+        cardFilter={cardFilter}
+        cardOrderBy={cardOrderBy}
+        initialCardIndex={cardOffset}
+        isSellerLoading={isOwnerProfileLoading}
+        open={isShareImageDialogOpen}
+        sellerName={ownerProfile?.nickname || ""}
+        shareUrl={binderShareUrl}
+        shortId={binder.shortId}
+        totalBinderCards={totalBinderCards}
+        onOpenChange={setIsShareImageDialogOpen}
       />
       <ModalBinderSettings
         binderId={binder.id}

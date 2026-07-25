@@ -58,6 +58,21 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. Mandatory Code Review Workflow
+
+For every task that modifies code, the main agent must:
+
+1. Delegate implementation to the built-in `worker` agent and wait for it to
+   finish the change and relevant checks.
+2. Spawn the project-scoped `reviewer` agent to review the completed diff
+   against the user's request and this `AGENTS.md`, then wait for its report.
+3. Keep the reviewer read-only. It must report only actionable findings about
+   correctness, regressions, security, and missing tests.
+4. Send actionable findings back to the worker, rerun relevant checks, and
+   request one final reviewer pass.
+5. Do not give the final response until the final review is complete. Report
+   any unresolved findings explicitly.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
@@ -194,6 +209,10 @@ component or function.
 Always use types from @app/graphql whenever possible
 Get data from the backend thanks to graphql queries and mutation.
 
+#### Typescript convention
+- Avoid use of anonymous objects if possible
+- functions inside a react component should be prefixed with handle when they are being used in the component
+
 #### Locales
 Must use i18n. Languages are English / Thai
 Split json by pages, keep common for generic accross pages translations.
@@ -202,4 +221,3 @@ Design is mobile-first.
 
 #### Testing
 Always check if the project is not already up before running it.
-

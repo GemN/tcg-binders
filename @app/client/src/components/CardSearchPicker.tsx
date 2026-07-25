@@ -198,7 +198,7 @@ export const CardSearchPicker = ({
                         onSelect={() => handleSelect(card)}
                       >
                         <CardImage
-                          alt=""
+                          alt={card.name}
                           className="h-16 shrink-0 bg-muted"
                           fallbackClassName="text-xs text-current/70"
                           finish={preferredFinish}

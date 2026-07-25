@@ -1,0 +1,20 @@
+query BinderShareImageCards(
+  $shortId: String!
+  $cardOffset: Int!
+  $cardFilter: BinderCardsFilter
+  $cardOrderBy: [BinderCardsOrderBy!]!
+) {
+  binderCardsByShortId(
+    binderShortId: $shortId
+    first: 18
+    offset: $cardOffset
+    orderBy: $cardOrderBy
+    filter: $cardFilter
+  ) {
+    edges {
+      node {
+        ...BinderCardSummaryFields
+      }
+    }
+  }
+}

@@ -500,6 +500,50 @@ export function useBinderCardVariantsLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(BinderCardVariantsDocument, options);
 }
+export const BinderShareImageCardsDocument = gql `
+    query BinderShareImageCards($shortId: String!, $cardOffset: Int!, $cardFilter: BinderCardsFilter, $cardOrderBy: [BinderCardsOrderBy!]!) {
+  binderCardsByShortId(
+    binderShortId: $shortId
+    first: 18
+    offset: $cardOffset
+    orderBy: $cardOrderBy
+    filter: $cardFilter
+  ) {
+    edges {
+      node {
+        ...BinderCardSummaryFields
+      }
+    }
+  }
+}
+    ${BinderCardSummaryFieldsFragmentDoc}`;
+/**
+ * __useBinderShareImageCardsQuery__
+ *
+ * To run a query within a React component, call `useBinderShareImageCardsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderShareImageCardsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderShareImageCardsQuery({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *      cardOffset: // value for 'cardOffset'
+ *      cardFilter: // value for 'cardFilter'
+ *      cardOrderBy: // value for 'cardOrderBy'
+ *   },
+ * });
+ */
+export function useBinderShareImageCardsQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(BinderShareImageCardsDocument, options);
+}
+export function useBinderShareImageCardsLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(BinderShareImageCardsDocument, options);
+}
 export const CardByIdDocument = gql `
     query CardById($cardId: UUID!) {
   cardsCollection(first: 1, filter: {id: {eq: $cardId}}) {

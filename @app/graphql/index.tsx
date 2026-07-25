@@ -2482,6 +2482,28 @@ export type BinderCardVariantsQuery = (
   )> }
 );
 
+export type BinderShareImageCardsQueryVariables = Exact<{
+  shortId: Scalars['String'];
+  cardOffset: Scalars['Int'];
+  cardFilter?: Maybe<BinderCardsFilter>;
+  cardOrderBy: Array<BinderCardsOrderBy> | BinderCardsOrderBy;
+}>;
+
+
+export type BinderShareImageCardsQuery = (
+  { __typename?: 'Query' }
+  & { binderCardsByShortId: Maybe<(
+    { __typename?: 'BinderCardsConnection' }
+    & { edges: Array<(
+      { __typename?: 'BinderCardsEdge' }
+      & { node: (
+        { __typename?: 'BinderCards' }
+        & BinderCardSummaryFieldsFragment
+      ) }
+    )> }
+  )> }
+);
+
 export type CardByIdQueryVariables = Exact<{
   cardId: Scalars['UUID'];
 }>;
@@ -3516,6 +3538,54 @@ export function useBinderCardVariantsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type BinderCardVariantsQueryHookResult = ReturnType<typeof useBinderCardVariantsQuery>;
 export type BinderCardVariantsLazyQueryHookResult = ReturnType<typeof useBinderCardVariantsLazyQuery>;
 export type BinderCardVariantsQueryResult = Apollo.QueryResult<BinderCardVariantsQuery, BinderCardVariantsQueryVariables>;
+export const BinderShareImageCardsDocument = gql`
+    query BinderShareImageCards($shortId: String!, $cardOffset: Int!, $cardFilter: BinderCardsFilter, $cardOrderBy: [BinderCardsOrderBy!]!) {
+  binderCardsByShortId(
+    binderShortId: $shortId
+    first: 18
+    offset: $cardOffset
+    orderBy: $cardOrderBy
+    filter: $cardFilter
+  ) {
+    edges {
+      node {
+        ...BinderCardSummaryFields
+      }
+    }
+  }
+}
+    ${BinderCardSummaryFieldsFragmentDoc}`;
+
+/**
+ * __useBinderShareImageCardsQuery__
+ *
+ * To run a query within a React component, call `useBinderShareImageCardsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBinderShareImageCardsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBinderShareImageCardsQuery({
+ *   variables: {
+ *      shortId: // value for 'shortId'
+ *      cardOffset: // value for 'cardOffset'
+ *      cardFilter: // value for 'cardFilter'
+ *      cardOrderBy: // value for 'cardOrderBy'
+ *   },
+ * });
+ */
+export function useBinderShareImageCardsQuery(baseOptions: Apollo.QueryHookOptions<BinderShareImageCardsQuery, BinderShareImageCardsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BinderShareImageCardsQuery, BinderShareImageCardsQueryVariables>(BinderShareImageCardsDocument, options);
+      }
+export function useBinderShareImageCardsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BinderShareImageCardsQuery, BinderShareImageCardsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BinderShareImageCardsQuery, BinderShareImageCardsQueryVariables>(BinderShareImageCardsDocument, options);
+        }
+export type BinderShareImageCardsQueryHookResult = ReturnType<typeof useBinderShareImageCardsQuery>;
+export type BinderShareImageCardsLazyQueryHookResult = ReturnType<typeof useBinderShareImageCardsLazyQuery>;
+export type BinderShareImageCardsQueryResult = Apollo.QueryResult<BinderShareImageCardsQuery, BinderShareImageCardsQueryVariables>;
 export const CardByIdDocument = gql`
     query CardById($cardId: UUID!) {
   cardsCollection(first: 1, filter: {id: {eq: $cardId}}) {

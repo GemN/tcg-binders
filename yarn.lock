@@ -115,10 +115,12 @@ __metadata:
     flag-icons: "npm:^7.5.0"
     globals: "npm:^16.3.0"
     graphql: "npm:^15.4.0"
+    html-to-image: "npm:^1.11.13"
     i18next: "npm:^25.3.2"
     i18next-browser-languagedetector: "npm:^8.2.0"
     lucide-react: "npm:^0.540.0"
     next-themes: "npm:^0.4.6"
+    qrcode.react: "npm:^4.2.0"
     react: "npm:^19.1.0"
     react-day-picker: "npm:^9.9.0"
     react-dom: "npm:^19.1.0"
@@ -10369,6 +10371,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-to-image@npm:^1.11.13":
+  version: 1.11.13
+  resolution: "html-to-image@npm:1.11.13"
+  checksum: 10c0/03bd7192d87b99499e37ff12a8e2b41ddce4cf8e33a93dfadff18df0f213434c7f1ba8328db2158f4805da07b7aec3c90aec3152908281153217e86784218b10
+  languageName: node
+  linkType: hard
+
 "html-to-text@npm:^9.0.5":
   version: 9.0.5
   resolution: "html-to-text@npm:9.0.5"
@@ -13743,6 +13752,15 @@ __metadata:
   version: 2.3.1
   resolution: "punycode@npm:2.3.1"
   checksum: 10c0/14f76a8206bc3464f794fb2e3d3cc665ae416c01893ad7a02b23766eb07159144ee612ad67af5e84fa4479ccfe67678c4feb126b0485651b302babf66f04f9e9
+  languageName: node
+  linkType: hard
+
+"qrcode.react@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "qrcode.react@npm:4.2.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/68c691d130e5fda2f57cee505ed7aea840e7d02033100687b764601f9595e1116e34c13876628a93e1a5c2b85e4efc27d30b2fda72e2050c02f3e1c4e998d248
   languageName: node
   linkType: hard
 
