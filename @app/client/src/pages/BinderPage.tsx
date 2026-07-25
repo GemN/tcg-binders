@@ -6,7 +6,14 @@ import {
   useRecordBinderViewMutation,
   useUserProfileByIdQuery,
 } from "@app/graphql";
-import { Eye, Image, Pencil, Settings, Share2 } from "lucide-react";
+import {
+  Eye,
+  Image,
+  Link as LinkIcon,
+  Pencil,
+  Settings,
+  Share2,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
@@ -20,6 +27,12 @@ import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
 import { ModalBinderShareImage } from "@/components/ModalBinderShareImage";
 import { Button } from "@/components/ui/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu";
 import { getPreferredCardFinish } from "@/config/card";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
@@ -344,25 +357,31 @@ export const BinderPage = () => {
     typeof window === "undefined"
       ? `/binder/${binder.shortId}`
       : `${window.location.origin}/binder/${binder.shortId}`;
-  const shareButton = (
-    <Button
-      type="button"
-      variant="outline"
-      onClick={() => setIsShareDialogOpen(true)}
-    >
-      <Share2 className="size-4" />
-      {t("binder:share.button")}
-    </Button>
-  );
-  const shareImageButton = (
-    <Button
-      type="button"
-      variant="outline"
-      onClick={() => setIsShareImageDialogOpen(true)}
-    >
-      <Image className="size-4" />
-      {t("binder:share.image_action")}
-    </Button>
+  const shareDropdown = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button type="button" variant="outline">
+          <Share2 className="size-4" />
+          {t("binder:share.button")}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={() => setIsShareDialogOpen(true)}
+        >
+          <LinkIcon className="size-4" />
+          {t("binder:share.link_option")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={() => setIsShareImageDialogOpen(true)}
+        >
+          <Image className="size-4" />
+          {t("binder:share.image_option")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
   const settingsButton = canEditBinder ? (
     <Button
@@ -377,16 +396,12 @@ export const BinderPage = () => {
   const headerAction = isOwner ? (
     isPublicPreview ? undefined : (
       <>
-        {shareButton}
-        {shareImageButton}
+        {shareDropdown}
         {settingsButton}
       </>
     )
   ) : (
-    <>
-      {shareButton}
-      {shareImageButton}
-    </>
+    shareDropdown
   );
   const ownerProfileLink =
     isPublicView && ownerProfile ? (
