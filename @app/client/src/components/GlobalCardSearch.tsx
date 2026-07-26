@@ -29,7 +29,7 @@ export const GlobalCardSearch = () => {
     <div className="flex min-w-9 shrink-0 justify-end px-1 lg:min-w-0 lg:flex-1 lg:shrink lg:justify-center lg:px-4">
       <CardSearchPicker
         containerClassName="hidden w-full max-w-xl lg:block"
-        placeholder={t("common:card_search.placeholder")}
+        placeholder={t("common:nav.search_marketplace_placeholder")}
         onSelect={openCardPage}
       />
 
@@ -54,7 +54,7 @@ export const GlobalCardSearch = () => {
           </SheetHeader>
           <CardSearchPicker
             containerClassName="w-full"
-            placeholder={t("common:card_search.placeholder")}
+            placeholder={t("common:nav.search_marketplace_placeholder")}
             onSelect={openCardPage}
           />
         </SheetContent>

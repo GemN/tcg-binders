@@ -28,6 +28,7 @@
     "register": "Register",
     "search_cards": "Search cards",
     "search_cards_description": "Search all cards by name or set.",
+    "search_marketplace_placeholder": "Search marketplace by name, set",
     "settings": "Settings",
     "sign_in": "Sign in",
     "switch_language": "Switch language",

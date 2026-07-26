@@ -121,7 +121,9 @@ const BinderCardImage = ({
     <CardImage
       alt=""
       className={cn(
-        "border border-primary/25 bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40 outline outline-4 outline-offset-0 outline-transparent transition-[outline-color] group-hover/card-image:outline-primary/70 group-focus-within/card-image:outline-primary",
+        " bg-background/70 shadow-2xl shadow-background/40 ring-1 ring-background/40" +
+          " outline outline-4 outline-offset-0 outline-transparent transition-[outline-color] group-hover/card-image:outline-primary/70 " +
+          "group-focus-within/card-image:outline-primary",
         className
       )}
       fallbackClassName="text-muted-foreground"
@@ -159,22 +161,23 @@ const BinderCardPriceSummary = ({
   priceLabel,
   valueDelta,
 }: BinderCardPriceSummaryProps) => (
-  <span className="grid min-h-12 items-start justify-items-end gap-0.5 text-right">
+  <span className="grid items-start justify-items-end text-right gap-0.5">
     <span
       className={cn(
         "flex max-w-full items-center justify-end gap-1.5 overflow-hidden text-base font-bold leading-tight tabular-nums",
         valueDelta?.direction === "below" && "text-success",
-        valueDelta?.direction === "above" && "text-destructive",
+        valueDelta?.direction === "above" && "text-error",
         (!valueDelta || valueDelta.direction === "even") && "text-foreground"
       )}
     >
       {valueDelta && valueDelta.direction !== "even" && (
         <span
           className={cn(
-            "inline-flex min-w-0 items-center gap-0.5 rounded-sm px-1.5 py-0.5 text-xs font-bold leading-none",
-            valueDelta.direction === "below" && "bg-success/15 text-success",
+            "inline-flex min-w-0 items-center gap-0.5 rounded-sm px-1 py-0.5 text-xs font-medium leading-none",
+            valueDelta.direction === "below" &&
+              "bg-success-background text-success border border-success-border",
             valueDelta.direction === "above" &&
-              "bg-destructive/15 text-destructive"
+              "bg-error-background  text-error border border-error-border"
           )}
         >
           {valueDelta.direction === "below" ? (
@@ -188,8 +191,9 @@ const BinderCardPriceSummary = ({
       <span className="min-w-0 truncate">{priceLabel}</span>
     </span>
     {listedPriceLabel && (
-      <span className="max-w-full truncate text-xs leading-tight text-muted-foreground">
-        {listedAtLabel} {listedPriceLabel}
+      <span className="max-w-full truncate leading-none text-muted-foreground">
+        <span className="text-xs font-normal">{listedAtLabel}</span>{" "}
+        <span className="text-sm font-medium">{listedPriceLabel}</span>
       </span>
     )}
   </span>
@@ -372,13 +376,16 @@ const BinderCardComponent = ({
   const handleDelete = useCallback(() => {
     onDelete?.(binderCard);
   }, [binderCard, onDelete]);
-  const handleAddToCartClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    onAddToCart?.(binderCard);
+  const handleAddToCartClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      onAddToCart?.(binderCard);
 
-    if (event.detail > 0) {
-      event.currentTarget.blur();
-    }
-  }, [binderCard, onAddToCart]);
+      if (event.detail > 0) {
+        event.currentTarget.blur();
+      }
+    },
+    [binderCard, onAddToCart]
+  );
   const addToCartLabel = isCartPreview
     ? t("checkout:add_preview_item")
     : t("binder:detail.add_to_basket");

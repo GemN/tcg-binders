@@ -39,7 +39,11 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --color-error: var(--error);
+  --color-error-background: var(--error-background);
+  --color-error-border: var(--error-border);
   --color-success: var(--success);
+  --color-success-background: var(--success-background);
+  --color-success-border: var(--success-border);
   --color-info: var(--info);
   --color-warning: var(--warning);
   --color-binder-toolbar: var(--binder-toolbar);
@@ -86,12 +90,16 @@
 
   --text-secondary: #6F6A63;
 
-  --error: #d64545;
-  --success: #6f8f1f;
-  --info: #2f6fbe;
-  --warning: #b7791f;
+  --error: #F96A4A;
+  --error-background: #FFF1EC;
+  --error-border: #FBBCAD;
+  --success: #4BB536;
+  --success-background: #EFF9ED;
+  --success-border: #CCECC6;
+  --info: #5599F2;
+  --warning: #F7B650;
   --market-source-cardkingdom: #5599f2;
-  --market-source-cardmarket: #13a8b5;
+  --market-source-cardmarket: #13A8B5;
   --market-source-tcgplayer: #7160e8;
 
   --chart-1: #bedb54;
