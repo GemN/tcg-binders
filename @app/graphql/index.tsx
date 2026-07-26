@@ -2623,6 +2623,8 @@ export type CardSearchQueryVariables = Exact<{
   setCode: Scalars['String'];
   hasSetCode: Scalars['Boolean'];
   first?: Maybe<Scalars['Int']>;
+  cardsAfter?: Maybe<Scalars['Cursor']>;
+  setCardsAfter?: Maybe<Scalars['Cursor']>;
 }>;
 
 
@@ -2630,7 +2632,11 @@ export type CardSearchQuery = (
   { __typename?: 'Query' }
   & { cardsCollection: Maybe<(
     { __typename?: 'CardsConnection' }
-    & { edges: Array<(
+    & Pick<CardsConnection, 'totalCount'>
+    & { pageInfo: (
+      { __typename?: 'PageInfo' }
+      & Pick<PageInfo, 'endCursor' | 'hasNextPage'>
+    ), edges: Array<(
       { __typename?: 'CardsEdge' }
       & { node: (
         { __typename?: 'Cards' }
@@ -2646,7 +2652,11 @@ export type CardSearchQuery = (
         & Pick<CardSets, 'id'>
         & { cards: Maybe<(
           { __typename?: 'CardsConnection' }
-          & { edges: Array<(
+          & Pick<CardsConnection, 'totalCount'>
+          & { pageInfo: (
+            { __typename?: 'PageInfo' }
+            & Pick<PageInfo, 'endCursor' | 'hasNextPage'>
+          ), edges: Array<(
             { __typename?: 'CardsEdge' }
             & { node: (
               { __typename?: 'Cards' }
@@ -3810,12 +3820,18 @@ export type CardListingsQueryHookResult = ReturnType<typeof useCardListingsQuery
 export type CardListingsLazyQueryHookResult = ReturnType<typeof useCardListingsLazyQuery>;
 export type CardListingsQueryResult = Apollo.QueryResult<CardListingsQuery, CardListingsQueryVariables>;
 export const CardSearchDocument = gql`
-    query CardSearch($query: String!, $nameQuery: String!, $setCode: String!, $hasSetCode: Boolean!, $first: Int = 8) {
+    query CardSearch($query: String!, $nameQuery: String!, $setCode: String!, $hasSetCode: Boolean!, $first: Int = 8, $cardsAfter: Cursor, $setCardsAfter: Cursor) {
   cardsCollection(
     first: $first
+    after: $cardsAfter
     filter: {tcgId: {eq: "mtg"}, name: {ilike: $query}}
     orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
   ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
     edges {
       node {
         ...CardSearchFields
@@ -3828,9 +3844,15 @@ export const CardSearchDocument = gql`
         id
         cards(
           first: $first
+          after: $setCardsAfter
           filter: {tcgId: {eq: "mtg"}, name: {ilike: $nameQuery}}
           orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
         ) {
+          totalCount
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
           edges {
             node {
               ...CardSearchFields
@@ -3860,6 +3882,8 @@ export const CardSearchDocument = gql`
  *      setCode: // value for 'setCode'
  *      hasSetCode: // value for 'hasSetCode'
  *      first: // value for 'first'
+ *      cardsAfter: // value for 'cardsAfter'
+ *      setCardsAfter: // value for 'setCardsAfter'
  *   },
  * });
  */

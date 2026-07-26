@@ -57,7 +57,8 @@
     "placeholder": "ค้นหาตามชื่อหรือชุด",
     "no_image": "ไม่มีรูปภาพ",
     "no_cards_found": "ไม่พบการ์ด",
-    "minimum_query": "พิมพ์อย่างน้อย {{count}} ตัวอักษร"
+    "minimum_query": "พิมพ์อย่างน้อย {{count}} ตัวอักษร",
+    "result_count": "{{count}} ผลลัพธ์"
   },
   "card": {
     "condition": {

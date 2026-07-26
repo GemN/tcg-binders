@@ -748,12 +748,18 @@ export function useCardListingsLazyQuery(baseOptions) {
     return Apollo.useLazyQuery(CardListingsDocument, options);
 }
 export const CardSearchDocument = gql `
-    query CardSearch($query: String!, $nameQuery: String!, $setCode: String!, $hasSetCode: Boolean!, $first: Int = 8) {
+    query CardSearch($query: String!, $nameQuery: String!, $setCode: String!, $hasSetCode: Boolean!, $first: Int = 8, $cardsAfter: Cursor, $setCardsAfter: Cursor) {
   cardsCollection(
     first: $first
+    after: $cardsAfter
     filter: {tcgId: {eq: "mtg"}, name: {ilike: $query}}
     orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
   ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
     edges {
       node {
         ...CardSearchFields
@@ -766,9 +772,15 @@ export const CardSearchDocument = gql `
         id
         cards(
           first: $first
+          after: $setCardsAfter
           filter: {tcgId: {eq: "mtg"}, name: {ilike: $nameQuery}}
           orderBy: [{releasedAt: DescNullsLast}, {name: AscNullsLast}]
         ) {
+          totalCount
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
           edges {
             node {
               ...CardSearchFields
@@ -797,6 +809,8 @@ export const CardSearchDocument = gql `
  *      setCode: // value for 'setCode'
  *      hasSetCode: // value for 'hasSetCode'
  *      first: // value for 'first'
+ *      cardsAfter: // value for 'cardsAfter'
+ *      setCardsAfter: // value for 'setCardsAfter'
  *   },
  * });
  */

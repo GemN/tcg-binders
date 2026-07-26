@@ -1,7 +1,6 @@
-import type { CardSearchQuery } from "@app/graphql";
 import { useCardSearchQuery } from "@app/graphql";
 import { LoaderCircle } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { type UIEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { CardImage } from "@/components/CardImage";
@@ -82,14 +81,6 @@ const parseCardSearchQuery = (value: string): ParsedCardSearchQuery => {
   };
 };
 
-const getSetScopedCards = (data: CardSearchQuery | undefined) => {
-  return (
-    data?.cardSetsCollection?.edges.flatMap(
-      ({ node }) => node.cards?.edges.map(({ node: card }) => card) || []
-    ) || []
-  );
-};
-
 export const CardSearchPicker = ({
   containerClassName,
   className,
@@ -100,21 +91,30 @@ export const CardSearchPicker = ({
   const { t } = useTranslation(["common"]);
   const { priceSource } = usePricingSettings();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const isLoadingMoreRef = useRef(false);
+  const resultsListRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const debouncedQuery = useDebounce(query.trim(), 300);
   const parsedQuery = useMemo(
     () => parseCardSearchQuery(debouncedQuery),
     [debouncedQuery]
   );
+  const searchKey = `${parsedQuery.searchText}:${parsedQuery.setCode}`;
+  const lastLoadedSearchKeyRef = useRef("");
+  const searchKeyRef = useRef(searchKey);
+  searchKeyRef.current = searchKey;
   const canSearch = parsedQuery.searchText.length >= MINIMUM_SEARCH_LENGTH;
-  const { data, loading, previousData } = useCardSearchQuery({
+  const { data, fetchMore, loading, previousData } = useCardSearchQuery({
     fetchPolicy: "cache-and-network",
     variables: {
+      cardsAfter: null,
       hasSetCode: parsedQuery.hasSetCode,
       nameQuery: `%${parsedQuery.cardName}%`,
       query: `%${parsedQuery.searchText}%`,
       setCode: parsedQuery.setCode,
+      setCardsAfter: null,
       first: 10,
     },
     skip: !canSearch,
@@ -123,18 +123,124 @@ export const CardSearchPicker = ({
   const displayedData = canSearch
     ? data || (loading ? previousData : undefined)
     : undefined;
-  const setScopedCards = getSetScopedCards(displayedData);
   const hasMatchingSet = !!displayedData?.cardSetsCollection?.edges.length;
-  const cardNodes = hasMatchingSet
-    ? setScopedCards
-    : displayedData?.cardsCollection?.edges.map(({ node }) => node) || [];
+  const resultsCollection = hasMatchingSet
+    ? displayedData?.cardSetsCollection?.edges[0]?.node.cards
+    : displayedData?.cardsCollection;
+  const cardNodes =
+    resultsCollection?.edges.map(({ node }) => node) || [];
   const cards = cardNodes.map((card) => createDraftCardSnapshot(card));
-  const isLoadingWithResults = loading && cards.length > 0;
+  const totalResults = resultsCollection?.totalCount || 0;
+  const pageInfo = resultsCollection?.pageInfo;
+  const isLoadingWithResults =
+    loading && cards.length > 0 && !isLoadingMore;
+
+  useEffect(() => {
+    if (
+      loading ||
+      !data ||
+      lastLoadedSearchKeyRef.current === searchKey
+    ) {
+      return;
+    }
+
+    if (resultsListRef.current) {
+      resultsListRef.current.scrollTop = 0;
+    }
+    lastLoadedSearchKeyRef.current = searchKey;
+  }, [data, loading, searchKey]);
 
   const handleSelect = (card: DraftCardSnapshot) => {
     onSelect(card);
     setQuery("");
     setIsOpen(false);
+  };
+
+  const handleLoadMore = async () => {
+    if (
+      loading ||
+      isLoadingMoreRef.current ||
+      !pageInfo?.hasNextPage ||
+      !pageInfo.endCursor
+    ) {
+      return;
+    }
+
+    const requestSearchKey = searchKey;
+    const isSetScoped = hasMatchingSet;
+    isLoadingMoreRef.current = true;
+    setIsLoadingMore(true);
+
+    try {
+      await fetchMore({
+        variables: {
+          cardsAfter: isSetScoped ? null : pageInfo.endCursor,
+          setCardsAfter: isSetScoped ? pageInfo.endCursor : null,
+        },
+        updateQuery: (previous, { fetchMoreResult }) => {
+          if (searchKeyRef.current !== requestSearchKey) return previous;
+
+          if (!isSetScoped) {
+            const previousCards = previous.cardsCollection;
+            const nextCards = fetchMoreResult.cardsCollection;
+
+            if (!previousCards || !nextCards) return previous;
+
+            return {
+              ...fetchMoreResult,
+              cardsCollection: {
+                ...nextCards,
+                edges: [...previousCards.edges, ...nextCards.edges],
+              },
+            };
+          }
+
+          const previousCards =
+            previous.cardSetsCollection?.edges[0]?.node.cards;
+          const nextSetCollection = fetchMoreResult.cardSetsCollection;
+          const nextCards = nextSetCollection?.edges[0]?.node.cards;
+
+          if (!previousCards || !nextSetCollection || !nextCards) {
+            return previous;
+          }
+
+          return {
+            ...fetchMoreResult,
+            cardsCollection: previous.cardsCollection,
+            cardSetsCollection: {
+              ...nextSetCollection,
+              edges: nextSetCollection.edges.map((edge, index) =>
+                index === 0
+                  ? {
+                      ...edge,
+                      node: {
+                        ...edge.node,
+                        cards: {
+                          ...nextCards,
+                          edges: [...previousCards.edges, ...nextCards.edges],
+                        },
+                      },
+                    }
+                  : edge
+              ),
+            },
+          };
+        },
+      });
+    } catch {
+      return;
+    } finally {
+      isLoadingMoreRef.current = false;
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const { clientHeight, scrollHeight, scrollTop } = event.currentTarget;
+
+    if (scrollHeight - scrollTop - clientHeight <= 24) {
+      void handleLoadMore();
+    }
   };
 
   useClickOutside(containerRef, () => setIsOpen(false), { skip: !isOpen });
@@ -178,7 +284,16 @@ export const CardSearchPicker = ({
                 <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
               </div>
             ) : cards.length > 0 ? (
-              <CommandList className="max-h-[420px] p-1 bg-white">
+              <CommandList
+                ref={resultsListRef}
+                className="max-h-[420px] p-1 bg-white"
+                onScroll={handleScroll}
+              >
+                <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                  {t("common:card_search.result_count", {
+                    count: totalResults,
+                  })}
+                </div>
                 <CommandGroup className="p-0">
                   {cards.map((card) => {
                     const preferredFinish = getPreferredCardFinish(
@@ -228,6 +343,11 @@ export const CardSearchPicker = ({
                     );
                   })}
                 </CommandGroup>
+                {isLoadingMore && (
+                  <div className="flex h-9 items-center justify-center">
+                    <LoaderCircle className="size-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
               </CommandList>
             ) : canSearch ? (
               <div className="flex h-20 items-center justify-center text-sm text-muted-foreground">

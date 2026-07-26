@@ -2312,13 +2312,18 @@ export type CardSearchQueryVariables = Exact<{
     setCode: Scalars['String'];
     hasSetCode: Scalars['Boolean'];
     first?: Maybe<Scalars['Int']>;
+    cardsAfter?: Maybe<Scalars['Cursor']>;
+    setCardsAfter?: Maybe<Scalars['Cursor']>;
 }>;
 export type CardSearchQuery = ({
     __typename?: 'Query';
 } & {
     cardsCollection: Maybe<({
         __typename?: 'CardsConnection';
-    } & {
+    } & Pick<CardsConnection, 'totalCount'> & {
+        pageInfo: ({
+            __typename?: 'PageInfo';
+        } & Pick<PageInfo, 'endCursor' | 'hasNextPage'>);
         edges: Array<({
             __typename?: 'CardsEdge';
         } & {
@@ -2338,7 +2343,10 @@ export type CardSearchQuery = ({
             } & Pick<CardSets, 'id'> & {
                 cards: Maybe<({
                     __typename?: 'CardsConnection';
-                } & {
+                } & Pick<CardsConnection, 'totalCount'> & {
+                    pageInfo: ({
+                        __typename?: 'PageInfo';
+                    } & Pick<PageInfo, 'endCursor' | 'hasNextPage'>);
                     edges: Array<({
                         __typename?: 'CardsEdge';
                     } & {
@@ -3136,6 +3144,8 @@ export declare const CardSearchDocument: Apollo.DocumentNode;
  *      setCode: // value for 'setCode'
  *      hasSetCode: // value for 'hasSetCode'
  *      first: // value for 'first'
+ *      cardsAfter: // value for 'cardsAfter'
+ *      setCardsAfter: // value for 'setCardsAfter'
  *   },
  * });
  */
@@ -3145,6 +3155,8 @@ export declare function useCardSearchQuery(baseOptions: Apollo.QueryHookOptions<
     setCode: Scalars["String"];
     hasSetCode: Scalars["Boolean"];
     first?: Maybe<Scalars["Int"]>;
+    cardsAfter?: Maybe<Scalars["Cursor"]>;
+    setCardsAfter?: Maybe<Scalars["Cursor"]>;
 }>>;
 export declare function useCardSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CardSearchQuery, CardSearchQueryVariables>): Apollo.LazyQueryResultTuple<CardSearchQuery, Exact<{
     query: Scalars["String"];
@@ -3152,6 +3164,8 @@ export declare function useCardSearchLazyQuery(baseOptions?: Apollo.LazyQueryHoo
     setCode: Scalars["String"];
     hasSetCode: Scalars["Boolean"];
     first?: Maybe<Scalars["Int"]>;
+    cardsAfter?: Maybe<Scalars["Cursor"]>;
+    setCardsAfter?: Maybe<Scalars["Cursor"]>;
 }>>;
 export type CardSearchQueryHookResult = ReturnType<typeof useCardSearchQuery>;
 export type CardSearchLazyQueryHookResult = ReturnType<typeof useCardSearchLazyQuery>;

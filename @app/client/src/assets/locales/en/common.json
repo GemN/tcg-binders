@@ -57,7 +57,9 @@
     "placeholder": "Search by name, set",
     "no_image": "No image",
     "no_cards_found": "No cards found",
-    "minimum_query": "Type at least {{count}} characters"
+    "minimum_query": "Type at least {{count}} characters",
+    "result_count_one": "{{count}} result",
+    "result_count_other": "{{count}} results"
   },
   "card": {
     "condition": {
