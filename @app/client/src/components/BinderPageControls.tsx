@@ -197,10 +197,10 @@ export const BinderPageControls = ({
           />
         )}
         <Select value={sortMode} onValueChange={onSortChange}>
-          <SelectTrigger className="w-full border-border bg-background text-foreground sm:w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="border-border bg-background text-foreground">
+          <SelectContent>
             <SelectItem value="seller_order">
               {t("binder:sort.seller_order")}
             </SelectItem>
@@ -222,8 +222,7 @@ export const BinderPageControls = ({
         <ToggleGroup
           type="single"
           value={viewMode}
-          size="sm"
-          className="h-9 w-full border border-border bg-background text-foreground sm:w-auto"
+          className="w-full sm:w-auto"
           onValueChange={(value) => {
             if (!value) return;
             onViewChange(value as BinderCardViewMode);
@@ -231,17 +230,17 @@ export const BinderPageControls = ({
         >
           <ToggleGroupItem
             value="grid"
-            size="sm"
+            variant="outline"
+            className="w-9"
             aria-label={t("binder:view.grid")}
-            className="h-9 flex-1 px-3 text-foreground hover:bg-accent hover:text-accent-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground sm:flex-none"
           >
             <Grid2X2 className="size-4" />
           </ToggleGroupItem>
           <ToggleGroupItem
             value="list"
-            size="sm"
+            variant="outline"
+            className="w-9"
             aria-label={t("binder:view.list")}
-            className="h-9 flex-1 px-3 text-foreground hover:bg-accent hover:text-accent-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 data-[state=on]:hover:text-primary-foreground sm:flex-none"
           >
             <List className="size-4" />
           </ToggleGroupItem>

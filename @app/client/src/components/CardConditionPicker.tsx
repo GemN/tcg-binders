@@ -37,7 +37,7 @@ export const CardConditionPicker = ({
   onChange,
 }: CardConditionPickerProps) => {
   return (
-    <label className={cn("grid gap-1 text-sm font-medium", labelClassName)}>
+    <label className={cn("grid gap-1 text-sm", labelClassName)}>
       {label}
       <Select
         value={value}

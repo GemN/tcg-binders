@@ -114,7 +114,7 @@ export const BinderPageHeader = ({
           onUpdated={onBinderChanged}
         />
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {canEditBinder && (
             <>
@@ -133,15 +133,8 @@ export const BinderPageHeader = ({
           )}
           {headerAction}
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-          {titleAction}
-          {titleAction && (
-            <span
-              aria-hidden="true"
-              className="hidden h-4 w-px bg-binder-toolbar-foreground/25 sm:block"
-            />
-          )}
-          <label className="inline-flex w-fit items-center gap-2 text-sm text-binder-toolbar-foreground/80">
+        <div className="flex flex-col gap-4 items-end">
+          <label className="inline-flex w-fit items-center gap-2 text-sm text-primary">
             <Switch
               checked={showConvertedMarketPrices}
               onCheckedChange={onShowConvertedMarketPricesChange}
@@ -149,6 +142,7 @@ export const BinderPageHeader = ({
             />
             <span>{t("binder:show_converted_market_prices")}</span>
           </label>
+          {titleAction}
         </div>
       </div>
     </div>

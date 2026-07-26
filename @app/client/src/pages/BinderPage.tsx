@@ -427,7 +427,7 @@ export const BinderPage = () => {
     isPublicPreview ? (
       <Link
         to={ownerBinderUrl}
-        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-binder-toolbar-foreground/80 underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
+        className="inline-flex w-fit items-center gap-2 text-sm text-primary underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
       >
         <Pencil className="size-4" />
         {t("binder:public_preview.owner_view")}
@@ -435,7 +435,7 @@ export const BinderPage = () => {
     ) : (
       <Link
         to={publicPreviewUrl}
-        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-binder-toolbar-foreground/80 underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
+        className="inline-flex w-fit items-center gap-2 text-sm text-primary underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
       >
         <Eye className="size-4" />
         {t("binder:public_preview.button")}

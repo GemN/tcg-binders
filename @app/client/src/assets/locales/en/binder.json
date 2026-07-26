@@ -31,6 +31,8 @@
     "next_image_page": "Next image page",
     "previous_image_page": "Previous image page",
     "private_qr_unavailable": "QR codes are unavailable for private binders.",
+    "price_font_size": "Price font size",
+    "price_font_size_value": "{{size}} px",
     "qr_code_label": "Open this binder",
     "show_condition": "Condition",
     "show_price": "Price",

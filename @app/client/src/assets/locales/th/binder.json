@@ -31,6 +31,8 @@
     "next_image_page": "หน้ารูปภาพถัดไป",
     "previous_image_page": "หน้ารูปภาพก่อนหน้า",
     "private_qr_unavailable": "ไม่สามารถใช้คิวอาร์โค้ดกับแฟ้มส่วนตัวได้",
+    "price_font_size": "ขนาดตัวอักษรราคา",
+    "price_font_size_value": "{{size}} พิกเซล",
     "qr_code_label": "เปิดแฟ้มนี้",
     "show_condition": "สภาพ",
     "show_price": "ราคา",

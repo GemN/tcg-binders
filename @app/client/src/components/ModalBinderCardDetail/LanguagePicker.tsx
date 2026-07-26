@@ -54,10 +54,7 @@ export const LanguagePicker = ({
   value,
 }: LanguagePickerProps) => (
   <label
-    className={cn(
-      "grid gap-1 text-xs font-medium text-muted-foreground",
-      labelClassName
-    )}
+    className={cn("grid gap-1 text-xs text-muted-foreground", labelClassName)}
   >
     {label}
     <Select

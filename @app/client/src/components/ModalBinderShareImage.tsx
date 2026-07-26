@@ -5,7 +5,7 @@ import {
   useBinderShareImageCardsQuery,
 } from "@app/graphql";
 import { toBlob } from "html-to-image";
-import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Share2, X } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -138,11 +138,13 @@ export const ModalBinderShareImage = ({
   const { i18n, t } = useTranslation(["binder", "common"]);
   const quantityOptionId = useId();
   const priceOptionId = useId();
+  const priceFontSizeId = useId();
   const conditionOptionId = useId();
   const qrCodeOptionId = useId();
   const imageRef = useRef<HTMLDivElement>(null);
   const [showQuantity, setShowQuantity] = useState(true);
   const [showPrice, setShowPrice] = useState(true);
+  const [priceFontSize, setPriceFontSize] = useState(16);
   const [showCondition, setShowCondition] = useState(false);
   const [showQrCode, setShowQrCode] = useState(true);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -183,6 +185,7 @@ export const ModalBinderShareImage = ({
 
     setShowQuantity(true);
     setShowPrice(true);
+    setPriceFontSize(16);
     setShowCondition(false);
     setShowQrCode(true);
     setImagePageIndex(initialImagePageIndex);
@@ -265,7 +268,10 @@ export const ModalBinderShareImage = ({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-5xl">
+      <DialogContent
+        showCloseButton={false}
+        className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-5xl"
+      >
         <DialogHeader className="gap-1">
           <div className="flex min-w-0 pr-8">
             <DialogTitle>{t("binder:share.image_action")}</DialogTitle>
@@ -294,6 +300,7 @@ export const ModalBinderShareImage = ({
                 noImageLabel={t("binder:no_image")}
                 onImageLoadStateChange={handleImageLoadStateChange}
                 options={{
+                  priceFontSize,
                   showCondition,
                   showPrice,
                   showQrCode: shouldShowQrCode,
@@ -314,12 +321,80 @@ export const ModalBinderShareImage = ({
                 label={t("binder:share.show_quantity")}
                 onCheckedChange={setShowQuantity}
               />
-              <ShareImageOption
-                checked={showPrice}
-                id={priceOptionId}
-                label={t("binder:share.show_price")}
-                onCheckedChange={setShowPrice}
-              />
+              <div className="col-span-full grid gap-1.5">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id={priceOptionId}
+                    checked={showPrice}
+                    onCheckedChange={(value) => setShowPrice(value === true)}
+                  />
+                  <Label htmlFor={priceOptionId}>
+                    {t("binder:share.show_price")}
+                  </Label>
+                  {showPrice && (
+                    <output
+                      htmlFor={priceFontSizeId}
+                      className="ml-auto rounded-full bg-background px-2 py-0.5 text-xs font-medium tabular-nums shadow-xs ring-1 ring-border"
+                    >
+                      {t("binder:share.price_font_size_value", {
+                        size: priceFontSize,
+                      })}
+                    </output>
+                  )}
+                </div>
+                {showPrice && (
+                  <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 pl-6">
+                    <span
+                      aria-hidden="true"
+                      className="text-xs text-muted-foreground"
+                    >
+                      A
+                    </span>
+                    <input
+                      id={priceFontSizeId}
+                      className="h-8 w-full cursor-pointer appearance-none bg-transparent
+                        [&::-webkit-slider-runnable-track]:h-1.5
+                        [&::-webkit-slider-runnable-track]:rounded-full
+                        [&::-webkit-slider-runnable-track]:bg-border
+                        [&::-webkit-slider-thumb]:mt-[-7px]
+                        [&::-webkit-slider-thumb]:size-5
+                        [&::-webkit-slider-thumb]:appearance-none
+                        [&::-webkit-slider-thumb]:rounded-full
+                        [&::-webkit-slider-thumb]:border-2
+                        [&::-webkit-slider-thumb]:border-primary
+                        [&::-webkit-slider-thumb]:bg-background
+                        [&::-webkit-slider-thumb]:shadow-sm
+                        [&::-moz-range-track]:h-1.5
+                        [&::-moz-range-track]:rounded-full
+                        [&::-moz-range-track]:bg-border
+                        [&::-moz-range-thumb]:size-5
+                        [&::-moz-range-thumb]:rounded-full
+                        [&::-moz-range-thumb]:border-2
+                        [&::-moz-range-thumb]:border-primary
+                        [&::-moz-range-thumb]:bg-background
+                        [&::-moz-range-thumb]:shadow-sm"
+                      type="range"
+                      min="12"
+                      max="36"
+                      step="1"
+                      value={priceFontSize}
+                      aria-label={t("binder:share.price_font_size")}
+                      aria-valuetext={t("binder:share.price_font_size_value", {
+                        size: priceFontSize,
+                      })}
+                      onChange={(event) =>
+                        setPriceFontSize(Number(event.target.value))
+                      }
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="text-lg font-medium text-muted-foreground"
+                    >
+                      A
+                    </span>
+                  </div>
+                )}
+              </div>
               <ShareImageOption
                 checked={showCondition}
                 id={conditionOptionId}
@@ -371,12 +446,7 @@ export const ModalBinderShareImage = ({
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  {t("common:close")}
-                </Button>
-              </DialogClose>
+            <div className="grid gap-2">
               <Button
                 type="button"
                 disabled={
@@ -399,6 +469,17 @@ export const ModalBinderShareImage = ({
             </div>
           </div>
         </div>
+        <DialogClose asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("common:close")}
+            className="absolute right-4 top-4"
+          >
+            <X aria-hidden="true" className="size-4" />
+          </Button>
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );

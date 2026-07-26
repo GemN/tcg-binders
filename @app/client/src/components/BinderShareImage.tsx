@@ -18,6 +18,7 @@ export const BINDER_SHARE_IMAGE_WIDTH = 1200;
 export const BINDER_SHARE_IMAGE_PIXEL_RATIO = 2;
 
 interface BinderShareImageOptions {
+  priceFontSize: number;
   showCondition: boolean;
   showPrice: boolean;
   showQrCode: boolean;
@@ -83,7 +84,10 @@ const BinderShareImageCard = ({
         </span>
       )}
       {priceLabel && (
-        <span className="absolute right-0 bottom-5 z-10 max-w-[80%] truncate rounded-l bg-[#22262A]/80 px-2 py-1 text-base font-bold leading-none tabular-nums text-white shadow-lg shadow-black/25">
+        <span
+          className="absolute right-0 bottom-5 z-10 max-w-[80%] truncate rounded-l bg-[#22262A]/80 px-2 py-1 font-bold leading-none tabular-nums text-white shadow-lg shadow-black/25"
+          style={{ fontSize: options.priceFontSize }}
+        >
           {priceLabel}
         </span>
       )}
