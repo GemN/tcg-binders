@@ -4,10 +4,6 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -26,6 +22,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-text-secondary: var(--text-secondary);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -62,28 +59,30 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: #f2f2f2;
+  --radius: 0.25rem;
+  --background: #F8F7F4;
   --foreground: #1d2125;
   --card: #ffffff;
   --card-foreground: #1d2125;
   --popover: #ffffff;
   --popover-foreground: #1d2125;
-  --primary: #bedb54;
-  --primary-foreground: #1d2125;
+  --primary: #1E1E1E;
+  --primary-foreground: #FFFFFF;
   --secondary: #e8e8e8;
   --secondary-foreground: #1d2125;
   --muted: #e8e8e8;
-  --muted-foreground: #626a73;
-  --accent: #d8f06a;
+  --muted-foreground: #6F6A63;
+  --accent: #d6d2f5;
   --accent-foreground: #1d2125;
   --destructive: #d64545;
-  --border: #d4d9df;
+  --border: #D8D3CC;
   --input: #e8e8e8;
-  --ring: #bedb54;
-  --binder-toolbar: #dde2e7;
-  --binder-toolbar-foreground: #1d2125;
+  --ring: #8478D5;
+  --binder-toolbar: #F4F1EC;
+  --binder-toolbar-foreground: #1E1E1E;
   --binder-toolbar-input: #e8e8e8;
+
+  --text-secondary: #6F6A63;
 
   --error: #d64545;
   --success: #6f8f1f;

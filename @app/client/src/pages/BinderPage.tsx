@@ -33,6 +33,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/Tooltip";
 import { getPreferredCardFinish } from "@/config/card";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
@@ -384,14 +389,22 @@ export const BinderPage = () => {
     </DropdownMenu>
   );
   const settingsButton = canEditBinder ? (
-    <Button
-      type="button"
-      variant="outline"
-      onClick={() => setIsSettingsDialogOpen(true)}
-    >
-      <Settings className="size-4" />
-      {t("binder:settings.button")}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label={t("binder:settings.button")}
+          onClick={() => setIsSettingsDialogOpen(true)}
+        >
+          <Settings className="size-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent sideOffset={4}>
+        {t("binder:settings.button")}
+      </TooltipContent>
+    </Tooltip>
   ) : undefined;
   const headerAction = isOwner ? (
     isPublicPreview ? undefined : (

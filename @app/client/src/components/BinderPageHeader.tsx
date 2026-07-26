@@ -61,12 +61,16 @@ export const BinderPageHeader = ({
   const { t } = useTranslation(["binder", "common"]);
 
   return (
-    <div className="relative z-30 -mx-4 flex shrink-0 flex-col gap-4 border-y border-binder-toolbar-input/40 bg-binder-toolbar/95 px-4 py-3 text-binder-toolbar-foreground sm:-mx-6 sm:px-6 lg:-mx-20 lg:flex-row lg:items-start lg:justify-between lg:px-20">
+    <div
+      className="relative z-30 flex shrink-0 flex-col gap-4 border border-border/50
+       bg-binder-toolbar px-4 py-4 text-binder-toolbar-foreground rounded-lg
+      sm:-mx-4 sm:px-4 lg:flex-row lg:items-start lg:justify-between"
+    >
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
           {canEditBinder && (
             <BinderVisibilityIcon
-              className="size-6 text-binder-toolbar-foreground/80"
+              className="size-8 text-binder-toolbar-foreground/80"
               visibility={binderVisibility}
             />
           )}
@@ -111,12 +115,11 @@ export const BinderPageHeader = ({
         />
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {canEditBinder && (
             <>
               <CardSearchPicker
                 containerClassName="w-full sm:w-80"
-                className="border-binder-toolbar-foreground/25 text-muted-foreground bg-background placeholder:text-muted-foreground"
                 placeholder={t("binder:search_placeholder")}
                 onSelect={onAddCard}
               />

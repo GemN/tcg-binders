@@ -101,7 +101,7 @@ export const BinderNote = ({
   };
 
   return (
-    <div className="mt-2 max-w-xl">
+    <div className="mt-4 max-w-xl">
       <button
         type="button"
         className={`group relative block w-full text-left text-sm leading-5 text-foreground transition-colors ${

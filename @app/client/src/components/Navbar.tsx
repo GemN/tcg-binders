@@ -18,7 +18,7 @@ export const Navbar = () => {
   const isLoggedIn = !!session;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-card text-foreground">
+    <header className="sticky top-0 z-40 bg-background text-foreground">
       <nav className="flex h-14 w-full items-center gap-2 px-4 sm:px-6 lg:px-20">
         <Link
           to="/"

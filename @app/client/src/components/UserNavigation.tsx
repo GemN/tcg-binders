@@ -37,8 +37,8 @@ export function UserNavigation() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <UserAvatar className="h-8 w-8" name={displayName} />
+        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+          <UserAvatar className="h-9 w-9" name={displayName} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

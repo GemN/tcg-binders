@@ -11,8 +11,8 @@ import { InputPassword } from "@/components/ui/InputPassword";
 import { Label } from "@/components/ui/Label";
 import { Separator } from "@/components/ui/Separator";
 import { handleError } from "@/lib/error";
-import { getOnboardingPath, getRegistrationCountry } from "@/lib/onboarding";
 import { OAUTH_NEXT_PATH_STORAGE_KEY } from "@/lib/oauth";
+import { getOnboardingPath, getRegistrationCountry } from "@/lib/onboarding";
 import supabaseClient, { isAuthenticated } from "@/lib/supabase";
 
 type LoginAuthMode = "sign_in" | "sign_up";
@@ -165,7 +165,7 @@ export const Login: FC<LoginProps> = () => {
   };
 
   return (
-    <div className="flex min-h-svh w-full flex-col bg-[#f5f7fb] px-5 pb-8 pt-16 sm:px-6">
+    <div className="flex min-h-svh w-full flex-col bg-background px-5 pb-8 pt-16 sm:px-6">
       <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-start">
         <div className="relative mb-4 flex min-h-9 items-center justify-center">
           <div className="absolute right-0 top-1/2 -translate-y-1/2">
@@ -234,7 +234,7 @@ const AuthPanel: FC<AuthPanelProps> = ({
   const isSignUp = authMode === "sign_up";
 
   return (
-    <div className="rounded-[8px] border border-[#dbe2ec] bg-white p-5 pb-8 shadow-[0_24px_80px_rgba(18,23,36,0.12)] sm:p-6 sm:pb-8">
+    <div className="rounded-[8px] border border-border bg-white p-5 pb-8 shadow-[0_24px_80px_rgba(18,23,36,0.12)] sm:p-6 sm:pb-8">
       <div>
         <h2 className="font-display text-2xl font-semibold leading-tight">
           {isSignUp
@@ -316,7 +316,7 @@ const ButtonGoogleConnect: FC<ButtonGoogleConnectProps> = ({
     <Button
       type="button"
       variant="outline"
-      className="h-[42px] justify-center rounded-[4px] border-[#d1d5db] bg-white px-3 text-[15px] font-medium leading-5 text-[#1f1f1f] shadow-none hover:border-[#c4c9d1] hover:bg-[#f7f8f8] hover:text-[#1f1f1f] active:bg-[#e8eaed]"
+      className="h-[42px] font-body justify-center rounded-xs border-[#d1d5db] bg-white px-3 text-[15px] font-medium leading-5 text-[#1f1f1f] shadow-none hover:border-[#c4c9d1] hover:bg-[#f7f8f8] hover:text-[#1f1f1f] active:bg-[#e8eaed]"
       disabled={disabled}
       isLoading={isLoading}
       onClick={onClick}
@@ -352,7 +352,7 @@ const ButtonFacebookConnect: FC<ButtonFacebookConnectProps> = ({
   return (
     <Button
       type="button"
-      className="h-[42px] justify-center rounded-[4px] border-0 bg-[#1877f2] px-3 text-[15px] tracking-[0.25px] text-white shadow-none hover:bg-[#166fe5] active:bg-[#145cbd]"
+      className="h-[42px] font-body justify-center rounded-xs border-0 bg-[#1877f2] px-3 text-[15px] tracking-[0.25px] text-white shadow-none hover:bg-[#166fe5] active:bg-[#145cbd]"
       disabled={disabled}
       isLoading={isLoading}
       onClick={onClick}
@@ -386,7 +386,7 @@ const ButtonLineConnect: FC<ButtonLineConnectProps> = ({
   return (
     <Button
       type="button"
-      className="h-[42px] justify-center overflow-hidden rounded-[6px] border-0 bg-[#06c755] p-0 text-[15px] font-semibold text-white shadow-none hover:bg-[#05b34d] active:bg-[#048b3c]"
+      className="h-[42px] font-body justify-center overflow-hidden rounded-xs border-0 bg-[#06c755] p-0 text-[15px] text-white shadow-none hover:bg-[#05b34d] active:bg-[#048b3c]"
       disabled={disabled}
       isLoading={isLoading}
       onClick={onClick}

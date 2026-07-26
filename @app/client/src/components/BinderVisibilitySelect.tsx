@@ -1,5 +1,5 @@
 import { BinderVisibility } from "@app/graphql";
-import { Globe, Link, Lock, type LucideIcon } from "lucide-react";
+import { EyeOff, Globe, Lock, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Label } from "@/components/ui/Label";
@@ -36,7 +36,7 @@ const binderVisibilityOptions: BinderVisibilityOption[] = [
     value: BinderVisibility.Listed,
   },
   {
-    Icon: Link,
+    Icon: EyeOff,
     descriptionKey: "binder:settings.visibility.unlisted_description",
     labelKey: "binder:settings.visibility.unlisted",
     value: BinderVisibility.Unlisted,

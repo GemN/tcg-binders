@@ -172,13 +172,13 @@ export const CardSearchPicker = ({
           aria-expanded={isListboxOpen}
         />
         {isListboxOpen && (
-          <div className="absolute top-full z-[100] mt-2 w-full rounded-md border border-border bg-background text-foreground shadow-lg">
+          <div className="absolute top-full z-[100] mt-2 w-full rounded-xs border border-border bg-background text-foreground shadow-lg">
             {loading && cards.length === 0 ? (
               <div className="flex h-20 items-center justify-center">
                 <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
               </div>
             ) : cards.length > 0 ? (
-              <CommandList className="max-h-[420px] p-1">
+              <CommandList className="max-h-[420px] p-1 bg-white">
                 <CommandGroup className="p-0">
                   {cards.map((card) => {
                     const preferredFinish = getPreferredCardFinish(
@@ -194,7 +194,7 @@ export const CardSearchPicker = ({
                       <CommandItem
                         key={card.id}
                         value={card.id}
-                        className="group w-full cursor-pointer gap-3 rounded-md p-2 text-left data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground"
+                        className="group w-full cursor-pointer gap-3 rounded-md p-2 text-left data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground"
                         onSelect={() => handleSelect(card)}
                       >
                         <CardImage
@@ -234,7 +234,7 @@ export const CardSearchPicker = ({
                 {t("common:card_search.no_cards_found")}
               </div>
             ) : (
-              <div className="flex h-16 items-center justify-center text-sm text-muted-foreground">
+              <div className="flex h-16 items-center justify-center text-sm text-muted-foreground bg-white">
                 {t("common:card_search.minimum_query", {
                   count: MINIMUM_SEARCH_LENGTH,
                 })}
