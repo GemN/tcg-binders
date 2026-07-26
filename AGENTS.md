@@ -58,9 +58,14 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## 5. Mandatory Code Review Workflow
+## 5. Risk-Based Code Review Workflow
 
-For every task that modifies code, the main agent must:
+Use the full review workflow for substantive changes. This includes feature
+development, non-trivial bug fixes, refactors, database or API changes,
+authentication or security-sensitive work, dependency or build changes, and
+changes spanning multiple modules or carrying meaningful regression risk.
+
+For substantive changes, the main agent must:
 
 1. Delegate implementation to the built-in `worker` agent and wait for it to
    finish the change and relevant checks.
@@ -68,10 +73,21 @@ For every task that modifies code, the main agent must:
    against the user's request and this `AGENTS.md`, then wait for its report.
 3. Keep the reviewer read-only. It must report only actionable findings about
    correctness, regressions, security, and missing tests.
-4. Send actionable findings back to the worker, rerun relevant checks, and
-   request one final reviewer pass.
-5. Do not give the final response until the final review is complete. Report
+4. Send actionable findings back to the worker and rerun relevant checks.
+   Request a final reviewer pass when review findings required code changes.
+5. Do not give the final response until the required review is complete. Report
    any unresolved findings explicitly.
+
+The main agent may implement and verify a small change directly without a
+reviewer when the change is clearly low-risk and localized, such as swapping an
+icon, correcting copy, adjusting isolated styling, or updating documentation.
+Skipping review is appropriate only when the change does not alter application
+control flow, data handling, public APIs, dependencies, configuration,
+security, database behavior, or test/build behavior.
+
+When skipping review, run a proportionate check and state briefly in the final
+response that review was skipped because the change was trivial and low-risk.
+When uncertain whether a change is substantive, use the reviewer.
 
 ---
 
