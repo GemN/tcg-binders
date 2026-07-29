@@ -1,4 +1,24 @@
 {
+  "seo": {
+    "sign_in": {
+      "title": "เข้าสู่ระบบ"
+    },
+    "sign_up": {
+      "title": "สร้างบัญชี"
+    },
+    "oauth_callback": {
+      "title": "กำลังเข้าสู่ระบบ"
+    },
+    "forgot_password": {
+      "title": "รีเซ็ตรหัสผ่าน"
+    },
+    "logout": {
+      "title": "กำลังออกจากระบบ"
+    },
+    "set_password": {
+      "title": "ตั้งรหัสผ่าน"
+    }
+  },
   "logout": "ออกจากระบบ",
   "auth_ui": {
     "email_label": "อีเมล",

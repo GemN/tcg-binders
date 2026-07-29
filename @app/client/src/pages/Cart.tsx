@@ -20,6 +20,7 @@ import {
   type SellerMessage,
   SellerMessagesSection,
 } from "@/components/Cart/SellerMessagesSection";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { isFoilCardFinish } from "@/config/card";
 import {
@@ -499,6 +500,13 @@ export const Cart = () => {
 
   return (
     <div className="flex flex-1 flex-col bg-background">
+      <Seo
+        metadata={{
+          canonicalPath: "/cart",
+          robots: "noindex,follow",
+          title: t("checkout:seo.title"),
+        }}
+      />
       <div className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col px-4 pb-28 sm:px-6 lg:px-8 lg:pb-8">
         {cartStep === "completed" ? (
           <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">

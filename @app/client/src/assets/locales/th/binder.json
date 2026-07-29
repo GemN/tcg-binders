@@ -1,4 +1,15 @@
 {
+  "seo": {
+    "draft": {
+      "title": "สร้างแฟ้มการ์ด MTG ใหม่"
+    },
+    "public": {
+      "title": "{{name}} โดย {{seller}} - MTG",
+      "short_title": "{{name}} - MTG",
+      "fallback_title": "แฟ้มการ์ด MTG",
+      "description": "เลือกดูการ์ด Magic: The Gathering {{count}} ใบในแฟ้ม \"{{name}}\" ของ {{seller}} พร้อมราคา สภาพ ภาษา และจำนวนที่มี"
+    }
+  },
   "search_placeholder": "เพิ่มการ์ด",
   "adding_card": "กำลังเพิ่มการ์ด...",
   "add_card_error": "เพิ่มการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",

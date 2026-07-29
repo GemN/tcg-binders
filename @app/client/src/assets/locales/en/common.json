@@ -1,4 +1,20 @@
 {
+  "seo": {
+    "home": {
+      "title": "Build and Share Your MTG Binder",
+      "description": "Create and share a Magic: The Gathering binder, price your cards, and help buyers find the cards they need."
+    },
+    "my_binders": {
+      "title": "My Binders"
+    },
+    "not_found": {
+      "title": "Page Not Found"
+    },
+    "user_profile": {
+      "title": "{{nickname}} - MTG Seller Profile",
+      "fallback_title": "MTG Seller Profile"
+    }
+  },
   "ok": "Ok",
   "cancel": "Cancel",
   "close": "Close",

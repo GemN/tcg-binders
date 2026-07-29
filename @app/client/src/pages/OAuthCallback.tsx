@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router";
 
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { getOnboardingPath } from "@/lib/onboarding";
 import { OAUTH_NEXT_PATH_STORAGE_KEY } from "@/lib/oauth";
@@ -90,6 +91,13 @@ export const OAuthCallback: FC<OAuthCallbackProps> = () => {
 
   return (
     <div className="flex min-h-svh w-full flex-col bg-[#f5f7fb] px-5 pb-8 pt-16 sm:px-6">
+      <Seo
+        metadata={{
+          canonicalPath: "/auth/callback",
+          robots: "noindex,follow",
+          title: t("login:seo.oauth_callback.title"),
+        }}
+      />
       <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-start">
         <div className="relative mb-4 flex min-h-9 items-center justify-center">
           <div className="absolute right-0 top-1/2 -translate-y-1/2">

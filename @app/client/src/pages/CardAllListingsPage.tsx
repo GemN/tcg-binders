@@ -14,6 +14,7 @@ import { CardListingsSection } from "@/components/CardListingsSection";
 import { CardMarketPriceButtons } from "@/components/CardMarketPriceButtons";
 import { CardPriceStats } from "@/components/CardPriceStats";
 import { Loading } from "@/components/Loading";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { getPreferredCardFinish } from "@/config/card";
 import { useAllCardListingPrices } from "@/hooks/useAllCardListingPrices";
@@ -22,8 +23,12 @@ import { useCardListingFilters } from "@/hooks/useCardListingFilters";
 import { useCardListingsCollection } from "@/hooks/useCardListingsCollection";
 import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
+import type { SeoProductInput } from "@/lib/jsonLd";
+import type { SeoMetadata } from "@/lib/seoMetadata";
 import { NotFound } from "@/pages/NotFound";
 import { supportedPriceSources } from "@/providers/PricingSettingsContext";
+
+import { createCardAllListingsPageJsonLd } from "./CardAllListingsPage.jsonLd";
 
 export const CardAllListingsPage = () => {
   const { t } = useTranslation(["card", "common"]);
@@ -80,6 +85,12 @@ export const CardAllListingsPage = () => {
       }),
     [variants.variants]
   );
+  const seoCanonicalPath = `/card/${encodeURIComponent(cardId)}/listings`;
+  const unresolvedSeoMetadata: SeoMetadata = {
+    canonicalPath: seoCanonicalPath,
+    robots: "noindex,follow",
+    title: t("card:seo.listings.fallback_title"),
+  };
 
   if ((loading && !data) || (card && isLatestVariantLoading)) {
     return (
@@ -92,6 +103,7 @@ export const CardAllListingsPage = () => {
   if (error && !card) {
     return (
       <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20">
+        <Seo metadata={unresolvedSeoMetadata} />
         <p className="rounded-md border border-destructive/30 bg-card p-6 text-center text-destructive">
           {t("card:load_error")}
         </p>
@@ -104,9 +116,34 @@ export const CardAllListingsPage = () => {
   const mostRecentCard =
     latestVariantData?.cardsCollection?.edges[0]?.node || card;
   const displayedFinish = getPreferredCardFinish(mostRecentCard.finishes);
+  const seoProducts: SeoProductInput[] = variants.variants.map((variant) => ({
+    collectorNumber: variant.collectorNumber,
+    id: variant.id,
+    imageUrl: variant.imageUrl,
+    name: variant.name,
+    setCode: variant.cardSet?.code,
+  }));
+  const seoTitle = t("card:seo.listings.title", { name: card.name });
+  const seoDescription = t("card:seo.listings.description", {
+    count: listingCollection.listingCount ?? 0,
+    name: card.name,
+  });
+  const seoMetadata: SeoMetadata = {
+    canonicalPath: seoCanonicalPath,
+    description: seoDescription,
+    jsonLd: seoProducts.length
+      ? createCardAllListingsPageJsonLd({
+          description: seoDescription,
+          products: seoProducts,
+        })
+      : undefined,
+    robots: "noindex,follow",
+    title: seoTitle,
+  };
 
   return (
     <div className="mx-auto w-full max-w-[96rem] px-4 py-6 sm:px-6 lg:px-20 lg:py-10">
+      <Seo metadata={seoMetadata} />
       <Button asChild variant="link" size="link">
         <Link to={`/card/${card.id}`}>
           <ArrowLeft className="size-4" />

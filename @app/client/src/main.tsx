@@ -9,6 +9,8 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App.tsx";
 
+document.querySelector("title[data-seo-fallback]")?.remove();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />

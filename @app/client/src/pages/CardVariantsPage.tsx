@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router";
 
 import { CardImage } from "@/components/CardImage";
 import { Loading } from "@/components/Loading";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import { getPreferredCardFinish } from "@/config/card";
@@ -17,8 +18,12 @@ import { publicGraphqlRequestContext } from "@/lib/apollo";
 import { getLowestConvertedBinderCardPrice } from "@/lib/binderCardPricing";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
 import { formatCurrency } from "@/lib/currency";
+import type { SeoProductInput } from "@/lib/jsonLd";
+import type { SeoMetadata } from "@/lib/seoMetadata";
 import { NotFound } from "@/pages/NotFound";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
+
+import { createCardVariantsPageJsonLd } from "./CardVariantsPage.jsonLd";
 
 interface CardVariantTileProps {
   listingCountLabel: string;
@@ -89,6 +94,12 @@ export const CardVariantsPage = () => {
         (variant) => (variant.publicBinderCards?.totalCount || 0) > 0
       )
     : variants.variants;
+  const seoCanonicalPath = `/card/${encodeURIComponent(cardId)}/variants`;
+  const unresolvedSeoMetadata: SeoMetadata = {
+    canonicalPath: seoCanonicalPath,
+    robots: "noindex,follow",
+    title: t("card:seo.variants.fallback_title"),
+  };
 
   if ((loading && !data) || (card && variants.isLoading)) {
     return (
@@ -101,6 +112,7 @@ export const CardVariantsPage = () => {
   if (error && !card) {
     return (
       <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20">
+        <Seo metadata={unresolvedSeoMetadata} />
         <p className="rounded-md border border-destructive/30 bg-card p-6 text-center text-destructive">
           {t("card:variants_load_error")}
         </p>
@@ -109,9 +121,34 @@ export const CardVariantsPage = () => {
   }
 
   if (!card) return <NotFound />;
+  const seoProducts: SeoProductInput[] = variants.variants.map((variant) => ({
+    collectorNumber: variant.collectorNumber,
+    id: variant.id,
+    imageUrl: variant.imageUrl,
+    name: variant.name,
+    setCode: variant.cardSet?.code,
+  }));
+  const seoTitle = t("card:seo.variants.title", { name: card.name });
+  const seoDescription = t("card:seo.variants.description", {
+    count: variants.totalCount ?? 0,
+    name: card.name,
+  });
+  const seoMetadata: SeoMetadata = {
+    canonicalPath: seoCanonicalPath,
+    description: seoDescription,
+    jsonLd: seoProducts.length
+      ? createCardVariantsPageJsonLd({
+          description: seoDescription,
+          products: seoProducts,
+        })
+      : undefined,
+    robots: "noindex,follow",
+    title: seoTitle,
+  };
 
   return (
     <div className="mx-auto w-full max-w-[96rem] px-4 py-6 sm:px-6 lg:px-20 lg:py-10">
+      <Seo metadata={seoMetadata} />
       <Button asChild variant="link" size="link">
         <Link to={`/card/${card.id}`}>
           <ArrowLeft className="size-4" />

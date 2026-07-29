@@ -19,6 +19,7 @@ import {
   type DraftBinderShareStatus,
   ModalDraftBinderShare,
 } from "@/components/ModalDraftBinderShare";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import {
@@ -428,6 +429,13 @@ export const BinderDraft = () => {
 
   return (
     <>
+      <Seo
+        metadata={{
+          canonicalPath: "/binder/draft",
+          robots: "noindex,follow",
+          title: t("binder:seo.draft.title"),
+        }}
+      />
       <BinderPageView
         activeFilterCount={activeFilterCount}
         binderId={DRAFT_BINDER_ID}

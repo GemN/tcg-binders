@@ -1,4 +1,15 @@
 {
+  "seo": {
+    "draft": {
+      "title": "Create a New MTG Binder"
+    },
+    "public": {
+      "title": "{{name}} by {{seller}} - MTG",
+      "short_title": "{{name}} - MTG",
+      "fallback_title": "MTG Binder",
+      "description": "Browse {{count}} Magic: The Gathering cards in {{seller}}'s \"{{name}}\" binder, including prices, conditions, languages, and availability."
+    }
+  },
   "search_placeholder": "Add a card",
   "adding_card": "Adding card...",
   "add_card_error": "Failed to add card. Please try again.",

@@ -1,4 +1,12 @@
 {
+  "seo": {
+    "profile": {
+      "title": "Profile Settings"
+    },
+    "organization": {
+      "title": "Organization Settings"
+    }
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage how your seller profile appears on binders.",

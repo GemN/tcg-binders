@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { BinderGallery } from "@/components/BinderGallery";
 import { Loading } from "@/components/Loading";
 import { ModalBinderSettings } from "@/components/ModalBinderSettings";
+import { Seo } from "@/components/Seo";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { useSession } from "@/providers/SessionContext";
 
@@ -61,6 +62,13 @@ export const MyBinders = () => {
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <div>
           <h1 className="h1">{t("common:my_binders.title")}</h1>
+      <Seo
+        metadata={{
+          canonicalPath: "/my-binders",
+          robots: "noindex,follow",
+          title: t("common:seo.my_binders.title"),
+        }}
+      />
         </div>
 
         {loading ? (

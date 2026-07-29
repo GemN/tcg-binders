@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
+import { Seo } from "@/components/Seo";
 import { InputPassword } from "@/components/ui/InputPassword";
 import supabase from "@/lib/supabase";
 
@@ -73,6 +74,13 @@ export default function SetPassword() {
 
   return (
     <div className="flex flex-1 items-center justify-center p-4">
+      <Seo
+        metadata={{
+          canonicalPath: "/set-password",
+          robots: "noindex,follow",
+          title: t("login:seo.set_password.title"),
+        }}
+      />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t("login:set_password.title")}</CardTitle>

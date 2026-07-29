@@ -1,4 +1,24 @@
 {
+  "seo": {
+    "sign_in": {
+      "title": "Sign In"
+    },
+    "sign_up": {
+      "title": "Create an Account"
+    },
+    "oauth_callback": {
+      "title": "Completing Sign In"
+    },
+    "forgot_password": {
+      "title": "Reset Your Password"
+    },
+    "logout": {
+      "title": "Signing Out"
+    },
+    "set_password": {
+      "title": "Set Your Password"
+    }
+  },
   "logout": "Logout",
   "auth_ui": {
     "email_label": "Email",

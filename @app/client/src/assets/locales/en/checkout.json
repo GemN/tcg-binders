@@ -1,4 +1,7 @@
 {
+  "seo": {
+    "title": "Shopping Cart"
+  },
   "title": "Your cart",
   "empty_title": "Your cart is empty",
   "empty_description": "Add cards from a public binder to prepare seller messages.",

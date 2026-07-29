@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { Loading } from "@/components/Loading";
 import { SelectCountry } from "@/components/SelectCountry";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import {
@@ -23,6 +24,7 @@ import {
 import { Input } from "@/components/ui/Input";
 import { countriesByISOCode } from "@/lib/countries";
 import { handleError } from "@/lib/error";
+import type { SeoMetadata } from "@/lib/seoMetadata";
 
 interface SettingsUserProfileFormData {
   nickname: string;
@@ -140,6 +142,11 @@ export const SettingsUserProfile = () => {
     fetchPolicy: "cache-and-network",
   });
   const profile = data?.currentUserProfile;
+  const seoMetadata: SeoMetadata = {
+    canonicalPath: "/settings/profile",
+    robots: "noindex,follow",
+    title: t("settings:seo.profile.title"),
+  };
 
   if (loading) {
     return <Loading />;
@@ -147,6 +154,7 @@ export const SettingsUserProfile = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <Seo metadata={seoMetadata} />
       <div>
         <h1 className="h1">{t("settings:profile.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">

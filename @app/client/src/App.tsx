@@ -95,16 +95,14 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
   );
 };
 
+const RouteLoading = () => (
+  <div className="flex flex-1 items-center justify-center p-6">
+    <Loading />
+  </div>
+);
+
 const renderPage = (page: ReactNode) => (
-  <Suspense
-    fallback={
-      <div className="flex flex-1 items-center justify-center p-6">
-        <Loading />
-      </div>
-    }
-  >
-    {page}
-  </Suspense>
+  <Suspense fallback={<RouteLoading />}>{page}</Suspense>
 );
 
 function App() {

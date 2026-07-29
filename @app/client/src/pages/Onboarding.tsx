@@ -12,6 +12,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Loading } from "@/components/Loading";
 import { SelectCountry } from "@/components/SelectCountry";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import {
   Form,
@@ -177,6 +178,13 @@ export const Onboarding: FC<OnboardingProps> = () => {
 
   return (
     <div className="flex min-h-svh w-full flex-col bg-[#f5f7fb] px-5 pb-8 pt-16 sm:px-6">
+      <Seo
+        metadata={{
+          canonicalPath: "/onboarding",
+          robots: "noindex,follow",
+          title: t("onboarding:seo.title"),
+        }}
+      />
       <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-start">
         <div className="relative mb-4 flex min-h-9 items-center justify-center">
           <div className="absolute right-0 top-1/2 -translate-y-1/2">

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import { Seo } from "@/components/Seo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useUserContext } from "@/providers/UserContextContext";
 
@@ -9,6 +10,13 @@ export const SettingsOrganization = () => {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
+      <Seo
+        metadata={{
+          canonicalPath: "/settings/organization",
+          robots: "noindex,follow",
+          title: t("settings:seo.organization.title"),
+        }}
+      />
       <div>
         <h1 className="h1">{t("settings:organization.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">

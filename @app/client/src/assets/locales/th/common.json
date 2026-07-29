@@ -1,4 +1,20 @@
 {
+  "seo": {
+    "home": {
+      "title": "สร้างและแชร์แฟ้มการ์ด MTG",
+      "description": "สร้างและแชร์แฟ้มการ์ด Magic: The Gathering ตั้งราคาการ์ด และช่วยให้ผู้ซื้อค้นหาการ์ดที่ต้องการ"
+    },
+    "my_binders": {
+      "title": "แฟ้มของคุณ"
+    },
+    "not_found": {
+      "title": "ไม่พบหน้า"
+    },
+    "user_profile": {
+      "title": "{{nickname}} - โปรไฟล์ผู้ขาย MTG",
+      "fallback_title": "โปรไฟล์ผู้ขาย MTG"
+    }
+  },
   "ok": "ตกลง",
   "cancel": "ยกเลิก",
   "close": "ปิด",

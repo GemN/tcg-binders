@@ -1,4 +1,23 @@
 {
+  "seo": {
+    "detail": {
+      "title": "{{name}} ({{print}}) - MTG Prices and Listings",
+      "short_title": "{{name}} - MTG Prices",
+      "fallback_title": "MTG Prices and Listings",
+      "description": "View {{name}} from {{set}} ({{print}}), with card details, market prices, variants, and seller listings.",
+      "fallback_description": "View {{name}} card details, market prices, variants, and seller listings."
+    },
+    "listings": {
+      "title": "{{name}} for Sale - MTG Listings",
+      "fallback_title": "MTG Card Listings",
+      "description": "Compare {{count}} available listings for {{name}} across printings, sellers, conditions, languages, and prices."
+    },
+    "variants": {
+      "title": "{{name}} Printings and Variants",
+      "fallback_title": "MTG Card Printings and Variants",
+      "description": "Browse {{count}} printings and variants of {{name}}, with set details, prices, and seller availability."
+    }
+  },
   "listings": "Available listings",
   "view_all_variants_one": "View all {{count}} variant",
   "view_all_variants_other": "View all {{count}} variants",

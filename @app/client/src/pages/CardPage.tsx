@@ -14,6 +14,7 @@ import { CardListingsSection } from "@/components/CardListingsSection";
 import { CardMarketPriceButtons } from "@/components/CardMarketPriceButtons";
 import { CardPriceStats } from "@/components/CardPriceStats";
 import { Loading } from "@/components/Loading";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { getPreferredCardFinish } from "@/config/card";
 import { useAllCardListingPrices } from "@/hooks/useAllCardListingPrices";
@@ -21,7 +22,16 @@ import { useCardListingFilters } from "@/hooks/useCardListingFilters";
 import { useCardListingsCollection } from "@/hooks/useCardListingsCollection";
 import { publicGraphqlRequestContext } from "@/lib/apollo";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
+import {
+  getCardPrintLabel,
+  isSeoQueryResolved,
+} from "@/lib/seoMetadata";
 import { NotFound } from "@/pages/NotFound";
+
+import {
+  type CardSeoProduct,
+  createCardSeoMetadata,
+} from "./CardPage.seo";
 
 export const CardPage = () => {
   const { t } = useTranslation(["card", "common"]);
@@ -58,6 +68,55 @@ export const CardPage = () => {
       variables: { cardName: card?.name || "" },
       skip: !card?.name,
     });
+  const seoCard: CardSeoProduct | undefined = card
+    ? {
+        collectorNumber: card.collectorNumber,
+        id: card.id,
+        imageUrl: card.imageUrl,
+        name: card.name,
+        setCode: card.cardSet?.code,
+        setName: card.cardSet?.name,
+      }
+    : undefined;
+  const isCardQueryResolved = isSeoQueryResolved({
+    hasError: !!error,
+    hasResponse: !!data,
+    isLoading: loading,
+  });
+  const seoCanonicalPath = `/card/${encodeURIComponent(cardId)}`;
+  const seoPrintLabel = seoCard ? getCardPrintLabel(seoCard) : null;
+  const seoShortTitle = seoCard
+    ? t("card:seo.detail.short_title", { name: seoCard.name })
+    : t("card:seo.detail.fallback_title");
+  const seoFullTitle =
+    seoCard && seoPrintLabel
+      ? t("card:seo.detail.title", {
+          name: seoCard.name,
+          print: seoPrintLabel,
+        })
+      : seoShortTitle;
+  const seoDescription = seoCard
+    ? seoCard.setName && seoPrintLabel
+      ? t("card:seo.detail.description", {
+          name: seoCard.name,
+          print: seoPrintLabel,
+          set: seoCard.setName,
+        })
+      : t("card:seo.detail.fallback_description", {
+          name: seoCard.name,
+        })
+    : undefined;
+  const seoMetadata = createCardSeoMetadata({
+    canonicalPath: seoCanonicalPath,
+    content: {
+      description: seoDescription,
+      notFoundTitle: t("common:seo.not_found.title"),
+      shortTitle: seoShortTitle,
+      title: seoFullTitle,
+    },
+    isResolved: isCardQueryResolved,
+    product: seoCard,
+  });
 
   if (loading && !data) {
     return (
@@ -70,6 +129,7 @@ export const CardPage = () => {
   if (error && !card) {
     return (
       <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20">
+        <Seo metadata={seoMetadata} />
         <p className="rounded-md border border-destructive/30 bg-card p-6 text-center text-destructive">
           {t("card:load_error")}
         </p>
@@ -78,7 +138,7 @@ export const CardPage = () => {
   }
 
   if (!card) {
-    return <NotFound />;
+    return <NotFound metadata={seoMetadata} />;
   }
 
   const displayedFinish = getPreferredCardFinish(card.finishes);
@@ -88,6 +148,7 @@ export const CardPage = () => {
 
   return (
     <div className="mx-auto grid w-full max-w-[96rem] gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-10 lg:px-20 lg:py-10">
+      <Seo metadata={seoMetadata} />
       <aside className="mx-auto w-full max-w-sm lg:mx-0">
         <div className="flex flex-col gap-3 lg:sticky lg:top-20">
           <CardDetailImagePreview

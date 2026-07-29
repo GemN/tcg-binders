@@ -5,6 +5,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { InputPassword } from "@/components/ui/InputPassword";
@@ -166,6 +167,16 @@ export const Login: FC<LoginProps> = () => {
 
   return (
     <div className="flex min-h-svh w-full flex-col bg-background px-5 pb-8 pt-16 sm:px-6">
+      <Seo
+        metadata={{
+          canonicalPath: "/login",
+          robots: "noindex,follow",
+          title:
+            authMode === "sign_up"
+              ? t("login:seo.sign_up.title")
+              : t("login:seo.sign_in.title"),
+        }}
+      />
       <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-start">
         <div className="relative mb-4 flex min-h-9 items-center justify-center">
           <div className="absolute right-0 top-1/2 -translate-y-1/2">

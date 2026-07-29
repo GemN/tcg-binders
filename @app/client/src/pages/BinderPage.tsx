@@ -26,6 +26,7 @@ import { Loading } from "@/components/Loading";
 import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { ModalBinderShare } from "@/components/ModalBinderShare";
 import { ModalBinderShareImage } from "@/components/ModalBinderShareImage";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
@@ -64,6 +65,8 @@ import type { CartSellerSnapshot } from "@/lib/cart";
 import { handleError } from "@/lib/error";
 import { NotFound } from "@/pages/NotFound";
 import { useSession } from "@/providers/SessionContext";
+
+import { createBinderPageSeoMetadata } from "./BinderPage.seo";
 
 const BINDER_VIEW_COOLDOWN_MS = 30 * 60 * 1000;
 const BINDER_VIEW_STORAGE_KEY_PREFIX = "tcgbinder:binder-view:";
@@ -116,7 +119,7 @@ export const BinderPage = () => {
     ? MOBILE_CARD_LIMIT
     : (PRELOAD_PAGE_COUNT + 1) * cardsPerPage;
   const cardOrderBy = useMemo(() => getBinderCardOrderBy(sortMode), [sortMode]);
-  const { data, loading, networkStatus, refetch } = useBinderByShortIdQuery({
+  const binderQuery = useBinderByShortIdQuery({
     variables: {
       shortId,
       cardFirst,
@@ -129,6 +132,7 @@ export const BinderPage = () => {
     notifyOnNetworkStatusChange: true,
     returnPartialData: true,
   });
+  const { data, loading, networkStatus, refetch } = binderQuery;
   const [addBinderCard, { loading: isAddingCard }] = useAddBinderCardMutation();
   const [deleteBinderCard, { loading: isDeletingCard }] =
     useDeleteBinderCardMutation();
@@ -187,13 +191,12 @@ export const BinderPage = () => {
   }, [binder, isOwner, isSessionLoading, recordBinderView]);
 
   const ownerId = binder?.ownerId ?? "";
+  const ownerProfileQuery = useUserProfileByIdQuery({
+    variables: { id: ownerId },
+    skip: !ownerId,
+  });
   const { data: ownerProfileData, loading: isOwnerProfileLoading } =
-    useUserProfileByIdQuery({
-      variables: { id: ownerId },
-      skip:
-        !ownerId ||
-        (!isPublicView && !isShareDialogOpen && !isShareImageDialogOpen),
-    });
+    ownerProfileQuery;
   const ownerProfile = ownerProfileData?.userProfilesCollection?.edges[0]?.node;
   const cartSeller = useMemo<CartSellerSnapshot | null>(() => {
     if (!ownerId || !ownerProfile) return null;
@@ -220,6 +223,14 @@ export const BinderPage = () => {
   const visibleBinderCards = isMobile
     ? binderCards
     : binderCards.slice(0, cardsPerPage);
+  const seoMetadata = createBinderPageSeoMetadata({
+    binderQuery,
+    isPublicPreview,
+    ownerProfileQuery,
+    shortId,
+    t,
+    visibleBinderCards,
+  });
   const currentFilteredCardCount =
     cardOffset +
     binderCards.length +
@@ -351,7 +362,7 @@ export const BinderPage = () => {
   }
 
   if (!binder) {
-    return <NotFound />;
+    return <NotFound metadata={seoMetadata} />;
   }
 
   const canEditBinder = isOwner && !isPublicPreview;
@@ -617,6 +628,7 @@ export const BinderPage = () => {
 
   return (
     <>
+      <Seo metadata={seoMetadata} />
       <BinderPageView
         activeFilterCount={activeFilterCount}
         binderId={binder.id}
