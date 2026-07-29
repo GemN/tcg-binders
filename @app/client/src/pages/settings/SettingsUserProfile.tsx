@@ -22,9 +22,11 @@ import {
   FormMessage,
 } from "@/components/ui/Form";
 import { Input } from "@/components/ui/Input";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { countriesByISOCode } from "@/lib/countries";
 import { handleError } from "@/lib/error";
 import type { SeoMetadata } from "@/lib/seoMetadata";
+import { cn } from "@/lib/utils";
 
 interface SettingsUserProfileFormData {
   nickname: string;
@@ -149,13 +151,22 @@ export const SettingsUserProfile = () => {
   };
 
   if (loading) {
-    return <Loading />;
+    return (
+      <div className={cn(NAVBAR_CONTENT_OFFSET_CLASS_NAME)}>
+        <Loading />
+      </div>
+    );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div
+      className={cn(
+        "mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8",
+        NAVBAR_CONTENT_OFFSET_CLASS_NAME
+      )}
+    >
       <Seo metadata={seoMetadata} />
-      <div>
+      <div className="pt-6">
         <h1 className="h1">{t("settings:profile.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {t("settings:profile.subtitle")}

@@ -2,11 +2,14 @@ import { ApolloProvider } from "@apollo/client";
 import { type FC, lazy, type ReactNode, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 
+import { AuthPageLayout } from "@/components/AuthPageLayout";
 import { LayoutPage } from "@/components/LayoutPage";
 import { Loading } from "@/components/Loading";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Toaster } from "@/components/ui/Sonner";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import apolloClient from "@/lib/apollo";
+import { cn } from "@/lib/utils";
 import { Home } from "@/pages/Home";
 import { Login } from "@/pages/Login";
 import { OAuthCallback } from "@/pages/OAuthCallback";
@@ -95,8 +98,12 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
   );
 };
 
-const RouteLoading = () => (
-  <div className="flex flex-1 items-center justify-center p-6">
+interface RouteLoadingProps {
+  className?: string;
+}
+
+const RouteLoading: FC<RouteLoadingProps> = ({ className }) => (
+  <div className={cn("flex flex-1 items-center justify-center p-6", className)}>
     <Loading />
   </div>
 );
@@ -105,80 +112,99 @@ const renderPage = (page: ReactNode) => (
   <Suspense fallback={<RouteLoading />}>{page}</Suspense>
 );
 
+const renderLayoutPage = (page: ReactNode) => (
+  <Suspense
+    fallback={<RouteLoading className={NAVBAR_CONTENT_OFFSET_CLASS_NAME} />}
+  >
+    {page}
+  </Suspense>
+);
+
 function App() {
   return (
     <>
       <Providers>
         <BrowserRouter>
           <Routes>
-            <Route path="login" element={<Login />} />
-            <Route path="auth/callback" element={<OAuthCallback />} />
-            <Route
-              path="onboarding"
-              element={renderPage(
-                <RequireAuth>
-                  <Onboarding />
-                </RequireAuth>
-              )}
-            />
-            <Route
-              path="forgot-password"
-              element={renderPage(<ForgotPassword />)}
-            />
-            <Route element={<LayoutPage />}>
-              <Route index element={<Home />} />
+            <Route element={<AuthPageLayout />}>
+              <Route path="login" element={<Login />} />
+              <Route path="auth/callback" element={<OAuthCallback />} />
               <Route
-                path="binder/draft"
-                element={renderPage(<BinderDraft />)}
+                path="onboarding"
+                element={renderPage(
+                  <RequireAuth>
+                    <Onboarding />
+                  </RequireAuth>
+                )}
               />
               <Route
-                path="binder/:shortId"
-                element={renderPage(<BinderPage />)}
+                path="forgot-password"
+                element={renderPage(<ForgotPassword />)}
               />
-              <Route path="card/:cardId" element={renderPage(<CardPage />)} />
-              <Route
-                path="card/:cardId/listings"
-                element={renderPage(<CardAllListingsPage />)}
-              />
-              <Route
-                path="card/:cardId/variants"
-                element={renderPage(<CardVariantsPage />)}
-              />
-              <Route
-                path="user/:nickname"
-                element={renderPage(<UserProfile />)}
-              />
-              <Route path="cart" element={renderPage(<Cart />)} />
-              <Route path="logout" element={renderPage(<Logout />)} />
               <Route
                 path="set-password"
                 element={renderPage(<SetPassword />)}
               />
+            </Route>
+            <Route element={<LayoutPage />}>
+              <Route index element={<Home />} />
+              <Route
+                path="binder/draft"
+                element={renderLayoutPage(<BinderDraft />)}
+              />
+              <Route
+                path="binder/:shortId"
+                element={renderLayoutPage(<BinderPage />)}
+              />
+              <Route
+                path="card/:cardId"
+                element={renderLayoutPage(<CardPage />)}
+              />
+              <Route
+                path="card/:cardId/listings"
+                element={renderLayoutPage(<CardAllListingsPage />)}
+              />
+              <Route
+                path="card/:cardId/variants"
+                element={renderLayoutPage(<CardVariantsPage />)}
+              />
+              <Route
+                path="user/:nickname"
+                element={renderLayoutPage(<UserProfile />)}
+              />
+              <Route path="cart" element={renderLayoutPage(<Cart />)} />
+              <Route path="logout" element={renderLayoutPage(<Logout />)} />
               <Route
                 path="my-binders"
-                element={renderPage(
-                  <RequireAuth>
+                element={renderLayoutPage(
+                  <RequireAuth
+                    loadingClassName={NAVBAR_CONTENT_OFFSET_CLASS_NAME}
+                  >
                     <MyBinders />
                   </RequireAuth>
                 )}
               />
               <Route
                 path="settings/profile"
-                element={renderPage(
-                  <RequireAuth>
+                element={renderLayoutPage(
+                  <RequireAuth
+                    loadingClassName={NAVBAR_CONTENT_OFFSET_CLASS_NAME}
+                  >
                     <SettingsUserProfile />
                   </RequireAuth>
                 )}
               />
               <Route
                 path="settings/organization"
-                element={renderPage(
-                  <RequireAuth>
+                element={renderLayoutPage(
+                  <RequireAuth
+                    loadingClassName={NAVBAR_CONTENT_OFFSET_CLASS_NAME}
+                  >
                     <SettingsOrganization />
                   </RequireAuth>
                 )}
               />
-              <Route path="*" element={renderPage(<NotFound />)} />
+              <Route path="*" element={renderLayoutPage(<NotFound />)} />
             </Route>
           </Routes>
         </BrowserRouter>

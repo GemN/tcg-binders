@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Seo } from "@/components/Seo";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { useLogOut } from "@/hooks/useLogOut.ts";
+import { cn } from "@/lib/utils";
 
 const Logout = () => {
   const logoutFromApp = useLogOut();
@@ -19,7 +21,7 @@ const Logout = () => {
           title: t("login:seo.logout.title"),
         }}
       />
-      <div>
+      <div className={cn(NAVBAR_CONTENT_OFFSET_CLASS_NAME)}>
         {t("login:logout")}...
       </div>
     </>

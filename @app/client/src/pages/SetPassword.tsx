@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Seo } from "@/components/Seo";
 import { InputPassword } from "@/components/ui/InputPassword";
 import supabase from "@/lib/supabase";
+import { useSession } from "@/providers/SessionContext";
 
 import { Button } from "../components/ui/Button";
 import {
@@ -39,12 +40,21 @@ interface FormData {
 }
 
 export default function SetPassword() {
-  const { t } = useTranslation(["login", "common"]);
+  const { t } = useTranslation(["login"]);
+  const { session } = useSession();
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const nextPath = getSafeNextPath(searchParams.get("next"));
+  const isInvitation = searchParams.get("flow") === "invitation";
+  const email = session?.user.email;
+  const resetDescription = email
+    ? t("login:set_password.description_with_email", { email })
+    : t("login:set_password.description");
+  const invitationDescription = email
+    ? t("login:set_password.invitation_description_with_email", { email })
+    : t("login:set_password.invitation_description");
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -73,18 +83,26 @@ export default function SetPassword() {
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center p-4">
+    <>
       <Seo
         metadata={{
           canonicalPath: "/set-password",
           robots: "noindex,follow",
-          title: t("login:seo.set_password.title"),
+          title: isInvitation
+            ? t("login:seo.invitation_set_password.title")
+            : t("login:seo.set_password.title"),
         }}
       />
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{t("login:set_password.title")}</CardTitle>
-          <CardDescription>{t("login:set_password.description")}</CardDescription>
+          <CardTitle>
+            {isInvitation
+              ? t("login:set_password.invitation_title")
+              : t("login:set_password.title")}
+          </CardTitle>
+          <CardDescription>
+            {isInvitation ? invitationDescription : resetDescription}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -146,6 +164,6 @@ export default function SetPassword() {
           </Form>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

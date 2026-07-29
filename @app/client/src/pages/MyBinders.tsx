@@ -6,7 +6,9 @@ import { BinderGallery } from "@/components/BinderGallery";
 import { Loading } from "@/components/Loading";
 import { ModalBinderSettings } from "@/components/ModalBinderSettings";
 import { Seo } from "@/components/Seo";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
+import { cn } from "@/lib/utils";
 import { useSession } from "@/providers/SessionContext";
 
 interface SelectedSettingsBinder {
@@ -59,9 +61,6 @@ export const MyBinders = () => {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <div>
-          <h1 className="h1">{t("common:my_binders.title")}</h1>
       <Seo
         metadata={{
           canonicalPath: "/my-binders",
@@ -69,23 +68,31 @@ export const MyBinders = () => {
           title: t("common:seo.my_binders.title"),
         }}
       />
+      <div className={cn("bg-surface", NAVBAR_CONTENT_OFFSET_CLASS_NAME)}>
+        <div
+          className={cn(
+            "mx-auto w-full max-w-[1608px] px-4 pb-6 sm:px-6 lg:px-8 pt-6"
+          )}
+        >
+          <h1 className="text-[40px] font-medium leading-[48px]">
+            {t("common:my_binders.title")}
+          </h1>
         </div>
-
+      </div>
+      <div
+        className={cn(
+          "mx-auto flex w-full max-w-[1608px] flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8"
+        )}
+      >
         {loading ? (
           <div className="flex min-h-64 items-center justify-center">
             <Loading />
           </div>
-        ) : binders.length > 0 ? (
+        ) : (
           <BinderGallery
             binders={binders}
             onOpenSettings={handleSettingsOpen}
           />
-        ) : (
-          <div className="flex min-h-64 items-center justify-center rounded-md border border-dashed">
-            <p className="text-sm text-muted-foreground">
-              {t("common:my_binders.empty")}
-            </p>
-          </div>
         )}
       </div>
 

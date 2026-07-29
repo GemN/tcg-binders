@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 
 import { Seo } from "@/components/Seo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
+import { cn } from "@/lib/utils";
 import { useUserContext } from "@/providers/UserContextContext";
 
 export const SettingsOrganization = () => {
@@ -9,7 +11,12 @@ export const SettingsOrganization = () => {
   const { currentContext } = useUserContext();
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div
+      className={cn(
+        "flex flex-1 flex-col gap-6 p-6",
+        NAVBAR_CONTENT_OFFSET_CLASS_NAME
+      )}
+    >
       <Seo
         metadata={{
           canonicalPath: "/settings/organization",

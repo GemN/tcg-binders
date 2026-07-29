@@ -17,6 +17,7 @@ import { Loading } from "@/components/Loading";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { getPreferredCardFinish } from "@/config/card";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { useAllCardListingPrices } from "@/hooks/useAllCardListingPrices";
 import { useAllCardVariants } from "@/hooks/useAllCardVariants";
 import { useCardListingFilters } from "@/hooks/useCardListingFilters";
@@ -25,6 +26,7 @@ import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
 import type { SeoProductInput } from "@/lib/jsonLd";
 import type { SeoMetadata } from "@/lib/seoMetadata";
+import { cn } from "@/lib/utils";
 import { NotFound } from "@/pages/NotFound";
 import { supportedPriceSources } from "@/providers/PricingSettingsContext";
 
@@ -94,7 +96,12 @@ export const CardAllListingsPage = () => {
 
   if ((loading && !data) || (card && isLatestVariantLoading)) {
     return (
-      <div className="flex flex-1 items-center justify-center p-6">
+      <div
+        className={cn(
+          "flex flex-1 items-center justify-center p-6",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
         <Loading />
       </div>
     );
@@ -102,7 +109,12 @@ export const CardAllListingsPage = () => {
 
   if (error && !card) {
     return (
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20">
+      <div
+        className={cn(
+          "mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
         <Seo metadata={unresolvedSeoMetadata} />
         <p className="rounded-md border border-destructive/30 bg-card p-6 text-center text-destructive">
           {t("card:load_error")}
@@ -142,14 +154,21 @@ export const CardAllListingsPage = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[96rem] px-4 py-6 sm:px-6 lg:px-20 lg:py-10">
+    <div
+      className={cn(
+        "mx-auto w-full max-w-[96rem] px-4 pb-6 sm:px-6 lg:px-20",
+        NAVBAR_CONTENT_OFFSET_CLASS_NAME
+      )}
+    >
       <Seo metadata={seoMetadata} />
-      <Button asChild variant="link" size="link">
-        <Link to={`/card/${card.id}`}>
-          <ArrowLeft className="size-4" />
-          {t("card:back_to_card")}
-        </Link>
-      </Button>
+      <div className="mt-6">
+        <Button asChild variant="link" size="link">
+          <Link to={`/card/${card.id}`}>
+            <ArrowLeft className="size-4" />
+            {t("card:back_to_card")}
+          </Link>
+        </Button>
+      </div>
 
       <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-10">
         <aside className="mx-auto w-full max-w-sm lg:sticky lg:top-20 lg:mx-0 lg:self-start">

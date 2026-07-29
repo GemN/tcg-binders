@@ -33,7 +33,8 @@ export const BinderGallery = ({
   onOpenSettings,
 }: BinderGalleryProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+      <BinderGalleryAddItem />
       {binders.map((binder) => (
         <BinderGalleryItem
           key={binder.id}
@@ -41,7 +42,6 @@ export const BinderGallery = ({
           onOpenSettings={onOpenSettings}
         />
       ))}
-      <BinderGalleryAddItem />
     </div>
   );
 };
@@ -69,7 +69,7 @@ const BinderGalleryItem = ({
         className="block"
         aria-label={binder.name}
       >
-        <div className="relative aspect-[2731/3239] overflow-hidden rounded-[3%_9%_9%_3%_/_4%_12%_12%_4%] bg-foreground shadow-sm ring-1 ring-card/20 outline outline-4 outline-offset-0 outline-transparent transition-[outline-color] group-hover:outline-primary/70 group-focus-within:outline-primary">
+        <div className="relative aspect-[2731/3239] overflow-hidden rounded-l-md rounded-r-3xl bg-foreground shadow-sm ring-1 ring-card/20 outline-4 outline-offset-0 outline-transparent transition-[outline-color] group-hover:outline-secondary/70 group-focus-within:outline-secondary">
           {coverImageUrls.fallbackUrl && (
             <picture className="absolute inset-0 block">
               {coverImageUrls.webpUrl && (
@@ -86,28 +86,28 @@ const BinderGalleryItem = ({
           )}
           <div
             aria-hidden="true"
-            className="absolute inset-y-0 left-0 w-[11%] bg-gradient-to-r from-black/30 via-white/10 to-transparent"
+            className="absolute inset-y-0 left-0 w-[14%] bg-gradient-to-r from-black/30 via-white/10 to-transparent"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-y-[3%] left-[7%] border-l border-dashed border-black/35"
+            className="absolute inset-y-[2%] left-[5%] border-l border-dashed border-black/35"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-[3%] rounded-[inherit] border border-dashed border-black/35"
+            className="absolute left-0 inset-y-[2%] right-[3%] rounded-[inherit] border-t border-b border-r border-dashed border-black/35"
           />
-          <div className="absolute inset-x-3 bottom-3">
-            <div className="grid max-w-full gap-1 rounded-sm bg-foreground/85 px-3 py-2 text-left shadow-sm">
+          <div className="absolute right-4 left-4 bottom-3">
+            <div className="grid max-w-full gap-1 rounded-lg bg-[#F8F7F4]/80 backdrop-blur-[4px] px-3 py-2 text-left text-black/85">
               <div className="flex min-w-0 items-start gap-1.5">
                 <BinderVisibilityIcon
-                  className="mt-0.5 text-white/85"
+                  className="mt-0.5 "
                   visibility={binder.visibility}
                 />
-                <div className="line-clamp-2 min-w-0 text-sm font-semibold leading-5 text-white">
+                <div className="line-clamp-2 min-w-0 text-sm leading-5">
                   {binder.name}
                 </div>
               </div>
-              <span className="min-h-4 text-left text-xs font-medium leading-4 text-white/80">
+              <span className="min-h-4 text-left text-xs leading-4 text-secondary">
                 {t("binder:gallery.card_count", { count: binder.cardCount })}
               </span>
             </div>
@@ -122,7 +122,7 @@ const BinderGalleryItem = ({
               type="button"
               variant="ghost"
               size="icon"
-              className="size-8 rounded-md border border-white/80 bg-white text-foreground shadow-lg shadow-black/20 hover:bg-white/90 hover:text-foreground focus-visible:ring-white/70"
+              className="size-8 rounded-full border border-white/80 bg-white text-foreground shadow-black/20 hover:bg-white/90 hover:text-foreground focus-visible:ring-white/70"
               aria-label={t("binder:settings.open_for", {
                 name: binder.name,
               })}
@@ -148,7 +148,7 @@ const BinderGalleryAddItem = () => {
       trigger={
         <button
           type="button"
-          className="group relative aspect-[2731/3239] cursor-pointer overflow-hidden rounded-[3%_9%_9%_3%_/_4%_12%_12%_4%] border border-dashed border-border bg-card/40 text-muted-foreground outline outline-4 outline-offset-0 outline-transparent transition-[outline-color,background-color,border-color,color] hover:border-primary/70 hover:bg-card/70 hover:text-foreground hover:outline-primary/70 focus-visible:outline-primary"
+          className="group relative aspect-[2731/3239] cursor-pointer overflow-hidden rounded-l-md rounded-r-3xl border border-dashed border-border bg-card/40 text-muted-foreground outline-4 outline-offset-0 outline-transparent transition-[outline-color,background-color,border-color,color] hover:border-primary/70 hover:bg-card/70 hover:text-foreground hover:outline-secondary/70 focus-visible:outline-secondary"
           aria-label={t("common:new_binder.button")}
         >
           <div
@@ -157,16 +157,16 @@ const BinderGalleryAddItem = () => {
           />
           <div
             aria-hidden="true"
-            className="absolute inset-y-[3%] left-[7%] border-l border-dashed border-border"
+            className="absolute inset-y-[2%] left-[5%] border-l border-dashed border-via-white/35"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-[3%] rounded-[inherit] border border-dashed border-border"
+            className="absolute left-0 inset-y-[2%] right-[3%] rounded-[inherit] border-t border-b border-r border-dashed border-via-white/35"
           />
           <span className="absolute inset-0 flex items-center justify-center px-4">
             <span className="inline-flex items-center justify-center gap-2 text-sm font-medium">
               <Plus className="size-4" />
-              {t("common:add")}
+              {t("common:new_binder.button")}
             </span>
           </span>
         </button>

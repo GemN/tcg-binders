@@ -165,7 +165,7 @@ const BinderShareImageComposition = forwardRef<
         <img
           src="/logo_megabinder.svg"
           alt="TCGBinder"
-          className="h-9 w-auto"
+          className="h-5 w-auto"
           decoding="sync"
           loading="eager"
         />

@@ -115,8 +115,7 @@
     "released": "วันที่ออก {{date}}"
   },
   "my_binders": {
-    "title": "แฟ้มของคุณ",
-    "empty": "ยังไม่มีแฟ้ม"
+    "title": "แฟ้มของคุณ"
   },
   "sidenav": {
     "group": {

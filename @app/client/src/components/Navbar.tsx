@@ -18,8 +18,11 @@ export const Navbar = () => {
   const isLoggedIn = !!session;
 
   return (
-    <header className="sticky top-0 z-40 bg-background text-foreground">
-      <nav className="flex h-14 w-full items-center gap-2 px-4 sm:px-6 lg:px-20">
+    <header
+      className="fixed top-4 left-4 right-4 rounded-lg z-40
+     bg-[#E3DFDA]/50 text-foreground backdrop-blur-[30px]"
+    >
+      <nav className="flex h-14 w-full items-center gap-2 px-4">
         <Link
           to="/"
           aria-label={t("common:nav.home")}
@@ -28,7 +31,7 @@ export const Navbar = () => {
           <img
             src="/logo_megabinder.svg"
             alt={t("common:nav.brand")}
-            className="h-9"
+            className="h-4"
           />
         </Link>
 

@@ -23,6 +23,7 @@ import {
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { isFoilCardFinish } from "@/config/card";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import {
   type CartCurrencyTotal,
   type CartEstimatedTotal,
@@ -35,6 +36,7 @@ import {
   getEstimatedCartTotal,
   groupCartItems,
 } from "@/lib/cart";
+import { cn } from "@/lib/utils";
 import { useCart } from "@/providers/CartContext";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
@@ -499,7 +501,12 @@ export const Cart = () => {
   const isMessageStep = cartStep === "messages" && selectedItems.length > 0;
 
   return (
-    <div className="flex flex-1 flex-col bg-background">
+    <div
+      className={cn(
+        "flex flex-1 flex-col bg-background",
+        NAVBAR_CONTENT_OFFSET_CLASS_NAME
+      )}
+    >
       <Seo
         metadata={{
           canonicalPath: "/cart",
@@ -507,7 +514,7 @@ export const Cart = () => {
           title: t("checkout:seo.title"),
         }}
       />
-      <div className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col px-4 pb-28 sm:px-6 lg:px-8 lg:pb-8">
+      <div className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col px-4 pb-28 sm:px-6 lg:px-8 lg:pb-8 pt-6">
         {cartStep === "completed" ? (
           <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
             <div className="animate-in zoom-in-95 flex size-20 items-center justify-center rounded-full bg-primary text-primary-foreground">

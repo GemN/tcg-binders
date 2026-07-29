@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -35,7 +34,7 @@ const getSafeNextPath = (value: string | null) => {
 interface LoginProps {}
 
 export const Login: FC<LoginProps> = () => {
-  const { t } = useTranslation(["login", "common"]);
+  const { t } = useTranslation(["login"]);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -166,7 +165,7 @@ export const Login: FC<LoginProps> = () => {
   };
 
   return (
-    <div className="flex min-h-svh w-full flex-col bg-background px-5 pb-8 pt-16 sm:px-6">
+    <>
       <Seo
         metadata={{
           canonicalPath: "/login",
@@ -177,40 +176,20 @@ export const Login: FC<LoginProps> = () => {
               : t("login:seo.sign_in.title"),
         }}
       />
-      <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-start">
-        <div className="relative mb-4 flex min-h-9 items-center justify-center">
-          <div className="absolute right-0 top-1/2 -translate-y-1/2">
-            <LanguageSwitcher />
-          </div>
-
-          <Link
-            to="/"
-            aria-label={t("common:nav.home")}
-            className="block w-fit"
-          >
-            <img
-              src="/logo_megabinder.svg"
-              alt={t("common:nav.brand")}
-              className="h-8 w-auto"
-            />
-          </Link>
-        </div>
-
-        <AuthPanel
-          authMode={authMode}
-          email={email}
-          forgotPasswordPath={forgotPasswordPath}
-          isEmailSubmitting={isEmailSubmitting}
-          oAuthProvider={oAuthProvider}
-          password={password}
-          onAuthModeChange={handleAuthModeChange}
-          onEmailChange={setEmail}
-          onEmailSubmit={handleEmailSubmit}
-          onOAuthSignIn={handleOAuthSignIn}
-          onPasswordChange={setPassword}
-        />
-      </div>
-    </div>
+      <AuthPanel
+        authMode={authMode}
+        email={email}
+        forgotPasswordPath={forgotPasswordPath}
+        isEmailSubmitting={isEmailSubmitting}
+        oAuthProvider={oAuthProvider}
+        password={password}
+        onAuthModeChange={handleAuthModeChange}
+        onEmailChange={setEmail}
+        onEmailSubmit={handleEmailSubmit}
+        onOAuthSignIn={handleOAuthSignIn}
+        onPasswordChange={setPassword}
+      />
+    </>
   );
 };
 

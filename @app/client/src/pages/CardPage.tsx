@@ -17,21 +17,17 @@ import { Loading } from "@/components/Loading";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { getPreferredCardFinish } from "@/config/card";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { useAllCardListingPrices } from "@/hooks/useAllCardListingPrices";
 import { useCardListingFilters } from "@/hooks/useCardListingFilters";
 import { useCardListingsCollection } from "@/hooks/useCardListingsCollection";
 import { publicGraphqlRequestContext } from "@/lib/apollo";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
-import {
-  getCardPrintLabel,
-  isSeoQueryResolved,
-} from "@/lib/seoMetadata";
+import { getCardPrintLabel, isSeoQueryResolved } from "@/lib/seoMetadata";
+import { cn } from "@/lib/utils";
 import { NotFound } from "@/pages/NotFound";
 
-import {
-  type CardSeoProduct,
-  createCardSeoMetadata,
-} from "./CardPage.seo";
+import { type CardSeoProduct, createCardSeoMetadata } from "./CardPage.seo";
 
 export const CardPage = () => {
   const { t } = useTranslation(["card", "common"]);
@@ -120,7 +116,12 @@ export const CardPage = () => {
 
   if (loading && !data) {
     return (
-      <div className="flex flex-1 items-center justify-center p-6">
+      <div
+        className={cn(
+          "flex flex-1 items-center justify-center p-6",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
         <Loading />
       </div>
     );
@@ -128,7 +129,12 @@ export const CardPage = () => {
 
   if (error && !card) {
     return (
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20">
+      <div
+        className={cn(
+          "mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
         <Seo metadata={seoMetadata} />
         <p className="rounded-md border border-destructive/30 bg-card p-6 text-center text-destructive">
           {t("card:load_error")}
@@ -147,9 +153,14 @@ export const CardPage = () => {
     familyListingCountData?.binderCardsCollection?.totalCount;
 
   return (
-    <div className="mx-auto grid w-full max-w-[96rem] gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-10 lg:px-20 lg:py-10">
+    <div
+      className={cn(
+        "mx-auto grid w-full max-w-[96rem] gap-8 px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-10 lg:px-20",
+        NAVBAR_CONTENT_OFFSET_CLASS_NAME
+      )}
+    >
       <Seo metadata={seoMetadata} />
-      <aside className="mx-auto w-full max-w-sm lg:mx-0">
+      <aside className="mx-auto w-full max-w-sm lg:mx-0 pt-6">
         <div className="flex flex-col gap-3 lg:sticky lg:top-20">
           <CardDetailImagePreview
             finish={displayedFinish}
@@ -197,7 +208,7 @@ export const CardPage = () => {
         </div>
       </aside>
 
-      <main className="min-w-0">
+      <main className="min-w-0 pt-6">
         <header className="flex flex-col gap-4 border-b border-border pb-6">
           <CardDetailTextPanel
             card={card}

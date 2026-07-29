@@ -62,8 +62,8 @@
     "import_not_ready": "Manabox CSV import is not ready yet."
   },
   "new_binder": {
-    "button": "New binder",
-    "title": "New binder",
+    "button": "New Binder",
+    "title": "New Binder",
     "description": "Create a binder for cards you want to sell or trade.",
     "name_label": "Binder name",
     "name_required": "Binder name is required",
@@ -116,8 +116,7 @@
     "released": "Released {{date}}"
   },
   "my_binders": {
-    "title": "Your Binders",
-    "empty": "No binders yet."
+    "title": "Your Binders"
   },
   "sidenav": {
     "group": {

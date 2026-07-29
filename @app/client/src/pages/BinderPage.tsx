@@ -40,6 +40,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/Tooltip";
 import { getPreferredCardFinish } from "@/config/card";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import { useBinderCartActions } from "@/hooks/useBinderCartActions";
@@ -63,6 +64,7 @@ import {
 } from "@/lib/binderPage";
 import type { CartSellerSnapshot } from "@/lib/cart";
 import { handleError } from "@/lib/error";
+import { cn } from "@/lib/utils";
 import { NotFound } from "@/pages/NotFound";
 import { useSession } from "@/providers/SessionContext";
 
@@ -77,8 +79,8 @@ export const BinderPage = () => {
   const navigate = useNavigate();
   const { shortId = "" } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isMobile = useIsMobile();
   const isPublicPreview = searchParams.get("public") === "true";
+  const isMobile = useIsMobile();
   const searchParamFilterState = useMemo(
     () => getBinderCardFilterStateFromSearchParams(searchParams),
     [searchParams]
@@ -355,7 +357,12 @@ export const BinderPage = () => {
 
   if (loading && !data) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div
+        className={cn(
+          "flex flex-1 items-center justify-center",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
         <Loading />
       </div>
     );

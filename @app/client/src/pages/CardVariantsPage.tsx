@@ -10,6 +10,7 @@ import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import { getPreferredCardFinish } from "@/config/card";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import {
   type CardVariant,
   useAllCardVariants,
@@ -20,6 +21,7 @@ import { getCardScryfallId } from "@/lib/cardImageUrl";
 import { formatCurrency } from "@/lib/currency";
 import type { SeoProductInput } from "@/lib/jsonLd";
 import type { SeoMetadata } from "@/lib/seoMetadata";
+import { cn } from "@/lib/utils";
 import { NotFound } from "@/pages/NotFound";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 
@@ -103,7 +105,12 @@ export const CardVariantsPage = () => {
 
   if ((loading && !data) || (card && variants.isLoading)) {
     return (
-      <div className="flex flex-1 items-center justify-center p-6">
+      <div
+        className={cn(
+          "flex flex-1 items-center justify-center p-6",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
         <Loading />
       </div>
     );
@@ -111,7 +118,12 @@ export const CardVariantsPage = () => {
 
   if (error && !card) {
     return (
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20">
+      <div
+        className={cn(
+          "mx-auto w-full max-w-7xl p-4 sm:p-6 lg:px-20",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
         <Seo metadata={unresolvedSeoMetadata} />
         <p className="rounded-md border border-destructive/30 bg-card p-6 text-center text-destructive">
           {t("card:variants_load_error")}
@@ -147,9 +159,14 @@ export const CardVariantsPage = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[96rem] px-4 py-6 sm:px-6 lg:px-20 lg:py-10">
+    <div
+      className={cn(
+        "mx-auto w-full max-w-[96rem] px-4 pb-6 sm:px-6 lg:px-20",
+        NAVBAR_CONTENT_OFFSET_CLASS_NAME
+      )}
+    >
       <Seo metadata={seoMetadata} />
-      <Button asChild variant="link" size="link">
+      <Button asChild variant="link" size="link" className="mt-6">
         <Link to={`/card/${card.id}`}>
           <ArrowLeft className="size-4" />
           {t("card:back_to_card")}

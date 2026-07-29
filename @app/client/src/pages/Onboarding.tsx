@@ -7,9 +7,8 @@ import { ArrowRight } from "lucide-react";
 import { type FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Loading } from "@/components/Loading";
 import { SelectCountry } from "@/components/SelectCountry";
 import { Seo } from "@/components/Seo";
@@ -177,7 +176,7 @@ export const Onboarding: FC<OnboardingProps> = () => {
   }, [isProfileComplete, navigate, nextPath]);
 
   return (
-    <div className="flex min-h-svh w-full flex-col bg-[#f5f7fb] px-5 pb-8 pt-16 sm:px-6">
+    <>
       <Seo
         metadata={{
           canonicalPath: "/onboarding",
@@ -185,43 +184,23 @@ export const Onboarding: FC<OnboardingProps> = () => {
           title: t("onboarding:seo.title"),
         }}
       />
-      <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-start">
-        <div className="relative mb-4 flex min-h-9 items-center justify-center">
-          <div className="absolute right-0 top-1/2 -translate-y-1/2">
-            <LanguageSwitcher />
+      <div className="rounded-[8px] border border-[#dbe2ec] bg-white p-5 pb-8 shadow-[0_24px_80px_rgba(18,23,36,0.12)] sm:p-6 sm:pb-8">
+        {loading || !profile || isProfileComplete ? (
+          <div className="flex min-h-48 items-center justify-center">
+            <Loading />
           </div>
-
-          <Link
-            to="/"
-            aria-label={t("common:nav.home")}
-            className="block w-fit"
-          >
-            <img
-              src="/logo_megabinder.svg"
-              alt={t("common:nav.brand")}
-              className="h-8 w-auto"
-            />
-          </Link>
-        </div>
-
-        <div className="rounded-[8px] border border-[#dbe2ec] bg-white p-5 pb-8 shadow-[0_24px_80px_rgba(18,23,36,0.12)] sm:p-6 sm:pb-8">
-          {loading || !profile || isProfileComplete ? (
-            <div className="flex min-h-48 items-center justify-center">
-              <Loading />
-            </div>
-          ) : (
-            <>
-              <h1 className="font-display text-2xl font-semibold leading-tight">
-                {t("onboarding:title")}
-              </h1>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {t("onboarding:subtitle")}
-              </p>
-              <OnboardingForm nextPath={nextPath} profile={profile} />
-            </>
-          )}
-        </div>
+        ) : (
+          <>
+            <h1 className="font-display text-2xl font-semibold leading-tight">
+              {t("onboarding:title")}
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {t("onboarding:subtitle")}
+            </p>
+            <OnboardingForm nextPath={nextPath} profile={profile} />
+          </>
+        )}
       </div>
-    </div>
+    </>
   );
 };

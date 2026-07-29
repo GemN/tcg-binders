@@ -16,9 +16,11 @@ import {
   ModalBulkBinderCardPrice,
   type UpdateBulkBinderCardPrice,
 } from "@/components/ModalBulkBinderCardPrice";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
 import type { BinderCardFilterState, BinderSortMode } from "@/lib/binderPage";
+import { cn } from "@/lib/utils";
 
 interface BinderPageViewProps {
   activeFilterCount: number;
@@ -163,8 +165,13 @@ export const BinderPageView = ({
   const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
 
   return (
-    <div className="relative isolate flex h-[calc(100svh-3.5rem)] w-full flex-1 overflow-y-auto bg-background text-foreground">
-      <div className="relative z-10 flex min-h-full w-full flex-col gap-5 px-4 pb-4 sm:px-6 lg:px-20 pt-4">
+    <div
+      className={cn(
+        "relative isolate flex h-[calc(100svh-3.5rem)] w-full flex-1 overflow-y-auto bg-background text-foreground",
+        NAVBAR_CONTENT_OFFSET_CLASS_NAME
+      )}
+    >
+      <div className="relative z-10 flex min-h-full w-full flex-col gap-5 px-4 pb-4 sm:px-6 lg:px-20 pt-6">
         <BinderPageHeader
           binderId={binderId}
           binderName={binderName}

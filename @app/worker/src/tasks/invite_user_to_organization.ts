@@ -31,7 +31,7 @@ const task: Task = async (inPayload, { addJob }) => {
         firstname,
         lastname,
       },
-      redirectTo: `${process.env.ROOT_URL}/set-password`,
+      redirectTo: `${process.env.ROOT_URL}/set-password?flow=invitation`,
     },
   });
 

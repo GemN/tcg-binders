@@ -16,7 +16,10 @@
       "title": "Signing Out"
     },
     "set_password": {
-      "title": "Set Your Password"
+      "title": "Reset Your Password"
+    },
+    "invitation_set_password": {
+      "title": "Set Up Your Invited Account"
     }
   },
   "logout": "Logout",
@@ -67,8 +70,12 @@
     "back_to_sign_in": "Back to sign in"
   },
   "set_password": {
-    "title": "Welcome",
-    "description": "Finish your setup by creating a password.",
+    "title": "Reset your password",
+    "description": "Enter a new password for your account.",
+    "description_with_email": "Enter a new password for {{email}}.",
+    "invitation_title": "You're invited",
+    "invitation_description": "Create a password to finish accepting your invitation.",
+    "invitation_description_with_email": "Create a password for {{email}} to finish accepting your invitation.",
     "create_password": "Create password",
     "confirm_password": "Confirm password",
     "submit": "Set Password",

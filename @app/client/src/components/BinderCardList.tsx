@@ -426,7 +426,7 @@ export const BinderCardList = ({
       )}
     >
       <Table className="text-sm" containerClassName="overflow-visible">
-        <TableHeader className="bg-muted/70 [&_th]:sticky [&_th]:top-[5.75rem] [&_th]:z-20 [&_th]:bg-muted sm:[&_th]:top-[3.25rem]">
+        <TableHeader className="bg-muted/70 [&_th]:sticky [&_th]:top-[calc(env(safe-area-inset-top)+5.5rem)] [&_th]:z-20 [&_th]:bg-muted">
           <TableRow className="border-border hover:bg-transparent">
             {isSelectionMode && (
               <TableHead className="h-9 w-10 px-3">

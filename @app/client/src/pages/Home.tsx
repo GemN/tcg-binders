@@ -1,20 +1,302 @@
+import {
+  type CardSearchFieldsFragment,
+  useCardsForBinderImportQuery,
+} from "@app/graphql";
 import { Upload } from "lucide-react";
+import { type CSSProperties, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 
+import { CardImage } from "@/components/CardImage";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
-import { useDraftBinder } from "@/hooks/useDraftBinder";
+import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
+import { type DraftCardSnapshot, useDraftBinder } from "@/hooks/useDraftBinder";
+import { getCardScryfallId } from "@/lib/cardImageUrl";
 import { SEO_BRAND, type SeoMetadata } from "@/lib/seoMetadata";
+import { cn } from "@/lib/utils";
 
 import { createHomeJsonLd } from "./Home.jsonLd";
+
+const HOME_CARD_IDS = [
+  "7ef36f72-a7f9-4d03-9d27-1a6c9da8647f",
+  "4f40b1b9-bbad-4d58-b573-c058e2339530",
+  "55f16109-e69b-41d5-a324-440bb8490f9e",
+  "5c90d064-9d5c-4b64-92d4-0780d338d3fb",
+  "059722ed-076e-4d1a-8bfa-90e343f6753c",
+  "b4237b7d-31ab-4643-8e5f-0e6aff8f0996",
+  "09a40d42-166e-4bd3-a46d-12013ad373a5",
+] as const;
+const HOME_CARD_TRACK_CLASS_NAME =
+  "flex flex-col bg-transparent will-change-transform motion-reduce:animate-none";
+const HOME_CARD_SEQUENCE_CLASS_NAME =
+  "flex flex-none flex-col gap-[clamp(1.25rem,2vw,2rem)] " +
+  "bg-transparent pb-[clamp(1.25rem,2vw,2rem)]";
+
+interface HomeCardLinkProps {
+  card: CardSearchFieldsFragment;
+  className?: string;
+  growsNearCenter?: boolean;
+}
+
+const HomeCardLink = ({
+  card,
+  className,
+  growsNearCenter,
+}: HomeCardLinkProps) => {
+  return (
+    <Link
+      aria-hidden="true"
+      className={
+        "home-card-link relative block origin-center cursor-pointer " +
+        "rounded-[4.75%_/_3.5%] transition-[transform,filter,box-shadow] " +
+        "duration-200 ease-out will-change-[transform,filter] hover:z-20 " +
+        "motion-reduce:transition-none " +
+        (className || "")
+      }
+      data-home-growing-card={growsNearCenter || undefined}
+      tabIndex={-1}
+      to={`/card/${card.id}`}
+    >
+      <CardImage
+        alt=""
+        className="w-full"
+        finish={null}
+        imageSize="grid"
+        imageUrl={card.imageUrl}
+        noImageLabel=""
+        showBadgeFinish={false}
+        scryfallId={getCardScryfallId(card)}
+      />
+      <span
+        aria-hidden="true"
+        className={
+          "home-card-holographic-overlay pointer-events-none absolute inset-0 " +
+          "rounded-[inherit] opacity-0 mix-blend-screen transition-opacity " +
+          "duration-150 ease-out motion-reduce:transition-none"
+        }
+      />
+    </Link>
+  );
+};
+
+interface HomeCardLaneProps {
+  animationClassName: string;
+  cards: readonly CardSearchFieldsFragment[];
+  cardOffset?: number;
+  growCardsNearCenter?: boolean;
+  positionClassName: string;
+  rotationClassName: string;
+  secondsPerCard: number;
+}
+
+const HomeCardLane = ({
+  animationClassName,
+  cards,
+  cardOffset = 0,
+  growCardsNearCenter = false,
+  positionClassName,
+  rotationClassName,
+  secondsPerCard,
+}: HomeCardLaneProps) => {
+  const laneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!growCardsNearCenter || !laneRef.current) return;
+
+    const growingCards = Array.from(
+      laneRef.current.querySelectorAll<HTMLElement>("[data-home-growing-card]")
+    );
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const streamVisibility = window.matchMedia(
+      "(min-width: 1200px) and (min-aspect-ratio: 8/5) and (max-height: 1200px)"
+    );
+    let animationFrameId: number | undefined;
+
+    const resetCardWidths = () => {
+      growingCards.forEach((card) => {
+        card.style.width = "100%";
+      });
+    };
+
+    const handleAnimationFrame = () => {
+      const viewportCenter = window.innerHeight / 2;
+      const sequenceCardCount = growingCards.length / 2;
+      const cardRects = growingCards.map((card) =>
+        card.getBoundingClientRect()
+      );
+      const widths = cardRects
+        .slice(0, sequenceCardCount)
+        .map((cardRect, cardIndex) => {
+          const duplicateRect = cardRects[cardIndex + sequenceCardCount];
+          const centerProximity = Math.max(
+            ...[cardRect, duplicateRect].map((rect) => {
+              const cardCenter = rect.top + rect.height / 2;
+
+              return Math.max(
+                0,
+                1 - Math.abs(cardCenter - viewportCenter) / viewportCenter
+              );
+            })
+          );
+
+          return `${(1 + 0.25 * centerProximity) * 100}%`;
+        });
+
+      growingCards.forEach((card, index) => {
+        card.style.width = widths[index % sequenceCardCount];
+      });
+
+      animationFrameId = window.requestAnimationFrame(handleAnimationFrame);
+    };
+
+    const handleAnimationStateChange = () => {
+      if (reducedMotion.matches || !streamVisibility.matches) {
+        if (animationFrameId !== undefined) {
+          window.cancelAnimationFrame(animationFrameId);
+          animationFrameId = undefined;
+        }
+        resetCardWidths();
+        return;
+      }
+
+      if (animationFrameId === undefined) {
+        animationFrameId = window.requestAnimationFrame(handleAnimationFrame);
+      }
+    };
+
+    reducedMotion.addEventListener("change", handleAnimationStateChange);
+    streamVisibility.addEventListener("change", handleAnimationStateChange);
+    handleAnimationStateChange();
+
+    return () => {
+      if (animationFrameId !== undefined) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      resetCardWidths();
+      reducedMotion.removeEventListener("change", handleAnimationStateChange);
+      streamVisibility.removeEventListener(
+        "change",
+        handleAnimationStateChange
+      );
+    };
+  }, [cards.length, growCardsNearCenter]);
+
+  if (cards.length === 0) return null;
+
+  const trackStyle: CSSProperties = {
+    animationDuration: `${cards.length * secondsPerCard}s`,
+  };
+
+  return (
+    <div
+      className={
+        `min-w-0 origin-top ${positionClassName} ${rotationClassName} ` +
+        "overflow-visible bg-transparent " +
+        (growCardsNearCenter ? "relative z-10" : "")
+      }
+      ref={laneRef}
+    >
+      <div
+        className={`${HOME_CARD_TRACK_CLASS_NAME} ${animationClassName}`}
+        style={trackStyle}
+      >
+        {[0, 1].map((sequence) => (
+          <div className={HOME_CARD_SEQUENCE_CLASS_NAME} key={sequence}>
+            {cards.map((_card, cardIndex) => {
+              const card = cards[(cardIndex + cardOffset) % cards.length];
+
+              return (
+                <HomeCardLink
+                  card={card}
+                  className={
+                    "w-full flex-none " +
+                    (growCardsNearCenter ? "ml-auto will-change-[width]" : "")
+                  }
+                  growsNearCenter={growCardsNearCenter}
+                  key={`${sequence}-${cardIndex}`}
+                />
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+interface HomeCardStreamsProps {
+  cards: readonly CardSearchFieldsFragment[];
+}
+
+const HomeCardStreams = ({ cards }: HomeCardStreamsProps) => {
+  return (
+    <div
+      className={
+        "absolute -top-14 right-0 -bottom-14 z-[1] hidden " +
+        "w-[min(45vw,42rem)] grid-cols-3 " +
+        "gap-[clamp(1rem,2vw,2rem)] overflow-visible bg-transparent px-6 " +
+        "[@media(min-width:1200px)_and_(min-aspect-ratio:8/5)_and_(max-height:1200px)]:grid"
+      }
+    >
+      <HomeCardLane
+        animationClassName={
+          "animate-[home-cards-down_linear_infinite] " +
+          "[animation-delay:-12s] motion-reduce:-translate-y-[18%]"
+        }
+        cardOffset={0}
+        cards={cards}
+        growCardsNearCenter
+        positionClassName="translate-x-0 translate-y-0"
+        rotationClassName="rotate-[8deg]"
+        secondsPerCard={8.5}
+      />
+      <HomeCardLane
+        animationClassName={
+          "animate-[home-cards-up_linear_infinite] " +
+          "[animation-delay:-24s] motion-reduce:-translate-y-[36%]"
+        }
+        cardOffset={3}
+        cards={cards}
+        positionClassName="translate-x-0 translate-y-0"
+        rotationClassName="rotate-[3deg]"
+        secondsPerCard={9.5}
+      />
+      <HomeCardLane
+        animationClassName={
+          "animate-[home-cards-down_linear_infinite] " +
+          "[animation-delay:-4s] motion-reduce:-translate-y-[8%]"
+        }
+        cardOffset={6}
+        cards={cards}
+        positionClassName="translate-x-0 translate-y-0"
+        rotationClassName="rotate-[1deg]"
+        secondsPerCard={8.5}
+      />
+    </div>
+  );
+};
 
 export const Home = () => {
   const { t } = useTranslation(["common"]);
   const navigate = useNavigate();
   const { addCard } = useDraftBinder();
+  const { data } = useCardsForBinderImportQuery({
+    variables: {
+      filter: { id: { in: [...HOME_CARD_IDS] } },
+      first: HOME_CARD_IDS.length,
+    },
+  });
+  const homeCardsById = new Map(
+    data?.cardsCollection?.edges.map(({ node }) => [node.id, node])
+  );
+  const homeCards = HOME_CARD_IDS.flatMap((cardId) => {
+    const card = homeCardsById.get(cardId);
+
+    return card ? [card] : [];
+  });
   const description = t("common:seo.home.description");
   const seoMetadata: SeoMetadata = {
     canonicalPath: "/",
@@ -27,42 +309,62 @@ export const Home = () => {
     title: t("common:seo.home.title"),
   };
 
+  const handleCardSelect = (card: DraftCardSnapshot) => {
+    addCard(card);
+    navigate("/binder/draft");
+  };
+
+  const handleImportFromFile = () => {
+    toast.info(t("common:home.import_not_ready"));
+  };
+
   return (
-    <div className="flex flex-1 flex-col bg-background">
+    <div
+      className={
+        "relative isolate min-h-svh w-screen max-w-[100vw] " +
+        "overflow-hidden bg-background bg-[url('/bg-home.jpg')] " +
+        "bg-cover bg-center"
+      }
+    >
       <Seo metadata={seoMetadata} />
-      <div className="flex flex-1 justify-center px-4 pt-16 pb-12 sm:pt-24 lg:pt-32">
-        <div className="w-full max-w-2xl">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-semibold tracking-normal sm:text-4xl">
+      <HomeCardStreams cards={homeCards} />
+      <div
+        className={cn(
+          "pointer-events-none relative z-[2] box-border flex min-h-svh w-full max-w-[100vw] min-w-0 px-8",
+          NAVBAR_CONTENT_OFFSET_CLASS_NAME
+        )}
+      >
+        <div className="grid w-full min-w-0 items-center max-w-[671px]">
+          <div className="pointer-events-auto">
+            <h1 className="font-display text-3xl font-medium text-white sm:text-5xl lg:text-[64px]">
               {t("common:home.title")}
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-2 text-base text-white/80">
               {t("common:home.subtitle")}
             </p>
-          </div>
 
-          <div className="mx-auto flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-start">
-            <CardSearchPicker
-              containerClassName="min-w-0 flex-1"
-              onSelect={(card) => {
-                addCard(card);
-                navigate("/binder/draft");
-              }}
-            />
+            <div className="mt-10 flex w-full max-w-full flex-col gap-4 sm:flex-row sm:items-start">
+              <CardSearchPicker
+                containerClassName="z-10 min-w-0 max-w-[420px] w-full"
+                className="h-11 border-white/25 bg-white/95 px-4 pl-10 shadow-lg shadow-black/15 "
+                iconClassName="left-3.5 text-primary/55"
+                onSelect={handleCardSelect}
+              />
 
-            <div className="flex items-center justify-center text-sm text-muted-foreground sm:h-9">
-              {t("common:home.or")}
+              <div className="flex items-center justify-center text-base text-white/70 sm:h-11">
+                {t("common:home.or")}
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 shrink-0 border-white/35 bg-white/95 px-5 shadow-lg shadow-black/15"
+                onClick={handleImportFromFile}
+              >
+                <Upload className="size-4" />
+                {t("common:home.import_from_file")}
+              </Button>
             </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="h-9 shrink-0"
-              onClick={() => toast.info(t("common:home.import_not_ready"))}
-            >
-              <Upload className="size-4" />
-              {t("common:home.import_from_file")}
-            </Button>
           </div>
         </div>
       </div>
