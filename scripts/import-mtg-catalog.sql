@@ -283,7 +283,7 @@ where nullif(btrim(uuid), '') is not null
 create index import_mtg_arena_only_cards_uuid_idx
 on import_mtg_arena_only_cards (uuid);
 
-create temp table import_mtg_cards as
+create temp table import_mtg_card_faces as
 select distinct on (uuid)
   nullif(btrim(uuid), '') as uuid,
   nullif(btrim(set_code), '') as set_code,
@@ -300,18 +300,19 @@ select distinct on (uuid)
   colors,
   color_identity,
   nullif(btrim(layout), '') as layout,
-  original_release_date
+  original_release_date,
+  nullif(lower(btrim(side)), '') as side
 from import_mtg_cards_raw
 where nullif(btrim(uuid), '') is not null
   and nullif(btrim(name), '') is not null
   and not pg_temp.import_mtg_is_arena_only(availability)
 order by uuid;
 
-create index import_mtg_cards_uuid_idx
-on import_mtg_cards (uuid);
+create index import_mtg_card_faces_uuid_idx
+on import_mtg_card_faces (uuid);
 
-create index import_mtg_cards_set_code_idx
-on import_mtg_cards (set_code);
+create index import_mtg_card_faces_set_code_idx
+on import_mtg_card_faces (set_code);
 
 create temp table import_mtg_card_identifiers as
 select distinct on (uuid)
@@ -323,6 +324,57 @@ order by uuid;
 
 create index import_mtg_card_identifiers_uuid_idx
 on import_mtg_card_identifiers (uuid);
+
+create temp table import_mtg_card_uuid_map as
+select
+  faces.uuid as source_uuid,
+  first_value(faces.uuid) over (
+    partition by coalesce(identifiers.scryfall_id, faces.uuid)
+    order by
+      case faces.side
+        when 'a' then 0
+        else 1
+      end,
+      faces.uuid
+  ) as canonical_uuid
+from import_mtg_card_faces faces
+left join import_mtg_card_identifiers identifiers
+on identifiers.uuid = faces.uuid;
+
+create unique index import_mtg_card_uuid_map_source_uuid_idx
+on import_mtg_card_uuid_map (source_uuid);
+
+create index import_mtg_card_uuid_map_canonical_uuid_idx
+on import_mtg_card_uuid_map (canonical_uuid);
+
+create temp table import_mtg_cards as
+select
+  faces.uuid,
+  faces.set_code,
+  faces.name,
+  faces.collector_number,
+  faces.rarity,
+  faces.finishes,
+  faces.language,
+  faces.mana_cost,
+  faces.mana_value,
+  faces.type_line,
+  faces.oracle_text,
+  faces.keywords,
+  faces.colors,
+  faces.color_identity,
+  faces.layout,
+  faces.original_release_date
+from import_mtg_card_faces faces
+inner join import_mtg_card_uuid_map uuid_map
+on uuid_map.source_uuid = faces.uuid
+and uuid_map.canonical_uuid = faces.uuid;
+
+create unique index import_mtg_cards_uuid_idx
+on import_mtg_cards (uuid);
+
+create index import_mtg_cards_set_code_idx
+on import_mtg_cards (set_code);
 
 create temp table import_mtg_card_prices_supported as
 select
@@ -359,22 +411,26 @@ from (
 
 create temp table import_mtg_card_prices as
 select distinct on (
-  uuid,
+  uuid_map.canonical_uuid,
   price_provider,
   finish
 )
-  *
+  uuid_map.canonical_uuid as uuid,
+  prices.price_provider,
+  prices.finish,
+  prices.currency,
+  prices.price_date,
+  prices.amount
 from import_mtg_card_prices_supported prices
-where exists (
-  select 1
-  from import_mtg_cards cards
-  where cards.uuid = prices.uuid
-)
+inner join import_mtg_card_uuid_map uuid_map
+on uuid_map.source_uuid = prices.uuid
 order by
-  uuid,
+  uuid_map.canonical_uuid,
   price_provider,
   finish,
-  price_date desc;
+  price_date desc,
+  (prices.uuid = uuid_map.canonical_uuid) desc,
+  prices.uuid;
 
 create index import_mtg_card_prices_uuid_idx
 on import_mtg_card_prices (uuid);
@@ -391,12 +447,16 @@ select distinct on (
   buy_url
 from (
   select
-    nullif(btrim(raw.uuid), '') as uuid,
+    uuid_map.canonical_uuid as uuid,
     urls.price_provider,
     urls.finish,
     nullif(btrim(urls.buy_url), '') as buy_url,
-    urls.priority
+    urls.priority,
+    nullif(btrim(raw.uuid), '') = uuid_map.canonical_uuid as is_canonical,
+    nullif(btrim(raw.uuid), '') as source_uuid
   from import_mtg_card_purchase_urls_raw raw
+  inner join import_mtg_card_uuid_map uuid_map
+  on uuid_map.source_uuid = nullif(btrim(raw.uuid), '')
   cross join lateral (
     values
       ('cardkingdom', 'normal', card_kingdom, 100),
@@ -412,16 +472,13 @@ from (
 ) purchase_urls
 where uuid is not null
   and buy_url is not null
-  and exists (
-    select 1
-    from import_mtg_cards cards
-    where cards.uuid = purchase_urls.uuid
-  )
 order by
   uuid,
   price_provider,
   finish,
-  priority;
+  priority,
+  is_canonical desc,
+  source_uuid;
 
 create index import_mtg_card_purchase_urls_lookup_idx
 on import_mtg_card_purchase_urls (uuid, price_provider, finish);
@@ -620,7 +677,8 @@ select
   (select count(*) from import_mtg_sets) as sets_csv_rows,
   (select count(*) from public.card_sets where tcg_id = 'mtg') as sets_in_database,
   (select count(*) from import_mtg_arena_only_cards) as skipped_arena_only_card_rows,
-  (select count(*) from import_mtg_cards) as cards_csv_rows,
+  (select count(*) from import_mtg_card_faces) as cards_csv_rows,
+  (select count(*) from import_mtg_cards) as canonical_card_printing_rows,
   (select count(*) from public.cards where tcg_id = 'mtg') as cards_in_database,
   (select count(*) from import_mtg_card_identifiers where scryfall_id is not null) as card_identifier_rows_with_scryfall_id,
   (
@@ -661,9 +719,9 @@ select
   (
     select count(*)
     from import_mtg_card_prices_supported prices
-    left join import_mtg_cards cards
-    on cards.uuid = prices.uuid
-    where cards.uuid is null
+    left join import_mtg_card_uuid_map uuid_map
+    on uuid_map.source_uuid = prices.uuid
+    where uuid_map.source_uuid is null
   ) as skipped_price_rows_without_imported_card,
   (
     select count(*)
