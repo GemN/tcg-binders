@@ -1,6 +1,5 @@
 import {
   CardCondition,
-  type CardSearchFieldsFragment,
   CurrencyCode,
   LanguageCode,
   MarketPriceSource,
@@ -8,6 +7,8 @@ import {
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { getPreferredCardFinish } from "@/config/card";
+
+export { createDraftCardSnapshot } from "@/lib/draftBinder";
 
 const DRAFT_BINDER_STORAGE_KEY = "tcgbinder:draft-binder";
 
@@ -90,39 +91,6 @@ const createDraftId = (): string => {
   }
 
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-};
-
-export const createDraftCardSnapshot = (
-  card: CardSearchFieldsFragment
-): DraftCardSnapshot => {
-  return {
-    id: card.id,
-    externalId: card.externalId,
-    name: card.name,
-    collectorNumber: card.collectorNumber,
-    rarity: card.rarity,
-    finishes: card.finishes.filter((finish): finish is string => !!finish),
-    imageUrl: card.imageUrl,
-    releasedAt: card.releasedAt,
-    setCode: card.cardSet?.code,
-    setName: card.cardSet?.name,
-    mtgCardDetail: card.mtgCardDetail
-      ? {
-          oracleText: card.mtgCardDetail.oracleText,
-          scryfallId: card.mtgCardDetail.scryfallId,
-          typeLine: card.mtgCardDetail.typeLine,
-        }
-      : null,
-    marketPrices:
-      card.marketPrices?.edges.map(({ node }) => ({
-        source: node.source,
-        finish: node.finish,
-        amount: Number(node.amount),
-        currency: node.currency,
-        priceDate: node.priceDate,
-        buyUrl: node.buyUrl,
-      })) || [],
-  };
 };
 
 const normalizeMarketPrice = (

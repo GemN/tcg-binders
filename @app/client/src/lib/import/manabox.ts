@@ -1,15 +1,15 @@
-import { defaultCardFinish } from "@/config/card";
-
 import type {
   BinderImportItem,
   BinderImportParseResult,
   BinderImportRejectedLine,
-} from "./types";
+} from "./types.ts";
 import {
   parseCondition,
   parseLanguage,
   parseQuantity,
-} from "./utils";
+} from "./utils.ts";
+
+const defaultCardFinish = "normal";
 
 export const parseManaBoxCsvImport = (
   text: string

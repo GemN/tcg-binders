@@ -7,7 +7,6 @@ import {
   useUserProfileByIdQuery,
 } from "@app/graphql";
 import {
-  Eye,
   Image,
   Link as LinkIcon,
   Pencil,
@@ -66,6 +65,7 @@ import type { CartSellerSnapshot } from "@/lib/cart";
 import { handleError } from "@/lib/error";
 import { cn } from "@/lib/utils";
 import { NotFound } from "@/pages/NotFound";
+import { usePricingSettings } from "@/providers/PricingSettingsContext";
 import { useSession } from "@/providers/SessionContext";
 
 import { createBinderPageSeoMetadata } from "./BinderPage.seo";
@@ -76,6 +76,7 @@ const BINDER_VIEW_STORAGE_KEY_PREFIX = "tcgbinder:binder-view:";
 export const BinderPage = () => {
   const { t } = useTranslation(["binder", "checkout", "common"]);
   const { isLoading: isSessionLoading, session } = useSession();
+  const { showConvertedMarketPrices } = usePricingSettings();
   const navigate = useNavigate();
   const { shortId = "" } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -106,8 +107,6 @@ export const BinderPage = () => {
   const isFiltered = debouncedActiveFilterCount > 0;
   const [sortMode, setSortMode] = useState<BinderSortMode>("seller_order");
   const [viewMode, setViewMode] = useState<BinderCardViewMode>("grid");
-  const [showConvertedMarketPrices, setShowConvertedMarketPrices] =
-    useState(true);
   const [pageIndex, setPageIndex] = useState(0);
   const [isBulkPriceOpen, setIsBulkPriceOpen] = useState(false);
   const [isDeletingSelectedBinderCards, setIsDeletingSelectedBinderCards] =
@@ -383,7 +382,7 @@ export const BinderPage = () => {
   const shareDropdown = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" variant="outline">
+        <Button type="button" variant="secondary">
           <Share2 className="size-4" />
           {t("binder:share.button")}
         </Button>
@@ -427,8 +426,8 @@ export const BinderPage = () => {
   const headerAction = isOwner ? (
     isPublicPreview ? undefined : (
       <>
-        {shareDropdown}
         {settingsButton}
+        {shareDropdown}
       </>
     )
   ) : (
@@ -445,7 +444,7 @@ export const BinderPage = () => {
     isPublicPreview ? (
       <Link
         to={ownerBinderUrl}
-        className="inline-flex w-fit items-center gap-2 text-sm text-primary underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
+        className="inline-flex w-fit shrink-0 items-center gap-1 whitespace-nowrap text-sm text-secondary underline-offset-4 hover:text-secondary/80 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40"
       >
         <Pencil className="size-4" />
         {t("binder:public_preview.owner_view")}
@@ -453,9 +452,8 @@ export const BinderPage = () => {
     ) : (
       <Link
         to={publicPreviewUrl}
-        className="inline-flex w-fit items-center gap-2 text-sm text-primary underline-offset-4 hover:text-binder-toolbar-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-binder-toolbar-foreground/40"
+        className="inline-flex w-fit items-center text-sm text-secondary underline underline-offset-4 hover:text-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40"
       >
-        <Eye className="size-4" />
         {t("binder:public_preview.button")}
       </Link>
     )
@@ -697,7 +695,6 @@ export const BinderPage = () => {
         onPreviousPage={handlePreviousPage}
         onSelectVisibleBinderCards={handleSelectVisibleBinderCards}
         onSelectionModeChange={handleSelectionModeChange}
-        onShowConvertedMarketPricesChange={setShowConvertedMarketPrices}
         onSortChange={handleSortChange}
         onToggleCardSelection={handleToggleCardSelection}
         onViewChange={handleViewChange}

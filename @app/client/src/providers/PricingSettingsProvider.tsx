@@ -12,11 +12,16 @@ import {
 } from "react";
 
 import {
+  readStoredShowConvertedMarketPrices,
+  writeStoredShowConvertedMarketPrices,
+} from "@/lib/pricingSettingsStorage";
+import {
   type ConvertAmountToLocalCurrency,
   type ConvertAmountToTargetCurrency,
   isSupportedCurrency,
   isSupportedPriceSource,
   PricingSettingsContext,
+  type PricingSettingsContextValue,
   type SupportedCurrency,
   type SupportedPriceSource,
 } from "@/providers/PricingSettingsContext";
@@ -197,6 +202,12 @@ const readStoredPriceSource = (): SupportedPriceSource => {
     : getBrowserDefaultPriceSource();
 };
 
+const getInitialShowConvertedMarketPrices = (): boolean => {
+  if (typeof window === "undefined") return true;
+
+  return readStoredShowConvertedMarketPrices(window.localStorage);
+};
+
 export const PricingSettingsProvider = ({
   children,
 }: PricingSettingsProviderProps) => {
@@ -205,6 +216,8 @@ export const PricingSettingsProvider = ({
   const [priceSource, setPriceSource] = useState<SupportedPriceSource>(
     readStoredPriceSource
   );
+  const [showConvertedMarketPrices, setShowConvertedMarketPrices] =
+    useState<boolean>(getInitialShowConvertedMarketPrices);
   const { data, error } = useCurrentCurrencyRatesQuery({
     fetchPolicy: "cache-and-network",
   });
@@ -216,6 +229,13 @@ export const PricingSettingsProvider = ({
   useEffect(() => {
     window.localStorage.setItem(priceSourceStorageKey, priceSource);
   }, [priceSource]);
+
+  useEffect(() => {
+    writeStoredShowConvertedMarketPrices(
+      window.localStorage,
+      showConvertedMarketPrices
+    );
+  }, [showConvertedMarketPrices]);
 
   useEffect(() => {
     if (error) {
@@ -262,20 +282,23 @@ export const PricingSettingsProvider = ({
       [convertAmountToTargetCurrency, currency]
     );
 
-  const value = useMemo(
+  const value = useMemo<PricingSettingsContextValue>(
     () => ({
       convertAmountToTargetCurrency,
       convertAmountToLocalCurrency,
       currency,
       priceSource,
+      showConvertedMarketPrices,
       setCurrency,
       setPriceSource,
+      setShowConvertedMarketPrices,
     }),
     [
       convertAmountToTargetCurrency,
       convertAmountToLocalCurrency,
       currency,
       priceSource,
+      showConvertedMarketPrices,
     ]
   );
 

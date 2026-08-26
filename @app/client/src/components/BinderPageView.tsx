@@ -79,7 +79,6 @@ interface BinderPageViewProps {
   onRenameBinder?: (name: string) => Promise<unknown> | unknown;
   onSelectVisibleBinderCards: () => void;
   onSelectionModeChange: (nextIsSelectionMode: boolean) => void;
-  onShowConvertedMarketPricesChange: (checked: boolean) => void;
   onSortChange: (value: string) => void;
   onToggleCardSelection: (binderCard: BinderCardRecord) => void;
   onUpdateBinderCard?: UpdateBinderCardHandler;
@@ -151,7 +150,6 @@ export const BinderPageView = ({
   onRenameBinder,
   onSelectVisibleBinderCards,
   onSelectionModeChange,
-  onShowConvertedMarketPricesChange,
   onSortChange,
   onToggleCardSelection,
   onUpdateBinderCard,
@@ -181,14 +179,12 @@ export const BinderPageView = ({
           canEditBinder={canEditBinder}
           headerAction={headerAction}
           ownerByline={ownerByline}
-          showConvertedMarketPrices={showConvertedMarketPrices}
           titleAction={titleAction}
           viewCount={viewCount}
           onAddCard={onAddCard}
           onBinderChanged={onBinderChanged}
           onImportCards={onImportCards}
           onRenameBinder={onRenameBinder}
-          onShowConvertedMarketPricesChange={onShowConvertedMarketPricesChange}
           onUpdateBinderNote={onUpdateBinderNote}
         />
 

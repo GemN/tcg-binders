@@ -1,21 +1,25 @@
-import { CardCondition, CurrencyCode, LanguageCode } from "@app/graphql";
-
 import {
-  defaultCardCondition,
-  defaultCardLanguage,
-  getPreferredCardFinish,
-} from "@/config/card";
-
-import type { BinderImportCardRecord, BinderImportItem } from "./types";
+  type BinderImportCardRecord,
+  type BinderImportCondition,
+  binderImportConditions,
+  binderImportCurrencies,
+  type BinderImportCurrency,
+  type BinderImportItem,
+  type BinderImportLanguage,
+  binderImportLanguages,
+} from "./types.ts";
 
 export const cardLookupPageSize = 30;
 export const externalIdLookupBatchSize = 30;
 export const printLookupBatchSize = 10;
 export const splitCardNameSeparator = " // ";
 
-const supportedCurrencies = new Set<string>(Object.values(CurrencyCode));
-const supportedLanguages = new Set<string>(Object.values(LanguageCode));
-const supportedConditions = new Set<string>(Object.values(CardCondition));
+const defaultCardCondition: BinderImportCondition = "near_mint";
+const defaultCardLanguage: BinderImportLanguage = "en";
+const defaultCardFinish = "normal";
+const supportedCurrencies = new Set<string>(binderImportCurrencies);
+const supportedLanguages = new Set<string>(binderImportLanguages);
+const supportedConditions = new Set<string>(binderImportConditions);
 
 export const parseQuantity = (value: string | undefined): number | null => {
   const quantity = Number.parseInt(value || "", 10);
@@ -32,25 +36,27 @@ export const parsePriceAmount = (value: string): string | undefined => {
   return input;
 };
 
-export const parseCurrency = (value: string): CurrencyCode | undefined => {
+export const parseCurrency = (
+  value: string
+): BinderImportCurrency | undefined => {
   const currency = value.toUpperCase();
   if (!supportedCurrencies.has(currency)) return undefined;
-  return currency as CurrencyCode;
+  return currency as BinderImportCurrency;
 };
 
-export const parseCondition = (value: string): CardCondition => {
+export const parseCondition = (value: string): BinderImportCondition => {
   const condition = value.toLowerCase();
   if (supportedConditions.has(condition)) {
-    return condition as CardCondition;
+    return condition as BinderImportCondition;
   }
 
   return defaultCardCondition;
 };
 
-export const parseLanguage = (value: string): LanguageCode => {
+export const parseLanguage = (value: string): BinderImportLanguage => {
   const language = value.toLowerCase().replace("_cn", "s").replace("_tw", "t");
   if (supportedLanguages.has(language)) {
-    return language as LanguageCode;
+    return language as BinderImportLanguage;
   }
 
   return defaultCardLanguage;
@@ -68,7 +74,8 @@ export const getAvailableFinish = (
     return preferredFinish;
   }
 
-  return getPreferredCardFinish(availableFinishes);
+  if (availableFinishes.includes(defaultCardFinish)) return defaultCardFinish;
+  return availableFinishes[0] || defaultCardFinish;
 };
 
 export const chunkItems = <T>(items: T[], size: number): T[][] => {

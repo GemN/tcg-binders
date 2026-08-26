@@ -20,7 +20,6 @@
   "empty": "ยังไม่มีการ์ด",
   "no_image": "ไม่มีรูปภาพ",
   "page": "หน้า {{page}}",
-  "show_converted_market_prices": "แสดงราคาตลาดที่แปลงแล้ว",
   "stats": {
     "views": "ยอดเข้าชม"
   },
@@ -53,7 +52,7 @@
     "url_label": "URL"
   },
   "public_preview": {
-    "button": "ดูตัวอย่างแบบผู้ซื้อ",
+    "button": "ดูตัวอย่างแฟ้มของฉัน",
     "owner_view": "กลับไปมุมมองเจ้าของ"
   },
   "gallery": {

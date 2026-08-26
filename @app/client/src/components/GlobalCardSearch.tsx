@@ -42,7 +42,7 @@ export const GlobalCardSearch = () => {
             className="lg:hidden"
             aria-label={t("common:nav.search_cards")}
           >
-            <Search className="size-4" />
+            <Search className="size-6" />
           </Button>
         </SheetTrigger>
         <SheetContent side="top" className="p-4 pt-12">

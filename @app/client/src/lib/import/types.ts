@@ -1,23 +1,50 @@
-import {
-  CardCondition,
-  type BinderCardsInsertInput,
-  type CardsFilter,
-  type CardsForBinderImportQuery,
-  CurrencyCode,
-  LanguageCode,
-} from "@app/graphql";
+export const binderImportConditions = [
+  "excellent",
+  "good",
+  "light_played",
+  "mint",
+  "near_mint",
+  "played",
+  "poor",
+] as const;
 
+export const binderImportCurrencies = ["EUR", "GBP", "JPY", "THB", "USD"] as const;
+
+export const binderImportLanguages = [
+  "ar",
+  "de",
+  "en",
+  "es",
+  "fr",
+  "grc",
+  "he",
+  "it",
+  "ja",
+  "ko",
+  "la",
+  "ph",
+  "pt",
+  "qya",
+  "ru",
+  "sa",
+  "zhs",
+  "zht",
+] as const;
+
+export type BinderImportCondition = (typeof binderImportConditions)[number];
+export type BinderImportCurrency = (typeof binderImportCurrencies)[number];
 export type BinderImportFormat = "text" | "manabox_csv";
+export type BinderImportLanguage = (typeof binderImportLanguages)[number];
 
 export interface BinderImportItem {
   collectorNumber?: string;
-  condition: CardCondition;
+  condition: BinderImportCondition;
   externalId?: string;
   finish: string;
-  language: LanguageCode;
+  language: BinderImportLanguage;
   name: string;
   priceAmount?: string;
-  priceCurrency?: CurrencyCode;
+  priceCurrency?: BinderImportCurrency;
   quantity: number;
   setCode?: string;
   sourceLine: number;
@@ -34,6 +61,44 @@ export interface BinderImportParseResult {
   rejectedLines: BinderImportRejectedLine[];
 }
 
+export interface BinderImportCardSet {
+  code?: string | null;
+  id?: string;
+  name?: string;
+  releaseAt?: string | null;
+}
+
+export interface BinderImportMtgCardDetail {
+  oracleText?: string | null;
+  scryfallId?: string | null;
+  typeLine?: string | null;
+}
+
+export interface BinderImportMarketPrice {
+  amount: number | string;
+  buyUrl?: string | null;
+  currency: string;
+  finish: string;
+  priceDate: string;
+  source: string;
+}
+
+export interface BinderImportCardRecord {
+  cardSet?: BinderImportCardSet | null;
+  collectorNumber?: string | null;
+  externalId: string;
+  finishes: Array<string | null>;
+  id: string;
+  imageUrl?: string | null;
+  marketPrices?: {
+    edges: Array<{ node: BinderImportMarketPrice }>;
+  } | null;
+  mtgCardDetail?: BinderImportMtgCardDetail | null;
+  name: string;
+  rarity?: string | null;
+  releasedAt?: string | null;
+}
+
 export interface BinderImportResolvedItem {
   card: BinderImportCardRecord;
   finish: string;
@@ -45,22 +110,69 @@ export interface BinderImportResolveResult {
   unmatchedItems: BinderImportItem[];
 }
 
-export interface BinderImportLookupBatch {
-  filter: CardsFilter;
-  first: number;
-  items: BinderImportItem[];
+export interface BinderImportProgress {
+  completed: number;
+  total: number;
 }
 
-export interface CreateBinderImportObjectsParams {
-  binderId: string;
-  items: BinderImportResolvedItem[];
+export interface BinderImportCardCatalogRequest {
+  items: BinderImportItem[];
+  onProgress: (progress: BinderImportProgress) => void;
   tcgId: string;
 }
 
-export type BinderImportCardRecord = NonNullable<
-  NonNullable<
-    CardsForBinderImportQuery["cardsCollection"]
-  >["edges"][number]["node"]
->;
+export interface BinderImportCardCatalog {
+  findCards: (
+    request: BinderImportCardCatalogRequest
+  ) => Promise<BinderImportCardRecord[]>;
+}
 
-export type BinderImportInsertInput = BinderCardsInsertInput;
+export interface BinderImportDestinationResult {
+  failedInsertCount: number;
+  failedItems?: BinderImportResolvedItem[];
+  importedCount: number;
+}
+
+export interface BinderImportDestinationRequest {
+  items: BinderImportResolvedItem[];
+  onProgress: (progress: BinderImportProgress) => void;
+}
+
+export interface BinderImportDestination {
+  importCards: (
+    request: BinderImportDestinationRequest
+  ) => Promise<BinderImportDestinationResult>;
+}
+
+export interface BinderImportPrepareRequest {
+  format: BinderImportFormat;
+  onProgress: (progress: BinderImportProgress) => void;
+  tcgId: string;
+  text: string;
+}
+
+export interface BinderImportPreparation {
+  matchedItems: BinderImportResolvedItem[];
+  rejectedLines: BinderImportRejectedLine[];
+  unmatchedItems: BinderImportItem[];
+}
+
+export interface BinderImporter {
+  commit: (
+    items: BinderImportResolvedItem[],
+    onProgress: (progress: BinderImportProgress) => void
+  ) => Promise<BinderImportDestinationResult>;
+  prepare: (
+    request: BinderImportPrepareRequest
+  ) => Promise<BinderImportPreparation>;
+}
+
+export interface ImportBinderCardsHandlerParams {
+  items: BinderImportResolvedItem[];
+  onProgress: (completed: number) => void;
+  tcgId: string;
+}
+
+export type ImportBinderCardsHandler = (
+  params: ImportBinderCardsHandlerParams
+) => Promise<BinderImportDestinationResult> | BinderImportDestinationResult;

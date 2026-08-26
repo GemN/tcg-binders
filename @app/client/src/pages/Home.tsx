@@ -6,8 +6,11 @@ import { Upload } from "lucide-react";
 import { type CSSProperties, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
-import { toast } from "sonner";
 
+import {
+  ButtonImportBinder,
+  type ImportBinderCardsHandler,
+} from "@/components/ButtonImportBinder";
 import { CardImage } from "@/components/CardImage";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import { Seo } from "@/components/Seo";
@@ -15,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { type DraftCardSnapshot, useDraftBinder } from "@/hooks/useDraftBinder";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
+import { binderImportItemsToDraftCards } from "@/lib/draftBinder";
 import { SEO_BRAND, type SeoMetadata } from "@/lib/seoMetadata";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +38,9 @@ const HOME_CARD_IDS = [
   "b0b3f1a2-4289-4163-abe9-7819bb6f9fbc",
   "9eda3545-dd52-45ea-a03b-567eb2b3f644",
 ] as const;
+const RANDOM_MOBILE_HOME_CARD_ID =
+  HOME_CARD_IDS[Math.floor(Math.random() * HOME_CARD_IDS.length)] ??
+  HOME_CARD_IDS[0];
 const HOME_CARD_TRACK_CLASS_NAME =
   "flex flex-col bg-transparent will-change-transform motion-reduce:animate-none";
 const HOME_CARD_SEQUENCE_CLASS_NAME =
@@ -282,7 +289,7 @@ const HomeCardStreams = ({ cards }: HomeCardStreamsProps) => {
 export const Home = () => {
   const { t } = useTranslation(["common"]);
   const navigate = useNavigate();
-  const { addCard } = useDraftBinder();
+  const { addCard, addCards, draftBinder } = useDraftBinder();
   const { data } = useCardsForBinderImportQuery({
     variables: {
       filter: { id: { in: [...HOME_CARD_IDS] } },
@@ -297,6 +304,8 @@ export const Home = () => {
 
     return card ? [card] : [];
   });
+  const mobileHomeCard =
+    homeCardsById.get(RANDOM_MOBILE_HOME_CARD_ID) ?? homeCards[0];
   const description = t("common:seo.home.description");
   const seoMetadata: SeoMetadata = {
     canonicalPath: "/",
@@ -314,9 +323,20 @@ export const Home = () => {
     navigate("/binder/draft");
   };
 
-  const handleImportFromFile = () => {
-    toast.info(t("common:home.import_not_ready"));
+  const handleImportCards: ImportBinderCardsHandler = ({
+    items,
+    onProgress,
+  }) => {
+    addCards(binderImportItemsToDraftCards(items));
+    onProgress(items.length);
+
+    return {
+      failedInsertCount: 0,
+      importedCount: items.length,
+    };
   };
+
+  const handleImported = () => navigate("/binder/draft");
 
   return (
     <div
@@ -330,20 +350,31 @@ export const Home = () => {
       <HomeCardStreams cards={homeCards} />
       <div
         className={cn(
-          "pointer-events-none relative z-[2] box-border flex min-h-svh w-full max-w-[100vw] min-w-0 px-8",
+          "pointer-events-none relative z-[2] box-border flex min-h-svh w-full max-w-[100vw] min-w-0 px-4 sm:px-8",
           NAVBAR_CONTENT_OFFSET_CLASS_NAME
         )}
       >
-        <div className="grid w-full min-w-0 items-center max-w-[671px]">
+        <div className="grid w-full min-w-0 items-start max-w-[671px] pt-10 sm:items-center sm:pt-0">
           <div className="pointer-events-auto">
-            <h1 className="font-display text-3xl font-medium text-white sm:text-5xl lg:text-[64px]">
+            <div className="mb-6 flex items-center sm:hidden">
+              {mobileHomeCard && (
+                <HomeCardLink
+                  card={mobileHomeCard}
+                  className={
+                    "home-mobile-featured-card aspect-[63/88] w-[120px] ml-2 " +
+                    "rotate-6 shadow-xl shadow-black/25"
+                  }
+                />
+              )}
+            </div>
+            <h1 className="text-left font-display text-[32px] leading-[1.05] font-medium text-white sm:text-5xl sm:leading-[normal] lg:text-[64px]">
               {t("common:home.title")}
             </h1>
             <p className="mt-2 text-base text-white/80">
               {t("common:home.subtitle")}
             </p>
 
-            <div className="mt-10 flex w-full max-w-full flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="mt-4 flex w-full max-w-full flex-col gap-2 sm:mt-10 sm:flex-row sm:items-start sm:gap-4">
               <CardSearchPicker
                 containerClassName="z-10 min-w-0 max-w-[420px] w-full"
                 className="h-11 border-white/25 bg-white/95 px-4 pl-10 shadow-lg shadow-black/15 "
@@ -351,19 +382,26 @@ export const Home = () => {
                 onSelect={handleCardSelect}
               />
 
-              <div className="flex items-center justify-center text-base text-white/70 sm:h-11">
+              <div className="flex items-center justify-start text-base text-white/70 sm:h-11 sm:justify-center">
                 {t("common:home.or")}
               </div>
 
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11 shrink-0 border-white/35 bg-white/95 px-5 shadow-lg shadow-black/15"
-                onClick={handleImportFromFile}
-              >
-                <Upload className="size-4" />
-                {t("common:home.import_from_file")}
-              </Button>
+              <ButtonImportBinder
+                binderId="draft"
+                tcgId={draftBinder.tcgId}
+                onImportCards={handleImportCards}
+                onImported={handleImported}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 w-fit shrink-0 border-white/35 bg-white/95 px-5 shadow-lg shadow-black/15"
+                  >
+                    <Upload className="size-4" />
+                    {t("common:home.import_from_file")}
+                  </Button>
+                }
+              />
             </div>
           </div>
         </div>

@@ -41,12 +41,14 @@ import {
 } from "@/lib/binderPage";
 import {
   binderCardsUpdateInputToDraftPatch,
+  binderImportItemsToDraftCards,
   draftBinderCardsToBinderCardRecords,
   draftBinderCardToBinderCardRecord,
   draftBinderCardToInsertInput,
   sortDraftBinderCards,
 } from "@/lib/draftBinder";
 import { handleError } from "@/lib/error";
+import { usePricingSettings } from "@/providers/PricingSettingsContext";
 import { useSession } from "@/providers/SessionContext";
 
 const DRAFT_BINDER_ID = "draft";
@@ -57,6 +59,7 @@ export const BinderDraft = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { session } = useSession();
+  const { showConvertedMarketPrices } = usePricingSettings();
   const isMobile = useIsMobile();
   const filterState = useMemo(
     () => getBinderCardFilterStateFromSearchParams(searchParams),
@@ -90,8 +93,6 @@ export const BinderDraft = () => {
   const [deleteBinder] = useDeleteBinderMutation();
   const [sortMode, setSortMode] = useState<BinderSortMode>("seller_order");
   const [viewMode, setViewMode] = useState<BinderCardViewMode>("grid");
-  const [showConvertedMarketPrices, setShowConvertedMarketPrices] =
-    useState(true);
   const [pageIndex, setPageIndex] = useState(0);
   const [selectedBinderCardId, setSelectedBinderCardId] = useState<
     string | null
@@ -319,19 +320,7 @@ export const BinderDraft = () => {
     items,
     onProgress,
   }) => {
-    addCards(
-      items.map(({ card, finish, item }) => ({
-        card: createDraftCardSnapshot(card),
-        options: {
-          condition: item.condition,
-          finish,
-          language: item.language,
-          priceAmount: item.priceAmount ?? null,
-          priceCurrency: item.priceCurrency,
-          quantity: item.quantity,
-        },
-      }))
-    );
+    addCards(binderImportItemsToDraftCards(items));
     onProgress(items.length);
 
     return {
@@ -515,7 +504,6 @@ export const BinderDraft = () => {
         onRenameBinder={setName}
         onSelectVisibleBinderCards={handleSelectVisibleBinderCards}
         onSelectionModeChange={handleSelectionModeChange}
-        onShowConvertedMarketPricesChange={setShowConvertedMarketPrices}
         onSortChange={handleSortChange}
         onToggleCardSelection={handleToggleCardSelection}
         onUpdateBinderCard={handleUpdateBinderCard}

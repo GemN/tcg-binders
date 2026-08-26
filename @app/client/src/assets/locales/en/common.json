@@ -1,7 +1,7 @@
 {
   "seo": {
     "home": {
-      "title": "Build and Share Your MTG Binder",
+      "title": "Share Your MTG Binder",
       "description": "Create and share a Magic: The Gathering binder, price your cards, and help buyers find the cards they need."
     },
     "my_binders": {
@@ -37,8 +37,14 @@
     "account": "Account",
     "brand": "TCGBinder",
     "currency": "Currency",
+    "display_prices_converted": "Convert prices",
+    "display_prices_converted_description": "Convert market prices to your selected currency.",
     "home": "Home",
+    "language": "Language",
     "logout": "Log out",
+    "menu": "Menu",
+    "menu_description": "Browse pages and update your preferences.",
+    "open_menu": "Open menu",
     "price_source": "Price source",
     "price_source_description": "Used as the primary pricing reference across the site",
     "register": "Register",
@@ -55,11 +61,10 @@
     "description": "The page you are looking for does not exist."
   },
   "home": {
-    "title": "Start a binder",
-    "subtitle": "Add the first Magic card to begin.",
+    "title": "Share your binder online. Free",
+    "subtitle": "Add your first Magic card or import to begin.",
     "or": "or",
-    "import_from_file": "Import from file",
-    "import_not_ready": "Manabox CSV import is not ready yet."
+    "import_from_file": "Import from file"
   },
   "new_binder": {
     "button": "New Binder",

@@ -11,7 +11,6 @@ import {
   type ImportBinderCardsHandler,
 } from "@/components/ButtonImportBinder";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
-import { Switch } from "@/components/ui/Switch";
 import {
   Tooltip,
   TooltipContent,
@@ -28,14 +27,12 @@ interface BinderPageHeaderProps {
   canEditBinder: boolean;
   headerAction?: ReactNode;
   ownerByline?: ReactNode;
-  showConvertedMarketPrices: boolean;
   titleAction?: ReactNode;
   viewCount?: number;
   onAddCard: (card: DraftCardSnapshot) => void;
   onBinderChanged: () => Promise<unknown> | unknown;
   onImportCards?: ImportBinderCardsHandler;
   onRenameBinder?: (name: string) => Promise<unknown> | unknown;
-  onShowConvertedMarketPricesChange: (checked: boolean) => void;
   onUpdateBinderNote?: (note: string) => Promise<unknown> | unknown;
 }
 
@@ -48,14 +45,12 @@ export const BinderPageHeader = ({
   canEditBinder,
   headerAction,
   ownerByline,
-  showConvertedMarketPrices,
   titleAction,
   viewCount,
   onAddCard,
   onBinderChanged,
   onImportCards,
   onRenameBinder,
-  onShowConvertedMarketPricesChange,
   onUpdateBinderNote,
 }: BinderPageHeaderProps) => {
   const { t } = useTranslation(["binder", "common"]);
@@ -84,26 +79,33 @@ export const BinderPageHeader = ({
             />
           </div>
         </div>
-        {canEditBinder && viewCount !== undefined && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span
-                className="mt-0.5 inline-flex items-center gap-1.5 text-sm text-binder-toolbar-foreground/80 tabular-nums"
-                aria-label={`${t("binder:stats.views")}: ${viewCount}`}
-                tabIndex={0}
-              >
-                <Eye aria-hidden="true" className="size-4" />
-                {viewCount}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" sideOffset={4}>
-              {t("binder:stats.views")}
-            </TooltipContent>
-          </Tooltip>
+        {((canEditBinder && viewCount !== undefined) ||
+          (!ownerByline && titleAction)) && (
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+            {canEditBinder && viewCount !== undefined && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="inline-flex items-center gap-1.5 text-sm text-binder-toolbar-foreground/80 tabular-nums"
+                    aria-label={`${t("binder:stats.views")}: ${viewCount}`}
+                    tabIndex={0}
+                  >
+                    <Eye aria-hidden="true" className="size-4" />
+                    {viewCount}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" sideOffset={4}>
+                  {t("binder:stats.views")}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {!ownerByline && titleAction}
+          </div>
         )}
         {ownerByline && (
-          <div className="mt-0.5 mb-3 flex min-w-0 items-center">
+          <div className="mt-0.5 mb-3 flex min-w-0 items-center gap-3">
             {ownerByline}
+            {titleAction}
           </div>
         )}
         <BinderNote
@@ -114,36 +116,23 @@ export const BinderPageHeader = ({
           onUpdated={onBinderChanged}
         />
       </div>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          {canEditBinder && (
-            <>
-              <CardSearchPicker
-                containerClassName="w-full sm:w-80"
-                placeholder={t("binder:search_placeholder")}
-                onSelect={onAddCard}
-              />
-              <ButtonImportBinder
-                binderId={binderId}
-                tcgId={binderTcgId}
-                onImportCards={onImportCards}
-                onImported={onBinderChanged}
-              />
-            </>
-          )}
-          {headerAction}
-        </div>
-        <div className="flex flex-col gap-4 items-end">
-          <label className="inline-flex w-fit items-center gap-2 text-sm text-primary">
-            <Switch
-              checked={showConvertedMarketPrices}
-              onCheckedChange={onShowConvertedMarketPricesChange}
-              aria-label={t("binder:show_converted_market_prices")}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        {canEditBinder && (
+          <>
+            <CardSearchPicker
+              containerClassName="w-full sm:w-80"
+              placeholder={t("binder:search_placeholder")}
+              onSelect={onAddCard}
             />
-            <span>{t("binder:show_converted_market_prices")}</span>
-          </label>
-          {titleAction}
-        </div>
+            <ButtonImportBinder
+              binderId={binderId}
+              tcgId={binderTcgId}
+              onImportCards={onImportCards}
+              onImported={onBinderChanged}
+            />
+          </>
+        )}
+        {headerAction}
       </div>
     </div>
   );

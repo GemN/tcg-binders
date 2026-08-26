@@ -9,7 +9,7 @@ import {
   Table2,
   Upload,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { type ReactElement, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
@@ -27,41 +27,28 @@ import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
 import {
-  type BinderImportCardRecord,
+  type BinderImportDestinationResult,
   type BinderImportFormat,
-  type BinderImportLookupBatch,
   type BinderImportParseResult,
   type BinderImportResolvedItem,
   type BinderImportResolveResult,
-  createBinderImportLookupBatches,
-  createBinderImportObjects,
-  parseBinderImportText,
-  parseManaBoxCsvImport,
-  resolveBinderImportItems,
+  createBinderImporter,
+  createCallbackImportDestination,
+  createGraphqlCardCatalog,
+  createSavedBinderImportDestination,
+  type ImportBinderCardsHandler as BinderImportCardsHandler,
 } from "@/lib/import";
 
 interface ButtonImportBinderProps {
   binderId: string;
-  onImportCards?: ImportBinderCardsHandler;
+  onImportCards?: BinderImportCardsHandler;
   onImported: () => Promise<unknown> | unknown;
   tcgId: string;
+  trigger?: ReactElement;
 }
 
-export interface ImportBinderCardsResult {
-  failedInsertCount: number;
-  failedItems?: BinderImportResolvedItem[];
-  importedCount: number;
-}
-
-export interface ImportBinderCardsHandlerParams {
-  items: BinderImportResolvedItem[];
-  onProgress: (completed: number) => void;
-  tcgId: string;
-}
-
-export type ImportBinderCardsHandler = (
-  params: ImportBinderCardsHandlerParams
-) => Promise<ImportBinderCardsResult> | ImportBinderCardsResult;
+export type ImportBinderCardsHandler = BinderImportCardsHandler;
+export type ImportBinderCardsResult = BinderImportDestinationResult;
 
 type BinderImportSource = "text" | "manabox_csv" | "text_file";
 type BinderImportStep = "input" | "success";
@@ -91,8 +78,6 @@ interface BinderImportSuccess {
   importedCount: number;
   issues: BinderImportIssue[];
 }
-
-const importChunkSize = 50;
 
 const getImportFormat = (source: BinderImportSource): BinderImportFormat => {
   return source === "manabox_csv" ? "manabox_csv" : "text";
@@ -301,6 +286,7 @@ export const ButtonImportBinder = ({
   onImportCards,
   onImported,
   tcgId,
+  trigger,
 }: ButtonImportBinderProps) => {
   const { t } = useTranslation(["binder", "common"]);
   const fileReadTokenRef = useRef(0);
@@ -328,6 +314,15 @@ export const ButtonImportBinder = ({
     });
   const [addBinderCards, { loading: isImportingCards }] =
     useAddBinderCardsMutation();
+  const cardCatalog = createGraphqlCardCatalog({ loadCards });
+  const destination = onImportCards
+    ? createCallbackImportDestination({ importCards: onImportCards, tcgId })
+    : createSavedBinderImportDestination({
+        addBinderCards,
+        binderId,
+        tcgId,
+      });
+  const importer = createBinderImporter({ cardCatalog, destination });
   const isImporting = isLoadingCards || isImportingCards || isImportRunning;
   const isFileImportSource = importSource !== "text";
 
@@ -356,95 +351,6 @@ export const ButtonImportBinder = ({
     }
   };
 
-  const insertBinderCards = async (
-    items: BinderImportResolvedItem[],
-    onProgress: (completed: number) => void
-  ): Promise<ImportBinderCardsResult> => {
-    if (onImportCards) {
-      return onImportCards({ items, onProgress, tcgId });
-    }
-
-    const objects = createBinderImportObjects({
-      binderId,
-      items,
-      tcgId,
-    });
-    let failedInsertCount = 0;
-    const failedItems: BinderImportResolvedItem[] = [];
-    let importedCount = 0;
-
-    for (let index = 0; index < items.length; index += importChunkSize) {
-      const itemChunk = items.slice(index, index + importChunkSize);
-      const objectChunk = objects.slice(index, index + importChunkSize);
-
-      try {
-        await addBinderCards({ variables: { objects: objectChunk } });
-        importedCount += objectChunk.length;
-        onProgress(importedCount + failedInsertCount);
-      } catch (chunkError) {
-        if (objectChunk.length === 1) {
-          failedInsertCount += 1;
-          failedItems.push(itemChunk[0]);
-          console.error(chunkError);
-          onProgress(importedCount + failedInsertCount);
-          continue;
-        }
-
-        for (let itemIndex = 0; itemIndex < objectChunk.length; itemIndex += 1) {
-          try {
-            await addBinderCards({
-              variables: { objects: [objectChunk[itemIndex]] },
-            });
-            importedCount += 1;
-          } catch (itemError) {
-            failedInsertCount += 1;
-            failedItems.push(itemChunk[itemIndex]);
-            console.error(itemError);
-          }
-          onProgress(importedCount + failedInsertCount);
-        }
-      }
-    }
-
-    return { failedInsertCount, failedItems, importedCount };
-  };
-
-  const loadCardsForImport = async (
-    batches: BinderImportLookupBatch[],
-    onProgress: (completed: number) => void
-  ): Promise<BinderImportCardRecord[]> => {
-    const cardsById = new Map<string, BinderImportCardRecord>();
-    let completedItems = 0;
-
-    for (const batch of batches) {
-      let after: string | null | undefined;
-      let hasNextPage = true;
-
-      while (hasNextPage) {
-        const result = await loadCards({
-          variables: {
-            after,
-            filter: batch.filter,
-            first: batch.first,
-          },
-        });
-        const collection = result.data?.cardsCollection;
-
-        collection?.edges.forEach(({ node }) => {
-          cardsById.set(node.id, node);
-        });
-
-        after = collection?.pageInfo.endCursor;
-        hasNextPage = !!collection?.pageInfo.hasNextPage && !!after;
-      }
-
-      completedItems += batch.items.length;
-      onProgress(completedItems);
-    }
-
-    return [...cardsById.values()];
-  };
-
   const getRejectedLineReasonLabel = (reason: string): string => {
     switch (reason) {
       case "Invalid quantity":
@@ -461,7 +367,7 @@ export const ButtonImportBinder = ({
   };
 
   const buildRejectedLineIssues = (
-    parseResult: BinderImportParseResult
+    parseResult: Pick<BinderImportParseResult, "rejectedLines">
   ): BinderImportIssue[] => {
     return parseResult.rejectedLines.map((line, index) => ({
       id: `rejected-${line.line}-${index}`,
@@ -564,13 +470,16 @@ export const ButtonImportBinder = ({
       total: matchedItems.length,
     });
 
-    const insertResult = await insertBinderCards(matchedItems, (completed) => {
-      setImportProgress({
-        completed,
-        stage: "importing",
-        total: matchedItems.length,
-      });
-    });
+    const insertResult = await importer.commit(
+      matchedItems,
+      ({ completed, total }) => {
+        setImportProgress({
+          completed,
+          stage: "importing",
+          total,
+        });
+      }
+    );
 
     if (insertResult.importedCount > 0) {
       await onImported();
@@ -605,13 +514,32 @@ export const ButtonImportBinder = ({
         return;
       }
 
-      const parseResult =
-        format === "manabox_csv"
-          ? parseManaBoxCsvImport(value)
-          : parseBinderImportText(value);
-      const parseIssues = buildRejectedLineIssues(parseResult);
+      setImportError(null);
+      setPartialReview(null);
+      setImportSuccess(null);
+      setImportProgress({
+        completed: 0,
+        stage: "matching",
+        total: 0,
+      });
+      const preparation = await importer.prepare({
+        format,
+        onProgress: ({ completed, total }) => {
+          setImportProgress({
+            completed,
+            stage: "matching",
+            total,
+          });
+        },
+        tcgId,
+        text: value,
+      });
+      const parseIssues = buildRejectedLineIssues(preparation);
 
-      if (parseResult.items.length === 0) {
+      if (
+        preparation.matchedItems.length === 0 &&
+        preparation.unmatchedItems.length === 0
+      ) {
         setPartialReview(null);
         setImportError({
           issues: parseIssues,
@@ -620,36 +548,16 @@ export const ButtonImportBinder = ({
         return;
       }
 
-      setImportError(null);
-      setPartialReview(null);
-      setImportSuccess(null);
-      const lookupBatches = createBinderImportLookupBatches(
-        parseResult.items,
-        tcgId
-      );
-      setImportProgress({
-        completed: 0,
-        stage: "matching",
-        total: parseResult.items.length,
-      });
-      const cards = await loadCardsForImport(lookupBatches, (completed) => {
-        setImportProgress({
-          completed,
-          stage: "matching",
-          total: parseResult.items.length,
-        });
-      });
-      const resolveResult = resolveBinderImportItems(parseResult.items, cards);
       const issues = [
         ...parseIssues,
-        ...buildUnmatchedItemIssues(resolveResult),
+        ...buildUnmatchedItemIssues(preparation),
       ];
 
       if (issues.length > 0) {
-        if (resolveResult.matchedItems.length > 0) {
+        if (preparation.matchedItems.length > 0) {
           setPartialReview({
             issues,
-            matchedItems: resolveResult.matchedItems,
+            matchedItems: preparation.matchedItems,
           });
           return;
         }
@@ -661,7 +569,7 @@ export const ButtonImportBinder = ({
         return;
       }
 
-      await importResolvedItems(resolveResult.matchedItems, []);
+      await importResolvedItems(preparation.matchedItems, []);
     });
   };
 
@@ -750,10 +658,12 @@ export const ButtonImportBinder = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" className="h-9 px-2 sm:px-3">
-          <Upload className="size-4" />
-          {t("binder:import.button")}
-        </Button>
+        {trigger || (
+          <Button type="button" variant="outline" className="h-9 px-2 sm:px-3">
+            <Upload className="size-4" />
+            {t("binder:import.button")}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent
         showCloseButton={!isImporting && importStep !== "success"}

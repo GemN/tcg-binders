@@ -1,9 +1,8 @@
+import { useCreateBinderMutation } from "@app/graphql";
 import { Plus } from "lucide-react";
-import { useState, type FormEvent, type ReactElement } from "react";
+import { type FormEvent, type ReactElement, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
-
-import { useCreateBinderMutation } from "@app/graphql";
 
 import { Button } from "@/components/ui/Button";
 import {
@@ -20,10 +19,14 @@ import { Label } from "@/components/ui/Label";
 import { handleError } from "@/lib/error";
 
 interface ButtonNewBinderProps {
+  onCreated?: () => void;
   trigger?: ReactElement;
 }
 
-export const ButtonNewBinder = ({ trigger }: ButtonNewBinderProps) => {
+export const ButtonNewBinder = ({
+  onCreated,
+  trigger,
+}: ButtonNewBinderProps) => {
   const { t } = useTranslation(["common"]);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -67,6 +70,7 @@ export const ButtonNewBinder = ({ trigger }: ButtonNewBinderProps) => {
 
       setIsOpen(false);
       resetForm();
+      onCreated?.();
       navigate(`/binder/${binder.shortId}`);
     } catch (error) {
       handleError(error, t("common:new_binder.create_error"));

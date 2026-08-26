@@ -282,6 +282,12 @@
   }
 }
 
+@media (max-width: 639px) {
+  .home-mobile-featured-card .home-card-holographic-overlay {
+    animation: home-card-holographic-sweep 2400ms ease-in-out infinite;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home-card-link:hover {
     transform: none;
@@ -289,5 +295,13 @@
 
   .home-card-link:hover .home-card-holographic-overlay {
     animation: none;
+  }
+
+  .home-mobile-featured-card .home-card-holographic-overlay {
+    animation: none;
+    background-position:
+      0 0,
+      50% 50%;
+    opacity: 0.3;
   }
 }

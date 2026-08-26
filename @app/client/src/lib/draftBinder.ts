@@ -1,9 +1,14 @@
-import {
-  type BinderCardsInsertInput,
-  type BinderCardsUpdateInput,
+import type {
+  BinderCardsInsertInput,
+  BinderCardsUpdateInput,
+  CardCondition,
+  CurrencyCode,
+  LanguageCode,
+  MarketPriceSource,
 } from "@app/graphql";
 
 import type {
+  AddDraftCardOptions,
   DraftBinderCard,
   DraftCardSnapshot,
 } from "@/hooks/useDraftBinder";
@@ -12,6 +17,93 @@ import type {
   BinderCardRecord,
 } from "@/lib/binderCardPricing";
 import type { BinderSortMode } from "@/lib/binderPage";
+import type { BinderImportResolvedItem } from "@/lib/import";
+
+interface DraftCardSnapshotSource {
+  cardSet?: {
+    code?: string | null;
+    name?: string | null;
+  } | null;
+  collectorNumber?: string | null;
+  externalId: string;
+  finishes: Array<string | null>;
+  id: string;
+  imageUrl?: string | null;
+  marketPrices?: {
+    edges: Array<{
+      node: {
+        amount: number | string;
+        buyUrl?: string | null;
+        currency: string;
+        finish: string;
+        priceDate: string;
+        source: string;
+      };
+    }>;
+  } | null;
+  mtgCardDetail?: {
+    oracleText?: string | null;
+    scryfallId?: string | null;
+    typeLine?: string | null;
+  } | null;
+  name: string;
+  rarity?: string | null;
+  releasedAt?: string | null;
+}
+
+export const createDraftCardSnapshot = (
+  card: DraftCardSnapshotSource
+): DraftCardSnapshot => {
+  return {
+    id: card.id,
+    externalId: card.externalId,
+    name: card.name,
+    collectorNumber: card.collectorNumber,
+    rarity: card.rarity,
+    finishes: card.finishes.filter((finish): finish is string => !!finish),
+    imageUrl: card.imageUrl,
+    releasedAt: card.releasedAt,
+    setCode: card.cardSet?.code,
+    setName: card.cardSet?.name,
+    mtgCardDetail: card.mtgCardDetail
+      ? {
+          oracleText: card.mtgCardDetail.oracleText,
+          scryfallId: card.mtgCardDetail.scryfallId,
+          typeLine: card.mtgCardDetail.typeLine,
+        }
+      : null,
+    marketPrices:
+      card.marketPrices?.edges.map(({ node }) => ({
+        source: node.source as MarketPriceSource,
+        finish: node.finish,
+        amount: Number(node.amount),
+        currency: node.currency as CurrencyCode,
+        priceDate: node.priceDate,
+        buyUrl: node.buyUrl,
+      })) || [],
+  };
+};
+
+export interface DraftBinderImportCard {
+  card: DraftCardSnapshot;
+  options: AddDraftCardOptions;
+}
+
+export const binderImportItemsToDraftCards = (
+  items: BinderImportResolvedItem[]
+): DraftBinderImportCard[] => {
+  return items.map(({ card, finish, item }) => ({
+    card: createDraftCardSnapshot(card),
+    options: {
+      condition: item.condition as CardCondition,
+      finish,
+      language: item.language as LanguageCode,
+      priceAmount: item.priceAmount ?? null,
+      priceCurrency: item.priceCurrency as CurrencyCode | undefined,
+      quantity: item.quantity,
+    },
+  }));
+};
 
 interface SortableDraftBinderCard extends DraftBinderCard {
   card: DraftCardSnapshot;

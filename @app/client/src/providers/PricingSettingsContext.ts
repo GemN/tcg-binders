@@ -31,8 +31,10 @@ export interface PricingSettingsContextValue {
   convertAmountToLocalCurrency: ConvertAmountToLocalCurrency;
   currency: SupportedCurrency;
   priceSource: SupportedPriceSource;
+  showConvertedMarketPrices: boolean;
   setCurrency: (currency: SupportedCurrency) => void;
   setPriceSource: (priceSource: SupportedPriceSource) => void;
+  setShowConvertedMarketPrices: (showConvertedMarketPrices: boolean) => void;
 }
 
 export const PricingSettingsContext =
