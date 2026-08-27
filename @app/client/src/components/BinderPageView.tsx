@@ -6,35 +6,28 @@ import type { BinderCardViewMode } from "@/components/BinderCard";
 import { BinderCardViewPanel } from "@/components/BinderCardViewPanel";
 import { BinderPageControls } from "@/components/BinderPageControls";
 import { BinderPageHeader } from "@/components/BinderPageHeader";
-import type { ImportBinderCardsHandler } from "@/components/ButtonImportBinder";
 import { ModalBinderCardDetail } from "@/components/ModalBinderCardDetail";
-import type {
-  ModalBinderCardRecord,
-  UpdateBinderCardHandler,
-} from "@/components/ModalBinderCardDetail/types";
-import {
-  ModalBulkBinderCardPrice,
-  type UpdateBulkBinderCardPrice,
-} from "@/components/ModalBulkBinderCardPrice";
+import type { ModalBinderCardRecord } from "@/components/ModalBinderCardDetail/types";
+import { ModalBulkBinderCardPrice } from "@/components/ModalBulkBinderCardPrice";
 import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
-import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
+import type { BinderEditing } from "@/lib/binderEditing";
 import type { BinderCardFilterState, BinderSortMode } from "@/lib/binderPage";
 import { cn } from "@/lib/utils";
 
 interface BinderPageViewProps {
   activeFilterCount: number;
-  binderId: string;
+  binderEditing?: BinderEditing;
+  binderIdentity: string;
   binderName: string;
   binderNote: string;
   binderTcgId: string;
   binderVisibility: BinderVisibility;
+  canUseCommerce: boolean;
   canGoNextDetailCard: boolean;
   canGoPreviousDetailCard: boolean;
-  canEditBinder: boolean;
   cardsPerPage: number;
   headerAction?: ReactNode;
-  isAddingCard?: boolean;
   isCartPreview: boolean;
   isDeletingCard?: boolean;
   isDeletingSelectedBinderCards: boolean;
@@ -42,11 +35,13 @@ interface BinderPageViewProps {
   isFiltered: boolean;
   isFilteredCountExact: boolean;
   isMobile: boolean;
+  isOwnerView: boolean;
   isPageLoading: boolean;
   isSelectionMode: boolean;
   isBulkPriceOpen: boolean;
   ownerByline?: ReactNode;
   pageIndex: number;
+  requiresReload: boolean;
   selectedBinderCard: ModalBinderCardRecord | null;
   selectedBinderCardCount: number;
   selectedBinderCardIds: Set<string>;
@@ -60,49 +55,44 @@ interface BinderPageViewProps {
   viewCount?: number;
   viewMode: BinderCardViewMode;
   visibleBinderCards: BinderCardRecord[];
-  onAddCard: (card: DraftCardSnapshot) => Promise<unknown> | unknown;
   onAddToCart: (binderCard: ModalBinderCardRecord) => void;
-  onBinderCardUpdated: (binderCard: ModalBinderCardRecord) => void;
-  onBinderChanged: () => Promise<unknown> | unknown;
   onClearCardSelection: () => void;
   onClearFilters: () => void;
+  onCoherenceFailure?: () => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onDeleteSelectedBinderCards: () => void;
   onFilterStateChange: (filterState: BinderCardFilterState) => void;
   onGoNextDetailCard: () => void;
   onGoPreviousDetailCard: () => void;
-  onImportCards?: ImportBinderCardsHandler;
   onNextPage: () => void;
   onOpenBulkPrice: () => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
   onPreviousPage: () => void;
-  onRenameBinder?: (name: string) => Promise<unknown> | unknown;
   onSelectVisibleBinderCards: () => void;
   onSelectionModeChange: (nextIsSelectionMode: boolean) => void;
   onSortChange: (value: string) => void;
   onToggleCardSelection: (binderCard: BinderCardRecord) => void;
-  onUpdateBinderCard?: UpdateBinderCardHandler;
-  onUpdateBinderCardPrice?: UpdateBulkBinderCardPrice;
-  onUpdateBinderNote?: (note: string) => Promise<unknown> | unknown;
   onViewChange: (value: BinderCardViewMode) => void;
   onDetailOpenChange: (nextOpen: boolean) => void;
-  onBulkPriceApplied: () => Promise<unknown> | unknown;
+  onBulkPriceApplied: (
+    coherenceFailed: boolean
+  ) => Promise<unknown> | unknown;
   onBulkPriceOpenChange: (open: boolean) => void;
 }
 
 export const BinderPageView = ({
   activeFilterCount,
-  binderId,
+  binderEditing,
+  binderIdentity,
   binderName,
   binderNote,
   binderTcgId,
   binderVisibility,
+  canUseCommerce,
   canGoNextDetailCard,
   canGoPreviousDetailCard,
-  canEditBinder,
   cardsPerPage,
   headerAction,
-  isAddingCard,
   isCartPreview,
   isDeletingCard,
   isDeletingSelectedBinderCards,
@@ -110,11 +100,13 @@ export const BinderPageView = ({
   isFiltered,
   isFilteredCountExact,
   isMobile,
+  isOwnerView,
   isPageLoading,
   isSelectionMode,
   isBulkPriceOpen,
   ownerByline,
   pageIndex,
+  requiresReload,
   selectedBinderCard,
   selectedBinderCardCount,
   selectedBinderCardIds,
@@ -128,36 +120,30 @@ export const BinderPageView = ({
   viewCount,
   viewMode,
   visibleBinderCards,
-  onAddCard,
   onAddToCart,
-  onBinderCardUpdated,
-  onBinderChanged,
   onBulkPriceApplied,
   onBulkPriceOpenChange,
   onClearCardSelection,
   onClearFilters,
+  onCoherenceFailure,
   onDeleteCard,
   onDeleteSelectedBinderCards,
   onDetailOpenChange,
   onFilterStateChange,
   onGoNextDetailCard,
   onGoPreviousDetailCard,
-  onImportCards,
   onNextPage,
   onOpenBulkPrice,
   onOpenCard,
   onPreviousPage,
-  onRenameBinder,
   onSelectVisibleBinderCards,
   onSelectionModeChange,
   onSortChange,
   onToggleCardSelection,
-  onUpdateBinderCard,
-  onUpdateBinderCardPrice,
-  onUpdateBinderNote,
   onViewChange,
 }: BinderPageViewProps) => {
   const { t } = useTranslation(["binder"]);
+  const canEditBinder = !!binderEditing;
   const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
   const canTurnPreviousPage = !isMobile && pageIndex > 0;
   const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
@@ -171,22 +157,28 @@ export const BinderPageView = ({
     >
       <div className="relative z-10 flex min-h-full w-full flex-col gap-5 px-4 pb-4 sm:px-6 lg:px-20 pt-6">
         <BinderPageHeader
-          binderId={binderId}
+          key={`header-${binderIdentity}`}
+          binderEditing={binderEditing}
           binderName={binderName}
           binderNote={binderNote}
           binderTcgId={binderTcgId}
           binderVisibility={binderVisibility}
-          canEditBinder={canEditBinder}
           headerAction={headerAction}
+          isOwnerView={isOwnerView}
           ownerByline={ownerByline}
           titleAction={titleAction}
           viewCount={viewCount}
-          onAddCard={onAddCard}
-          onBinderChanged={onBinderChanged}
-          onImportCards={onImportCards}
-          onRenameBinder={onRenameBinder}
-          onUpdateBinderNote={onUpdateBinderNote}
+          onCoherenceFailure={onCoherenceFailure}
         />
+
+        {requiresReload && (
+          <p
+            role="status"
+            className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+          >
+            {t("binder:editing.coherence_failed")}
+          </p>
+        )}
 
         <BinderPageControls
           activeFilterCount={activeFilterCount}
@@ -216,12 +208,6 @@ export const BinderPageView = ({
           onViewChange={onViewChange}
         />
 
-        {isAddingCard && (
-          <p className="shrink-0 text-sm text-muted-foreground">
-            {t("binder:adding_card")}
-          </p>
-        )}
-
         <BinderCardViewPanel
           binderCards={visibleBinderCards}
           canTurnNextPage={canTurnNextPage}
@@ -237,7 +223,7 @@ export const BinderPageView = ({
           showConvertedMarketPrices={showConvertedMarketPrices}
           viewMode={viewMode}
           isCartPreview={isCartPreview}
-          onAddToCart={canEditBinder ? undefined : onAddToCart}
+          onAddToCart={canUseCommerce ? onAddToCart : undefined}
           onDeleteCard={onDeleteCard}
           onNextPage={onNextPage}
           onOpenCard={onOpenCard}
@@ -246,30 +232,33 @@ export const BinderPageView = ({
         />
       </div>
       <ModalBinderCardDetail
+        key={`detail-${binderIdentity}`}
+        binderEditing={binderEditing}
         binderCard={selectedBinderCard}
+        canUseCommerce={canUseCommerce}
         canGoNext={canGoNextDetailCard}
         canGoPrevious={canGoPreviousDetailCard}
         currentIndex={selectedCardIndex}
         isCartPreview={isCartPreview}
-        isEditable={canEditBinder}
         isLoading={isDetailLoading}
         open={selectedCardIndex !== null}
         showConvertedMarketPrices={showConvertedMarketPrices}
         totalCards={totalBinderCards}
         onAddToCart={onAddToCart}
-        onBinderCardUpdated={onBinderCardUpdated}
+        onCoherenceFailure={onCoherenceFailure}
         onGoNext={onGoNextDetailCard}
         onGoPrevious={onGoPreviousDetailCard}
         onOpenChange={onDetailOpenChange}
-        onUpdateBinderCard={onUpdateBinderCard}
       />
-      <ModalBulkBinderCardPrice
-        binderCards={selectedBinderCards}
-        open={isBulkPriceOpen}
-        onApplied={onBulkPriceApplied}
-        onOpenChange={onBulkPriceOpenChange}
-        onUpdateBinderCardPrice={onUpdateBinderCardPrice}
-      />
+      {binderEditing && (
+        <ModalBulkBinderCardPrice
+          binderEditing={binderEditing}
+          binderCards={selectedBinderCards}
+          open={isBulkPriceOpen}
+          onApplied={onBulkPriceApplied}
+          onOpenChange={onBulkPriceOpenChange}
+        />
+      )}
     </div>
   );
 };

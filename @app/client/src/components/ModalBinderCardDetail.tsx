@@ -1,9 +1,7 @@
 import {
-  type BinderCardsUpdateInput,
   CardCondition,
   CurrencyCode,
   LanguageCode,
-  useUpdateBinderCardMutation,
 } from "@app/graphql";
 import { type KeyboardEvent, useCallback } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
@@ -22,10 +20,7 @@ import type {
   DynamicPriceStrategy,
   ModalBinderCardRecord,
   PriceMode,
-  UpdateBinderCardContext,
-  UpdateBinderCardHandler,
 } from "@/components/ModalBinderCardDetail/types";
-import { getPreferredCardFinish } from "@/config/card";
 import {
   arePriceAmountsEqual,
   formatFallbackLabel,
@@ -38,11 +33,19 @@ import {
   writeStoredCustomCkdMultiplier,
 } from "@/components/ModalBinderCardDetail/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
+import { getPreferredCardFinish } from "@/config/card";
 import {
   type BinderCardPriceInput,
   formatBinderCardPrice,
   formatCardKingdomMultiplierThbPriceInput,
 } from "@/lib/binderCardPricing";
+import {
+  type BinderEditing,
+  type BinderEditingCardUpdate,
+  createBinderEditingCardSnapshot,
+  isBinderEditingCoherenceError,
+  presentBinderEditingError,
+} from "@/lib/binderEditing";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { getCurrencyFractionDigits, getCurrencySymbol } from "@/lib/currency";
 import { handleError } from "@/lib/error";
@@ -52,41 +55,41 @@ import {
 } from "@/providers/PricingSettingsContext";
 
 interface ModalBinderCardDetailProps {
+  binderEditing?: BinderEditing;
   binderCard: ModalBinderCardRecord | null;
+  canUseCommerce: boolean;
   canGoNext: boolean;
   canGoPrevious: boolean;
   currentIndex: number | null;
-  isEditable: boolean;
   isCartPreview: boolean;
   isLoading: boolean;
   open: boolean;
   showConvertedMarketPrices: boolean;
   totalCards: number;
   onAddToCart: (binderCard: ModalBinderCardRecord) => void;
-  onBinderCardUpdated: (binderCard: ModalBinderCardRecord) => void;
+  onCoherenceFailure?: () => void;
   onGoNext: () => void;
   onGoPrevious: () => void;
   onOpenChange: (open: boolean) => void;
-  onUpdateBinderCard?: UpdateBinderCardHandler;
 }
 
 export const ModalBinderCardDetail = ({
+  binderEditing,
   binderCard,
+  canUseCommerce,
   canGoNext,
   canGoPrevious,
   currentIndex,
-  isEditable,
   isCartPreview,
   isLoading,
   open,
   showConvertedMarketPrices,
   totalCards,
   onAddToCart,
-  onBinderCardUpdated,
+  onCoherenceFailure,
   onGoNext,
   onGoPrevious,
   onOpenChange,
-  onUpdateBinderCard,
 }: ModalBinderCardDetailProps) => {
   const { i18n, t } = useTranslation(["binder", "checkout", "common"]);
   const {
@@ -107,9 +110,8 @@ export const ModalBinderCardDetail = ({
   const [priceMode, setPriceMode] = useState<PriceMode>("manual");
   const [dynamicPriceStrategy, setDynamicPriceStrategy] =
     useState<DynamicPriceStrategy>("CKD X");
-  const [isSavingLocal, setIsSavingLocal] = useState(false);
-  const [updateBinderCard, { loading: isSaving }] =
-    useUpdateBinderCardMutation();
+  const [isSaving, setIsSaving] = useState(false);
+  const [requiresReload, setRequiresReload] = useState(false);
   const card = binderCard?.card;
   const detail = getCardDetail(card);
   const noImageLabel = t("binder:no_image");
@@ -185,35 +187,26 @@ export const ModalBinderCardDetail = ({
   }, [binderCard, currency, getInitialPriceCurrency]);
 
   const persistBinderCard = async (
-    set: BinderCardsUpdateInput,
-    context?: UpdateBinderCardContext
+    update: BinderEditingCardUpdate
   ) => {
-    if (!binderCard) return;
+    if (!binderCard || !binderEditing) return;
 
     try {
-      let updatedBinderCard: ModalBinderCardRecord | null | undefined;
-
-      if (onUpdateBinderCard) {
-        setIsSavingLocal(true);
-        updatedBinderCard = await onUpdateBinderCard(binderCard, set, context);
-      } else {
-        const result = await updateBinderCard({
-          variables: {
-            id: binderCard.id,
-            set,
-          },
-        });
-        updatedBinderCard = result.data?.updateBinderCardsCollection.records[0];
-      }
-
-      if (!updatedBinderCard) {
-        throw new Error(t("binder:detail.update_error"));
-      }
-      onBinderCardUpdated(updatedBinderCard);
+      setIsSaving(true);
+      await binderEditing.updateCard(binderCard.id, update);
     } catch (error) {
-      handleError(error, t("binder:detail.update_error"));
+      presentBinderEditingError(error, {
+        fallbackMessage: t("binder:detail.update_error"),
+        reasonMessages: {
+          coherence_failed: t("binder:editing.coherence_failed"),
+        },
+      });
+      if (isBinderEditingCoherenceError(error)) {
+        setRequiresReload(true);
+        onCoherenceFailure?.();
+      }
     } finally {
-      setIsSavingLocal(false);
+      setIsSaving(false);
     }
   };
 
@@ -489,13 +482,11 @@ export const ModalBinderCardDetail = ({
       ? binderCard.finish
       : getPreferredCardFinish(variantFinishes);
 
-    void persistBinderCard(
-      {
-        cardId: variant.id,
-        ...(nextFinish === binderCard.finish ? {} : { finish: nextFinish }),
-      },
-      { variant }
-    );
+    void persistBinderCard({
+      card: createBinderEditingCardSnapshot(variant),
+      cardId: variant.id,
+      ...(nextFinish === binderCard.finish ? {} : { finish: nextFinish }),
+    });
   };
 
   const translateCardOption = (
@@ -528,7 +519,7 @@ export const ModalBinderCardDetail = ({
           <ModalDetailHeader
             cancelLabel={t("common:cancel")}
             currentIndex={currentIndex}
-            isSaving={isSaving || isSavingLocal}
+            isSaving={isSaving}
             positionLabel={
               currentIndex === null
                 ? null
@@ -566,8 +557,14 @@ export const ModalBinderCardDetail = ({
                   title={title}
                 />
 
+                {requiresReload && (
+                  <p className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                    {t("binder:editing.coherence_failed")}
+                  </p>
+                )}
+
                 {binderCard &&
-                  (isEditable ? (
+                  (binderEditing && !requiresReload ? (
                     <BinderCardEditableFields
                       binderCard={binderCard}
                       card={card}
@@ -651,7 +648,9 @@ export const ModalBinderCardDetail = ({
                         sourceCurrency: binderCard.priceCurrency,
                       })}
                       titleLabel={t("binder:detail.listed_at")}
-                      onAddToCart={handleAddToCart}
+                      onAddToCart={
+                        canUseCommerce ? handleAddToCart : undefined
+                      }
                       translateCardOption={translateCardOption}
                     />
                   ))}

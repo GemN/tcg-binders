@@ -1,5 +1,5 @@
 import { type LanguageCode, MarketPriceSource } from "@app/graphql";
-import { ArrowDown, ArrowUp, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { memo, type MouseEvent, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -8,6 +8,7 @@ import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CardImage } from "@/components/CardImage";
 import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
+import { PriceComparisonBadge } from "@/components/PriceComparisonBadge";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { cardLanguageFlagCodes } from "@/config/card";
@@ -17,6 +18,10 @@ import {
   getBinderCardMarketPrice,
 } from "@/lib/binderCardPricing";
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
+import {
+  getPriceComparison,
+  type PriceComparison,
+} from "@/lib/priceComparison";
 import { cn } from "@/lib/utils";
 import {
   type ConvertAmountToLocalCurrency,
@@ -25,13 +30,6 @@ import {
 } from "@/providers/PricingSettingsContext";
 
 export type BinderCardViewMode = "grid" | "list";
-
-type BinderCardValueDeltaDirection = "below" | "above" | "even";
-
-interface BinderCardValueDelta {
-  direction: BinderCardValueDeltaDirection;
-  label: string;
-}
 
 interface BinderCardMarketPriceOverlayProps {
   marketPriceLabel: string;
@@ -152,7 +150,7 @@ interface BinderCardPriceSummaryProps {
   listedAtLabel: string;
   listedPriceLabel: string | null;
   priceLabel: string;
-  valueDelta: BinderCardValueDelta | null;
+  valueDelta: PriceComparison | null;
 }
 
 const BinderCardPriceSummary = ({
@@ -170,24 +168,7 @@ const BinderCardPriceSummary = ({
         (!valueDelta || valueDelta.direction === "even") && "text-foreground"
       )}
     >
-      {valueDelta && valueDelta.direction !== "even" && (
-        <span
-          className={cn(
-            "inline-flex min-w-0 items-center gap-0.5 rounded-sm px-1 py-0.5 text-xs font-medium leading-none",
-            valueDelta.direction === "below" &&
-              "bg-success-background text-success border border-success-border",
-            valueDelta.direction === "above" &&
-              "bg-error-background  text-error border border-error-border"
-          )}
-        >
-          {valueDelta.direction === "below" ? (
-            <ArrowDown aria-hidden="true" className="size-3" />
-          ) : (
-            <ArrowUp aria-hidden="true" className="size-3" />
-          )}
-          <span className="truncate">{valueDelta.label}</span>
-        </span>
-      )}
+      <PriceComparisonBadge comparison={valueDelta} />
       <span className="min-w-0 truncate">{priceLabel}</span>
     </span>
     {listedPriceLabel && (
@@ -205,7 +186,7 @@ interface BinderCardPriceLabels {
   priceLabel: string;
   priceSource: SupportedPriceSource;
   priceSourceLabel: string;
-  valueDelta: BinderCardValueDelta | null;
+  valueDelta: PriceComparison | null;
 }
 
 const fallbackPrice = "-";
@@ -225,25 +206,6 @@ const getLocalCurrencyAmount = (
   if (!Number.isFinite(numericAmount)) return null;
 
   return convertAmountToLocalCurrency(numericAmount, sourceCurrency);
-};
-
-const getBinderCardValueDelta = (
-  priceAmount: number | null,
-  marketPriceAmount: number | null,
-  locale: string
-): BinderCardValueDelta | null => {
-  if (priceAmount === null || marketPriceAmount === null) return null;
-  if (marketPriceAmount <= 0) return null;
-
-  const deltaRatio = (marketPriceAmount - priceAmount) / marketPriceAmount;
-  const direction =
-    deltaRatio > 0 ? "below" : deltaRatio < 0 ? "above" : "even";
-  const label = new Intl.NumberFormat(locale, {
-    maximumFractionDigits: 0,
-    style: "percent",
-  }).format(Math.abs(deltaRatio));
-
-  return { direction, label };
 };
 
 const useBinderCardPriceLabels = (
@@ -312,7 +274,7 @@ const useBinderCardPriceLabels = (
     priceSource,
     priceSourceLabel,
     valueDelta: hasPriceSet
-      ? getBinderCardValueDelta(
+      ? getPriceComparison(
           localPriceAmount,
           localMarketPriceAmount,
           i18n.language

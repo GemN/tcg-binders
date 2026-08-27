@@ -15,11 +15,11 @@ import {
 import { getPreferredCardFinish } from "@/config/card";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useDebounce } from "@/hooks/useDebounce";
-import {
-  createDraftCardSnapshot,
-  type DraftCardSnapshot,
-} from "@/hooks/useDraftBinder";
 import { getMarketPriceBySourceAndFinish } from "@/lib/binderCardPricing";
+import {
+  type BinderEditingCardSnapshot,
+  createBinderEditingCardSnapshot,
+} from "@/lib/binderEditing";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
 import { cn } from "@/lib/utils";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
@@ -29,7 +29,7 @@ interface CardSearchPickerProps {
   className?: string;
   iconClassName?: string;
   placeholder?: string;
-  onSelect: (card: DraftCardSnapshot) => void;
+  onSelect: (card: BinderEditingCardSnapshot) => void;
 }
 
 interface ParsedCardSearchQuery {
@@ -129,7 +129,7 @@ export const CardSearchPicker = ({
     : displayedData?.cardsCollection;
   const cardNodes =
     resultsCollection?.edges.map(({ node }) => node) || [];
-  const cards = cardNodes.map((card) => createDraftCardSnapshot(card));
+  const cards = cardNodes.map((card) => createBinderEditingCardSnapshot(card));
   const totalResults = resultsCollection?.totalCount || 0;
   const pageInfo = resultsCollection?.pageInfo;
   const isLoadingWithResults =
@@ -150,7 +150,7 @@ export const CardSearchPicker = ({
     lastLoadedSearchKeyRef.current = searchKey;
   }, [data, loading, searchKey]);
 
-  const handleSelect = (card: DraftCardSnapshot) => {
+  const handleSelect = (card: BinderEditingCardSnapshot) => {
     onSelect(card);
     setQuery("");
     setIsOpen(false);

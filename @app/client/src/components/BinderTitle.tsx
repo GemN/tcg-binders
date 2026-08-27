@@ -1,23 +1,22 @@
-import { useRenameBinderMutation } from "@app/graphql";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { handleError } from "@/lib/error";
+import type { BinderEditing } from "@/lib/binderEditing";
+import {
+  isBinderEditingCoherenceError,
+  presentBinderEditingError,
+} from "@/lib/binderEditing";
 
 interface BinderTitleProps {
-  binderId: string;
-  isOwner: boolean;
+  binderEditing?: BinderEditing;
   name: string;
-  onRename?: (name: string) => Promise<unknown> | unknown;
-  onRenamed?: () => Promise<unknown> | unknown;
+  onCoherenceFailure?: () => void;
 }
 
 export const BinderTitle = ({
-  binderId,
-  isOwner,
+  binderEditing,
   name,
-  onRename,
-  onRenamed,
+  onCoherenceFailure,
 }: BinderTitleProps) => {
   const { t } = useTranslation(["binder", "common"]);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -25,12 +24,17 @@ export const BinderTitle = ({
   const skipBlurSubmitRef = useRef(false);
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState("");
-  const [renameBinder, { loading: isRenamingRemote }] =
-    useRenameBinderMutation();
-  const [isRenamingLocal, setIsRenamingLocal] = useState(false);
-  const loading = isRenamingRemote || isRenamingLocal;
+  const [loading, setLoading] = useState(false);
+  const [savedNameAfterRefreshFailure, setSavedNameAfterRefreshFailure] =
+    useState<string | null>(null);
 
-  const displayedName = isEditing ? draftName : name;
+  const displayedName = isEditing
+    ? draftName
+    : savedNameAfterRefreshFailure ?? name;
+
+  useEffect(() => {
+    setSavedNameAfterRefreshFailure(null);
+  }, [name]);
 
   useEffect(() => {
     if (isEditing) return;
@@ -48,10 +52,10 @@ export const BinderTitle = ({
     titleInput.setSelectionRange(titleLength, titleLength);
   }, [isEditing]);
 
-  if (!isOwner) {
+  if (!binderEditing) {
     return (
       <h1 className="font-display truncate text-[40px] font-semibold tracking-normal text-primary leading-[1.3]">
-        {name}
+        {displayedName}
       </h1>
     );
   }
@@ -75,13 +79,6 @@ export const BinderTitle = ({
     if (loading || isSubmittingRef.current) return;
 
     const nextName = draftName.trim();
-    if (!nextName) {
-      handleError(
-        new Error(t("binder:rename_name_required")),
-        t("binder:rename_error")
-      );
-      return;
-    }
 
     if (nextName === name) {
       handleCancelRenameBinder();
@@ -89,32 +86,30 @@ export const BinderTitle = ({
     }
 
     isSubmittingRef.current = true;
+    setLoading(true);
 
     try {
-      if (onRename) {
-        setIsRenamingLocal(true);
-        await onRename(nextName);
-      } else {
-        const result = await renameBinder({
-          variables: {
-            id: binderId,
-            name: nextName,
-          },
-        });
-
-        if (!result.data?.updateBindersCollection.affectedCount) {
-          throw new Error(t("binder:rename_error"));
-        }
-      }
-
-      await onRenamed?.();
+      await binderEditing.renameBinder(nextName);
       skipBlurSubmitRef.current = true;
       setIsEditing(false);
       setDraftName("");
     } catch (error) {
-      handleError(error, t("binder:rename_error"));
+      presentBinderEditingError(error, {
+        fallbackMessage: t("binder:rename_error"),
+        reasonMessages: {
+          coherence_failed: t("binder:editing.coherence_failed"),
+          name_required: t("binder:rename_name_required"),
+        },
+      });
+      if (isBinderEditingCoherenceError(error)) {
+        skipBlurSubmitRef.current = true;
+        setSavedNameAfterRefreshFailure(nextName);
+        setIsEditing(false);
+        setDraftName("");
+        onCoherenceFailure?.();
+      }
     } finally {
-      setIsRenamingLocal(false);
+      setLoading(false);
       isSubmittingRef.current = false;
     }
   };

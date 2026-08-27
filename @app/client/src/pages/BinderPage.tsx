@@ -1,8 +1,6 @@
 import { NetworkStatus } from "@apollo/client";
 import {
-  useAddBinderCardMutation,
   useBinderByShortIdQuery,
-  useDeleteBinderCardMutation,
   useRecordBinderViewMutation,
   useUserProfileByIdQuery,
 } from "@app/graphql";
@@ -38,15 +36,29 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/Tooltip";
-import { getPreferredCardFinish } from "@/config/card";
 import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { useBinderCardDetailNavigation } from "@/hooks/useBinderCardDetailNavigation";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import { useBinderCartActions } from "@/hooks/useBinderCartActions";
 import { useDebounce } from "@/hooks/useDebounce";
-import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
 import { useIsMobile } from "@/hooks/useMobile";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
+import {
+  type BinderEditingBulkOutcome,
+  isBinderEditingCoherenceError,
+  presentBinderEditingError,
+} from "@/lib/binderEditing";
+import {
+  addLocallyDeletedBinderCardIds,
+  type BinderCardCountAdjustment,
+  createBinderCardCountAdjustment,
+  excludeLocallyDeletedBinderCards,
+  getAppliedBinderCardIds,
+  getBinderEditingPageAccess,
+  getLocallyAdjustedBinderCardCount,
+  reconcileBinderCardCountAdjustment,
+} from "@/lib/binderEditing/pageState";
+import { useSavedBinderEditing } from "@/lib/binderEditing/saved";
 import {
   type BinderCardFilterState,
   type BinderSortMode,
@@ -62,7 +74,6 @@ import {
   PRELOAD_PAGE_COUNT,
 } from "@/lib/binderPage";
 import type { CartSellerSnapshot } from "@/lib/cart";
-import { handleError } from "@/lib/error";
 import { cn } from "@/lib/utils";
 import { NotFound } from "@/pages/NotFound";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
@@ -109,11 +120,20 @@ export const BinderPage = () => {
   const [viewMode, setViewMode] = useState<BinderCardViewMode>("grid");
   const [pageIndex, setPageIndex] = useState(0);
   const [isBulkPriceOpen, setIsBulkPriceOpen] = useState(false);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
   const [isDeletingSelectedBinderCards, setIsDeletingSelectedBinderCards] =
     useState(false);
+  const [requiresReload, setRequiresReload] = useState(false);
+  const [locallyDeletedBinderCardIds, setLocallyDeletedBinderCardIds] =
+    useState<Set<string>>(() => new Set());
+  const [binderCardCountAdjustment, setBinderCardCountAdjustment] =
+    useState<BinderCardCountAdjustment | null>(null);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isShareImageDialogOpen, setIsShareImageDialogOpen] = useState(false);
+  const handleCoherenceFailure = useCallback(() => {
+    setRequiresReload(true);
+  }, []);
   const cardsPerPage = getBinderCardsPerPage(viewMode);
   const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
   const cardFirst = isMobile
@@ -134,11 +154,14 @@ export const BinderPage = () => {
     returnPartialData: true,
   });
   const { data, loading, networkStatus, refetch } = binderQuery;
-  const [addBinderCard, { loading: isAddingCard }] = useAddBinderCardMutation();
-  const [deleteBinderCard, { loading: isDeletingCard }] =
-    useDeleteBinderCardMutation();
   const [recordBinderView] = useRecordBinderViewMutation();
   const recordedBinderViewShortIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setRequiresReload(false);
+    setLocallyDeletedBinderCardIds(new Set());
+    setBinderCardCountAdjustment(null);
+  }, [shortId]);
 
   const binder = data?.binderByShortId;
   const isOwner = !!session?.user.id && session.user.id === binder?.ownerId;
@@ -214,13 +237,21 @@ export const BinderPage = () => {
     isSellerLoading: isPublicView && isOwnerProfileLoading,
     seller: cartSeller,
   });
-  const binderCards = useMemo(() => {
+  const remoteBinderCards = useMemo(() => {
     return (
       data?.binderCardsByShortId?.edges
         .map(({ node }) => node)
         .filter((binderCard) => !!binderCard.card) || []
     );
   }, [data?.binderCardsByShortId?.edges]);
+  const binderCards = useMemo(
+    () =>
+      excludeLocallyDeletedBinderCards(
+        remoteBinderCards,
+        locallyDeletedBinderCardIds
+      ),
+    [locallyDeletedBinderCardIds, remoteBinderCards]
+  );
   const visibleBinderCards = isMobile
     ? binderCards
     : binderCards.slice(0, cardsPerPage);
@@ -232,18 +263,42 @@ export const BinderPage = () => {
     t,
     visibleBinderCards,
   });
-  const currentFilteredCardCount =
+  const currentRemoteFilteredCardCount =
     cardOffset +
-    binderCards.length +
+    remoteBinderCards.length +
     (data?.binderCardsByShortId?.pageInfo.hasNextPage ? 1 : 0);
   const exactFilteredBinderCardCount =
     isFiltered && typeof data?.binderCardsByShortId?.totalCount === "number"
       ? data.binderCardsByShortId.totalCount
       : null;
   const hasExactFilteredBinderCardCount = exactFilteredBinderCardCount !== null;
-  const totalBinderCards = isFiltered
-    ? (exactFilteredBinderCardCount ?? currentFilteredCardCount)
-    : (binder?.binderCardCount ?? binderCards.length);
+  const remoteTotalBinderCardCount = isFiltered
+    ? exactFilteredBinderCardCount === null
+      ? currentRemoteFilteredCardCount
+      : exactFilteredBinderCardCount
+    : binder?.binderCardCount ?? remoteBinderCards.length;
+  const totalBinderCards = getLocallyAdjustedBinderCardCount(
+    remoteTotalBinderCardCount,
+    binderCardCountAdjustment,
+    debouncedFilterKey
+  );
+
+  useEffect(() => {
+    if (!binderCardCountAdjustment) return;
+
+    const reconciledAdjustment = reconcileBinderCardCountAdjustment(
+      remoteTotalBinderCardCount,
+      binderCardCountAdjustment,
+      debouncedFilterKey
+    );
+    if (reconciledAdjustment !== binderCardCountAdjustment) {
+      setBinderCardCountAdjustment(reconciledAdjustment);
+    }
+  }, [
+    binderCardCountAdjustment,
+    debouncedFilterKey,
+    remoteTotalBinderCardCount,
+  ]);
   const canTurnNextPage =
     !isMobile &&
     pageIndex + 1 < Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
@@ -281,6 +336,12 @@ export const BinderPage = () => {
     totalBinderCards,
   });
   const selectedBinderCardIdRef = useRef<string | null>(null);
+  const savedBinderEditing = useSavedBinderEditing({
+    binderId: binder?.id || "",
+    onCardUpdated: setSelectedBinderCard,
+    refresh: refetch,
+    tcgId: binder?.tcgId || "mtg",
+  });
 
   useEffect(() => {
     setPageIndex(0);
@@ -302,10 +363,32 @@ export const BinderPage = () => {
 
   const handleDeleteCard = useCallback(
     async (binderCard: BinderCardRecord) => {
+      if (isDeletingCard) return;
+
+      setIsDeletingCard(true);
       try {
-        await deleteBinderCard({
-          variables: { id: binderCard.id },
-        });
+        try {
+          await savedBinderEditing.removeCard(binderCard.id);
+        } catch (error) {
+          presentBinderEditingError(error, {
+            fallbackMessage: t("binder:delete_card_error"),
+            reasonMessages: {
+              coherence_failed: t("binder:editing.coherence_failed"),
+            },
+          });
+          if (!isBinderEditingCoherenceError(error)) return;
+          setLocallyDeletedBinderCardIds((currentIds) =>
+            addLocallyDeletedBinderCardIds(currentIds, [binderCard.id])
+          );
+          setBinderCardCountAdjustment(
+            createBinderCardCountAdjustment({
+              appliedBinderCardIds: [binderCard.id],
+              filterKey: debouncedFilterKey,
+              sourceCount: remoteTotalBinderCardCount,
+            })
+          );
+          handleCoherenceFailure();
+        }
 
         if (selectedBinderCardIdRef.current === binderCard.id) {
           clearSelectedBinderCard();
@@ -320,18 +403,19 @@ export const BinderPage = () => {
         setPageIndex((currentPageIndex) =>
           Math.min(currentPageIndex, nextLastPageIndex)
         );
-
-        await refetch();
-      } catch (error) {
-        handleError(error, t("binder:delete_card_error"));
+      } finally {
+        setIsDeletingCard(false);
       }
     },
     [
       cardsPerPage,
       clearSelectedBinderCard,
-      deleteBinderCard,
-      refetch,
+      debouncedFilterKey,
+      handleCoherenceFailure,
+      isDeletingCard,
       removeSelectedBinderCard,
+      remoteTotalBinderCardCount,
+      savedBinderEditing,
       t,
       totalBinderCards,
     ]
@@ -372,7 +456,13 @@ export const BinderPage = () => {
   }
 
   const canEditBinder = isOwner && !isPublicPreview;
-  const canSelectBinderCards = canEditBinder && isSelectionMode;
+  const { canMutateBinder, canShowOwnerMetadata, canUseCommerce } =
+    getBinderEditingPageAccess({
+      isOwner,
+      isPublicPreview,
+      requiresReload,
+    });
+  const canSelectBinderCards = canMutateBinder && isSelectionMode;
   const ownerBinderUrl = `/binder/${binder.shortId}`;
   const publicPreviewUrl = `${ownerBinderUrl}?public=true`;
   const binderShareUrl =
@@ -460,23 +550,6 @@ export const BinderPage = () => {
   ) : undefined;
   const titleAction = ownerViewAction;
 
-  const handleAddCard = async (card: DraftCardSnapshot) => {
-    try {
-      await addBinderCard({
-        variables: {
-          binderId: binder.id,
-          cardId: card.id,
-          finish: getPreferredCardFinish(card.finishes),
-          position: 0,
-          tcgId: binder.tcgId,
-        },
-      });
-      await refetch();
-    } catch (error) {
-      handleError(error, t("binder:add_card_error"));
-    }
-  };
-
   const handleSelectionModeChange = (nextIsSelectionMode: boolean) => {
     setCardSelectionMode(nextIsSelectionMode);
     clearSelectedBinderCard();
@@ -503,9 +576,9 @@ export const BinderPage = () => {
     );
   };
 
-  const handleBulkPriceApplied = async () => {
+  const handleBulkPriceApplied = (coherenceFailed: boolean) => {
     handleSelectionModeChange(false);
-    await refetch();
+    if (coherenceFailed) handleCoherenceFailure();
   };
 
   const handleDeleteSelectedBinderCards = async () => {
@@ -518,39 +591,48 @@ export const BinderPage = () => {
     setIsDeletingSelectedBinderCards(true);
 
     try {
-      const deleteResults = await Promise.allSettled(
-        binderCardsToDelete.map(async (binderCard) => {
-          const result = await deleteBinderCard({
-            variables: { id: binderCard.id },
+      let result: BinderEditingBulkOutcome;
+      let coherenceFailed = false;
+
+      try {
+        result = await savedBinderEditing.removeCards(
+          binderCardsToDelete.map((binderCard) => binderCard.id)
+        );
+      } catch (error) {
+        if (isBinderEditingCoherenceError(error) && error.outcome) {
+          result = error.outcome;
+          coherenceFailed = true;
+          handleCoherenceFailure();
+        } else {
+          presentBinderEditingError(error, {
+            fallbackMessage: t("binder:bulk_delete.failed", {
+              count: binderCardsToDelete.length,
+            }),
           });
-
-          return {
-            affectedCount:
-              result.data?.deleteFromBinderCardsCollection?.affectedCount ?? 0,
-            binderCardId: binderCard.id,
-          };
-        })
-      );
-      const deletedBinderCardIds = new Set<string>();
-      let failedCount = 0;
-
-      deleteResults.forEach((deleteResult) => {
-        if (
-          deleteResult.status === "rejected" ||
-          deleteResult.value.affectedCount < 1
-        ) {
-          if (deleteResult.status === "rejected") {
-            console.error(deleteResult.reason);
-          }
-
-          failedCount += 1;
           return;
         }
+      }
 
-        deletedBinderCardIds.add(deleteResult.value.binderCardId);
-      });
+      const appliedBinderCardIds = getAppliedBinderCardIds(
+        binderCardsToDelete.map((binderCard) => binderCard.id),
+        result
+      );
+      const deletedBinderCardIds = new Set(appliedBinderCardIds);
+      const deletedCount = result.applied;
+      const failedCount = result.failed;
 
-      const deletedCount = deletedBinderCardIds.size;
+      if (coherenceFailed) {
+        setLocallyDeletedBinderCardIds((currentIds) =>
+          addLocallyDeletedBinderCardIds(currentIds, appliedBinderCardIds)
+        );
+        setBinderCardCountAdjustment(
+          createBinderCardCountAdjustment({
+            appliedBinderCardIds,
+            filterKey: debouncedFilterKey,
+            sourceCount: remoteTotalBinderCardCount,
+          })
+        );
+      }
 
       if (deletedCount === 0) {
         toast.error(
@@ -578,9 +660,15 @@ export const BinderPage = () => {
         Math.min(currentPageIndex, nextLastPageIndex)
       );
       resetCardSelection();
-      await refetch();
 
-      if (failedCount > 0) {
+      if (coherenceFailed) {
+        toast.error(
+          t("binder:bulk_delete.refresh_failed", {
+            count: deletedCount,
+            failed: failedCount,
+          })
+        );
+      } else if (failedCount > 0) {
         toast.error(
           t("binder:bulk_delete.partial", {
             count: deletedCount,
@@ -636,17 +724,17 @@ export const BinderPage = () => {
       <Seo metadata={seoMetadata} />
       <BinderPageView
         activeFilterCount={activeFilterCount}
-        binderId={binder.id}
+        binderEditing={canMutateBinder ? savedBinderEditing : undefined}
+        binderIdentity={binder.shortId}
         binderName={binder.name}
         binderNote={binder.note}
         binderTcgId={binder.tcgId}
         binderVisibility={binder.visibility}
+        canUseCommerce={canUseCommerce}
         canGoNextDetailCard={canGoNextDetailCard}
         canGoPreviousDetailCard={canGoPreviousDetailCard}
-        canEditBinder={canEditBinder}
         cardsPerPage={cardsPerPage}
         headerAction={headerAction}
-        isAddingCard={isAddingCard}
         isCartPreview={isCartPreview}
         isDeletingCard={isDeletingCard}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
@@ -654,11 +742,13 @@ export const BinderPage = () => {
         isFiltered={isFiltered}
         isFilteredCountExact={hasExactFilteredBinderCardCount}
         isMobile={isMobile}
+        isOwnerView={canShowOwnerMetadata}
         isPageLoading={isPageLoading}
         isSelectionMode={canSelectBinderCards}
-        isBulkPriceOpen={canEditBinder && isBulkPriceOpen}
+        isBulkPriceOpen={canMutateBinder && isBulkPriceOpen}
         ownerByline={ownerProfileLink}
         pageIndex={pageIndex}
+        requiresReload={requiresReload}
         selectedBinderCard={selectedBinderCard}
         selectedBinderCardCount={selectedBinderCardCount}
         selectedBinderCardIds={selectedBinderCardIds}
@@ -669,21 +759,20 @@ export const BinderPage = () => {
         filterState={filterState}
         titleAction={titleAction}
         totalBinderCards={totalBinderCards}
-        viewCount={isOwner ? Number(binder.stats?.viewCount ?? 0) : undefined}
+        viewCount={
+          canShowOwnerMetadata
+            ? Number(binder.stats?.viewCount ?? 0)
+            : undefined
+        }
         viewMode={viewMode}
         visibleBinderCards={visibleBinderCards}
-        onAddCard={handleAddCard}
         onAddToCart={handleAddToCart}
-        onBinderCardUpdated={(binderCard) => {
-          setSelectedBinderCard(binderCard);
-          void refetch();
-        }}
-        onBinderChanged={refetch}
         onBulkPriceApplied={handleBulkPriceApplied}
         onBulkPriceOpenChange={setIsBulkPriceOpen}
         onClearCardSelection={clearCardSelection}
         onClearFilters={handleClearFilters}
-        onDeleteCard={canEditBinder ? handleDeleteCard : undefined}
+        onCoherenceFailure={handleCoherenceFailure}
+        onDeleteCard={canMutateBinder ? handleDeleteCard : undefined}
         onDeleteSelectedBinderCards={handleDeleteSelectedBinderCards}
         onDetailOpenChange={handleDetailOpenChange}
         onFilterStateChange={handleFilterStateChange}

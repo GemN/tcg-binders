@@ -17,6 +17,9 @@
   "rename_label": "Rename binder",
   "rename_name_required": "Binder name is required",
   "rename_error": "Failed to rename binder. Please try again.",
+  "editing": {
+    "coherence_failed": "Your change was saved, but the binder could not refresh. Reload before making more changes, and do not repeat this action."
+  },
   "empty": "No cards yet.",
   "no_image": "No image",
   "page": "Page {{page}}",
@@ -130,6 +133,8 @@
     "partial_other": "Updated {{count}} cards. Skipped {{skipped}}.",
     "failed_one": "Updated {{count}} card. Failed {{failed}}. Skipped {{skipped}}.",
     "failed_other": "Updated {{count}} cards. Failed {{failed}}. Skipped {{skipped}}.",
+    "refresh_failed_one": "Updated {{count}} card. Failed {{failed}}. Skipped {{skipped}}. The prices were saved, but the binder could not refresh. Reload before making more changes, and do not apply them again.",
+    "refresh_failed_other": "Updated {{count}} cards. Failed {{failed}}. Skipped {{skipped}}. The prices were saved, but the binder could not refresh. Reload before making more changes, and do not apply them again.",
     "no_price": "No selected cards have a usable Card Kingdom USD price."
   },
   "bulk_delete": {
@@ -143,7 +148,9 @@
     "partial_one": "Deleted {{count}} card. Failed {{failed}}.",
     "partial_other": "Deleted {{count}} cards. Failed {{failed}}.",
     "failed_one": "Failed to delete {{count}} selected card.",
-    "failed_other": "Failed to delete {{count}} selected cards."
+    "failed_other": "Failed to delete {{count}} selected cards.",
+    "refresh_failed_one": "Deleted {{count}} card. Failed {{failed}}. The binder could not refresh, so reload to see the latest state.",
+    "refresh_failed_other": "Deleted {{count}} cards. Failed {{failed}}. The binder could not refresh, so reload to see the latest state."
   },
   "draft": {
     "adding_cards_description_one": "Adding {{count}} card to \"{{name}}\".",
@@ -241,6 +248,9 @@
     "manabox_csv": "ManaBox CSV",
     "success_title": "Import complete",
     "success_description": "All cards were imported successfully.",
+    "refresh_failed_title": "Import complete — reload needed",
+    "refresh_failed_description_one": "Imported {{count}} entry; {{failed}} failed. The binder could not refresh. Reload before making more changes, and do not retry this import.",
+    "refresh_failed_description_other": "Imported {{count}} entries; {{failed}} failed. The binder could not refresh. Reload before making more changes, and do not retry this import.",
     "partial_title": "Some cards need attention",
     "partial_description_one": "{{count}} card can be imported. Review the skipped card below, then confirm if you want to import the matched card.",
     "partial_description_other": "{{count}} cards can be imported. Review the skipped cards below, then confirm if you want to import the matched cards.",

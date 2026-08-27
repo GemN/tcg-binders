@@ -1,4 +1,4 @@
-import { CurrencyCode, useUpdateBinderCardMutation } from "@app/graphql";
+import { CurrencyCode } from "@app/graphql";
 import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -19,21 +19,22 @@ import {
   formatCardKingdomMultiplierThbPriceInput,
   getCardKingdomUsdMarketPriceAmount,
 } from "@/lib/binderCardPricing";
+import type {
+  BinderEditing,
+  BinderEditingBulkOutcome,
+} from "@/lib/binderEditing";
+import {
+  isBinderEditingCoherenceError,
+  presentBinderEditingError,
+} from "@/lib/binderEditing";
 import { formatCurrency } from "@/lib/currency";
-import { handleError } from "@/lib/error";
 
 interface ModalBulkBinderCardPriceProps {
+  binderEditing: BinderEditing;
   binderCards: BinderCardRecord[];
   open: boolean;
-  onApplied: () => Promise<unknown> | unknown;
+  onApplied: (coherenceFailed: boolean) => Promise<unknown> | unknown;
   onOpenChange: (open: boolean) => void;
-  onUpdateBinderCardPrice?: UpdateBulkBinderCardPrice;
-}
-
-interface BulkPriceResult {
-  applied: number;
-  failed: number;
-  skipped: number;
 }
 
 interface BulkPricePreview {
@@ -43,53 +44,19 @@ interface BulkPricePreview {
   sourcePrice: string;
 }
 
-export interface BulkBinderCardPriceUpdate {
-  dynamicPriceRule: null;
-  priceAmount: string;
-  priceCurrency: CurrencyCode;
-}
-
-export type UpdateBulkBinderCardPrice = (
-  binderCard: BinderCardRecord,
-  update: BulkBinderCardPriceUpdate
-) => Promise<boolean> | boolean;
-
 const CKD_PRESET_MULTIPLIERS = [25, 30];
-const BULK_PRICE_CONCURRENCY = 4;
-
-const runWithConcurrency = async <T,>(
-  items: T[],
-  limit: number,
-  worker: (item: T) => Promise<void>
-) => {
-  let nextIndex = 0;
-
-  const workers = Array.from(
-    { length: Math.min(limit, items.length) },
-    async () => {
-      while (nextIndex < items.length) {
-        const item = items[nextIndex];
-        nextIndex += 1;
-        await worker(item);
-      }
-    }
-  );
-
-  await Promise.all(workers);
-};
 
 export const ModalBulkBinderCardPrice = ({
+  binderEditing,
   binderCards,
   open,
   onApplied,
   onOpenChange,
-  onUpdateBinderCardPrice,
 }: ModalBulkBinderCardPriceProps) => {
   const { i18n, t } = useTranslation(["binder", "common"]);
   const multiplierInputId = useId();
   const [multiplierInput, setMultiplierInput] = useState("25");
   const [isApplying, setIsApplying] = useState(false);
-  const [updateBinderCard] = useUpdateBinderCardMutation();
   const multiplier = Number(multiplierInput.replace(",", "."));
   const isMultiplierValid = Number.isFinite(multiplier) && multiplier > 0;
   const preview = useMemo<BulkPricePreview | null>(() => {
@@ -133,97 +100,74 @@ export const ModalBulkBinderCardPrice = ({
     };
   }, [binderCards, i18n.language, isMultiplierValid, multiplier, t]);
 
-  const applyBulkPrice = async () => {
-    if (!isMultiplierValid) {
-      handleError(
-        new Error(t("binder:bulk_price.invalid_multiplier")),
-        t("binder:bulk_price.invalid_multiplier")
-      );
-      return;
-    }
-
-    setIsApplying(true);
-    const result: BulkPriceResult = {
-      applied: 0,
-      failed: 0,
-      skipped: 0,
+  const handleBulkPriceOutcome = async (
+    result: BinderEditingBulkOutcome,
+    coherenceFailed: boolean
+  ) => {
+    const resultTranslationParams = {
+      applied: result.applied,
+      count: result.applied,
+      failed: result.failed,
+      skipped: result.skipped,
     };
 
-    try {
-      await runWithConcurrency(
-        binderCards,
-        BULK_PRICE_CONCURRENCY,
-        async (binderCard) => {
-          const multiplierThbPriceInput =
-            formatCardKingdomMultiplierThbPriceInput(
-              binderCard,
-              multiplier
-            );
-
-          if (multiplierThbPriceInput === null) {
-            result.skipped += 1;
-            return;
-          }
-
-          try {
-            const update = {
-              dynamicPriceRule: null,
-              priceAmount: multiplierThbPriceInput,
-              priceCurrency: CurrencyCode.Thb,
-            };
-            const didUpdate = onUpdateBinderCardPrice
-              ? await onUpdateBinderCardPrice(binderCard, update)
-              : await updateBinderCard({
-                  variables: {
-                    id: binderCard.id,
-                    set: update,
-                  },
-                }).then(
-                  (updateResult) =>
-                    (updateResult.data?.updateBinderCardsCollection
-                      .affectedCount ?? 0) > 0
-                );
-
-            if (!didUpdate) {
-              result.failed += 1;
-              return;
-            }
-
-            result.applied += 1;
-          } catch (error) {
-            console.error(error);
-            result.failed += 1;
-          }
-        }
+    if (coherenceFailed) {
+      toast.error(
+        t("binder:bulk_price.refresh_failed", resultTranslationParams)
       );
+    } else if (
+      result.applied === 0 &&
+      result.skipped > 0 &&
+      result.failed === 0
+    ) {
+      toast.info(t("binder:bulk_price.no_price"));
+    } else if (result.failed > 0) {
+      toast.error(t("binder:bulk_price.failed", resultTranslationParams));
+    } else if (result.skipped > 0) {
+      toast.info(t("binder:bulk_price.partial", resultTranslationParams));
+    } else {
+      toast.success(t("binder:bulk_price.success", resultTranslationParams));
+    }
 
-      const resultTranslationParams = {
-        applied: result.applied,
-        count: result.applied,
-        failed: result.failed,
-        skipped: result.skipped,
-      };
+    if (result.applied > 0) {
+      await onApplied(coherenceFailed);
+      onOpenChange(false);
+    }
+  };
 
-      if (result.applied === 0 && result.skipped > 0 && result.failed === 0) {
-        toast.info(t("binder:bulk_price.no_price"));
-      } else if (result.failed > 0) {
-        toast.error(
-          t("binder:bulk_price.failed", resultTranslationParams)
-        );
-      } else if (result.skipped > 0) {
-        toast.info(
-          t("binder:bulk_price.partial", resultTranslationParams)
-        );
-      } else {
-        toast.success(
-          t("binder:bulk_price.success", resultTranslationParams)
-        );
+  const applyBulkPrice = async () => {
+    setIsApplying(true);
+
+    try {
+      let coherenceFailed = false;
+      let result: BinderEditingBulkOutcome;
+
+      try {
+        result = await binderEditing.applyCardKingdomMultiplier({
+          cards: binderCards.map((binderCard) => ({
+            binderCardId: binderCard.id,
+            sourcePriceAmount: getCardKingdomUsdMarketPriceAmount(binderCard),
+          })),
+          multiplier,
+        });
+      } catch (error) {
+        if (!isBinderEditingCoherenceError(error) || !error.outcome) {
+          throw error;
+        }
+
+        coherenceFailed = true;
+        result = error.outcome;
       }
 
-      if (result.applied > 0) {
-        await onApplied();
-        onOpenChange(false);
-      }
+      await handleBulkPriceOutcome(result, coherenceFailed);
+    } catch (error) {
+      presentBinderEditingError(error, {
+        fallbackMessage: t("binder:detail.update_error"),
+        reasonMessages: {
+          coherence_failed: t("binder:editing.coherence_failed"),
+          invalid_multiplier: t("binder:bulk_price.invalid_multiplier"),
+        },
+      });
     } finally {
       setIsApplying(false);
     }

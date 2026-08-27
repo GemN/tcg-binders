@@ -12,9 +12,6 @@ import { toast } from "sonner";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
 import { BinderPageView } from "@/components/BinderPageView";
-import type { ImportBinderCardsHandler } from "@/components/ButtonImportBinder";
-import type { UpdateBinderCardHandler } from "@/components/ModalBinderCardDetail/types";
-import type { UpdateBulkBinderCardPrice } from "@/components/ModalBulkBinderCardPrice";
 import {
   type DraftBinderShareStatus,
   ModalDraftBinderShare,
@@ -22,12 +19,10 @@ import {
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
-import {
-  createDraftCardSnapshot,
-  useDraftBinder,
-} from "@/hooks/useDraftBinder";
+import { useDraftBinder } from "@/hooks/useDraftBinder";
 import { useIsMobile } from "@/hooks/useMobile";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
+import { presentBinderEditingError } from "@/lib/binderEditing";
 import {
   type BinderCardFilterState,
   type BinderSortMode,
@@ -40,18 +35,13 @@ import {
   getBinderCardsPerPage,
 } from "@/lib/binderPage";
 import {
-  binderCardsUpdateInputToDraftPatch,
-  binderImportItemsToDraftCards,
   draftBinderCardsToBinderCardRecords,
-  draftBinderCardToBinderCardRecord,
   draftBinderCardToInsertInput,
   sortDraftBinderCards,
 } from "@/lib/draftBinder";
 import { handleError } from "@/lib/error";
 import { usePricingSettings } from "@/providers/PricingSettingsContext";
 import { useSession } from "@/providers/SessionContext";
-
-const DRAFT_BINDER_ID = "draft";
 
 export const BinderDraft = () => {
   const { t } = useTranslation(["binder", "common"]);
@@ -76,15 +66,9 @@ export const BinderDraft = () => {
   const isFiltered = activeFilterCount > 0;
   const didShareAfterLoginRef = useRef(false);
   const {
-    addCard,
-    addCards,
+    binderEditing,
     clearDraft,
     draftBinder,
-    removeCard,
-    removeCards,
-    setName,
-    setNote,
-    updateCard,
   } = useDraftBinder();
   const [createBinder, { loading: isCreatingBinder }] =
     useCreateBinderMutation();
@@ -106,6 +90,7 @@ export const BinderDraft = () => {
   const [shareBinderShortId, setShareBinderShortId] = useState("");
   const [isDeletingSelectedBinderCards, setIsDeletingSelectedBinderCards] =
     useState(false);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
   const [isBulkPriceOpen, setIsBulkPriceOpen] = useState(false);
   const cardsPerPage = getBinderCardsPerPage(viewMode);
   const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
@@ -214,16 +199,27 @@ export const BinderDraft = () => {
     setSelectedBinderCardId(binderCard.id);
   };
 
-  const handleDeleteCard = (binderCard: BinderCardRecord) => {
-    removeCard(binderCard.id);
-    removeSelectedBinderCard(binderCard.id);
+  const handleDeleteCard = async (binderCard: BinderCardRecord) => {
+    if (isDeletingCard) return;
 
-    if (selectedBinderCard?.id === binderCard.id) {
-      setSelectedBinderCardId(null);
+    setIsDeletingCard(true);
+    try {
+      await binderEditing.removeCard(binderCard.id);
+      removeSelectedBinderCard(binderCard.id);
+
+      if (selectedBinderCard?.id === binderCard.id) {
+        setSelectedBinderCardId(null);
+      }
+    } catch (error) {
+      presentBinderEditingError(error, {
+        fallbackMessage: t("binder:delete_card_error"),
+      });
+    } finally {
+      setIsDeletingCard(false);
     }
   };
 
-  const handleDeleteSelectedBinderCards = () => {
+  const handleDeleteSelectedBinderCards = async () => {
     const binderCardIds = selectedBinderCards.map(
       (binderCard) => binderCard.id
     );
@@ -235,18 +231,38 @@ export const BinderDraft = () => {
     setIsDeletingSelectedBinderCards(true);
 
     try {
-      removeCards(binderCardIds);
+      const outcome = await binderEditing.removeCards(binderCardIds);
 
-      if (selectedBinderCard && binderCardIds.includes(selectedBinderCard.id)) {
+      if (outcome.applied === 0) {
+        toast.error(
+          t("binder:bulk_delete.failed", { count: outcome.failed })
+        );
+        return;
+      }
+
+      const removedBinderCardIds = binderCardIds.filter(
+        (_, index) => !outcome.failedIndexes.includes(index)
+      );
+      if (
+        selectedBinderCard &&
+        removedBinderCardIds.includes(selectedBinderCard.id)
+      ) {
         setSelectedBinderCardId(null);
       }
 
       resetCardSelection();
-      toast.success(
-        t("binder:bulk_delete.success", {
-          count: binderCardIds.length,
-        })
-      );
+      if (outcome.failed > 0) {
+        toast.error(
+          t("binder:bulk_delete.partial", {
+            count: outcome.applied,
+            failed: outcome.failed,
+          })
+        );
+      } else {
+        toast.success(
+          t("binder:bulk_delete.success", { count: outcome.applied })
+        );
+      }
     } finally {
       setIsDeletingSelectedBinderCards(false);
     }
@@ -284,49 +300,8 @@ export const BinderDraft = () => {
     setPageIndex((currentPage) => currentPage + 1);
   };
 
-  const handleUpdateBinderCard: UpdateBinderCardHandler = (
-    binderCard,
-    set,
-    context
-  ) => {
-    const patch = binderCardsUpdateInputToDraftPatch(set);
-
-    if (set.cardId && context?.variant) {
-      const card = createDraftCardSnapshot(context.variant);
-      patch.card = card;
-      patch.cardId = card.id;
-    }
-
-    const updatedDraftCard = updateCard(binderCard.id, patch);
-    if (!updatedDraftCard) {
-      throw new Error(t("binder:detail.update_error"));
-    }
-
-    return draftBinderCardToBinderCardRecord(updatedDraftCard);
-  };
-
-  const handleUpdateBinderCardPrice: UpdateBulkBinderCardPrice = (
-    binderCard,
-    update
-  ) => {
-    return !!updateCard(binderCard.id, update);
-  };
-
   const handleBulkPriceApplied = () => {
     handleSelectionModeChange(false);
-  };
-
-  const handleImportCards: ImportBinderCardsHandler = ({
-    items,
-    onProgress,
-  }) => {
-    addCards(binderImportItemsToDraftCards(items));
-    onProgress(items.length);
-
-    return {
-      failedInsertCount: 0,
-      importedCount: items.length,
-    };
   };
 
   const handleShare = useCallback(async () => {
@@ -427,14 +402,15 @@ export const BinderDraft = () => {
       />
       <BinderPageView
         activeFilterCount={activeFilterCount}
-        binderId={DRAFT_BINDER_ID}
+        binderEditing={binderEditing}
+        binderIdentity="draft"
         binderName={draftBinder.name || t("binder:draft.untitled_name")}
         binderNote={draftBinder.note}
         binderTcgId={draftBinder.tcgId}
         binderVisibility={BinderVisibility.Unlisted}
+        canUseCommerce={false}
         canGoNextDetailCard={canGoNextDetailCard}
         canGoPreviousDetailCard={canGoPreviousDetailCard}
-        canEditBinder
         cardsPerPage={cardsPerPage}
         headerAction={
           <Button
@@ -447,18 +423,19 @@ export const BinderDraft = () => {
             {t("binder:draft.share")}
           </Button>
         }
-        isAddingCard={false}
         isCartPreview={false}
-        isDeletingCard={false}
+        isDeletingCard={isDeletingCard}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
         isDetailLoading={false}
         isFiltered={isFiltered}
         isFilteredCountExact
         isMobile={isMobile}
+        isOwnerView
         isPageLoading={false}
         isSelectionMode={isSelectionMode}
         isBulkPriceOpen={isBulkPriceOpen}
         pageIndex={pageIndex}
+        requiresReload={false}
         selectedBinderCard={selectedBinderCard}
         selectedBinderCardCount={selectedBinderCardCount}
         selectedBinderCardIds={selectedBinderCardIds}
@@ -470,10 +447,7 @@ export const BinderDraft = () => {
         totalBinderCards={totalBinderCards}
         viewMode={viewMode}
         visibleBinderCards={visibleBinderCards}
-        onAddCard={addCard}
         onAddToCart={() => undefined}
-        onBinderCardUpdated={() => undefined}
-        onBinderChanged={() => undefined}
         onBulkPriceApplied={handleBulkPriceApplied}
         onBulkPriceOpenChange={setIsBulkPriceOpen}
         onClearCardSelection={clearCardSelection}
@@ -496,19 +470,14 @@ export const BinderDraft = () => {
             );
           }
         }}
-        onImportCards={handleImportCards}
         onNextPage={handleNextPage}
         onOpenBulkPrice={() => setIsBulkPriceOpen(true)}
         onOpenCard={handleOpenCard}
         onPreviousPage={handlePreviousPage}
-        onRenameBinder={setName}
         onSelectVisibleBinderCards={handleSelectVisibleBinderCards}
         onSelectionModeChange={handleSelectionModeChange}
         onSortChange={handleSortChange}
         onToggleCardSelection={handleToggleCardSelection}
-        onUpdateBinderCard={handleUpdateBinderCard}
-        onUpdateBinderCardPrice={handleUpdateBinderCardPrice}
-        onUpdateBinderNote={setNote}
         onViewChange={handleViewChange}
       />
       <ModalDraftBinderShare

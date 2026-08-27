@@ -1,7 +1,4 @@
-import {
-  useAddBinderCardsMutation,
-  useCardsForBinderImportLazyQuery,
-} from "@app/graphql";
+import { useCardsForBinderImportLazyQuery } from "@app/graphql";
 import {
   CheckCircle2,
   FileText,
@@ -27,29 +24,26 @@ import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
 import {
-  type BinderImportDestinationResult,
+  type BinderEditing,
+  getBinderEditingErrorMessage,
+} from "@/lib/binderEditing";
+import {
   type BinderImportFormat,
   type BinderImportParseResult,
   type BinderImportResolvedItem,
   type BinderImportResolveResult,
+  createBinderEditingImportDestination,
   createBinderImporter,
-  createCallbackImportDestination,
   createGraphqlCardCatalog,
-  createSavedBinderImportDestination,
-  type ImportBinderCardsHandler as BinderImportCardsHandler,
 } from "@/lib/import";
 
 interface ButtonImportBinderProps {
-  binderId: string;
-  onImportCards?: BinderImportCardsHandler;
-  onImported: () => Promise<unknown> | unknown;
+  binderEditing: BinderEditing;
+  onCoherenceFailure?: () => void;
+  onImported?: () => Promise<unknown> | unknown;
   tcgId: string;
   trigger?: ReactElement;
 }
-
-export type ImportBinderCardsHandler = BinderImportCardsHandler;
-export type ImportBinderCardsResult = BinderImportDestinationResult;
-
 type BinderImportSource = "text" | "manabox_csv" | "text_file";
 type BinderImportStep = "input" | "success";
 
@@ -75,6 +69,8 @@ interface BinderImportProgress {
 }
 
 interface BinderImportSuccess {
+  coherenceFailed: boolean;
+  failedCount: number;
   importedCount: number;
   issues: BinderImportIssue[];
 }
@@ -282,8 +278,8 @@ const BinderImportSuccessView = ({ success }: BinderImportSuccessViewProps) => {
 };
 
 export const ButtonImportBinder = ({
-  binderId,
-  onImportCards,
+  binderEditing,
+  onCoherenceFailure,
   onImported,
   tcgId,
   trigger,
@@ -312,18 +308,10 @@ export const ButtonImportBinder = ({
     useCardsForBinderImportLazyQuery({
       fetchPolicy: "network-only",
     });
-  const [addBinderCards, { loading: isImportingCards }] =
-    useAddBinderCardsMutation();
   const cardCatalog = createGraphqlCardCatalog({ loadCards });
-  const destination = onImportCards
-    ? createCallbackImportDestination({ importCards: onImportCards, tcgId })
-    : createSavedBinderImportDestination({
-        addBinderCards,
-        binderId,
-        tcgId,
-      });
+  const destination = createBinderEditingImportDestination({ binderEditing });
   const importer = createBinderImporter({ cardCatalog, destination });
-  const isImporting = isLoadingCards || isImportingCards || isImportRunning;
+  const isImporting = isLoadingCards || isImportRunning;
   const isFileImportSource = importSource !== "text";
 
   importSourceRef.current = importSource;
@@ -345,9 +333,15 @@ export const ButtonImportBinder = ({
   const handleOpenChange = (nextOpen: boolean) => {
     if (isImporting && !nextOpen) return;
 
+    const requiresReload = !nextOpen && importSuccess?.coherenceFailed;
+
     setIsOpen(nextOpen);
     if (!nextOpen) {
       resetState();
+
+      if (requiresReload) {
+        onCoherenceFailure?.();
+      }
     }
   };
 
@@ -445,7 +439,9 @@ export const ButtonImportBinder = ({
         issues: [
           {
             id: "unknown-import-error",
-            text: errorObj.message || t("binder:import.error"),
+            text: getBinderEditingErrorMessage(errorObj, {
+              fallbackMessage: t("binder:import.error"),
+            }),
           },
         ],
         title: t("binder:import.errors.unknown_title"),
@@ -481,8 +477,8 @@ export const ButtonImportBinder = ({
       }
     );
 
-    if (insertResult.importedCount > 0) {
-      await onImported();
+    if (insertResult.importedCount > 0 && !insertResult.coherenceFailed) {
+      await onImported?.();
     }
 
     const failedInsertIssues =
@@ -494,6 +490,8 @@ export const ButtonImportBinder = ({
         : [];
 
     setImportSuccess({
+      coherenceFailed: !!insertResult.coherenceFailed,
+      failedCount: insertResult.failedInsertCount,
       importedCount: insertResult.importedCount,
       issues: [...skippedIssues, ...failedInsertIssues],
     });
@@ -635,8 +633,7 @@ export const ButtonImportBinder = ({
   };
 
   const handleSuccessOk = () => {
-    setIsOpen(false);
-    resetState();
+    handleOpenChange(false);
   };
 
   const hasSuccessIssues = !!importSuccess?.issues.length;
@@ -672,20 +669,27 @@ export const ButtonImportBinder = ({
         <DialogHeader>
           <DialogTitle>
             {importStep === "success"
-              ? t(
-                  hasSuccessIssues
+              ? importSuccess?.coherenceFailed
+                ? t("binder:import.refresh_failed_title")
+                : t(
+                    hasSuccessIssues
                     ? "binder:import.partial_success_title"
                     : "binder:import.success_title"
-                )
+                  )
               : t("binder:import.title")}
           </DialogTitle>
           <DialogDescription>
             {importStep === "success"
-              ? t(
-                  hasSuccessIssues
+              ? importSuccess?.coherenceFailed
+                ? t("binder:import.refresh_failed_description", {
+                    count: importSuccess.importedCount,
+                    failed: importSuccess.failedCount,
+                  })
+                : t(
+                    hasSuccessIssues
                     ? "binder:import.partial_success_description"
                     : "binder:import.success_description"
-                )
+                  )
               : t("binder:import.description")}
           </DialogDescription>
         </DialogHeader>

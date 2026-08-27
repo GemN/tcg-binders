@@ -1,4 +1,3 @@
-import { useUpdateBinderNoteMutation } from "@app/graphql";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -12,36 +11,37 @@ import {
   DialogTitle,
 } from "@/components/ui/Dialog";
 import { Textarea } from "@/components/ui/Textarea";
-import { handleError } from "@/lib/error";
+import type { BinderEditing } from "@/lib/binderEditing";
+import {
+  isBinderEditingCoherenceError,
+  presentBinderEditingError,
+} from "@/lib/binderEditing";
 
 interface BinderNoteProps {
-  binderId: string;
-  isOwner: boolean;
+  binderEditing?: BinderEditing;
   note: string;
-  onUpdate?: (note: string) => Promise<unknown> | unknown;
-  onUpdated?: () => Promise<unknown> | unknown;
+  onCoherenceFailure?: () => void;
 }
 
 const normalizeBinderNote = (note: string): string => note.trim();
 
 export const BinderNote = ({
-  binderId,
-  isOwner,
+  binderEditing,
   note,
-  onUpdate,
-  onUpdated,
+  onCoherenceFailure,
 }: BinderNoteProps) => {
   const { t } = useTranslation(["binder", "common"]);
   const [modalDraftNote, setModalDraftNote] = useState(note);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompactClamped, setIsCompactClamped] = useState(false);
-  const [updateBinderNote, { loading: isUpdatingRemote }] =
-    useUpdateBinderNoteMutation();
-  const [isUpdatingLocal, setIsUpdatingLocal] = useState(false);
-  const loading = isUpdatingRemote || isUpdatingLocal;
+  const [loading, setLoading] = useState(false);
+  const [savedNoteAfterRefreshFailure, setSavedNoteAfterRefreshFailure] =
+    useState<string | null>(null);
 
-  const displayedNote = normalizeBinderNote(note);
-  const canShowNote = isOwner || !!displayedNote;
+  const displayedNote = normalizeBinderNote(
+    savedNoteAfterRefreshFailure ?? note
+  );
+  const canShowNote = !!binderEditing || !!displayedNote;
   const compactText = displayedNote || t("binder:note.placeholder");
   const isPlaceholder = !displayedNote;
 
@@ -51,10 +51,14 @@ export const BinderNote = ({
   );
 
   useEffect(() => {
+    setSavedNoteAfterRefreshFailure(null);
+  }, [note]);
+
+  useEffect(() => {
     if (!isModalOpen) {
-      setModalDraftNote(note);
+      setModalDraftNote(displayedNote);
     }
-  }, [isModalOpen, note]);
+  }, [displayedNote, isModalOpen]);
 
   if (!canShowNote) return null;
 
@@ -68,30 +72,26 @@ export const BinderNote = ({
     }
 
     try {
-      if (onUpdate) {
-        setIsUpdatingLocal(true);
-        await onUpdate(normalizedNote);
-      } else {
-        const result = await updateBinderNote({
-          variables: {
-            id: binderId,
-            note: normalizedNote,
-          },
-        });
-
-        if (!result.data?.updateBindersCollection.affectedCount) {
-          throw new Error(t("binder:note.update_error"));
-        }
-      }
-
+      setLoading(true);
+      await binderEditing?.updateBinderNote(normalizedNote);
       setModalDraftNote(normalizedNote);
-      await onUpdated?.();
       return true;
     } catch (error) {
-      handleError(error, t("binder:note.update_error"));
+      presentBinderEditingError(error, {
+        fallbackMessage: t("binder:note.update_error"),
+        reasonMessages: {
+          coherence_failed: t("binder:editing.coherence_failed"),
+        },
+      });
+      if (isBinderEditingCoherenceError(error)) {
+        setSavedNoteAfterRefreshFailure(normalizedNote);
+        setModalDraftNote(normalizedNote);
+        onCoherenceFailure?.();
+        return true;
+      }
       return false;
     } finally {
-      setIsUpdatingLocal(false);
+      setLoading(false);
     }
   };
 
@@ -127,7 +127,7 @@ export const BinderNote = ({
             <DialogTitle>{t("binder:note.title")}</DialogTitle>
           </DialogHeader>
 
-          {isOwner ? (
+          {binderEditing ? (
             <Textarea
               value={modalDraftNote}
               disabled={loading}
@@ -151,9 +151,9 @@ export const BinderNote = ({
                 setIsModalOpen(false);
               }}
             >
-              {isOwner ? t("common:cancel") : t("common:ok")}
+              {binderEditing ? t("common:cancel") : t("common:ok")}
             </Button>
-            {isOwner && (
+            {binderEditing && (
               <Button
                 type="button"
                 isLoading={loading}

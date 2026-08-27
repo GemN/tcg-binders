@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { mock, test } from "node:test";
 
+import type { CardCondition, LanguageCode } from "@app/graphql";
+
 import {
   createGraphqlCardCatalog,
   createGraphqlCardLookupBatches,
@@ -14,9 +16,9 @@ interface LoadCardsOptions {
 }
 
 const createImportItem = (name: string): BinderImportItem => ({
-  condition: "near_mint",
+  condition: "near_mint" as CardCondition,
   finish: "normal",
-  language: "en",
+  language: "en" as LanguageCode,
   name,
   quantity: 1,
   sourceLine: 1,

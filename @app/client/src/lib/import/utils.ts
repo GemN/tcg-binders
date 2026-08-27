@@ -14,8 +14,11 @@ export const externalIdLookupBatchSize = 30;
 export const printLookupBatchSize = 10;
 export const splitCardNameSeparator = " // ";
 
-const defaultCardCondition: BinderImportCondition = "near_mint";
-const defaultCardLanguage: BinderImportLanguage = "en";
+const defaultCardConditionValue =
+  "near_mint" satisfies `${BinderImportCondition}`;
+const defaultCardLanguageValue = "en" satisfies `${BinderImportLanguage}`;
+const defaultCardCondition = defaultCardConditionValue as BinderImportCondition;
+const defaultCardLanguage = defaultCardLanguageValue as BinderImportLanguage;
 const defaultCardFinish = "normal";
 const supportedCurrencies = new Set<string>(binderImportCurrencies);
 const supportedLanguages = new Set<string>(binderImportLanguages);

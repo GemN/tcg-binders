@@ -1,6 +1,14 @@
 import { toast } from "sonner";
 
-export const handleError = (error: Error | unknown, toastError?: string) => {
+export interface HandleErrorOptions {
+  preferToastError?: boolean;
+}
+
+export const handleError = (
+  error: Error | unknown,
+  toastError?: string,
+  options: HandleErrorOptions = {}
+) => {
   const errorObj = error instanceof Error ? error : new Error(String(error));
 
   console.error(error);
@@ -9,8 +17,9 @@ export const handleError = (error: Error | unknown, toastError?: string) => {
   //   // Sentry.captureException(error, { extra: context });
   // }
 
-  const toastMessage =
-    errorObj.message || toastError || "An unexpected error occurred";
+  const toastMessage = options.preferToastError
+    ? toastError || errorObj.message || "An unexpected error occurred"
+    : errorObj.message || toastError || "An unexpected error occurred";
   toast.error(toastMessage);
   return errorObj;
 };

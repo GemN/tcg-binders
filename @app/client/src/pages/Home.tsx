@@ -7,18 +7,18 @@ import { type CSSProperties, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
 
-import {
-  ButtonImportBinder,
-  type ImportBinderCardsHandler,
-} from "@/components/ButtonImportBinder";
+import { ButtonImportBinder } from "@/components/ButtonImportBinder";
 import { CardImage } from "@/components/CardImage";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
 import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
-import { type DraftCardSnapshot, useDraftBinder } from "@/hooks/useDraftBinder";
+import { useDraftBinder } from "@/hooks/useDraftBinder";
+import {
+  type BinderEditingCardSnapshot,
+  presentBinderEditingError,
+} from "@/lib/binderEditing";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
-import { binderImportItemsToDraftCards } from "@/lib/draftBinder";
 import { SEO_BRAND, type SeoMetadata } from "@/lib/seoMetadata";
 import { cn } from "@/lib/utils";
 
@@ -287,9 +287,9 @@ const HomeCardStreams = ({ cards }: HomeCardStreamsProps) => {
 };
 
 export const Home = () => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["common", "binder"]);
   const navigate = useNavigate();
-  const { addCard, addCards, draftBinder } = useDraftBinder();
+  const { binderEditing, draftBinder } = useDraftBinder();
   const { data } = useCardsForBinderImportQuery({
     variables: {
       filter: { id: { in: [...HOME_CARD_IDS] } },
@@ -318,22 +318,15 @@ export const Home = () => {
     title: t("common:seo.home.title"),
   };
 
-  const handleCardSelect = (card: DraftCardSnapshot) => {
-    addCard(card);
-    navigate("/binder/draft");
-  };
-
-  const handleImportCards: ImportBinderCardsHandler = ({
-    items,
-    onProgress,
-  }) => {
-    addCards(binderImportItemsToDraftCards(items));
-    onProgress(items.length);
-
-    return {
-      failedInsertCount: 0,
-      importedCount: items.length,
-    };
+  const handleCardSelect = async (card: BinderEditingCardSnapshot) => {
+    try {
+      await binderEditing.addCard({ card });
+      navigate("/binder/draft");
+    } catch (error) {
+      presentBinderEditingError(error, {
+        fallbackMessage: t("binder:add_card_error"),
+      });
+    }
   };
 
   const handleImported = () => navigate("/binder/draft");
@@ -387,9 +380,8 @@ export const Home = () => {
               </div>
 
               <ButtonImportBinder
-                binderId="draft"
+                binderEditing={binderEditing}
                 tcgId={draftBinder.tcgId}
-                onImportCards={handleImportCards}
                 onImported={handleImported}
                 trigger={
                   <Button

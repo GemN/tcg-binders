@@ -1,3 +1,10 @@
+import type {
+  CardCondition,
+  CurrencyCode,
+  LanguageCode,
+  MarketPriceSource,
+} from "@app/graphql";
+
 export const binderImportConditions = [
   "excellent",
   "good",
@@ -6,9 +13,15 @@ export const binderImportConditions = [
   "near_mint",
   "played",
   "poor",
-] as const;
+] as const satisfies readonly `${CardCondition}`[];
 
-export const binderImportCurrencies = ["EUR", "GBP", "JPY", "THB", "USD"] as const;
+export const binderImportCurrencies = [
+  "EUR",
+  "GBP",
+  "JPY",
+  "THB",
+  "USD",
+] as const satisfies readonly `${CurrencyCode}`[];
 
 export const binderImportLanguages = [
   "ar",
@@ -29,12 +42,12 @@ export const binderImportLanguages = [
   "sa",
   "zhs",
   "zht",
-] as const;
+] as const satisfies readonly `${LanguageCode}`[];
 
-export type BinderImportCondition = (typeof binderImportConditions)[number];
-export type BinderImportCurrency = (typeof binderImportCurrencies)[number];
+export type BinderImportCondition = CardCondition;
+export type BinderImportCurrency = CurrencyCode;
 export type BinderImportFormat = "text" | "manabox_csv";
-export type BinderImportLanguage = (typeof binderImportLanguages)[number];
+export type BinderImportLanguage = LanguageCode;
 
 export interface BinderImportItem {
   collectorNumber?: string;
@@ -77,10 +90,10 @@ export interface BinderImportMtgCardDetail {
 export interface BinderImportMarketPrice {
   amount: number | string;
   buyUrl?: string | null;
-  currency: string;
+  currency: CurrencyCode;
   finish: string;
   priceDate: string;
-  source: string;
+  source: MarketPriceSource;
 }
 
 export interface BinderImportCardRecord {
@@ -128,6 +141,7 @@ export interface BinderImportCardCatalog {
 }
 
 export interface BinderImportDestinationResult {
+  coherenceFailed?: boolean;
   failedInsertCount: number;
   failedItems?: BinderImportResolvedItem[];
   importedCount: number;
@@ -166,13 +180,3 @@ export interface BinderImporter {
     request: BinderImportPrepareRequest
   ) => Promise<BinderImportPreparation>;
 }
-
-export interface ImportBinderCardsHandlerParams {
-  items: BinderImportResolvedItem[];
-  onProgress: (completed: number) => void;
-  tcgId: string;
-}
-
-export type ImportBinderCardsHandler = (
-  params: ImportBinderCardsHandlerParams
-) => Promise<BinderImportDestinationResult> | BinderImportDestinationResult;

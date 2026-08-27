@@ -19,7 +19,7 @@ interface BinderCardOfferPanelProps {
   notAvailableLabel: string;
   priceValue: string;
   titleLabel: string;
-  onAddToCart: () => void;
+  onAddToCart?: () => void;
   translateCardOption: (
     group: "condition" | "finish" | "language",
     value: string | null | undefined
@@ -80,15 +80,17 @@ export const BinderCardOfferPanel = ({
             </p>
           )}
 
-          <Button
-            type="button"
-            size="lg"
-            className="w-full"
-            onClick={onAddToCart}
-          >
-            <ShoppingBasket className="size-4" />
-            {isCartPreview ? addPreviewItemLabel : addToBasketLabel}
-          </Button>
+          {onAddToCart && (
+            <Button
+              type="button"
+              size="lg"
+              className="w-full"
+              onClick={onAddToCart}
+            >
+              <ShoppingBasket className="size-4" />
+              {isCartPreview ? addPreviewItemLabel : addToBasketLabel}
+            </Button>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2 border-t border-border pt-4">

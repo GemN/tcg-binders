@@ -3,11 +3,11 @@ import type {
   BinderImportParseResult,
   BinderImportRejectedLine,
 } from "./types.ts";
-import { parseQuantity } from "./utils.ts";
+import { parseCondition, parseLanguage, parseQuantity } from "./utils.ts";
 
-const defaultCardCondition = "near_mint" as const;
+const defaultCardCondition = parseCondition("");
 const defaultCardFinish = "normal";
-const defaultCardLanguage = "en" as const;
+const defaultCardLanguage = parseLanguage("");
 
 export interface BinderTextExportItem {
   collectorNumber: string;

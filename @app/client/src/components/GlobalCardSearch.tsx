@@ -13,14 +13,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/Sheet";
-import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
+import type { BinderEditingCardSnapshot } from "@/lib/binderEditing";
 
 export const GlobalCardSearch = () => {
   const { t } = useTranslation(["common"]);
   const navigate = useNavigate();
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
-  const openCardPage = (card: DraftCardSnapshot) => {
+  const openCardPage = (card: BinderEditingCardSnapshot) => {
     setIsMobileSearchOpen(false);
     navigate(`/card/${card.id}`);
   };

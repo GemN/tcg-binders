@@ -1,6 +1,6 @@
 import type { BinderVisibility } from "@app/graphql";
 import { Eye } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderNote } from "@/components/BinderNote";
@@ -8,7 +8,6 @@ import { BinderTitle } from "@/components/BinderTitle";
 import { BinderVisibilityIcon } from "@/components/BinderVisibilityIcon";
 import {
   ButtonImportBinder,
-  type ImportBinderCardsHandler,
 } from "@/components/ButtonImportBinder";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import {
@@ -16,44 +15,70 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/Tooltip";
-import type { DraftCardSnapshot } from "@/hooks/useDraftBinder";
+import type {
+  BinderEditing,
+  BinderEditingCardSnapshot,
+} from "@/lib/binderEditing";
+import {
+  isBinderEditingCoherenceError,
+  presentBinderEditingError,
+} from "@/lib/binderEditing";
 
 interface BinderPageHeaderProps {
-  binderId: string;
+  binderEditing?: BinderEditing;
   binderName: string;
   binderNote: string;
   binderTcgId: string;
   binderVisibility: BinderVisibility;
-  canEditBinder: boolean;
   headerAction?: ReactNode;
+  isOwnerView: boolean;
   ownerByline?: ReactNode;
   titleAction?: ReactNode;
   viewCount?: number;
-  onAddCard: (card: DraftCardSnapshot) => void;
-  onBinderChanged: () => Promise<unknown> | unknown;
-  onImportCards?: ImportBinderCardsHandler;
-  onRenameBinder?: (name: string) => Promise<unknown> | unknown;
-  onUpdateBinderNote?: (note: string) => Promise<unknown> | unknown;
+  onCoherenceFailure?: () => void;
 }
 
 export const BinderPageHeader = ({
-  binderId,
+  binderEditing,
   binderName,
   binderNote,
   binderTcgId,
   binderVisibility,
-  canEditBinder,
   headerAction,
+  isOwnerView,
   ownerByline,
   titleAction,
   viewCount,
-  onAddCard,
-  onBinderChanged,
-  onImportCards,
-  onRenameBinder,
-  onUpdateBinderNote,
+  onCoherenceFailure,
 }: BinderPageHeaderProps) => {
   const { t } = useTranslation(["binder", "common"]);
+  const [isAddingCard, setIsAddingCard] = useState(false);
+  const [requiresReload, setRequiresReload] = useState(false);
+
+  const handleAddCard = async (card: BinderEditingCardSnapshot) => {
+    if (!binderEditing || isAddingCard || requiresReload) return;
+
+    setIsAddingCard(true);
+    try {
+      await binderEditing.addCard({ card });
+    } catch (error) {
+      presentBinderEditingError(error, {
+        fallbackMessage: t("binder:add_card_error"),
+        reasonMessages: {
+          coherence_failed: t("binder:editing.coherence_failed"),
+        },
+      });
+      if (isBinderEditingCoherenceError(error)) {
+        if (onCoherenceFailure) {
+          onCoherenceFailure();
+        } else {
+          setRequiresReload(true);
+        }
+      }
+    } finally {
+      setIsAddingCard(false);
+    }
+  };
 
   return (
     <div
@@ -63,7 +88,7 @@ export const BinderPageHeader = ({
     >
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
-          {canEditBinder && (
+          {isOwnerView && (
             <BinderVisibilityIcon
               className="size-8 text-binder-toolbar-foreground/80"
               visibility={binderVisibility}
@@ -71,18 +96,16 @@ export const BinderPageHeader = ({
           )}
           <div className="min-w-0">
             <BinderTitle
-              binderId={binderId}
-              isOwner={canEditBinder}
+              binderEditing={binderEditing}
               name={binderName}
-              onRename={onRenameBinder}
-              onRenamed={onBinderChanged}
+              onCoherenceFailure={onCoherenceFailure}
             />
           </div>
         </div>
-        {((canEditBinder && viewCount !== undefined) ||
+        {((isOwnerView && viewCount !== undefined) ||
           (!ownerByline && titleAction)) && (
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-            {canEditBinder && viewCount !== undefined && (
+            {isOwnerView && viewCount !== undefined && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
@@ -109,28 +132,35 @@ export const BinderPageHeader = ({
           </div>
         )}
         <BinderNote
-          binderId={binderId}
-          isOwner={canEditBinder}
+          binderEditing={binderEditing}
           note={binderNote}
-          onUpdate={onUpdateBinderNote}
-          onUpdated={onBinderChanged}
+          onCoherenceFailure={onCoherenceFailure}
         />
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        {canEditBinder && (
+        {binderEditing && !requiresReload && (
           <>
             <CardSearchPicker
               containerClassName="w-full sm:w-80"
               placeholder={t("binder:search_placeholder")}
-              onSelect={onAddCard}
+              onSelect={handleAddCard}
             />
             <ButtonImportBinder
-              binderId={binderId}
+              binderEditing={binderEditing}
+              onCoherenceFailure={onCoherenceFailure}
               tcgId={binderTcgId}
-              onImportCards={onImportCards}
-              onImported={onBinderChanged}
             />
+            {isAddingCard && (
+              <span className="text-sm text-binder-toolbar-foreground/80">
+                {t("binder:adding_card")}
+              </span>
+            )}
           </>
+        )}
+        {requiresReload && (
+          <p className="max-w-sm text-sm text-binder-toolbar-foreground/80">
+            {t("binder:editing.coherence_failed")}
+          </p>
         )}
         {headerAction}
       </div>

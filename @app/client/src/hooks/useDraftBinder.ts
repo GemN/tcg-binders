@@ -2,81 +2,20 @@ import {
   CardCondition,
   CurrencyCode,
   LanguageCode,
-  MarketPriceSource,
 } from "@app/graphql";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { getPreferredCardFinish } from "@/config/card";
-
-export { createDraftCardSnapshot } from "@/lib/draftBinder";
+import {
+  createDraftBinderEditingAdapter,
+} from "@/lib/binderEditing/draftAdapter";
+import type {
+  DraftBinder,
+  DraftBinderCard,
+  DraftMarketPrice,
+} from "@/lib/draftBinderTypes";
 
 const DRAFT_BINDER_STORAGE_KEY = "tcgbinder:draft-binder";
-
-export type DraftCardCondition = CardCondition;
-export type DraftCardLanguage = LanguageCode;
-export type DraftCardCurrency = CurrencyCode;
-
-export interface DraftMarketPrice {
-  source: MarketPriceSource;
-  finish: string;
-  amount: number;
-  currency: DraftCardCurrency;
-  priceDate: string;
-  buyUrl?: string | null;
-}
-
-export interface DraftMtgCardDetail {
-  oracleText?: string | null;
-  scryfallId?: string | null;
-  typeLine?: string | null;
-}
-
-export interface DraftCardSnapshot {
-  id: string;
-  externalId: string;
-  name: string;
-  collectorNumber?: string | null;
-  rarity?: string | null;
-  finishes: string[];
-  imageUrl?: string | null;
-  releasedAt?: string | null;
-  setCode?: string | null;
-  setName?: string | null;
-  mtgCardDetail?: DraftMtgCardDetail | null;
-  marketPrices: DraftMarketPrice[];
-}
-
-export interface DraftBinderCard {
-  draftId: string;
-  cardId: string;
-  quantity: number;
-  finish: string;
-  condition: DraftCardCondition;
-  language: DraftCardLanguage;
-  dynamicPriceRule?: string | null;
-  priceAmount?: string | null;
-  priceCurrency?: DraftCardCurrency | null;
-  note?: string;
-  position: number;
-  createdAt: string;
-  card: DraftCardSnapshot;
-}
-
-export interface DraftBinder {
-  name: string;
-  note: string;
-  tcgId: "mtg";
-  cards: DraftBinderCard[];
-}
-
-export interface AddDraftCardOptions {
-  condition?: DraftCardCondition;
-  finish?: string;
-  language?: DraftCardLanguage;
-  priceAmount?: string | null;
-  priceCurrency?: DraftCardCurrency | null;
-  quantity?: number;
-}
 
 const emptyDraftBinder: DraftBinder = {
   name: "",
@@ -199,57 +138,6 @@ const writeDraftBinder = (draftBinder: DraftBinder): void => {
   localStorage.setItem(DRAFT_BINDER_STORAGE_KEY, JSON.stringify(draftBinder));
 };
 
-const appendDraftCard = (
-  currentDraft: DraftBinder,
-  card: DraftCardSnapshot,
-  options: AddDraftCardOptions = {}
-): DraftBinder => {
-  const finish = options.finish || getPreferredCardFinish(card.finishes);
-  const quantity = Math.max(1, Number(options.quantity) || 1);
-  const existingCard = currentDraft.cards.find(
-    (draftCard) => draftCard.cardId === card.id && draftCard.finish === finish
-  );
-
-  if (existingCard) {
-    return {
-      ...currentDraft,
-      cards: currentDraft.cards.map((draftCard) =>
-        draftCard.draftId === existingCard.draftId
-          ? { ...draftCard, quantity: draftCard.quantity + quantity }
-          : draftCard
-      ),
-    };
-  }
-
-  const position =
-    currentDraft.cards.reduce(
-      (maxPosition, draftCard) => Math.max(maxPosition, draftCard.position),
-      -1
-    ) + 1;
-
-  return {
-    ...currentDraft,
-    cards: [
-      ...currentDraft.cards,
-      {
-        draftId: createDraftId(),
-        cardId: card.id,
-        quantity,
-        finish,
-        condition: options.condition || CardCondition.NearMint,
-        language: options.language || LanguageCode.En,
-        dynamicPriceRule: null,
-        priceAmount: options.priceAmount ?? null,
-        priceCurrency: options.priceCurrency || CurrencyCode.Thb,
-        note: "",
-        position,
-        createdAt: new Date().toISOString(),
-        card,
-      },
-    ],
-  };
-};
-
 export const useDraftBinder = () => {
   const [draftBinder, setDraftBinder] = useState<DraftBinder>(() =>
     readDraftBinder()
@@ -274,102 +162,14 @@ export const useDraftBinder = () => {
     [draftBinder.cards]
   );
 
-  const setName = useCallback(
-    (name: string) => {
-      commitDraftBinder((currentDraft) => ({
-        ...currentDraft,
-        name,
-      }));
-    },
-    [commitDraftBinder]
-  );
-
-  const setNote = useCallback(
-    (note: string) => {
-      commitDraftBinder((currentDraft) => ({
-        ...currentDraft,
-        note,
-      }));
-    },
-    [commitDraftBinder]
-  );
-
-  const addCard = useCallback(
-    (card: DraftCardSnapshot, options?: AddDraftCardOptions) => {
-      commitDraftBinder((currentDraft) =>
-        appendDraftCard(currentDraft, card, options)
-      );
-    },
-    [commitDraftBinder]
-  );
-
-  const addCards = useCallback(
-    (
-      cards: {
-        card: DraftCardSnapshot;
-        options?: AddDraftCardOptions;
-      }[]
-    ) => {
-      commitDraftBinder((currentDraft) =>
-        cards.reduce(
-          (nextDraft, item) =>
-            appendDraftCard(nextDraft, item.card, item.options),
-          currentDraft
-        )
-      );
-    },
-    [commitDraftBinder]
-  );
-
-  const updateCard = useCallback(
-    (draftId: string, patch: Partial<DraftBinderCard>) => {
-      const nextDraft = commitDraftBinder((currentDraft) => ({
-        ...currentDraft,
-        cards: currentDraft.cards.map((draftCard) =>
-          draftCard.draftId === draftId
-            ? {
-                ...draftCard,
-                ...patch,
-                cardId: patch.card?.id || patch.cardId || draftCard.cardId,
-                quantity: Math.max(1, patch.quantity ?? draftCard.quantity),
-              }
-            : draftCard
-        ),
-      }));
-
-      return (
-        nextDraft.cards.find((draftCard) => draftCard.draftId === draftId) ||
-        null
-      );
-    },
-    [commitDraftBinder]
-  );
-
-  const removeCard = useCallback(
-    (draftId: string) => {
-      commitDraftBinder((currentDraft) => ({
-        ...currentDraft,
-        cards: currentDraft.cards
-          .filter((draftCard) => draftCard.draftId !== draftId)
-          .map((draftCard, index) => ({ ...draftCard, position: index })),
-      }));
-    },
-    [commitDraftBinder]
-  );
-
-  const removeCards = useCallback(
-    (draftIds: string[]) => {
-      const draftIdsToRemove = new Set(draftIds);
-
-      commitDraftBinder((currentDraft) => ({
-        ...currentDraft,
-        cards: currentDraft.cards
-          .filter((draftCard) => !draftIdsToRemove.has(draftCard.draftId))
-          .map((draftCard, index) => ({ ...draftCard, position: index })),
-      }));
-    },
-    [commitDraftBinder]
-  );
+  const binderEditing = useMemo(() => {
+    return createDraftBinderEditingAdapter({
+      store: {
+        read: () => draftBinderRef.current,
+        write: commitDraftBinder,
+      },
+    });
+  }, [commitDraftBinder]);
 
   const clearDraft = useCallback(() => {
     draftBinderRef.current = emptyDraftBinder;
@@ -382,13 +182,7 @@ export const useDraftBinder = () => {
       ...draftBinder,
       cards: sortedCards,
     },
-    setName,
-    setNote,
-    addCard,
-    addCards,
-    updateCard,
-    removeCard,
-    removeCards,
+    binderEditing,
     clearDraft,
   };
 };
