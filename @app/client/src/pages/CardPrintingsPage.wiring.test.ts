@@ -19,6 +19,10 @@ const printingsQuerySource = readFileSync(
   new URL("../graphql/CardVariantsByName.graphql", import.meta.url),
   "utf8"
 );
+const listingPricesQuerySource = readFileSync(
+  new URL("../graphql/CardListingPrices.graphql", import.meta.url),
+  "utf8"
+);
 
 test("routes legacy variants URLs to the canonical printings page", () => {
   assert.match(appSource, /path="card\/:cardId\/printings"/);
@@ -70,5 +74,40 @@ test("requests a listing row so each printing receives its total listing count",
   assert.doesNotMatch(
     printingsQuerySource,
     /publicBinderCards:\s*binderCards\(first:\s*0\)/
+  );
+});
+
+test("keeps all-listings summary data independent from active filters", () => {
+  assert.match(
+    allListingsPageSource,
+    /const listingPrices = useAllCardListingPrices\(\{\s*filter: baseListingFilter,\s*skip: !card\?\.name,\s*\}\);/
+  );
+  assert.doesNotMatch(
+    allListingsPageSource,
+    /useAllCardListingPrices\(\{\s*filter: listingFilters\.filter/
+  );
+  assert.match(
+    listingPricesQuerySource,
+    /binderCardsCollection\([\s\S]*?\) \{\s*totalCount/
+  );
+  assert.match(
+    listingPricesQuerySource,
+    /edges \{\s*node \{[\s\S]*?binder \{\s*ownerId\s*\}/
+  );
+  assert.match(
+    allListingsPageSource,
+    /new Set\([\s\S]*?listingPrices\.prices[\s\S]*?listing\.binder\?\.ownerId/
+  );
+  assert.match(
+    allListingsPageSource,
+    /all_listings_page\.seller_count", \{\s*count: sellerCount/
+  );
+  assert.match(
+    allListingsPageSource,
+    /title: t\("card:all_listings_page\.total_listings"\)/
+  );
+  assert.match(
+    allListingsPageSource,
+    /listingPrices\.totalCount\.toLocaleString\(i18n\.language\)/
   );
 });

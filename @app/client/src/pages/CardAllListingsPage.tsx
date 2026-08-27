@@ -3,7 +3,7 @@ import {
   useCardByIdQuery,
   useCardLatestVariantByNameQuery,
 } from "@app/graphql";
-import { ArrowLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router";
@@ -11,7 +11,6 @@ import { Link, useParams } from "react-router";
 import { CardDetailImagePreview } from "@/components/CardDetailImagePreview";
 import { CardDetailTextPanel } from "@/components/CardDetailTextPanel";
 import { CardListingsSection } from "@/components/CardListingsSection";
-import { CardMarketPriceButtons } from "@/components/CardMarketPriceButtons";
 import { CardPriceStats } from "@/components/CardPriceStats";
 import { Loading } from "@/components/Loading";
 import { Seo } from "@/components/Seo";
@@ -33,7 +32,7 @@ import { supportedPriceSources } from "@/providers/PricingSettingsContext";
 import { createCardAllListingsPageJsonLd } from "./CardAllListingsPage.jsonLd";
 
 export const CardAllListingsPage = () => {
-  const { t } = useTranslation(["card", "common"]);
+  const { i18n, t } = useTranslation(["card", "common"]);
   const { cardId = "" } = useParams();
   const { data, error, loading } = useCardByIdQuery({
     variables: { cardId },
@@ -60,9 +59,18 @@ export const CardAllListingsPage = () => {
     skip: !card?.name,
   });
   const listingPrices = useAllCardListingPrices({
-    filter: listingFilters.filter,
+    filter: baseListingFilter,
     skip: !card?.name,
   });
+  const sellerCount = useMemo(
+    () =>
+      new Set(
+        listingPrices.prices
+          .map((listing) => listing.binder?.ownerId)
+          .filter((ownerId): ownerId is string => !!ownerId)
+      ).size,
+    [listingPrices.prices]
+  );
   const variants = useAllCardVariants({ cardName: card?.name || "" });
   const variantMarketPrices = useMemo(
     () =>
@@ -156,101 +164,124 @@ export const CardAllListingsPage = () => {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[96rem] px-4 pb-6 sm:px-6 lg:px-20",
+        "mx-auto w-full max-w-[1720px] px-4 pb-6 sm:px-6 lg:px-[60px]",
         NAVBAR_CONTENT_OFFSET_CLASS_NAME
       )}
     >
       <Seo metadata={seoMetadata} />
-      <div className="mt-6">
-        <Button asChild variant="link" size="link">
-          <Link to={`/card/${card.id}`}>
-            <ArrowLeft className="size-4" />
-            {t("card:back_to_card")}
-          </Link>
-        </Button>
-      </div>
-
-      <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-10">
-        <aside className="mx-auto w-full max-w-sm lg:sticky lg:top-20 lg:mx-0 lg:self-start">
-          <div className="flex flex-col gap-3">
-            <CardDetailImagePreview
-              finish={displayedFinish}
-              imageAlt={mostRecentCard.name}
-              imageUrl={mostRecentCard.imageUrl}
-              noImageLabel={t("common:card_search.no_image")}
-              scryfallId={getCardScryfallId(mostRecentCard)}
-            />
-            <Button
-              asChild
-              variant="link"
-              size="link"
-              className="h-auto min-w-0 whitespace-normal py-1 text-center"
-            >
-              <Link to={`/card/${card.id}/printings`}>
-                {variants.totalCount === undefined
-                  ? t("card:view_all_variants_loading")
-                  : t("card:view_all_variants", {
-                      count: variants.totalCount,
-                    })}
+      <div className="pt-6 lg:pt-10">
+        <nav aria-label={t("card:all_listings_page.breadcrumb_label")}>
+          <ol className="flex min-w-0 items-center gap-2 text-sm">
+            <li className="min-w-0">
+              <Link
+                to={`/card/${card.id}`}
+                className="block truncate text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {card.name}
               </Link>
-            </Button>
-            <CardMarketPriceButtons
-              formatPrice={listingCollection.formatMarketPrice}
-              marketPrices={mostRecentCard.marketPrices?.edges.map(
-                ({ node }) => node
-              )}
-              preferredFinishes={[displayedFinish, "normal"]}
-              showConvertedMarketPrices
-            />
-          </div>
-        </aside>
+            </li>
+            <li aria-hidden="true" className="shrink-0 text-muted-foreground">
+              <ChevronRight className="size-4" />
+            </li>
+            <li
+              aria-current="page"
+              className="shrink-0 text-error underline underline-offset-4"
+            >
+              {t("card:all_listings_page.breadcrumb")}
+            </li>
+          </ol>
+        </nav>
 
-        <main className="min-w-0">
-          <header>
-            <CardDetailTextPanel
-              card={mostRecentCard}
-              detail={mostRecentCard.mtgCardDetail}
-              title={card.name}
-              titleAs="h1"
-            />
-          </header>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
+          <aside className="mx-auto w-full min-w-0 max-w-[240px] lg:mx-0">
+            <div className="flex flex-col gap-4">
+              <div className="mx-auto w-full max-w-[240px]">
+                <CardDetailImagePreview
+                  finish={displayedFinish}
+                  imageAlt={mostRecentCard.name}
+                  imageUrl={mostRecentCard.imageUrl}
+                  noImageLabel={t("common:card_search.no_image")}
+                  scryfallId={getCardScryfallId(mostRecentCard)}
+                />
+              </div>
+              <Button
+                asChild
+                variant="link"
+                size="link"
+                className="h-auto min-w-0 whitespace-normal py-1 text-center"
+              >
+                <Link to={`/card/${card.id}/printings`}>
+                  {variants.totalCount === undefined
+                    ? t("card:view_all_variants_loading")
+                    : t("card:view_all_variants", {
+                        count: variants.totalCount,
+                      })}
+                </Link>
+              </Button>
+            </div>
+          </aside>
 
-          <div className="pt-6">
-            <CardPriceStats
-              isListingPricesLoading={listingPrices.isLoading}
-              isMarketLowestLoading={variants.isLoadingAll}
-              listingPrices={listingPrices.prices}
-              marketLowestPrices={
-                variants.error || variants.loadMoreError
-                  ? []
-                  : variantMarketPrices
-              }
-              marketPrices={mostRecentCard.marketPrices?.edges.map(
-                ({ node }) => node
-              )}
-              preferredFinishes={[displayedFinish, "normal"]}
-            />
-          </div>
+          <main className="min-w-0">
+            <header>
+              <CardDetailTextPanel
+                card={mostRecentCard}
+                detail={mostRecentCard.mtgCardDetail}
+                title={card.name}
+                titleAs="h1"
+              />
+            </header>
 
-          <CardListingsSection
-            activeFilterCount={listingFilters.activeFilterCount}
-            filterState={listingFilters.filterState}
-            formatPrice={listingCollection.formatPrice}
-            hasNextPage={listingCollection.hasNextPage}
-            hasError={!!listingCollection.error}
-            isLoading={listingCollection.isLoading}
-            isLoadingMore={listingCollection.isLoadingMore}
-            isSellerLoading={listingCollection.isSellerLoading}
-            listingCount={listingCollection.listingCount}
-            listings={listingCollection.listings}
-            loadMoreError={listingCollection.loadMoreError}
-            sellerProfilesById={listingCollection.sellerProfilesById}
-            showCardPreview
-            onClearFilters={listingFilters.clearFilters}
-            onFilterStateChange={listingFilters.setFilterState}
-            onLoadMore={listingCollection.loadMore}
-          />
-        </main>
+            <div className="max-w-[760px] pt-6 lg:pt-10">
+              <CardPriceStats
+                isListingPricesLoading={listingPrices.isLoading}
+                isMarketLowestLoading={variants.isLoadingAll}
+                leadingStat={{
+                  description:
+                    listingPrices.error || listingPrices.loadMoreError
+                      ? null
+                      : t("card:all_listings_page.seller_count", {
+                          count: sellerCount,
+                        }),
+                  isLoading: listingPrices.isLoading,
+                  title: t("card:all_listings_page.total_listings"),
+                  value:
+                    listingPrices.totalCount === undefined
+                      ? null
+                      : listingPrices.totalCount.toLocaleString(i18n.language),
+                }}
+                listingPrices={listingPrices.prices}
+                marketLowestPrices={
+                  variants.error || variants.loadMoreError
+                    ? []
+                    : variantMarketPrices
+                }
+                marketPrices={mostRecentCard.marketPrices?.edges.map(
+                  ({ node }) => node
+                )}
+                preferredFinishes={[displayedFinish, "normal"]}
+              />
+            </div>
+          </main>
+        </div>
+
+        <CardListingsSection
+          activeFilterCount={listingFilters.activeFilterCount}
+          filterState={listingFilters.filterState}
+          formatPrice={listingCollection.formatPrice}
+          hasNextPage={listingCollection.hasNextPage}
+          hasError={!!listingCollection.error}
+          isLoading={listingCollection.isLoading}
+          isLoadingMore={listingCollection.isLoadingMore}
+          isSellerLoading={listingCollection.isSellerLoading}
+          listingCount={listingCollection.listingCount}
+          listings={listingCollection.listings}
+          loadMoreError={listingCollection.loadMoreError}
+          sellerProfilesById={listingCollection.sellerProfilesById}
+          showCardPreview
+          onClearFilters={listingFilters.clearFilters}
+          onFilterStateChange={listingFilters.setFilterState}
+          onLoadMore={listingCollection.loadMore}
+        />
       </div>
     </div>
   );

@@ -2259,7 +2259,7 @@ export type CardListingPricesQuery = ({
 } & {
     binderCardsCollection: Maybe<({
         __typename?: 'BinderCardsConnection';
-    } & {
+    } & Pick<BinderCardsConnection, 'totalCount'> & {
         pageInfo: ({
             __typename?: 'PageInfo';
         } & Pick<PageInfo, 'endCursor' | 'hasNextPage'>);
@@ -2268,7 +2268,11 @@ export type CardListingPricesQuery = ({
         } & {
             node: ({
                 __typename?: 'BinderCards';
-            } & Pick<BinderCards, 'id' | 'priceAmount' | 'priceCurrency'>);
+            } & Pick<BinderCards, 'id' | 'priceAmount' | 'priceCurrency'> & {
+                binder: Maybe<({
+                    __typename?: 'Binders';
+                } & Pick<Binders, 'ownerId'>)>;
+            });
         })>;
     })>;
 });

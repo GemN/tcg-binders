@@ -87,6 +87,7 @@ const CardListingRow = ({
   const sellerName = sellerProfile?.nickname.trim();
   const price = formatPrice(listing);
   const card = listing.card;
+  const hasCardPreview = showCardPreview && !!card;
   const printLabel = card
     ? getCardPrintLabel({
         collectorNumber: card.collectorNumber,
@@ -117,18 +118,50 @@ const CardListingRow = ({
   ]);
 
   return (
-    <TableRow className="grid grid-cols-2 gap-x-4 gap-y-3 border border-[#D8D3CC] border-dashed bg-white p-4 last:!border hover:bg-white md:table-row md:border-x-0 md:border-t-0 md:border-b md:p-0 md:last:!border-0 md:odd:bg-card md:even:bg-surface md:hover:bg-accent/30">
-      <TableCell className="p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
-        <div className="flex min-w-0 items-start gap-3">
-          {showCardPreview && card && (
+    <TableRow
+      className={cn(
+        "grid border border-[#D8D3CC] border-dashed bg-white p-4 last:!border hover:bg-white md:table-row md:border-x-0 md:border-t-0 md:border-b md:p-0 md:last:!border-0 md:odd:bg-card md:even:bg-surface md:hover:bg-accent/30",
+        hasCardPreview
+          ? "grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 gap-y-2"
+          : "grid-cols-2 gap-x-4 gap-y-3"
+      )}
+    >
+      {hasCardPreview && (
+        <TableCell className="col-span-3 flex min-w-0 items-baseline gap-2 p-0 whitespace-normal md:hidden">
+          {printLabel && (
+            <span className="shrink-0 text-xs text-muted-foreground">
+              {printLabel}
+            </span>
+          )}
+          <Link
+            to={`/card/${card.id}`}
+            className="truncate text-sm font-normal text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {card.name}
+          </Link>
+        </TableCell>
+      )}
+      <TableCell
+        className={cn(
+          "p-0 whitespace-normal md:table-cell md:px-3 md:py-3",
+          hasCardPreview && "contents"
+        )}
+      >
+        <div
+          className={cn(
+            "min-w-0 items-start gap-3 md:flex",
+            hasCardPreview ? "contents" : "flex"
+          )}
+        >
+          {hasCardPreview && (
             <Link
               to={`/card/${card.id}`}
               aria-label={card.name}
-              className="shrink-0"
+              className="col-start-1 row-span-2 row-start-2 shrink-0 self-start"
             >
               <CardImage
                 alt=""
-                className="h-[70px] w-auto bg-muted shadow-sm"
+                className="h-20 w-auto bg-muted shadow-sm md:h-[70px]"
                 finish={getPreferredCardFinish(card.finishes)}
                 imageSize="thumbnail"
                 imageUrl={card.imageUrl}
@@ -138,7 +171,12 @@ const CardListingRow = ({
               />
             </Link>
           )}
-          <div className="min-w-0 flex-1">
+          <div
+            className={cn(
+              "min-w-0 flex-1",
+              hasCardPreview && "col-start-2 row-start-2"
+            )}
+          >
             {binder ? (
               <Link
                 to={`/binder/${binder.shortId}`}
@@ -163,14 +201,19 @@ const CardListingRow = ({
               )}
             </div>
             {showCardPreview && printLabel && (
-              <p className="mt-0.5 text-sm text-muted-foreground">
+              <p className="mt-0.5 hidden text-sm text-muted-foreground md:block">
                 {printLabel}
               </p>
             )}
           </div>
         </div>
       </TableCell>
-      <TableCell className="p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
+      <TableCell
+        className={cn(
+          "p-0 whitespace-normal md:table-cell md:px-3 md:py-3",
+          hasCardPreview && "col-start-3 row-start-2"
+        )}
+      >
         <span className="flex items-center justify-end gap-2 md:justify-start">
           <CardConditionBadge
             condition={listing.condition}
@@ -186,10 +229,28 @@ const CardListingRow = ({
           <CardFinishBadge finish={listing.finish} display="icon" />
         </span>
       </TableCell>
-      <TableCell className="p-0 font-semibold whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3">
-        <div className="flex justify-start md:justify-center">
-          <span className="relative inline-flex items-baseline gap-2 text-left md:text-center">
-            <span className="text-base">{price.original}</span>
+      <TableCell
+        className={cn(
+          "p-0 font-semibold whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3",
+          hasCardPreview && "col-start-2 row-start-3 min-w-0"
+        )}
+      >
+        <div className="flex min-w-0 justify-start md:justify-center">
+          <span
+            className={cn(
+              "relative inline-flex items-baseline gap-2 text-left md:text-center",
+              hasCardPreview &&
+                "min-w-0 max-w-full flex-wrap gap-y-0 md:flex-nowrap"
+            )}
+          >
+            <span
+              className={cn(
+                "text-base",
+                hasCardPreview && "whitespace-nowrap"
+              )}
+            >
+              {price.original}
+            </span>
             {price.converted && (
               <span className="whitespace-nowrap text-sm font-normal text-muted-foreground md:absolute md:top-full md:left-1/2 md:-translate-x-1/2">
                 ≈ {price.converted}
@@ -198,13 +259,23 @@ const CardListingRow = ({
           </span>
         </div>
       </TableCell>
-      <TableCell className="p-0 text-right text-sm font-medium whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3">
+      <TableCell
+        className={cn(
+          "p-0 text-right text-sm font-medium whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3",
+          hasCardPreview && "col-start-3 row-start-3 whitespace-nowrap"
+        )}
+      >
         <span className="text-xs font-normal text-secondary md:hidden">
           {t("card:variant_available", { count: listing.quantity })}
         </span>
         <span className="hidden md:inline">{listing.quantity}</span>
       </TableCell>
-      <TableCell className="col-span-2 p-0 whitespace-normal [&>div]:w-full md:table-cell md:px-3 md:py-3 md:text-right md:[&>div]:w-28">
+      <TableCell
+        className={cn(
+          "p-0 whitespace-normal [&>div]:w-full md:table-cell md:px-3 md:py-3 md:text-right md:[&>div]:w-28",
+          hasCardPreview ? "col-span-3" : "col-span-2"
+        )}
+      >
         {cartItem ? (
           <CartQuantityControl
             availableQuantity={cartItem.availableQuantity}

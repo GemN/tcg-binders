@@ -65,6 +65,13 @@
       "cardmarket": "Cardmarket"
     }
   },
+  "all_listings_page": {
+    "breadcrumb_label": "All card listings breadcrumb",
+    "breadcrumb": "All listings",
+    "total_listings": "Total listings",
+    "seller_count_one": "From {{count}} seller",
+    "seller_count_other": "From {{count}} sellers"
+  },
   "stats": {
     "title": "Price statistics",
     "lowest_price": "Lowest listing",

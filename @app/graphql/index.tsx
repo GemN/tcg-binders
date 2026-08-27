@@ -2566,6 +2566,7 @@ export type CardListingPricesQuery = (
   { __typename?: 'Query' }
   & { binderCardsCollection: Maybe<(
     { __typename?: 'BinderCardsConnection' }
+    & Pick<BinderCardsConnection, 'totalCount'>
     & { pageInfo: (
       { __typename?: 'PageInfo' }
       & Pick<PageInfo, 'endCursor' | 'hasNextPage'>
@@ -2574,6 +2575,10 @@ export type CardListingPricesQuery = (
       & { node: (
         { __typename?: 'BinderCards' }
         & Pick<BinderCards, 'id' | 'priceAmount' | 'priceCurrency'>
+        & { binder: Maybe<(
+          { __typename?: 'Binders' }
+          & Pick<Binders, 'ownerId'>
+        )> }
       ) }
     )> }
   )> }
@@ -3725,6 +3730,7 @@ export const CardListingPricesDocument = gql`
     filter: $filter
     orderBy: [{id: AscNullsLast}]
   ) {
+    totalCount
     pageInfo {
       endCursor
       hasNextPage
@@ -3734,6 +3740,9 @@ export const CardListingPricesDocument = gql`
         id
         priceAmount
         priceCurrency
+        binder {
+          ownerId
+        }
       }
     }
   }

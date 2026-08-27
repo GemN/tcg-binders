@@ -51,6 +51,8 @@ interface CardPriceStatProps {
   className?: string;
   comparison?: PriceComparison | null;
   comparisonAccessibleLabel?: string;
+  description?: string | null;
+  descriptionClassName?: string;
   isLoading?: boolean;
   showDivider?: boolean;
   title: string;
@@ -62,6 +64,8 @@ const CardPriceStat = ({
   className,
   comparison,
   comparisonAccessibleLabel,
+  description,
+  descriptionClassName,
   isLoading = false,
   showDivider = false,
   title,
@@ -112,12 +116,25 @@ const CardPriceStat = ({
         )}
       </div>
     )}
+    {!isLoading && description && (
+      <p className={cn("mt-0.5 text-xs text-secondary", descriptionClassName)}>
+        {description}
+      </p>
+    )}
   </div>
 );
+
+interface CardPriceStatsLeadingStat {
+  description: string | null;
+  isLoading: boolean;
+  title: string;
+  value: string | null;
+}
 
 interface CardPriceStatsProps {
   isListingPricesLoading: boolean;
   isMarketLowestLoading?: boolean;
+  leadingStat?: CardPriceStatsLeadingStat;
   listingPrices: readonly CardListingPrice[];
   marketLowestPrices?: readonly CardMarketPrice[];
   marketPrices: readonly CardMarketPrice[] | null | undefined;
@@ -127,6 +144,7 @@ interface CardPriceStatsProps {
 export const CardPriceStats = ({
   isListingPricesLoading,
   isMarketLowestLoading = false,
+  leadingStat,
   listingPrices,
   marketLowestPrices,
   marketPrices,
@@ -206,11 +224,8 @@ export const CardPriceStats = ({
   const formatPrice = (amount: number | null) =>
     amount === null ? null : formatCurrency(amount, currency, i18n.language);
 
-  return (
-    <section
-      aria-label={t("stats.title")}
-      className="flex flex-col gap-2 text-primary sm:grid sm:grid-cols-3 sm:gap-0 sm:overflow-hidden sm:rounded-md sm:border sm:border-border sm:border-dashed"
-    >
+  const priceStats = (
+    <>
       <CardPriceStat
         className="rounded-md border border-border border-dashed sm:rounded-none sm:border-0"
         comparison={lowestListingComparison}
@@ -244,6 +259,36 @@ export const CardPriceStats = ({
           value={formatPrice(averageMarketAmount)}
         />
       </div>
+    </>
+  );
+
+  return (
+    <section
+      aria-label={t("stats.title")}
+      className={cn(
+        "text-primary",
+        leadingStat
+          ? "flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]"
+          : "flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-0 sm:overflow-hidden sm:rounded-md sm:border sm:border-border sm:border-dashed"
+      )}
+    >
+      {leadingStat ? (
+        <>
+          <CardPriceStat
+            className="rounded-md border border-border border-dashed bg-surface"
+            description={leadingStat.description}
+            descriptionClassName="text-text-secondary"
+            isLoading={leadingStat.isLoading}
+            title={leadingStat.title}
+            value={leadingStat.value}
+          />
+          <div className="flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-0 sm:overflow-hidden sm:rounded-md sm:border sm:border-border sm:border-dashed">
+            {priceStats}
+          </div>
+        </>
+      ) : (
+        priceStats
+      )}
     </section>
   );
 };

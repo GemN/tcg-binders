@@ -65,6 +65,13 @@
       "cardmarket": "Cardmarket"
     }
   },
+  "all_listings_page": {
+    "breadcrumb_label": "เส้นทางไปยังรายการขายการ์ดทั้งหมด",
+    "breadcrumb": "รายการขายทั้งหมด",
+    "total_listings": "รายการขายทั้งหมด",
+    "seller_count_one": "จากผู้ขาย {{count}} ราย",
+    "seller_count_other": "จากผู้ขาย {{count}} ราย"
+  },
   "stats": {
     "title": "สถิติราคา",
     "lowest_price": "ราคาประกาศขายต่ำสุด",

@@ -81,5 +81,6 @@ export const useAllCardListingPrices = ({
       error || loadMoreError
         ? []
         : collection?.edges.map(({ node }) => node) || [],
+    totalCount: error || loadMoreError ? undefined : collection?.totalCount,
   };
 };

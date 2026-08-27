@@ -9,6 +9,7 @@ query CardListingPrices(
     filter: $filter
     orderBy: [{ id: AscNullsLast }]
   ) {
+    totalCount
     pageInfo {
       endCursor
       hasNextPage
@@ -18,6 +19,9 @@ query CardListingPrices(
         id
         priceAmount
         priceCurrency
+        binder {
+          ownerId
+        }
       }
     }
   }

@@ -661,6 +661,7 @@ export const CardListingPricesDocument = gql `
     filter: $filter
     orderBy: [{id: AscNullsLast}]
   ) {
+    totalCount
     pageInfo {
       endCursor
       hasNextPage
@@ -670,6 +671,9 @@ export const CardListingPricesDocument = gql `
         id
         priceAmount
         priceCurrency
+        binder {
+          ownerId
+        }
       }
     }
   }
