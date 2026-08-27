@@ -42,10 +42,11 @@ fragment CardVariantFields on Cards {
         finish
         amount
         currency
+        buyUrl
       }
     }
   }
-  publicBinderCards: binderCards(first: 0) {
+  publicBinderCards: binderCards(first: 1) {
     totalCount
   }
   lowestUsdBinderCards: binderCards(

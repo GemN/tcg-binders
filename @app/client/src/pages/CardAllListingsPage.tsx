@@ -186,7 +186,7 @@ export const CardAllListingsPage = () => {
               size="link"
               className="h-auto min-w-0 whitespace-normal py-1 text-center"
             >
-              <Link to={`/card/${card.id}/variants`}>
+              <Link to={`/card/${card.id}/printings`}>
                 {variants.totalCount === undefined
                   ? t("card:view_all_variants_loading")
                   : t("card:view_all_variants", {

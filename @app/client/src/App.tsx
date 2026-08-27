@@ -1,6 +1,6 @@
 import { ApolloProvider } from "@apollo/client";
 import { type FC, lazy, type ReactNode, Suspense } from "react";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 import { AuthPageLayout } from "@/components/AuthPageLayout";
 import { LayoutPage } from "@/components/LayoutPage";
@@ -41,9 +41,9 @@ const CardAllListingsPage = lazy(() =>
     default: module.CardAllListingsPage,
   }))
 );
-const CardVariantsPage = lazy(() =>
-  import("@/pages/CardVariantsPage").then((module) => ({
-    default: module.CardVariantsPage,
+const CardPrintingsPage = lazy(() =>
+  import("@/pages/CardPrintingsPage").then((module) => ({
+    default: module.CardPrintingsPage,
   }))
 );
 const ForgotPassword = lazy(() =>
@@ -165,8 +165,12 @@ function App() {
                 element={renderLayoutPage(<CardAllListingsPage />)}
               />
               <Route
+                path="card/:cardId/printings"
+                element={renderLayoutPage(<CardPrintingsPage />)}
+              />
+              <Route
                 path="card/:cardId/variants"
-                element={renderLayoutPage(<CardVariantsPage />)}
+                element={<Navigate to="../printings" replace relative="path" />}
               />
               <Route
                 path="user/:nickname"

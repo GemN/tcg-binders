@@ -2743,7 +2743,7 @@ export type CardVariantFieldsFragment = (
       { __typename?: 'CardMarketPricesEdge' }
       & { node: (
         { __typename?: 'CardMarketPrices' }
-        & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency'>
+        & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'buyUrl'>
       ) }
     )> }
   )>, publicBinderCards: Maybe<(
@@ -3241,10 +3241,11 @@ export const CardVariantFieldsFragmentDoc = gql`
         finish
         amount
         currency
+        buyUrl
       }
     }
   }
-  publicBinderCards: binderCards(first: 0) {
+  publicBinderCards: binderCards(first: 1) {
     totalCount
   }
   lowestUsdBinderCards: binderCards(

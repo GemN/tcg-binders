@@ -402,7 +402,7 @@ test("keeps route and unresolved page loading fallbacks visual-only", () => {
     "../pages/BinderPage.tsx",
     "../pages/CardPage.tsx",
     "../pages/CardAllListingsPage.tsx",
-    "../pages/CardVariantsPage.tsx",
+    "../pages/CardPrintingsPage.tsx",
     "../pages/UserProfile.tsx",
     "../pages/settings/SettingsUserProfile.tsx",
   ];

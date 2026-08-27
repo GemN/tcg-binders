@@ -4,15 +4,15 @@ import {
 } from "../lib/jsonLd.ts";
 import type { SeoJsonLdDefinition } from "../lib/seoMetadata.ts";
 
-export interface CardVariantsPageJsonLdInput {
+export interface CardPrintingsPageJsonLdInput {
   description: string;
   products: SeoProductInput[];
 }
 
-export const createCardVariantsPageJsonLd = ({
+export const createCardPrintingsPageJsonLd = ({
   description,
   products,
-}: CardVariantsPageJsonLdInput): SeoJsonLdDefinition =>
+}: CardPrintingsPageJsonLdInput): SeoJsonLdDefinition =>
   ({ canonicalUrl, locale, origin, title }) => ({
     "@context": "https://schema.org",
     "@type": "CollectionPage",

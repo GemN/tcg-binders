@@ -2430,7 +2430,7 @@ export type CardVariantFieldsFragment = ({
         } & {
             node: ({
                 __typename?: 'CardMarketPrices';
-            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency'>);
+            } & Pick<CardMarketPrices, 'source' | 'finish' | 'amount' | 'currency' | 'buyUrl'>);
         })>;
     })>;
     publicBinderCards: Maybe<({

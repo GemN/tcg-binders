@@ -12,10 +12,10 @@
       "fallback_title": "รายการขายการ์ด MTG",
       "description": "เปรียบเทียบรายการขาย {{name}} ที่มี {{count}} รายการ ทั้งแบบพิมพ์ ผู้ขาย สภาพ ภาษา และราคา"
     },
-    "variants": {
-      "title": "แบบพิมพ์และตัวเลือกทั้งหมดของ {{name}}",
-      "fallback_title": "แบบพิมพ์และตัวเลือกการ์ด MTG",
-      "description": "ดูแบบพิมพ์และตัวเลือกของ {{name}} ทั้งหมด {{count}} แบบ พร้อมรายละเอียดชุด ราคา และรายการจากผู้ขาย"
+    "printings": {
+      "title": "แบบพิมพ์ทั้งหมดของ {{name}}",
+      "fallback_title": "แบบพิมพ์การ์ด MTG",
+      "description": "ดูแบบพิมพ์ของ {{name}} ทั้งหมด {{count}} แบบ พร้อมรายละเอียดชุด ราคา และรายการจากผู้ขาย"
     }
   },
   "listings": "รายการที่มี",
@@ -25,16 +25,46 @@
   "view_all_listings_one": "ดูรายการขาย ({{count}})",
   "view_all_listings_other": "ดูรายการขาย ({{count}})",
   "view_all_listings_loading": "ดูรายการขาย",
-  "variants_title": "ตัวเลือกทั้งหมดของ {{name}}",
-  "variant_count_one": "{{count}} ตัวเลือก",
-  "variant_count_other": "{{count}} ตัวเลือก",
-  "show_only_available": "แสดงเฉพาะที่มีจำหน่าย",
-  "variants_load_error": "โหลดตัวเลือกการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
   "back_to_card": "กลับไปยังการ์ด",
   "listing_count_one": "{{count}} รายการ",
   "listing_count_other": "{{count}} รายการ",
   "variant_available": "มี {{count}} รายการ",
-  "from_price": "เริ่มต้น {{price}}",
+  "printings": {
+    "breadcrumb_label": "เส้นทางไปยังแบบพิมพ์การ์ด",
+    "breadcrumb": "แบบพิมพ์",
+    "count_one": "{{count}} แบบพิมพ์",
+    "count_other": "{{count}} แบบพิมพ์",
+    "all_listings_one": "รายการขายทั้งหมด ({{count}})",
+    "all_listings_other": "รายการขายทั้งหมด ({{count}})",
+    "all_listings_loading": "รายการขายทั้งหมด",
+    "show_only_available": "แสดงเฉพาะที่มีจำหน่าย",
+    "sort_by": "เรียงตาม",
+    "sort": {
+      "release_date": "วันที่ออก",
+      "price_asc": "ราคาน้อยไปมาก",
+      "price_desc": "ราคามากไปน้อย"
+    },
+    "view": {
+      "grid": "มุมมองตาราง",
+      "list": "มุมมองรายการ"
+    },
+    "from": "เริ่มต้น",
+    "open_printing": "เปิดแบบพิมพ์ {{name}}",
+    "no_printings": "ไม่พบแบบพิมพ์",
+    "no_available": "ยังไม่มีแบบพิมพ์ที่มีรายการขาย",
+    "load_error": "โหลดแบบพิมพ์การ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "table": {
+      "card": "การ์ด",
+      "set": "ชุด",
+      "number": "เลข",
+      "set_name": "ชื่อชุด",
+      "from": "เริ่มต้น",
+      "quantity": "จำนวน",
+      "cardkingdom": "Card Kingdom",
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket"
+    }
+  },
   "stats": {
     "title": "สถิติราคา",
     "lowest_price": "ราคาประกาศขายต่ำสุด",

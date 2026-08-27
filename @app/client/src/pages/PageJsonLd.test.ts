@@ -9,7 +9,7 @@ import type { SeoContext } from "../lib/seoMetadata.ts";
 import { createBinderPageJsonLd } from "./BinderPage.jsonLd.ts";
 import { createCardAllListingsPageJsonLd } from "./CardAllListingsPage.jsonLd.ts";
 import { createCardPageJsonLd } from "./CardPage.jsonLd.ts";
-import { createCardVariantsPageJsonLd } from "./CardVariantsPage.jsonLd.ts";
+import { createCardPrintingsPageJsonLd } from "./CardPrintingsPage.jsonLd.ts";
 import { createHomeJsonLd } from "./Home.jsonLd.ts";
 
 const canonicalUrl = "https://megabinder.example/card/card-id";
@@ -365,13 +365,13 @@ test("defines the Card WebPage and Product graph schema", () => {
   assert.match(serialized, /#product/);
 });
 
-test("defines listings and variants CollectionPage schemas separately", () => {
+test("defines listings and printings CollectionPage schemas separately", () => {
   const listingsDefinition = createCardAllListingsPageJsonLd({
     description: "Compare listings.",
     products,
   });
-  const variantsDefinition = createCardVariantsPageJsonLd({
-    description: "Browse variants.",
+  const printingsDefinition = createCardPrintingsPageJsonLd({
+    description: "Browse printings.",
     products,
   });
   const listings = listingsDefinition(
@@ -380,17 +380,17 @@ test("defines listings and variants CollectionPage schemas separately", () => {
       "Black Lotus for Sale | MegaBinder"
     )
   );
-  const variants = variantsDefinition(
+  const printings = printingsDefinition(
     createSeoContext(
-      `${canonicalUrl}/variants`,
-      "Black Lotus Variants | MegaBinder"
+      `${canonicalUrl}/printings`,
+      "Black Lotus Printings | MegaBinder"
     )
   );
 
   assert.equal(listings["@type"], "CollectionPage");
-  assert.equal(variants["@type"], "CollectionPage");
+  assert.equal(printings["@type"], "CollectionPage");
   assert.match(serializeJsonLd(listings), /"@type":"ItemList"/);
-  assert.match(serializeJsonLd(variants), /"@type":"ItemList"/);
+  assert.match(serializeJsonLd(printings), /"@type":"ItemList"/);
 });
 
 test("keeps page schema definitions out of page and SEO metadata files", () => {
@@ -401,7 +401,7 @@ test("keeps page schema definitions out of page and SEO metadata files", () => {
     "CardPage.tsx",
     "CardPage.seo.ts",
     "CardAllListingsPage.tsx",
-    "CardVariantsPage.tsx",
+    "CardPrintingsPage.tsx",
   ];
 
   schemaConsumerFiles.forEach((fileName) => {
@@ -424,7 +424,7 @@ test("wires every page definition into metadata rendered by Seo", () => {
   const listings = readSourceFile({
     fileName: "CardAllListingsPage.tsx",
   });
-  const variants = readSourceFile({ fileName: "CardVariantsPage.tsx" });
+  const printings = readSourceFile({ fileName: "CardPrintingsPage.tsx" });
 
   [
     {
@@ -436,8 +436,8 @@ test("wires every page definition into metadata rendered by Seo", () => {
       sourceFile: listings,
     },
     {
-      definitionName: "createCardVariantsPageJsonLd",
-      sourceFile: variants,
+      definitionName: "createCardPrintingsPageJsonLd",
+      sourceFile: printings,
     },
   ].forEach(({ definitionName, sourceFile }) => {
     const definitionLocalName = getImportedLocalName({

@@ -215,10 +215,11 @@ export const CardVariantFieldsFragmentDoc = gql `
         finish
         amount
         currency
+        buyUrl
       }
     }
   }
-  publicBinderCards: binderCards(first: 0) {
+  publicBinderCards: binderCards(first: 1) {
     totalCount
   }
   lowestUsdBinderCards: binderCards(

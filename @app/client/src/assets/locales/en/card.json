@@ -12,10 +12,10 @@
       "fallback_title": "MTG Card Listings",
       "description": "Compare {{count}} available listings for {{name}} across printings, sellers, conditions, languages, and prices."
     },
-    "variants": {
-      "title": "{{name}} Printings and Variants",
-      "fallback_title": "MTG Card Printings and Variants",
-      "description": "Browse {{count}} printings and variants of {{name}}, with set details, prices, and seller availability."
+    "printings": {
+      "title": "{{name}} Printings",
+      "fallback_title": "MTG Card Printings",
+      "description": "Browse {{count}} printings of {{name}}, with set details, prices, and seller availability."
     }
   },
   "listings": "Available listings",
@@ -25,16 +25,46 @@
   "view_all_listings_one": "View listings ({{count}})",
   "view_all_listings_other": "View listings ({{count}})",
   "view_all_listings_loading": "View listings",
-  "variants_title": "All variants of {{name}}",
-  "variant_count_one": "{{count}} variant",
-  "variant_count_other": "{{count}} variants",
-  "show_only_available": "Show only available",
-  "variants_load_error": "Card variants could not be loaded. Please try again.",
   "back_to_card": "Back to card",
   "listing_count_one": "{{count}} listing",
   "listing_count_other": "{{count}} listings",
   "variant_available": "{{count}} available",
-  "from_price": "From {{price}}",
+  "printings": {
+    "breadcrumb_label": "Card printings breadcrumb",
+    "breadcrumb": "Printings",
+    "count_one": "{{count}} printing",
+    "count_other": "{{count}} printings",
+    "all_listings_one": "All listings ({{count}})",
+    "all_listings_other": "All listings ({{count}})",
+    "all_listings_loading": "All listings",
+    "show_only_available": "Show only available",
+    "sort_by": "Sort by",
+    "sort": {
+      "release_date": "Release date",
+      "price_asc": "Price ascending",
+      "price_desc": "Price descending"
+    },
+    "view": {
+      "grid": "Grid view",
+      "list": "List view"
+    },
+    "from": "From",
+    "open_printing": "Open {{name}} printing",
+    "no_printings": "No printings were found.",
+    "no_available": "No printings currently have listings.",
+    "load_error": "Card printings could not be loaded. Please try again.",
+    "table": {
+      "card": "Card",
+      "set": "Set",
+      "number": "No",
+      "set_name": "Set name",
+      "from": "From",
+      "quantity": "Qty",
+      "cardkingdom": "Card Kingdom",
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket"
+    }
+  },
   "stats": {
     "title": "Price statistics",
     "lowest_price": "Lowest listing",
