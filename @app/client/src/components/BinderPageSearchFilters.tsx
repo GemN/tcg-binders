@@ -1,4 +1,4 @@
-import { SlidersHorizontal } from "lucide-react";
+import { ListFilter } from "lucide-react";
 import { type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -31,6 +31,7 @@ import {
   type BinderCardFilterState,
   binderCardFoilingFilterOptions,
 } from "@/lib/binderPage";
+import { cn } from "@/lib/utils";
 
 interface BinderPageSearchFiltersProps {
   activeFilterCount: number;
@@ -43,6 +44,7 @@ interface BinderPageSearchFiltersProps {
 interface BinderCardFiltersProps {
   activeFilterCount: number;
   filterState: BinderCardFilterState;
+  filterButtonClassName?: string;
   idPrefix: string;
   isMobile: boolean;
   onClearFilters: () => void;
@@ -139,6 +141,7 @@ const BinderPageFilterFields = ({
 export const BinderCardFilters = ({
   activeFilterCount,
   filterState,
+  filterButtonClassName,
   idPrefix,
   isMobile,
   onClearFilters,
@@ -157,9 +160,9 @@ export const BinderCardFilters = ({
       type="button"
       variant={activeFilterCount > 0 ? "default" : "outline"}
       size="sm"
-      className="h-9 w-full sm:w-auto"
+      className={cn("h-9 w-full sm:w-auto", filterButtonClassName)}
     >
-      <SlidersHorizontal className="size-4" />
+      <ListFilter className="size-4" />
       {t("filter.button")}
       {activeFilterCount > 0 && (
         <span className="ml-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-background/20 px-1.5 text-xs tabular-nums">

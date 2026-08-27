@@ -362,6 +362,43 @@ export const updateCartItemQuantityInList = (
   });
 };
 
+export const reconcileCartItemAvailabilityInList = (
+  items: CartItem[],
+  binderCardId: string,
+  availableQuantity: number
+): CartItem[] => {
+  const numericAvailableQuantity = Number(availableQuantity);
+  if (!Number.isFinite(numericAvailableQuantity)) return items;
+
+  const normalizedAvailableQuantity = readAvailableQuantity(availableQuantity);
+  if (normalizedAvailableQuantity < 1) {
+    const nextItems = items.filter(
+      (item) => item.binderCardId !== binderCardId
+    );
+    return nextItems.length === items.length ? items : nextItems;
+  }
+
+  let hasChanged = false;
+  const nextItems = items.map((item) => {
+    if (
+      item.binderCardId !== binderCardId ||
+      item.availableQuantity === normalizedAvailableQuantity
+    ) {
+      return item;
+    }
+
+    hasChanged = true;
+    return {
+      ...item,
+      availableQuantity: normalizedAvailableQuantity,
+      quantity: Math.min(item.quantity, normalizedAvailableQuantity),
+      updatedAt: new Date().toISOString(),
+    };
+  });
+
+  return hasChanged ? nextItems : items;
+};
+
 export const removeCartItemFromList = (
   items: CartItem[],
   binderCardId: string

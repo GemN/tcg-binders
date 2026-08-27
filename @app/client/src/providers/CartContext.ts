@@ -11,9 +11,17 @@ export interface CartContextValue {
   itemCount: number;
   items: CartItem[];
   lastAddedCartItem: CartItem | null;
+  reconcileCartItemAvailability: (
+    binderCardId: string,
+    availableQuantity: number
+  ) => void;
   removeCartItem: (binderCardId: string) => void;
   undoLastCartAddition: () => void;
   updateCartItemQuantity: (binderCardId: string, quantity: number) => void;
+  updateCartItemQuantityWithNotification: (
+    binderCardId: string,
+    quantity: number
+  ) => void;
 }
 
 export const CartContext = createContext<CartContextValue | null>(null);

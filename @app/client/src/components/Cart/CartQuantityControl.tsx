@@ -5,43 +5,60 @@ import { Button } from "@/components/ui/Button";
 
 interface CartQuantityControlProps {
   availableQuantity: number;
+  onRemove?: () => void;
   quantity: number;
   onQuantityChange: (quantity: number) => void;
 }
 
 export const CartQuantityControl = ({
   availableQuantity,
+  onRemove,
   quantity,
   onQuantityChange,
 }: CartQuantityControlProps) => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["common", "checkout"]);
+  const handleDecrease = () => {
+    if (quantity <= 1) {
+      onRemove?.();
+      return;
+    }
+
+    onQuantityChange(quantity - 1);
+  };
+  const handleIncrease = () => {
+    onQuantityChange(quantity + 1);
+  };
 
   return (
-    <div className="inline-flex h-9 items-center rounded-md border border-border bg-background">
+    <div className="inline-flex h-8 w-28 items-center rounded-none border border-border bg-card">
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        className="size-8 rounded-r-none"
-        disabled={quantity <= 1}
-        aria-label={t("common:previous")}
-        onClick={() => onQuantityChange(quantity - 1)}
+        className="h-full w-9 rounded-none"
+        disabled={quantity <= 1 && !onRemove}
+        aria-label={
+          quantity <= 1 && onRemove
+            ? t("checkout:remove")
+            : t("common:previous")
+        }
+        onClick={handleDecrease}
       >
-        <Minus className="size-3.5" />
+        <Minus className="size-4" />
       </Button>
-      <span className="flex h-full min-w-10 items-center justify-center border-x border-border px-2 text-sm font-semibold tabular-nums">
+      <span className="flex h-full min-w-0 flex-1 items-center justify-center px-2 text-sm font-semibold tabular-nums">
         {quantity}
       </span>
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        className="size-8 rounded-l-none"
+        className="h-full w-9 rounded-none"
         disabled={quantity >= availableQuantity}
         aria-label={t("common:next")}
-        onClick={() => onQuantityChange(quantity + 1)}
+        onClick={handleIncrease}
       >
-        <Plus className="size-3.5" />
+        <Plus className="size-4" />
       </Button>
     </div>
   );

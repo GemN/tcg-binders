@@ -1,7 +1,10 @@
 import type { Cards, CardSets, MtgCardDetails } from "@app/graphql";
 import { format, parseISO } from "date-fns";
+import { Sparkle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { getRarityColor } from "@/components/getRarityColor";
+import { OracleText } from "@/components/OracleText";
 import { Badge } from "@/components/ui/Badge";
 
 type CardDetail = Pick<MtgCardDetails, "oracleText" | "typeLine"> | null;
@@ -18,6 +21,9 @@ const formatMetadataLabel = (value: string): string => {
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 };
+
+const metadataBadgeClassName =
+  "max-w-full whitespace-normal font-display uppercase font-normal rounded-none border-transparent bg-[#E1DDFA] px-3 py-2 text-xs text-foreground";
 
 interface CardDetailTextPanelProps {
   card: CardDetailTextPanelCard | null | undefined;
@@ -43,32 +49,30 @@ export const CardDetailTextPanel = ({
     : null;
 
   return (
-    <>
+    <div className="flex flex-col">
       <div>
-        <Title className="text-2xl font-semibold leading-tight text-foreground">
-          {title}
-        </Title>
+        <div className="border-b border-dashed border-[#D8D3CC] pb-1">
+          <Title className="text-[32px] font-display font-medium leading-tight text-primary">
+            {title}
+          </Title>
+        </div>
         {detail?.typeLine && (
-          <p className="mt-1 text-sm font-medium text-muted-foreground">
+          <p className="mt-2 text-base font-medium text-primary">
             {detail.typeLine}
           </p>
         )}
       </div>
 
       {(detail?.oracleText || hasMetadata || releasedAtLabel) && (
-        <div className="rounded-md border border-border bg-card p-4">
-          {detail?.oracleText && (
-            <p className="whitespace-pre-line text-sm leading-6 text-card-foreground">
-              {detail.oracleText}
-            </p>
-          )}
+        <div className="mt-2">
+          {detail?.oracleText && <OracleText text={detail.oracleText} />}
           {(hasMetadata || releasedAtLabel) && (
             <div className={detail?.oracleText ? "mt-4" : undefined}>
               {hasMetadata && (
-                <div className="flex flex-wrap gap-2" role="list">
+                <div className="flex flex-wrap gap-1" role="list">
                   {card?.cardSet?.name && (
                     <Badge
-                      className="max-w-full whitespace-normal"
+                      className={metadataBadgeClassName}
                       role="listitem"
                       variant="secondary"
                     >
@@ -76,12 +80,25 @@ export const CardDetailTextPanel = ({
                     </Badge>
                   )}
                   {card?.collectorNumber && (
-                    <Badge role="listitem" variant="outline">
+                    <Badge
+                      className={metadataBadgeClassName}
+                      role="listitem"
+                      variant="secondary"
+                    >
                       #{card.collectorNumber}
                     </Badge>
                   )}
                   {card?.rarity && (
-                    <Badge role="listitem" variant="outline">
+                    <Badge
+                      className={metadataBadgeClassName}
+                      role="listitem"
+                      variant="secondary"
+                    >
+                      <Sparkle
+                        aria-hidden="true"
+                        className="size-[12px] shrink-0"
+                        color={getRarityColor(card.rarity)}
+                      />
                       {t(`common:card.rarity.${card.rarity}`, {
                         defaultValue: formatMetadataLabel(card.rarity),
                       })}
@@ -92,9 +109,7 @@ export const CardDetailTextPanel = ({
               {releasedAtLabel && card?.releasedAt && (
                 <p
                   className={
-                    hasMetadata
-                      ? "mt-2 text-sm text-muted-foreground"
-                      : "text-sm text-muted-foreground"
+                    "mt-4 w-fit bg-[#ECE9E4] px-2 py-1 text-xs text-muted-foreground"
                   }
                 >
                   <time dateTime={card.releasedAt}>
@@ -106,6 +121,6 @@ export const CardDetailTextPanel = ({
           )}
         </div>
       )}
-    </>
+    </div>
   );
 };

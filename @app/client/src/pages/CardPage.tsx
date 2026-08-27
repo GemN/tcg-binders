@@ -155,13 +155,13 @@ export const CardPage = () => {
   return (
     <div
       className={cn(
-        "mx-auto grid w-full max-w-[96rem] gap-8 px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-10 lg:px-20",
+        "mx-auto grid w-full max-w-[1720px] gap-8 px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-12 lg:px-[60px]",
         NAVBAR_CONTENT_OFFSET_CLASS_NAME
       )}
     >
       <Seo metadata={seoMetadata} />
-      <aside className="mx-auto w-full max-w-sm lg:mx-0 pt-6">
-        <div className="flex flex-col gap-3 lg:sticky lg:top-20">
+      <aside className="mx-auto w-full max-w-sm pt-10 lg:mx-0">
+        <div className="flex flex-col gap-4 lg:sticky lg:top-20">
           <CardDetailImagePreview
             finish={displayedFinish}
             imageAlt={card.name}
@@ -169,12 +169,12 @@ export const CardPage = () => {
             noImageLabel={t("common:card_search.no_image")}
             scryfallId={getCardScryfallId(card)}
           />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="mb-2 flex items-center justify-center gap-2">
             <Button
               asChild
               variant="link"
               size="link"
-              className="h-auto min-w-0 whitespace-normal py-1 text-center"
+              className="h-auto min-w-0 shrink whitespace-normal py-1 text-center"
             >
               <Link to={`/card/${card.id}/variants`}>
                 {isVariantCountLoading || variantCount === undefined
@@ -184,11 +184,12 @@ export const CardPage = () => {
                     })}
               </Link>
             </Button>
+            <span aria-hidden="true">/</span>
             <Button
               asChild
               variant="link"
               size="link"
-              className="h-auto min-w-0 whitespace-normal py-1 text-center"
+              className="h-auto min-w-0 shrink whitespace-normal py-1 text-center"
             >
               <Link to={`/card/${card.id}/listings`}>
                 {isFamilyListingCountLoading || familyListingCount === undefined
@@ -208,8 +209,8 @@ export const CardPage = () => {
         </div>
       </aside>
 
-      <main className="min-w-0 pt-6">
-        <header className="flex flex-col gap-4 border-b border-border pb-6">
+      <main className="min-w-0 pt-10">
+        <header>
           <CardDetailTextPanel
             card={card}
             detail={card.mtgCardDetail}
@@ -218,7 +219,7 @@ export const CardPage = () => {
           />
         </header>
 
-        <div className="pt-6">
+        <div className="pt-10 max-w-[580px]">
           <CardPriceStats
             isListingPricesLoading={listingPrices.isLoading}
             listingPrices={listingPrices.prices}

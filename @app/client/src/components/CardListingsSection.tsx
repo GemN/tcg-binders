@@ -54,16 +54,17 @@ export const CardListingsSection = ({
 
   return (
     <section className="pt-6" aria-label={t("listings")}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-4 flex items-center gap-4">
         <BinderCardFilters
           activeFilterCount={activeFilterCount}
           filterState={filterState}
+          filterButtonClassName="w-auto"
           idPrefix="card-listings-filter"
           isMobile={isMobile}
           onClearFilters={onClearFilters}
           onFilterStateChange={onFilterStateChange}
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm whitespace-nowrap text-secondary">
           {t("listing_count", { count: listingCount })}
         </p>
       </div>

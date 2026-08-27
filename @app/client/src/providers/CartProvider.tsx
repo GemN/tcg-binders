@@ -11,6 +11,7 @@ import {
   addCartItemToList,
   getCartItemCount,
   readStoredCartItems,
+  reconcileCartItemAvailabilityInList,
   removeBinderCartItemsFromList,
   removeCartItemFromList,
   removeSellerCartItemsFromList,
@@ -90,8 +91,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     dismissLastAddedCartItem();
   }, [dismissLastAddedCartItem]);
 
-  const updateCartItemQuantity = useCallback(
-    (binderCardId: string, quantity: number) => {
+  const handleCartItemQuantityUpdate = useCallback(
+    (binderCardId: string, quantity: number, shouldNotify: boolean) => {
+      const previousItem = itemsRef.current.find(
+        (item) => item.binderCardId === binderCardId
+      );
       const nextItems = updateCartItemQuantityInList(
         itemsRef.current,
         binderCardId,
@@ -99,8 +103,62 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       );
       itemsRef.current = nextItems;
       setItems(nextItems);
+
+      const nextItem = nextItems.find(
+        (item) => item.binderCardId === binderCardId
+      );
+      const hasIncreased =
+        previousItem &&
+        nextItem &&
+        nextItem.quantity > previousItem.quantity;
+      if (shouldNotify && hasIncreased) {
+        lastCartAdditionRef.current = {
+          item: nextItem,
+          previousItem,
+        };
+        setLastAddedCartItem(nextItem);
+      } else if (
+        previousItem &&
+        nextItem &&
+        nextItem.quantity !== previousItem.quantity &&
+        lastCartAdditionRef.current?.item.binderCardId === binderCardId
+      ) {
+        dismissLastAddedCartItem();
+      }
     },
-    []
+    [dismissLastAddedCartItem]
+  );
+
+  const updateCartItemQuantity = useCallback(
+    (binderCardId: string, quantity: number) => {
+      handleCartItemQuantityUpdate(binderCardId, quantity, false);
+    },
+    [handleCartItemQuantityUpdate]
+  );
+
+  const updateCartItemQuantityWithNotification = useCallback(
+    (binderCardId: string, quantity: number) => {
+      handleCartItemQuantityUpdate(binderCardId, quantity, true);
+    },
+    [handleCartItemQuantityUpdate]
+  );
+
+  const reconcileCartItemAvailability = useCallback(
+    (binderCardId: string, availableQuantity: number) => {
+      const nextItems = reconcileCartItemAvailabilityInList(
+        itemsRef.current,
+        binderCardId,
+        availableQuantity
+      );
+      if (nextItems === itemsRef.current) return;
+
+      itemsRef.current = nextItems;
+      setItems(nextItems);
+      if (lastCartAdditionRef.current?.item.binderCardId === binderCardId) {
+        dismissLastAddedCartItem();
+      }
+    },
+    [dismissLastAddedCartItem]
   );
 
   const removeCartItem = useCallback((binderCardId: string) => {
@@ -146,9 +204,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       itemCount,
       items,
       lastAddedCartItem,
+      reconcileCartItemAvailability,
       removeCartItem,
       undoLastCartAddition,
       updateCartItemQuantity,
+      updateCartItemQuantityWithNotification,
     }),
     [
       addCartItem,
@@ -159,9 +219,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       itemCount,
       items,
       lastAddedCartItem,
+      reconcileCartItemAvailability,
       removeCartItem,
       undoLastCartAddition,
       updateCartItemQuantity,
+      updateCartItemQuantityWithNotification,
     ]
   );
 

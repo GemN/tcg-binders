@@ -2,6 +2,7 @@ import type {
   CardListingFieldsFragment,
   UserProfilesByIdsQuery,
 } from "@app/graphql";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
@@ -10,6 +11,7 @@ import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CardFinishBadge } from "@/components/CardFinishBadge";
 import { CardImage } from "@/components/CardImage";
 import { getCardPrintLabel } from "@/components/Cart/cartFormat";
+import { CartQuantityControl } from "@/components/Cart/CartQuantityControl";
 import { CountryFlag } from "@/components/CountryFlag";
 import { Button } from "@/components/ui/Button";
 import {
@@ -24,6 +26,7 @@ import { cardLanguageFlagCodes, getPreferredCardFinish } from "@/config/card";
 import { useBinderCartActions } from "@/hooks/useBinderCartActions";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
 import type { CartSellerSnapshot } from "@/lib/cart";
+import { useCart } from "@/providers/CartContext";
 
 export type CardListingSellerProfile = NonNullable<
   UserProfilesByIdsQuery["userProfilesCollection"]
@@ -68,6 +71,15 @@ const CardListingRow = ({
     isSellerLoading,
     seller,
   });
+  const {
+    items,
+    reconcileCartItemAvailability,
+    removeCartItem,
+    updateCartItemQuantity,
+    updateCartItemQuantityWithNotification,
+  } = useCart();
+  const cartItem = items.find((item) => item.binderCardId === listing.id);
+  const cartItemAvailableQuantity = cartItem?.availableQuantity;
   const languageLabel = t(`common:card.language.${listing.language}`, {
     defaultValue: listing.language.toUpperCase(),
   });
@@ -80,11 +92,33 @@ const CardListingRow = ({
         setCode: card.cardSet?.code,
       })
     : null;
+  const handleQuantityChange = (quantity: number) => {
+    if (cartItem && quantity > cartItem.quantity) {
+      updateCartItemQuantityWithNotification(listing.id, quantity);
+      return;
+    }
+
+    updateCartItemQuantity(listing.id, quantity);
+  };
+  const handleRemoveFromCart = () => {
+    removeCartItem(listing.id);
+  };
+
+  useEffect(() => {
+    if (cartItemAvailableQuantity === undefined) return;
+
+    reconcileCartItemAvailability(listing.id, listing.quantity);
+  }, [
+    cartItemAvailableQuantity,
+    listing.id,
+    listing.quantity,
+    reconcileCartItemAvailability,
+  ]);
 
   return (
-    <TableRow className="grid grid-cols-2 gap-x-4 gap-y-3 p-4 odd:bg-card even:bg-muted/25 hover:bg-accent/30 md:table-row md:p-0">
+    <TableRow className="grid grid-cols-2 gap-x-4 gap-y-3 border-[#D8D3CC] border-dashed p-4 odd:bg-card even:bg-surface hover:bg-accent/30 md:table-row md:p-0">
       <TableCell className="col-span-2 p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-semibold uppercase text-muted-foreground md:hidden">
+        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
           {t("card:binder")}
         </span>
         <div className="flex min-w-0 items-start gap-3">
@@ -110,7 +144,7 @@ const CardListingRow = ({
             {binder ? (
               <Link
                 to={`/binder/${binder.shortId}`}
-                className="block truncate text-base font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="block truncate text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {binder.name}
               </Link>
@@ -120,11 +154,12 @@ const CardListingRow = ({
             <div className="mt-1">
               {sellerProfile && sellerName ? (
                 <BinderOwnerLink
+                  className="text-xs text-tertiary underline hover:text-tertiary/80"
                   country={sellerProfile.country}
                   nickname={sellerName}
                 />
               ) : (
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {t("card:unknown_seller")}
                 </span>
               )}
@@ -138,7 +173,7 @@ const CardListingRow = ({
         </div>
       </TableCell>
       <TableCell className="col-span-2 p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-semibold uppercase text-muted-foreground md:hidden">
+        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
           {t("card:information")}
         </span>
         <span className="flex items-center gap-2">
@@ -157,37 +192,46 @@ const CardListingRow = ({
         </span>
       </TableCell>
       <TableCell className="p-0 font-semibold whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-semibold uppercase text-muted-foreground md:hidden">
+        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
           {t("card:price")}
         </span>
         <div className="flex justify-center">
           <span className="relative inline-flex text-center">
-            <span>{price.original}</span>
+            <span className="text-base">{price.original}</span>
             {price.converted && (
-              <span className="absolute top-full left-1/2 mt-0.5 -translate-x-1/2 whitespace-nowrap text-xs font-normal text-muted-foreground">
+              <span className="absolute top-full left-1/2  -translate-x-1/2 whitespace-nowrap text-sm font-normal text-muted-foreground">
                 ≈ {price.converted}
               </span>
             )}
           </span>
         </div>
       </TableCell>
-      <TableCell className="p-0 text-right font-medium whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-semibold uppercase text-muted-foreground md:hidden">
+      <TableCell className="p-0 text-right text-sm font-medium whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3">
+        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
           {t("card:availability")}
         </span>
         {listing.quantity}
       </TableCell>
       <TableCell className="col-span-2 p-0 whitespace-normal md:table-cell md:px-3 md:py-3 md:text-right">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="w-full md:w-auto"
-          disabled={!binder || isSellerLoading}
-          onClick={() => handleAddToCart(listing)}
-        >
-          {t("card:add_to_bag")}
-        </Button>
+        {cartItem ? (
+          <CartQuantityControl
+            availableQuantity={cartItem.availableQuantity}
+            onRemove={handleRemoveFromCart}
+            quantity={cartItem.quantity}
+            onQuantityChange={handleQuantityChange}
+          />
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-28"
+            disabled={!binder || isSellerLoading || listing.quantity < 1}
+            onClick={() => handleAddToCart(listing)}
+          >
+            {t("card:add_to_cart")}
+          </Button>
+        )}
       </TableCell>
     </TableRow>
   );
@@ -211,24 +255,24 @@ export const CardListingsTable = ({
   const { t } = useTranslation(["card"]);
 
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-sm">
+    <div className="overflow-hidden rounded-md border border-[#D8D3CC] bg-card text-card-foreground">
       <Table className="text-sm">
-        <TableHeader className="hidden bg-muted/70 md:table-header-group">
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="h-10 px-3 text-xs font-semibold uppercase text-muted-foreground">
+        <TableHeader className="hidden bg-[#ECE9E4] md:table-header-group">
+          <TableRow className="border-[#D8D3CC] hover:bg-transparent">
+            <TableHead className="h-10 px-3 text-xs font-medium text-primary">
               {t("card:binder")}
             </TableHead>
-            <TableHead className="h-10 px-3 text-xs font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 px-3 text-xs font-medium text-primary">
               {t("card:information")}
             </TableHead>
-            <TableHead className="h-10 px-3 text-center text-xs font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 px-3 text-center text-xs font-medium text-primary">
               {t("card:price")}
             </TableHead>
-            <TableHead className="h-10 px-3 text-right text-xs font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
               {t("card:availability")}
             </TableHead>
             <TableHead className="h-10 px-3">
-              <span className="sr-only">{t("card:add_to_bag")}</span>
+              <span className="sr-only">{t("card:add_to_cart")}</span>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -252,7 +296,7 @@ export const CardListingsTable = ({
             <TableRow>
               <TableCell
                 colSpan={5}
-                className="h-28 whitespace-normal px-4 text-center text-muted-foreground"
+                className="h-28 whitespace-normal px-4 text-center text-primary"
               >
                 {t("card:no_listings")}
               </TableCell>

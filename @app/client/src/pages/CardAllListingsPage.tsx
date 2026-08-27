@@ -206,7 +206,7 @@ export const CardAllListingsPage = () => {
         </aside>
 
         <main className="min-w-0">
-          <header className="flex flex-col gap-4 border-b border-border pb-6">
+          <header>
             <CardDetailTextPanel
               card={mostRecentCard}
               detail={mostRecentCard.mtgCardDetail}

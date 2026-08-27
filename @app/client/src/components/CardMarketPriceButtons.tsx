@@ -71,9 +71,9 @@ export const CardMarketPriceButtons = ({
             <Button
               key={source}
               asChild
-              variant="outline"
+              variant="sand"
               className={cn(
-                "w-full justify-between px-3 py-2",
+                "w-full justify-between px-3 py-2 rounded-sm",
                 marketPriceSourceClassNames[source]
               )}
             >
@@ -88,9 +88,9 @@ export const CardMarketPriceButtons = ({
           <Button
             key={source}
             type="button"
-            variant="outline"
+            variant="sand"
             className={cn(
-              "w-full justify-between px-3 py-2",
+              "w-full justify-between px-3 py-2  rounded-sm",
               marketPriceSourceClassNames[source]
             )}
             disabled
