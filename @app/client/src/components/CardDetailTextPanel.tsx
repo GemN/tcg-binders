@@ -52,12 +52,12 @@ export const CardDetailTextPanel = ({
     <div className="flex flex-col">
       <div>
         <div className="border-b border-dashed border-[#D8D3CC] pb-1">
-          <Title className="text-[32px] font-display font-medium leading-tight text-primary">
+          <Title className="text-2xl font-display font-medium leading-tight text-primary sm:text-[32px]">
             {title}
           </Title>
         </div>
         {detail?.typeLine && (
-          <p className="mt-2 text-base font-medium text-primary">
+          <p className="mt-2 text-sm font-medium text-primary sm:text-base">
             {detail.typeLine}
           </p>
         )}
@@ -109,7 +109,7 @@ export const CardDetailTextPanel = ({
               {releasedAtLabel && card?.releasedAt && (
                 <p
                   className={
-                    "mt-4 w-fit bg-[#ECE9E4] px-2 py-1 text-xs text-muted-foreground"
+                    "mt-4 w-full bg-[#ECE9E4] px-2 py-1 text-xs text-center text-muted-foreground sm:w-fit"
                   }
                 >
                   <time dateTime={card.releasedAt}>

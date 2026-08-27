@@ -48,6 +48,7 @@ const getConvertedMarketPriceAmount = (
 };
 
 interface CardPriceStatProps {
+  className?: string;
   comparison?: PriceComparison | null;
   comparisonAccessibleLabel?: string;
   isLoading?: boolean;
@@ -58,6 +59,7 @@ interface CardPriceStatProps {
 }
 
 const CardPriceStat = ({
+  className,
   comparison,
   comparisonAccessibleLabel,
   isLoading = false,
@@ -68,9 +70,10 @@ const CardPriceStat = ({
 }: CardPriceStatProps) => (
   <div
     className={cn(
-      "relative flex min-w-0 flex-col items-start justify-center px-2 py-3 text-center sm:px-4 sm:py-4",
+      "relative flex min-w-0 flex-col items-center justify-center px-2 py-3 text-center sm:items-start sm:px-4 sm:py-4",
       showDivider &&
-        "before:absolute before:top-1/4 before:left-0 before:h-1/2 before:border-l before:border-border"
+        "before:absolute before:top-1/4 before:left-0 before:h-1/2 before:border-l before:border-border",
+      className
     )}
   >
     <p className="text-sm font-medium text-primary font-display">{title}</p>
@@ -80,7 +83,7 @@ const CardPriceStat = ({
       <div className="mt-1 flex items-center gap-1.5">
         <p
           className={cn(
-            "whitespace-nowrap text-sm font-semibold tabular-nums sm:text-lg",
+            "whitespace-nowrap text-base font-semibold tabular-nums sm:text-lg",
             comparison?.direction === "below" && "text-success",
             comparison?.direction === "above" && "text-error"
           )}
@@ -206,9 +209,10 @@ export const CardPriceStats = ({
   return (
     <section
       aria-label={t("stats.title")}
-      className="grid grid-cols-3 overflow-hidden rounded-md border border-border border-dashed text-primary"
+      className="flex flex-col gap-2 text-primary sm:grid sm:grid-cols-3 sm:gap-0 sm:overflow-hidden sm:rounded-md sm:border sm:border-border sm:border-dashed"
     >
       <CardPriceStat
+        className="rounded-md border border-border border-dashed sm:rounded-none sm:border-0"
         comparison={lowestListingComparison}
         comparisonAccessibleLabel={
           lowestListingComparison?.direction === "below"
@@ -225,18 +229,21 @@ export const CardPriceStats = ({
         title={t("stats.lowest_price")}
         value={formatPrice(lowestListingAmount)}
       />
-      <CardPriceStat
-        isLoading={isMarketLowestLoading}
-        showDivider
-        title={t("stats.market_price")}
-        tooltip={t("stats.market_lowest_tooltip")}
-        value={formatPrice(lowestMarketAmount)}
-      />
-      <CardPriceStat
-        showDivider
-        title={t("stats.market_average")}
-        value={formatPrice(averageMarketAmount)}
-      />
+      <div className="grid grid-cols-2 overflow-hidden rounded-md border border-border border-dashed sm:contents">
+        <CardPriceStat
+          className="max-sm:before:hidden"
+          isLoading={isMarketLowestLoading}
+          showDivider
+          title={t("stats.market_price")}
+          tooltip={t("stats.market_lowest_tooltip")}
+          value={formatPrice(lowestMarketAmount)}
+        />
+        <CardPriceStat
+          showDivider
+          title={t("stats.market_average")}
+          value={formatPrice(averageMarketAmount)}
+        />
+      </div>
     </section>
   );
 };

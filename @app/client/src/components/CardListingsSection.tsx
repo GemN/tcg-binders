@@ -54,7 +54,7 @@ export const CardListingsSection = ({
 
   return (
     <section className="pt-6" aria-label={t("listings")}>
-      <div className="mb-4 flex items-center gap-4">
+      <div className="mb-4 flex items-center justify-between gap-4 sm:justify-start">
         <BinderCardFilters
           activeFilterCount={activeFilterCount}
           filterState={filterState}

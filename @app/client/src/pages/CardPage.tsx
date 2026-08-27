@@ -155,21 +155,23 @@ export const CardPage = () => {
   return (
     <div
       className={cn(
-        "mx-auto grid w-full max-w-[1720px] gap-8 px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-12 lg:px-[60px]",
+        "mx-auto grid w-full max-w-[1720px] gap-4 px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] lg:gap-12 lg:px-[60px]",
         NAVBAR_CONTENT_OFFSET_CLASS_NAME
       )}
     >
       <Seo metadata={seoMetadata} />
-      <aside className="mx-auto w-full max-w-sm pt-10 lg:mx-0">
+      <aside className="mx-auto w-full min-w-0 max-w-sm pt-4 lg:mx-0 lg:pt-10">
         <div className="flex flex-col gap-4 lg:sticky lg:top-20">
-          <CardDetailImagePreview
-            finish={displayedFinish}
-            imageAlt={card.name}
-            imageUrl={card.imageUrl}
-            noImageLabel={t("common:card_search.no_image")}
-            scryfallId={getCardScryfallId(card)}
-          />
-          <div className="mb-2 flex items-center justify-center gap-2">
+          <div className="mx-auto w-full max-w-[300px] lg:max-w-none">
+            <CardDetailImagePreview
+              finish={displayedFinish}
+              imageAlt={card.name}
+              imageUrl={card.imageUrl}
+              noImageLabel={t("common:card_search.no_image")}
+              scryfallId={getCardScryfallId(card)}
+            />
+          </div>
+          <div className="flex items-center justify-center gap-2">
             <Button
               asChild
               variant="link"
@@ -209,7 +211,7 @@ export const CardPage = () => {
         </div>
       </aside>
 
-      <main className="min-w-0 pt-10">
+      <main className="min-w-0 lg:pt-10">
         <header>
           <CardDetailTextPanel
             card={card}
@@ -219,7 +221,7 @@ export const CardPage = () => {
           />
         </header>
 
-        <div className="pt-10 max-w-[580px]">
+        <div className="max-w-[580px] pt-6 lg:pt-10">
           <CardPriceStats
             isListingPricesLoading={listingPrices.isLoading}
             listingPrices={listingPrices.prices}

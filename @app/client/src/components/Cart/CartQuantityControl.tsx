@@ -1,7 +1,15 @@
 import { Minus, Plus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/Tooltip";
+
+const MAXIMUM_TOOLTIP_DURATION_MS = 1500;
 
 interface CartQuantityControlProps {
   availableQuantity: number;
@@ -17,6 +25,21 @@ export const CartQuantityControl = ({
   onQuantityChange,
 }: CartQuantityControlProps) => {
   const { t } = useTranslation(["common", "checkout"]);
+  const [isMaximumTooltipOpen, setIsMaximumTooltipOpen] = useState(false);
+  const maximumTooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const isMaximumReached = quantity >= availableQuantity;
+
+  useEffect(
+    () => () => {
+      if (maximumTooltipTimeoutRef.current) {
+        clearTimeout(maximumTooltipTimeoutRef.current);
+      }
+    },
+    []
+  );
+
   const handleDecrease = () => {
     if (quantity <= 1) {
       onRemove?.();
@@ -26,7 +49,19 @@ export const CartQuantityControl = ({
     onQuantityChange(quantity - 1);
   };
   const handleIncrease = () => {
-    onQuantityChange(quantity + 1);
+    if (!isMaximumReached) {
+      onQuantityChange(quantity + 1);
+      return;
+    }
+
+    if (maximumTooltipTimeoutRef.current) {
+      clearTimeout(maximumTooltipTimeoutRef.current);
+    }
+
+    setIsMaximumTooltipOpen(true);
+    maximumTooltipTimeoutRef.current = setTimeout(() => {
+      setIsMaximumTooltipOpen(false);
+    }, MAXIMUM_TOOLTIP_DURATION_MS);
   };
 
   return (
@@ -49,17 +84,24 @@ export const CartQuantityControl = ({
       <span className="flex h-full min-w-0 flex-1 items-center justify-center px-2 text-sm font-semibold tabular-nums">
         {quantity}
       </span>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-full w-9 rounded-none"
-        disabled={quantity >= availableQuantity}
-        aria-label={t("common:next")}
-        onClick={handleIncrease}
-      >
-        <Plus className="size-4" />
-      </Button>
+      <Tooltip open={isMaximumTooltipOpen}>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-full w-9 rounded-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+            aria-disabled={isMaximumReached}
+            aria-label={t("common:next")}
+            onClick={handleIncrease}
+          >
+            <Plus className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent sideOffset={4}>
+          {t("checkout:maximum_reached")}
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 };

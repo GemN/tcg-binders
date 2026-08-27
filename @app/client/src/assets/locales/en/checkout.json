@@ -61,6 +61,7 @@
   "add_to_cart_success": "Added to cart.",
   "add_to_cart_preview_success": "Added to your preview cart.",
   "add_to_cart_capped": "Maximum available quantity is already in cart.",
+  "maximum_reached": "Maximum reached",
   "cart_unavailable": "This card cannot be added to cart.",
   "preview_badge": "Preview",
   "preview_notice": "Public preview: this adds a local test item and does not create an order.",

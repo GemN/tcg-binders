@@ -31,8 +31,8 @@
   "show_only_available": "แสดงเฉพาะที่มีจำหน่าย",
   "variants_load_error": "โหลดตัวเลือกการ์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
   "back_to_card": "กลับไปยังการ์ด",
-  "listing_count_one": "มี {{count}} รายการ",
-  "listing_count_other": "มี {{count}} รายการ",
+  "listing_count_one": "{{count}} รายการ",
+  "listing_count_other": "{{count}} รายการ",
   "variant_available": "มี {{count}} รายการ",
   "from_price": "เริ่มต้น {{price}}",
   "stats": {

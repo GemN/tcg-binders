@@ -334,7 +334,7 @@ export const Home = () => {
   return (
     <div
       className={
-        "relative isolate min-h-svh w-screen max-w-[100vw] " +
+        "relative isolate min-h-[calc(100svh-3.5rem)] w-screen max-w-[100vw] lg:min-h-svh " +
         "overflow-hidden bg-background bg-[url('/bg-home.jpg')] " +
         "bg-cover bg-center"
       }
@@ -343,7 +343,7 @@ export const Home = () => {
       <HomeCardStreams cards={homeCards} />
       <div
         className={cn(
-          "pointer-events-none relative z-[2] box-border flex min-h-svh w-full max-w-[100vw] min-w-0 px-4 sm:px-8",
+          "pointer-events-none relative z-[2] box-border flex min-h-[calc(100svh-3.5rem)] w-full max-w-[100vw] min-w-0 px-4 sm:px-8 lg:min-h-svh",
           NAVBAR_CONTENT_OFFSET_CLASS_NAME
         )}
       >

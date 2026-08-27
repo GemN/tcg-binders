@@ -45,6 +45,14 @@ Object.defineProperties(globalThis, {
   Node: { configurable: true, value: dom.window.Node },
   NodeFilter: { configurable: true, value: dom.window.NodeFilter },
   SVGElement: { configurable: true, value: dom.window.SVGElement },
+  ResizeObserver: {
+    configurable: true,
+    value: class {
+      disconnect() {}
+      observe() {}
+      unobserve() {}
+    },
+  },
   window: { configurable: true, value: dom.window },
 });
 
@@ -363,8 +371,33 @@ test("replaces Add to cart with a notifying quantity selector capped at availabi
   await act(async () => incrementButton.click());
 
   assert.equal(getDisplayedQuantity(incrementButton), "2");
-  assert.equal(incrementButton.disabled, true);
+  assert.equal(incrementButton.disabled, false);
+  assert.equal(incrementButton.getAttribute("aria-disabled"), "true");
   assert.equal(getNotificationQuantity(), "2");
+});
+
+test("briefly explains when the maximum quantity is reached", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  storeCartItem({ availableQuantity: 2, quantity: 2 });
+  await renderTable();
+
+  const incrementButton = getButton("Next");
+  assert.ok(incrementButton);
+  assert.equal(incrementButton.disabled, false);
+  assert.equal(incrementButton.getAttribute("aria-disabled"), "true");
+  assert.equal(incrementButton.tabIndex, 0);
+
+  incrementButton.focus();
+  assert.equal(document.activeElement, incrementButton);
+  await act(async () => incrementButton.click());
+
+  assert.equal(getDisplayedQuantity(incrementButton), "2");
+  assert.equal(getCartItemQuantity(), "2");
+  assert.match(document.body.textContent ?? "", /Maximum reached/);
+
+  await act(async () => t.mock.timers.tick(1500));
+
+  assert.doesNotMatch(document.body.textContent ?? "", /Maximum reached/);
 });
 
 interface StoredCartSnapshot {
@@ -466,7 +499,8 @@ test("reconciles increased live availability and increments through the new maxi
   incrementButton = getButton("Next");
   assert.ok(incrementButton);
   assert.equal(getDisplayedQuantity(incrementButton), "3");
-  assert.equal(incrementButton.disabled, true);
+  assert.equal(incrementButton.disabled, false);
+  assert.equal(incrementButton.getAttribute("aria-disabled"), "true");
 });
 
 test("clamps an existing cart quantity to reduced live availability", async () => {
@@ -478,7 +512,8 @@ test("clamps an existing cart quantity to reduced live availability", async () =
   const incrementButton = getButton("Next");
   assert.ok(incrementButton);
   assert.equal(getDisplayedQuantity(incrementButton), "2");
-  assert.equal(incrementButton.disabled, true);
+  assert.equal(incrementButton.disabled, false);
+  assert.equal(incrementButton.getAttribute("aria-disabled"), "true");
 });
 
 test("removes a persisted cart item when live availability reaches zero", async () => {

@@ -162,8 +162,8 @@ export const Navbar = () => {
 
   return (
     <header
-      className="absolute top-2 left-2 right-2 z-40 rounded-lg
-     bg-[#E3DFDA]/50 text-foreground backdrop-blur-[30px] lg:fixed lg:top-4 lg:left-4 lg:right-4"
+      className="sticky top-2 z-40 mx-2 rounded-lg
+     bg-[#E3DFDA]/50 text-foreground backdrop-blur-[30px] lg:fixed lg:top-4 lg:right-4 lg:left-4 lg:mx-0"
     >
       <nav className="relative flex h-14 w-full items-center gap-2 px-2 lg:px-4">
         <Link

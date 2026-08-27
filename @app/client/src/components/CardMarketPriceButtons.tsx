@@ -38,7 +38,7 @@ export const CardMarketPriceButtons = ({
   };
 
   return (
-    <div className="grid gap-2">
+    <div className="grid grid-cols-3 gap-2 lg:grid-cols-1">
       {supportedPriceSources.map((source) => {
         const marketPrice = getMarketPriceBySourceAndFinish(
           marketPrices,
@@ -57,12 +57,14 @@ export const CardMarketPriceButtons = ({
           <>
             <span className="flex min-w-0 items-center gap-2">
               <MarketPriceSourceIcon source={source} />
-              <span className="truncate">{label}</span>
+              <span className="hidden truncate lg:inline">{label}</span>
             </span>
-            <span className="ml-auto font-semibold tabular-nums">
+            <span className="lg:font-semibold tabular-nums lg:ml-auto">
               {priceLabel}
             </span>
-            {marketPrice?.buyUrl && <ExternalLink className="size-4" />}
+            {marketPrice?.buyUrl && (
+              <ExternalLink className="hidden size-4 lg:block" />
+            )}
           </>
         );
 
@@ -73,11 +75,16 @@ export const CardMarketPriceButtons = ({
               asChild
               variant="sand"
               className={cn(
-                "w-full justify-between px-3 py-2 rounded-sm",
+                "w-full justify-center gap-2 rounded-sm px-2 py-2 lg:justify-between lg:gap-2 lg:px-3",
                 marketPriceSourceClassNames[source]
               )}
             >
-              <a href={marketPrice.buyUrl} target="_blank" rel="noreferrer">
+              <a
+                href={marketPrice.buyUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
+              >
                 {content}
               </a>
             </Button>
@@ -90,10 +97,11 @@ export const CardMarketPriceButtons = ({
             type="button"
             variant="sand"
             className={cn(
-              "w-full justify-between px-3 py-2  rounded-sm",
+              "w-full justify-center gap-1 rounded-sm px-2 py-2 lg:justify-between lg:gap-2 lg:px-3",
               marketPriceSourceClassNames[source]
             )}
             disabled
+            aria-label={label}
           >
             {content}
           </Button>

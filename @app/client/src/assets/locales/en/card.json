@@ -31,8 +31,8 @@
   "show_only_available": "Show only available",
   "variants_load_error": "Card variants could not be loaded. Please try again.",
   "back_to_card": "Back to card",
-  "listing_count_one": "{{count}} available listing",
-  "listing_count_other": "{{count}} available listings",
+  "listing_count_one": "{{count}} listing",
+  "listing_count_other": "{{count}} listings",
   "variant_available": "{{count}} available",
   "from_price": "From {{price}}",
   "stats": {

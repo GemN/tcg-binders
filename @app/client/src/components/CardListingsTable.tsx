@@ -26,6 +26,7 @@ import { cardLanguageFlagCodes, getPreferredCardFinish } from "@/config/card";
 import { useBinderCartActions } from "@/hooks/useBinderCartActions";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
 import type { CartSellerSnapshot } from "@/lib/cart";
+import { cn } from "@/lib/utils";
 import { useCart } from "@/providers/CartContext";
 
 export type CardListingSellerProfile = NonNullable<
@@ -116,11 +117,8 @@ const CardListingRow = ({
   ]);
 
   return (
-    <TableRow className="grid grid-cols-2 gap-x-4 gap-y-3 border-[#D8D3CC] border-dashed p-4 odd:bg-card even:bg-surface hover:bg-accent/30 md:table-row md:p-0">
-      <TableCell className="col-span-2 p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
-          {t("card:binder")}
-        </span>
+    <TableRow className="grid grid-cols-2 gap-x-4 gap-y-3 border border-[#D8D3CC] border-dashed bg-white p-4 last:!border hover:bg-white md:table-row md:border-x-0 md:border-t-0 md:border-b md:p-0 md:last:!border-0 md:odd:bg-card md:even:bg-surface md:hover:bg-accent/30">
+      <TableCell className="p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
         <div className="flex min-w-0 items-start gap-3">
           {showCardPreview && card && (
             <Link
@@ -172,11 +170,8 @@ const CardListingRow = ({
           </div>
         </div>
       </TableCell>
-      <TableCell className="col-span-2 p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
-          {t("card:information")}
-        </span>
-        <span className="flex items-center gap-2">
+      <TableCell className="p-0 whitespace-normal md:table-cell md:px-3 md:py-3">
+        <span className="flex items-center justify-end gap-2 md:justify-start">
           <CardConditionBadge
             condition={listing.condition}
             className="rounded-sm py-0.5"
@@ -192,14 +187,11 @@ const CardListingRow = ({
         </span>
       </TableCell>
       <TableCell className="p-0 font-semibold whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
-          {t("card:price")}
-        </span>
-        <div className="flex justify-center">
-          <span className="relative inline-flex text-center">
+        <div className="flex justify-start md:justify-center">
+          <span className="relative inline-flex items-baseline gap-2 text-left md:text-center">
             <span className="text-base">{price.original}</span>
             {price.converted && (
-              <span className="absolute top-full left-1/2  -translate-x-1/2 whitespace-nowrap text-sm font-normal text-muted-foreground">
+              <span className="whitespace-nowrap text-sm font-normal text-muted-foreground md:absolute md:top-full md:left-1/2 md:-translate-x-1/2">
                 ≈ {price.converted}
               </span>
             )}
@@ -207,12 +199,12 @@ const CardListingRow = ({
         </div>
       </TableCell>
       <TableCell className="p-0 text-right text-sm font-medium whitespace-normal tabular-nums md:table-cell md:px-3 md:py-3">
-        <span className="mb-1 block text-[10px] font-medium text-muted-foreground md:hidden">
-          {t("card:availability")}
+        <span className="text-xs font-normal text-secondary md:hidden">
+          {t("card:variant_available", { count: listing.quantity })}
         </span>
-        {listing.quantity}
+        <span className="hidden md:inline">{listing.quantity}</span>
       </TableCell>
-      <TableCell className="col-span-2 p-0 whitespace-normal md:table-cell md:px-3 md:py-3 md:text-right">
+      <TableCell className="col-span-2 p-0 whitespace-normal [&>div]:w-full md:table-cell md:px-3 md:py-3 md:text-right md:[&>div]:w-28">
         {cartItem ? (
           <CartQuantityControl
             availableQuantity={cartItem.availableQuantity}
@@ -225,7 +217,7 @@ const CardListingRow = ({
             type="button"
             variant="outline"
             size="sm"
-            className="w-28"
+            className="w-full md:w-28"
             disabled={!binder || isSellerLoading || listing.quantity < 1}
             onClick={() => handleAddToCart(listing)}
           >
@@ -255,7 +247,14 @@ export const CardListingsTable = ({
   const { t } = useTranslation(["card"]);
 
   return (
-    <div className="overflow-hidden rounded-md border border-[#D8D3CC] bg-card text-card-foreground">
+    <div
+      className={cn(
+        "overflow-hidden bg-transparent text-card-foreground md:bg-card",
+        listings.length === 0
+          ? "rounded-md border border-[#D8D3CC]"
+          : "md:rounded-md md:border md:border-[#D8D3CC]"
+      )}
+    >
       <Table className="text-sm">
         <TableHeader className="hidden bg-[#ECE9E4] md:table-header-group">
           <TableRow className="border-[#D8D3CC] hover:bg-transparent">
@@ -276,7 +275,9 @@ export const CardListingsTable = ({
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody
+          className={listings.length > 0 ? "grid gap-4 md:table-row-group" : ""}
+        >
           {listings.length > 0 ? (
             listings.map((listing) => (
               <CardListingRow
