@@ -25,21 +25,26 @@ export interface BinderGalleryBinder {
 
 interface BinderGalleryProps {
   binders: BinderGalleryBinder[];
-  onOpenSettings: (binder: BinderGalleryBinder) => void;
+  onOpenSettings?: (binder: BinderGalleryBinder) => void;
+  readOnly?: boolean;
 }
 
 export const BinderGallery = ({
   binders,
   onOpenSettings,
+  readOnly = false,
 }: BinderGalleryProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      <BinderGalleryAddItem />
+    <div
+      className="grid min-w-0 w-full grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+      data-slot="binder-gallery"
+    >
+      {!readOnly && <BinderGalleryAddItem />}
       {binders.map((binder) => (
         <BinderGalleryItem
           key={binder.id}
           binder={binder}
-          onOpenSettings={onOpenSettings}
+          onOpenSettings={readOnly ? undefined : onOpenSettings}
         />
       ))}
     </div>
@@ -48,7 +53,7 @@ export const BinderGallery = ({
 
 interface BinderGalleryItemProps {
   binder: BinderGalleryBinder;
-  onOpenSettings: (binder: BinderGalleryBinder) => void;
+  onOpenSettings?: (binder: BinderGalleryBinder) => void;
 }
 
 const BinderGalleryItem = ({
@@ -63,13 +68,13 @@ const BinderGalleryItem = ({
   );
 
   return (
-    <div className="group relative grid gap-2">
+    <div className="group relative grid min-w-0 gap-2">
       <Link
         to={`/binder/${binder.shortId}`}
-        className="block"
+        className="block min-w-0"
         aria-label={binder.name}
       >
-        <div className="relative aspect-[2731/3239] overflow-hidden rounded-l-md rounded-r-3xl bg-foreground shadow-sm ring-1 ring-card/20 outline-4 outline-offset-0 outline-transparent transition-[outline-color] group-hover:outline-secondary/70 group-focus-within:outline-secondary">
+        <div className="relative aspect-[2731/3239] w-full min-w-0 overflow-hidden rounded-l-md rounded-r-3xl bg-foreground shadow-sm ring-1 ring-card/20 outline-4 outline-offset-0 outline-transparent transition-[outline-color] group-hover:outline-secondary/70 group-focus-within:outline-secondary">
           {coverImageUrls.fallbackUrl && (
             <picture className="absolute inset-0 block">
               {coverImageUrls.webpUrl && (
@@ -99,10 +104,12 @@ const BinderGalleryItem = ({
           <div className="absolute right-4 left-4 bottom-3">
             <div className="grid max-w-full gap-1 rounded-lg bg-[#F8F7F4]/80 backdrop-blur-[4px] px-3 py-2 text-left text-black/85">
               <div className="flex min-w-0 items-start gap-1.5">
-                <BinderVisibilityIcon
-                  className="mt-0.5 "
-                  visibility={binder.visibility}
-                />
+                {onOpenSettings && (
+                  <BinderVisibilityIcon
+                    className="mt-0.5 "
+                    visibility={binder.visibility}
+                  />
+                )}
                 <div className="line-clamp-2 min-w-0 text-sm leading-5">
                   {binder.name}
                 </div>
@@ -115,27 +122,29 @@ const BinderGalleryItem = ({
         </div>
       </Link>
 
-      <div className="absolute right-2 top-2 z-10">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8 rounded-full border border-white/80 bg-white text-foreground shadow-black/20 hover:bg-white/90 hover:text-foreground focus-visible:ring-white/70"
-              aria-label={t("binder:settings.open_for", {
-                name: binder.name,
-              })}
-              onClick={() => onOpenSettings(binder)}
-            >
-              <Settings className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent sideOffset={4}>
-            {t("binder:settings.button")}
-          </TooltipContent>
-        </Tooltip>
-      </div>
+      {onOpenSettings && (
+        <div className="absolute right-2 top-2 z-10">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 rounded-full border border-white/80 bg-white text-foreground shadow-black/20 hover:bg-white/90 hover:text-foreground focus-visible:ring-white/70"
+                aria-label={t("binder:settings.open_for", {
+                  name: binder.name,
+                })}
+                onClick={() => onOpenSettings(binder)}
+              >
+                <Settings className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent sideOffset={4}>
+              {t("binder:settings.button")}
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      )}
     </div>
   );
 };
@@ -148,7 +157,7 @@ const BinderGalleryAddItem = () => {
       trigger={
         <button
           type="button"
-          className="group relative aspect-[2731/3239] cursor-pointer overflow-hidden rounded-l-md rounded-r-3xl border border-dashed border-border bg-card/40 text-muted-foreground outline-4 outline-offset-0 outline-transparent transition-[outline-color,background-color,border-color,color] hover:border-primary/70 hover:bg-card/70 hover:text-foreground hover:outline-secondary/70 focus-visible:outline-secondary"
+          className="group relative aspect-[2731/3239] w-full min-w-0 cursor-pointer overflow-hidden rounded-l-md rounded-r-3xl border border-dashed border-border bg-card/40 text-muted-foreground outline-4 outline-offset-0 outline-transparent transition-[outline-color,background-color,border-color,color] hover:border-primary/70 hover:bg-card/70 hover:text-foreground hover:outline-secondary/70 focus-visible:outline-secondary"
           aria-label={t("common:new_binder.button")}
         >
           <div

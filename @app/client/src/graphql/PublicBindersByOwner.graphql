@@ -1,0 +1,28 @@
+query PublicBindersByOwner($ownerId: UUID!) {
+  bindersCollection(
+    filter: { ownerId: { eq: $ownerId }, visibility: { eq: listed } }
+    orderBy: [{ createdAt: DescNullsLast }]
+  ) {
+    edges {
+      node {
+        id
+        name
+        shortId
+        visibility
+        binderCardCount
+        binderCards(first: 1, orderBy: [{ position: AscNullsLast }]) {
+          edges {
+            node {
+              card {
+                imageUrl
+                mtgCardDetail {
+                  scryfallId
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

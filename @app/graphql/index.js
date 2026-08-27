@@ -1203,6 +1203,60 @@ export function useMyBindersLazyQuery(baseOptions) {
     const options = { ...defaultOptions, ...baseOptions };
     return Apollo.useLazyQuery(MyBindersDocument, options);
 }
+export const PublicBindersByOwnerDocument = gql `
+    query PublicBindersByOwner($ownerId: UUID!) {
+  bindersCollection(
+    filter: {ownerId: {eq: $ownerId}, visibility: {eq: listed}}
+    orderBy: [{createdAt: DescNullsLast}]
+  ) {
+    edges {
+      node {
+        id
+        name
+        shortId
+        visibility
+        binderCardCount
+        binderCards(first: 1, orderBy: [{position: AscNullsLast}]) {
+          edges {
+            node {
+              card {
+                imageUrl
+                mtgCardDetail {
+                  scryfallId
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+/**
+ * __usePublicBindersByOwnerQuery__
+ *
+ * To run a query within a React component, call `usePublicBindersByOwnerQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicBindersByOwnerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicBindersByOwnerQuery({
+ *   variables: {
+ *      ownerId: // value for 'ownerId'
+ *   },
+ * });
+ */
+export function usePublicBindersByOwnerQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(PublicBindersByOwnerDocument, options);
+}
+export function usePublicBindersByOwnerLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(PublicBindersByOwnerDocument, options);
+}
 export const RecordBinderViewDocument = gql `
     mutation RecordBinderView($shortId: String!) {
   recordBinderView(binderShortId: $shortId)

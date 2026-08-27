@@ -2642,6 +2642,44 @@ export type MyBindersQuery = ({
         })>;
     })>;
 });
+export type PublicBindersByOwnerQueryVariables = Exact<{
+    ownerId: Scalars['UUID'];
+}>;
+export type PublicBindersByOwnerQuery = ({
+    __typename?: 'Query';
+} & {
+    bindersCollection: Maybe<({
+        __typename?: 'BindersConnection';
+    } & {
+        edges: Array<({
+            __typename?: 'BindersEdge';
+        } & {
+            node: ({
+                __typename?: 'Binders';
+            } & Pick<Binders, 'id' | 'name' | 'shortId' | 'visibility' | 'binderCardCount'> & {
+                binderCards: Maybe<({
+                    __typename?: 'BinderCardsConnection';
+                } & {
+                    edges: Array<({
+                        __typename?: 'BinderCardsEdge';
+                    } & {
+                        node: ({
+                            __typename?: 'BinderCards';
+                        } & {
+                            card: Maybe<({
+                                __typename?: 'Cards';
+                            } & Pick<Cards, 'imageUrl'> & {
+                                mtgCardDetail: Maybe<({
+                                    __typename?: 'MtgCardDetails';
+                                } & Pick<MtgCardDetails, 'scryfallId'>)>;
+                            })>;
+                        });
+                    })>;
+                })>;
+            });
+        })>;
+    })>;
+});
 export type RecordBinderViewMutationVariables = Exact<{
     shortId: Scalars['String'];
 }>;
@@ -3442,6 +3480,32 @@ export declare function useMyBindersLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type MyBindersQueryHookResult = ReturnType<typeof useMyBindersQuery>;
 export type MyBindersLazyQueryHookResult = ReturnType<typeof useMyBindersLazyQuery>;
 export type MyBindersQueryResult = Apollo.QueryResult<MyBindersQuery, MyBindersQueryVariables>;
+export declare const PublicBindersByOwnerDocument: Apollo.DocumentNode;
+/**
+ * __usePublicBindersByOwnerQuery__
+ *
+ * To run a query within a React component, call `usePublicBindersByOwnerQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicBindersByOwnerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicBindersByOwnerQuery({
+ *   variables: {
+ *      ownerId: // value for 'ownerId'
+ *   },
+ * });
+ */
+export declare function usePublicBindersByOwnerQuery(baseOptions: Apollo.QueryHookOptions<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>): Apollo.QueryResult<PublicBindersByOwnerQuery, Exact<{
+    ownerId: Scalars["UUID"];
+}>>;
+export declare function usePublicBindersByOwnerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>): Apollo.LazyQueryResultTuple<PublicBindersByOwnerQuery, Exact<{
+    ownerId: Scalars["UUID"];
+}>>;
+export type PublicBindersByOwnerQueryHookResult = ReturnType<typeof usePublicBindersByOwnerQuery>;
+export type PublicBindersByOwnerLazyQueryHookResult = ReturnType<typeof usePublicBindersByOwnerLazyQuery>;
+export type PublicBindersByOwnerQueryResult = Apollo.QueryResult<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>;
 export declare const RecordBinderViewDocument: Apollo.DocumentNode;
 export type RecordBinderViewMutationFn = Apollo.MutationFunction<RecordBinderViewMutation, RecordBinderViewMutationVariables>;
 /**

@@ -123,6 +123,9 @@
   "my_binders": {
     "title": "Your Binders"
   },
+  "user_profile": {
+    "collection": "Collection"
+  },
   "sidenav": {
     "group": {
       "workspace": "Workspace",

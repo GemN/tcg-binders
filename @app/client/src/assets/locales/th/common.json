@@ -122,6 +122,9 @@
   "my_binders": {
     "title": "แฟ้มของคุณ"
   },
+  "user_profile": {
+    "collection": "คอลเลกชัน"
+  },
   "sidenav": {
     "group": {
       "workspace": "พื้นที่ทำงาน",

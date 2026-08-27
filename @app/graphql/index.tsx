@@ -2954,6 +2954,42 @@ export type MyBindersQuery = (
   )> }
 );
 
+export type PublicBindersByOwnerQueryVariables = Exact<{
+  ownerId: Scalars['UUID'];
+}>;
+
+
+export type PublicBindersByOwnerQuery = (
+  { __typename?: 'Query' }
+  & { bindersCollection: Maybe<(
+    { __typename?: 'BindersConnection' }
+    & { edges: Array<(
+      { __typename?: 'BindersEdge' }
+      & { node: (
+        { __typename?: 'Binders' }
+        & Pick<Binders, 'id' | 'name' | 'shortId' | 'visibility' | 'binderCardCount'>
+        & { binderCards: Maybe<(
+          { __typename?: 'BinderCardsConnection' }
+          & { edges: Array<(
+            { __typename?: 'BinderCardsEdge' }
+            & { node: (
+              { __typename?: 'BinderCards' }
+              & { card: Maybe<(
+                { __typename?: 'Cards' }
+                & Pick<Cards, 'imageUrl'>
+                & { mtgCardDetail: Maybe<(
+                  { __typename?: 'MtgCardDetails' }
+                  & Pick<MtgCardDetails, 'scryfallId'>
+                )> }
+              )> }
+            ) }
+          )> }
+        )> }
+      ) }
+    )> }
+  )> }
+);
+
 export type RecordBinderViewMutationVariables = Exact<{
   shortId: Scalars['String'];
 }>;
@@ -4327,6 +4363,64 @@ export function useMyBindersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type MyBindersQueryHookResult = ReturnType<typeof useMyBindersQuery>;
 export type MyBindersLazyQueryHookResult = ReturnType<typeof useMyBindersLazyQuery>;
 export type MyBindersQueryResult = Apollo.QueryResult<MyBindersQuery, MyBindersQueryVariables>;
+export const PublicBindersByOwnerDocument = gql`
+    query PublicBindersByOwner($ownerId: UUID!) {
+  bindersCollection(
+    filter: {ownerId: {eq: $ownerId}, visibility: {eq: listed}}
+    orderBy: [{createdAt: DescNullsLast}]
+  ) {
+    edges {
+      node {
+        id
+        name
+        shortId
+        visibility
+        binderCardCount
+        binderCards(first: 1, orderBy: [{position: AscNullsLast}]) {
+          edges {
+            node {
+              card {
+                imageUrl
+                mtgCardDetail {
+                  scryfallId
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __usePublicBindersByOwnerQuery__
+ *
+ * To run a query within a React component, call `usePublicBindersByOwnerQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicBindersByOwnerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicBindersByOwnerQuery({
+ *   variables: {
+ *      ownerId: // value for 'ownerId'
+ *   },
+ * });
+ */
+export function usePublicBindersByOwnerQuery(baseOptions: Apollo.QueryHookOptions<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>(PublicBindersByOwnerDocument, options);
+      }
+export function usePublicBindersByOwnerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>(PublicBindersByOwnerDocument, options);
+        }
+export type PublicBindersByOwnerQueryHookResult = ReturnType<typeof usePublicBindersByOwnerQuery>;
+export type PublicBindersByOwnerLazyQueryHookResult = ReturnType<typeof usePublicBindersByOwnerLazyQuery>;
+export type PublicBindersByOwnerQueryResult = Apollo.QueryResult<PublicBindersByOwnerQuery, PublicBindersByOwnerQueryVariables>;
 export const RecordBinderViewDocument = gql`
     mutation RecordBinderView($shortId: String!) {
   recordBinderView(binderShortId: $shortId)
