@@ -333,6 +333,10 @@ const getButton = (name: string): HTMLButtonElement | null => {
   );
 };
 
+const decreaseTestCardQuantityLabel = "Decrease quantity for Test Card";
+const increaseTestCardQuantityLabel = "Increase quantity for Test Card";
+const removeTestCardLabel = "Remove Test Card from cart";
+
 const getDisplayedQuantity = (nextButton: HTMLButtonElement): string | null => {
   return nextButton.previousElementSibling?.textContent?.trim() ?? null;
 };
@@ -363,7 +367,7 @@ test("replaces Add to cart with a notifying quantity selector capped at availabi
 
   assert.equal(getButton("Add to cart"), null);
   assert.equal(getNotificationQuantity(), "1");
-  const incrementButton = getButton("Next");
+  const incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   assert.equal(getDisplayedQuantity(incrementButton), "1");
   assert.equal(incrementButton.disabled, false);
@@ -381,7 +385,7 @@ test("briefly explains when the maximum quantity is reached", async (t) => {
   storeCartItem({ availableQuantity: 2, quantity: 2 });
   await renderTable();
 
-  const incrementButton = getButton("Next");
+  const incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   assert.equal(incrementButton.disabled, false);
   assert.equal(incrementButton.getAttribute("aria-disabled"), "true");
@@ -411,12 +415,12 @@ test("removes the listing instead of storing quantity zero", async () => {
   assert.ok(addButton);
   await act(async () => addButton.click());
 
-  const removeButton = getButton("Remove");
+  const removeButton = getButton(removeTestCardLabel);
   assert.ok(removeButton);
   await act(async () => removeButton.click());
 
   assert.ok(getButton("Add to cart"));
-  assert.equal(getButton("Next"), null);
+  assert.equal(getButton(increaseTestCardQuantityLabel), null);
   assert.equal(getNotificationQuantity(), "");
   await act(async () => getButton("Undo probe")?.click());
   assert.ok(getButton("Add to cart"));
@@ -433,12 +437,12 @@ test("invalidates the listing notification and undo after a decrease", async () 
   assert.ok(addButton);
   await act(async () => addButton.click());
 
-  const incrementButton = getButton("Next");
+  const incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   await act(async () => incrementButton.click());
   assert.equal(getNotificationQuantity(), "2");
 
-  const decrementButton = getButton("Previous");
+  const decrementButton = getButton(decreaseTestCardQuantityLabel);
   assert.ok(decrementButton);
   await act(async () => decrementButton.click());
 
@@ -464,7 +468,7 @@ test("invalidates notification and undo when live availability is reduced", asyn
   const addButton = getButton("Add to cart");
   assert.ok(addButton);
   await act(async () => addButton.click());
-  const incrementButton = getButton("Next");
+  const incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   await act(async () => incrementButton.click());
   assert.equal(getNotificationQuantity(), "2");
@@ -482,21 +486,21 @@ test("reconciles increased live availability and increments through the new maxi
 
   await renderTable(createListing(3));
 
-  let incrementButton = getButton("Next");
+  let incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   assert.equal(getDisplayedQuantity(incrementButton), "1");
   assert.equal(incrementButton.disabled, false);
 
   await act(async () => incrementButton?.click());
 
-  incrementButton = getButton("Next");
+  incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   assert.equal(getDisplayedQuantity(incrementButton), "2");
   assert.equal(incrementButton.disabled, false);
 
   await act(async () => incrementButton?.click());
 
-  incrementButton = getButton("Next");
+  incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   assert.equal(getDisplayedQuantity(incrementButton), "3");
   assert.equal(incrementButton.disabled, false);
@@ -509,7 +513,7 @@ test("clamps an existing cart quantity to reduced live availability", async () =
   await renderTable(createListing(2));
 
   assert.equal(getButton("Add to cart"), null);
-  const incrementButton = getButton("Next");
+  const incrementButton = getButton(increaseTestCardQuantityLabel);
   assert.ok(incrementButton);
   assert.equal(getDisplayedQuantity(incrementButton), "2");
   assert.equal(incrementButton.disabled, false);

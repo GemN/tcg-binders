@@ -45,9 +45,9 @@ export const GlobalCardSearch = () => {
             <Search className="size-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="top" className="p-4 pt-12">
+        <SheetContent side="top" className="p-4">
           <SheetHeader className="p-0">
-            <SheetTitle>{t("common:nav.search_cards")}</SheetTitle>
+            <SheetTitle>{t("common:nav.mobile_search_title")}</SheetTitle>
             <SheetDescription className="sr-only">
               {t("common:nav.search_cards_description")}
             </SheetDescription>

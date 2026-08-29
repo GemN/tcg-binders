@@ -2,13 +2,13 @@ import type { CurrencyCode } from "@app/graphql";
 import { Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { CartItemBadges } from "@/components/Cart/CartItemBadges";
-import { CartQuantityControl } from "@/components/Cart/CartQuantityControl";
+import { CardImage } from "@/components/CardImage";
 import {
   formatAmount,
   getCartItemPrintLabel,
 } from "@/components/Cart/cartFormat";
-import { CardImage } from "@/components/CardImage";
+import { CartItemBadges } from "@/components/Cart/CartItemBadges";
+import { CartQuantityControl } from "@/components/Cart/CartQuantityControl";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import type { CartItem } from "@/lib/cart";
@@ -136,6 +136,7 @@ export const CartItemRow = ({
           <div className="relative inline-flex">
             <CartQuantityControl
               availableQuantity={item.availableQuantity}
+              itemName={item.card.name}
               quantity={item.quantity}
               onQuantityChange={(quantity) =>
                 onQuantityChange(item.binderCardId, quantity)

@@ -1,13 +1,21 @@
 import { LanguageCode, MarketPriceSource } from "@app/graphql";
-import { memo, type MouseEvent, useCallback, useState } from "react";
+import {
+  memo,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CardFinishBadge } from "@/components/CardFinishBadge";
 import { CardImage } from "@/components/CardImage";
+import { CartQuantityControl } from "@/components/Cart/CartQuantityControl";
 import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
+import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import {
   Table,
@@ -30,6 +38,7 @@ import {
 import { getCardImageBaseUrl, getCardScryfallId } from "@/lib/cardImageUrl";
 import { preloadImage } from "@/lib/imagePreload";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/providers/CartContext";
 import {
   type ConvertAmountToLocalCurrency,
   usePricingSettings,
@@ -40,6 +49,7 @@ interface BinderCardListProps {
   className?: string;
   isDeletingCard?: boolean;
   isSelectionMode?: boolean;
+  onAddToCart?: (binderCard: BinderCardRecord) => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
   onToggleCardSelection?: (binderCard: BinderCardRecord) => void;
@@ -85,6 +95,7 @@ interface BinderCardListRowProps {
   isDeletingCard?: boolean;
   isSelected?: boolean;
   isSelectionMode?: boolean;
+  onAddToCart?: (binderCard: BinderCardRecord) => void;
   onClearCardPreview: () => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
@@ -210,6 +221,7 @@ const BinderCardListRowComponent = ({
   isDeletingCard,
   isSelected,
   isSelectionMode,
+  onAddToCart,
   onClearCardPreview,
   onDeleteCard,
   onOpenCard,
@@ -218,6 +230,17 @@ const BinderCardListRowComponent = ({
   showConvertedMarketPrices,
 }: BinderCardListRowProps) => {
   const { t } = useTranslation(["binder", "common"]);
+  const {
+    items,
+    reconcileCartItemAvailability,
+    removeCartItem,
+    updateCartItemQuantity,
+    updateCartItemQuantityWithNotification,
+  } = useCart();
+  const cartItem = onAddToCart
+    ? items.find((item) => item.binderCardId === binderCard.id)
+    : undefined;
+  const cartItemAvailableQuantity = cartItem?.availableQuantity;
   const cardkingdomPrice = getBinderCardMarketPrice(
     binderCard,
     MarketPriceSource.Cardkingdom
@@ -278,6 +301,28 @@ const BinderCardListRowComponent = ({
   const deleteCard = useCallback(() => {
     onDeleteCard?.(binderCard);
   }, [binderCard, onDeleteCard]);
+  const handleAddToCart = useCallback(() => {
+    onAddToCart?.(binderCard);
+  }, [binderCard, onAddToCart]);
+  const handleQuantityChange = useCallback(
+    (quantity: number) => {
+      if (cartItem && quantity > cartItem.quantity) {
+        updateCartItemQuantityWithNotification(binderCard.id, quantity);
+        return;
+      }
+
+      updateCartItemQuantity(binderCard.id, quantity);
+    },
+    [
+      binderCard.id,
+      cartItem,
+      updateCartItemQuantity,
+      updateCartItemQuantityWithNotification,
+    ]
+  );
+  const handleRemoveFromCart = useCallback(() => {
+    removeCartItem(binderCard.id);
+  }, [binderCard.id, removeCartItem]);
   const stopCheckboxClickPropagation = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
@@ -285,9 +330,20 @@ const BinderCardListRowComponent = ({
     []
   );
 
+  useEffect(() => {
+    if (cartItemAvailableQuantity === undefined) return;
+
+    reconcileCartItemAvailability(binderCard.id, binderCard.quantity);
+  }, [
+    binderCard.id,
+    binderCard.quantity,
+    cartItemAvailableQuantity,
+    reconcileCartItemAvailability,
+  ]);
+
   return (
     <TableRow
-      className="cursor-pointer border-border odd:bg-card even:bg-muted/25 hover:bg-accent/40"
+      className="cursor-pointer border-[#D8D3CC] border-dashed odd:bg-white even:bg-[#F4F1EC] hover:bg-accent/30"
       data-state={isSelectionMode && isSelected ? "selected" : undefined}
       onClick={activateCard}
       onMouseEnter={updateCardPreview}
@@ -373,6 +429,36 @@ const BinderCardListRowComponent = ({
         shouldConvert={showConvertedMarketPrices}
         source={MarketPriceSource.Cardmarket}
       />
+      {onAddToCart && (
+        <TableCell
+          className="px-3 py-2 text-right"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {cartItem ? (
+            <CartQuantityControl
+              availableQuantity={cartItem.availableQuantity}
+              itemName={cardName}
+              onRemove={handleRemoveFromCart}
+              quantity={cartItem.quantity}
+              onQuantityChange={handleQuantityChange}
+            />
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label={t("binder:detail.add_card_to_cart", {
+                name: cardName,
+              })}
+              className="w-28"
+              disabled={binderCard.quantity < 1}
+              onClick={handleAddToCart}
+            >
+              {t("binder:detail.add_to_cart")}
+            </Button>
+          )}
+        </TableCell>
+      )}
       {onDeleteCard && (
         <TableCell className="px-3 py-2 text-right">
           <BinderCardActionsMenu
@@ -394,6 +480,7 @@ export const BinderCardList = ({
   className,
   isDeletingCard,
   isSelectionMode,
+  onAddToCart,
   onDeleteCard,
   onOpenCard,
   onToggleCardSelection,
@@ -421,55 +508,65 @@ export const BinderCardList = ({
   return (
     <div
       className={cn(
-        "rounded-md border border-border bg-card text-card-foreground shadow-sm",
+        "rounded-md border border-[#D8D3CC] bg-card text-card-foreground",
         className
       )}
     >
-      <Table className="text-sm" containerClassName="overflow-visible">
-        <TableHeader className="bg-muted/70 [&_th]:sticky [&_th]:top-[calc(env(safe-area-inset-top)+5.5rem)] [&_th]:z-20 [&_th]:bg-muted">
-          <TableRow className="border-border hover:bg-transparent">
+      <Table
+        className="text-sm"
+        containerClassName="overflow-x-auto md:overflow-visible"
+      >
+        <TableHeader className="bg-[#ECE9E4] [&_th]:sticky [&_th]:top-[calc(env(safe-area-inset-top)+5.5rem)] [&_th]:z-20 [&_th]:bg-[#ECE9E4]">
+          <TableRow className="border-[#D8D3CC] hover:bg-transparent">
             {isSelectionMode && (
-              <TableHead className="h-9 w-10 px-3">
+              <TableHead className="h-10 w-10 px-3">
                 <span className="sr-only">{t("binder:detail.selected")}</span>
               </TableHead>
             )}
-            <TableHead className="h-9 w-20 px-3 text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 w-20 px-3 text-xs font-medium text-primary">
               {t("binder:list.set")}
             </TableHead>
-            <TableHead className="h-9 w-20 px-3 text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 w-20 px-3 text-xs font-medium text-primary">
               {t("binder:list.collector_number")}
             </TableHead>
-            <TableHead className="h-9 min-w-60 px-3 text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 min-w-60 px-3 text-xs font-medium text-primary">
               {t("binder:list.name")}
             </TableHead>
-            <TableHead className="h-9 w-16 px-3 text-right text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 w-16 px-3 text-right text-xs font-medium text-primary">
               {t("binder:list.quantity")}
             </TableHead>
-            <TableHead className="h-9 w-24 px-3 text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 w-24 px-3 text-xs font-medium text-primary">
               {t("binder:list.condition")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
               {t("binder:list.user_price")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
               <MarketPriceHeader
                 label={t("binder:list.cardkingdom_price")}
                 source={MarketPriceSource.Cardkingdom}
               />
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
               <MarketPriceHeader
                 label={t("binder:list.tcgplayer_price")}
                 source={MarketPriceSource.Tcgplayer}
               />
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-[11px] font-semibold uppercase text-muted-foreground">
+            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
               <MarketPriceHeader
                 label={t("binder:list.cardmarket_price")}
                 source={MarketPriceSource.Cardmarket}
               />
             </TableHead>
-            {onDeleteCard && <TableHead className="h-9 w-12 px-3" />}
+            {onAddToCart && (
+              <TableHead className="h-10 w-34 px-3">
+                <span className="sr-only">
+                  {t("binder:detail.add_to_cart")}
+                </span>
+              </TableHead>
+            )}
+            {onDeleteCard && <TableHead className="h-10 w-12 px-3" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -483,6 +580,7 @@ export const BinderCardList = ({
               isDeletingCard={isDeletingCard}
               isSelected={selectedBinderCardIds?.has(binderCard.id)}
               isSelectionMode={isSelectionMode}
+              onAddToCart={onAddToCart}
               onClearCardPreview={clearCardPreview}
               onDeleteCard={onDeleteCard}
               onOpenCard={onOpenCard}

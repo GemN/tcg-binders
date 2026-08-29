@@ -84,7 +84,7 @@ export const BinderCardVariantSelect = ({
   };
 
   return (
-    <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:col-span-2">
+    <label className="grid gap-1 font-display text-[12px] font-normal text-black sm:col-span-2">
       {label}
       <Select
         disabled={!card?.id}
@@ -92,7 +92,7 @@ export const BinderCardVariantSelect = ({
         onOpenChange={handleOpenChange}
         onValueChange={handleVariantChange}
       >
-        <SelectTrigger className="w-full bg-input text-foreground">
+        <SelectTrigger className="w-full">
           <span className="truncate">{selectedVariantLabel}</span>
         </SelectTrigger>
         <SelectContent>

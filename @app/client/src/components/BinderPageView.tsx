@@ -1,5 +1,5 @@
 import type { BinderVisibility } from "@app/graphql";
-import type { ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { BinderCardViewMode } from "@/components/BinderCard";
@@ -39,6 +39,7 @@ interface BinderPageViewProps {
   isPageLoading: boolean;
   isSelectionMode: boolean;
   isBulkPriceOpen: boolean;
+  mobileHeaderAction?: ReactNode;
   ownerByline?: ReactNode;
   pageIndex: number;
   requiresReload: boolean;
@@ -67,6 +68,7 @@ interface BinderPageViewProps {
   onNextPage: () => void;
   onOpenBulkPrice: () => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
+  onOpenSettings?: () => void;
   onPreviousPage: () => void;
   onSelectVisibleBinderCards: () => void;
   onSelectionModeChange: (nextIsSelectionMode: boolean) => void;
@@ -74,9 +76,7 @@ interface BinderPageViewProps {
   onToggleCardSelection: (binderCard: BinderCardRecord) => void;
   onViewChange: (value: BinderCardViewMode) => void;
   onDetailOpenChange: (nextOpen: boolean) => void;
-  onBulkPriceApplied: (
-    coherenceFailed: boolean
-  ) => Promise<unknown> | unknown;
+  onBulkPriceApplied: (coherenceFailed: boolean) => Promise<unknown> | unknown;
   onBulkPriceOpenChange: (open: boolean) => void;
 }
 
@@ -104,6 +104,7 @@ export const BinderPageView = ({
   isPageLoading,
   isSelectionMode,
   isBulkPriceOpen,
+  mobileHeaderAction,
   ownerByline,
   pageIndex,
   requiresReload,
@@ -135,6 +136,7 @@ export const BinderPageView = ({
   onNextPage,
   onOpenBulkPrice,
   onOpenCard,
+  onOpenSettings,
   onPreviousPage,
   onSelectVisibleBinderCards,
   onSelectionModeChange,
@@ -143,19 +145,32 @@ export const BinderPageView = ({
   onViewChange,
 }: BinderPageViewProps) => {
   const { t } = useTranslation(["binder"]);
+  const binderPageRef = useRef<HTMLDivElement | null>(null);
   const canEditBinder = !!binderEditing;
   const totalPages = Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
-  const canTurnPreviousPage = !isMobile && pageIndex > 0;
-  const canTurnNextPage = !isMobile && pageIndex + 1 < totalPages;
+  const canTurnPreviousPage = pageIndex > 0;
+  const canTurnNextPage = pageIndex + 1 < totalPages;
+  const scrollBinderPageToTop = () => {
+    binderPageRef.current?.scrollTo({ behavior: "smooth", top: 0 });
+  };
+  const handlePreviousPage = () => {
+    onPreviousPage();
+    scrollBinderPageToTop();
+  };
+  const handleNextPage = () => {
+    onNextPage();
+    scrollBinderPageToTop();
+  };
 
   return (
     <div
+      ref={binderPageRef}
       className={cn(
-        "relative isolate flex h-[calc(100svh-3.5rem)] w-full flex-1 overflow-y-auto bg-background text-foreground",
+        "relative isolate flex h-[calc(100svh-3.5rem)] w-full flex-1 flex-col overflow-y-auto bg-surface text-foreground",
         NAVBAR_CONTENT_OFFSET_CLASS_NAME
       )}
     >
-      <div className="relative z-10 flex min-h-full w-full flex-col gap-5 px-4 pb-4 sm:px-6 lg:px-20 pt-6">
+      <div className="relative z-10 w-full shrink-0 bg-surface px-4 py-6 sm:px-6 lg:px-[60px]">
         <BinderPageHeader
           key={`header-${binderIdentity}`}
           binderEditing={binderEditing}
@@ -165,12 +180,16 @@ export const BinderPageView = ({
           binderVisibility={binderVisibility}
           headerAction={headerAction}
           isOwnerView={isOwnerView}
+          mobileHeaderAction={mobileHeaderAction}
           ownerByline={ownerByline}
           titleAction={titleAction}
           viewCount={viewCount}
           onCoherenceFailure={onCoherenceFailure}
+          onOpenSettings={onOpenSettings}
         />
+      </div>
 
+      <div className="relative z-10 flex w-full flex-1 flex-col gap-5 bg-background px-4 pb-4 pt-6 sm:px-6 lg:px-[60px]">
         {requiresReload && (
           <p
             role="status"
@@ -219,15 +238,16 @@ export const BinderPageView = ({
           isMobile={isMobile}
           isPageLoading={isPageLoading}
           isSelectionMode={isSelectionMode}
+          pageIndex={pageIndex}
           selectedBinderCardIds={selectedBinderCardIds}
           showConvertedMarketPrices={showConvertedMarketPrices}
+          totalPages={totalPages}
           viewMode={viewMode}
-          isCartPreview={isCartPreview}
           onAddToCart={canUseCommerce ? onAddToCart : undefined}
           onDeleteCard={onDeleteCard}
-          onNextPage={onNextPage}
+          onNextPage={handleNextPage}
           onOpenCard={onOpenCard}
-          onPreviousPage={onPreviousPage}
+          onPreviousPage={handlePreviousPage}
           onToggleCardSelection={onToggleCardSelection}
         />
       </div>

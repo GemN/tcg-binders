@@ -9,8 +9,7 @@ import { cardLanguageFlagCodes, isFoilCardFinish } from "@/config/card";
 import type { ModalBinderCardRecord } from "./types";
 
 interface BinderCardOfferPanelProps {
-  addPreviewItemLabel: string;
-  addToBasketLabel: string;
+  addToCartLabel: string;
   availableLabel: string;
   binderCard: ModalBinderCardRecord;
   cartPreviewNoticeLabel: string;
@@ -27,8 +26,7 @@ interface BinderCardOfferPanelProps {
 }
 
 export const BinderCardOfferPanel = ({
-  addPreviewItemLabel,
-  addToBasketLabel,
+  addToCartLabel,
   availableLabel,
   binderCard,
   cartPreviewNoticeLabel,
@@ -88,7 +86,7 @@ export const BinderCardOfferPanel = ({
               onClick={onAddToCart}
             >
               <ShoppingBasket className="size-4" />
-              {isCartPreview ? addPreviewItemLabel : addToBasketLabel}
+              {addToCartLabel}
             </Button>
           )}
         </div>

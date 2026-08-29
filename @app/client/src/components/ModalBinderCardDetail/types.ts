@@ -1,4 +1,4 @@
-import type { BinderCardVariantsQuery } from "@app/graphql";
+import type { BinderCardVariantsQuery, CurrencyCode } from "@app/graphql";
 
 import type {
   BinderCardDetailRecord,
@@ -15,3 +15,19 @@ export type BinderCardVariant = NonNullable<
 
 export type PriceMode = "manual" | "dynamic";
 export type DynamicPriceStrategy = "CKD X";
+
+export interface ManualPriceSnapshot {
+  binderCardId: string;
+  priceAmount: string | null;
+  priceCurrency: CurrencyCode;
+}
+
+export interface BinderCardPriceUpdate {
+  dynamicPriceRule: string | null;
+  priceAmount: string | null;
+  priceCurrency: CurrencyCode;
+}
+
+export interface BinderCardPriceIntent extends BinderCardPriceUpdate {
+  binderCardId: string;
+}

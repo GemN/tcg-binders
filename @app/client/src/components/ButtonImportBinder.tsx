@@ -39,8 +39,11 @@ import {
 
 interface ButtonImportBinderProps {
   binderEditing: BinderEditing;
+  open?: boolean;
   onCoherenceFailure?: () => void;
   onImported?: () => Promise<unknown> | unknown;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
   tcgId: string;
   trigger?: ReactElement;
 }
@@ -279,8 +282,11 @@ const BinderImportSuccessView = ({ success }: BinderImportSuccessViewProps) => {
 
 export const ButtonImportBinder = ({
   binderEditing,
+  open,
   onCoherenceFailure,
   onImported,
+  onOpenChange,
+  showTrigger = true,
   tcgId,
   trigger,
 }: ButtonImportBinderProps) => {
@@ -288,7 +294,7 @@ export const ButtonImportBinder = ({
   const fileReadTokenRef = useRef(0);
   const importRunningRef = useRef(false);
   const importSourceRef = useRef<BinderImportSource>("text");
-  const [isOpen, setIsOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [importSource, setImportSource] = useState<BinderImportSource>("text");
   const [importStep, setImportStep] = useState<BinderImportStep>("input");
   const [textInput, setTextInput] = useState("");
@@ -311,6 +317,7 @@ export const ButtonImportBinder = ({
   const cardCatalog = createGraphqlCardCatalog({ loadCards });
   const destination = createBinderEditingImportDestination({ binderEditing });
   const importer = createBinderImporter({ cardCatalog, destination });
+  const isOpen = open ?? uncontrolledOpen;
   const isImporting = isLoadingCards || isImportRunning;
   const isFileImportSource = importSource !== "text";
 
@@ -335,7 +342,10 @@ export const ButtonImportBinder = ({
 
     const requiresReload = !nextOpen && importSuccess?.coherenceFailed;
 
-    setIsOpen(nextOpen);
+    if (open === undefined) {
+      setUncontrolledOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
     if (!nextOpen) {
       resetState();
 
@@ -654,14 +664,20 @@ export const ButtonImportBinder = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button type="button" variant="outline" className="h-9 px-2 sm:px-3">
-            <Upload className="size-4" />
-            {t("binder:import.button")}
-          </Button>
-        )}
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              type="button"
+              variant="outline"
+              className="h-9 px-2 sm:px-3"
+            >
+              <Upload className="size-4" />
+              {t("binder:import.button")}
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent
         showCloseButton={!isImporting && importStep !== "success"}
         className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"

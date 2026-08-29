@@ -6,7 +6,6 @@ interface BinderCardGridProps {
   binderCards: BinderCardRecord[];
   className?: string;
   isDeletingCard?: boolean;
-  isCartPreview?: boolean;
   isSelectionMode?: boolean;
   noImageLabel: string;
   onAddToCart?: (binderCard: BinderCardRecord) => void;
@@ -21,7 +20,6 @@ export const BinderCardGrid = ({
   binderCards,
   className,
   isDeletingCard,
-  isCartPreview,
   isSelectionMode,
   noImageLabel,
   onAddToCart,
@@ -34,7 +32,7 @@ export const BinderCardGrid = ({
   return (
     <div
       className={cn(
-        "grid h-full grid-cols-2 place-items-start content-start gap-3 gap-y-4 sm:grid-cols-4 lg:grid-cols-7",
+        "grid h-auto grid-cols-2 place-items-start content-start gap-3 gap-y-4 sm:grid-cols-4 md:h-full lg:grid-cols-7",
         className
       )}
     >
@@ -44,7 +42,6 @@ export const BinderCardGrid = ({
           binderCard={binderCard}
           index={index}
           isDeleting={isDeletingCard}
-          isCartPreview={isCartPreview}
           isSelected={selectedBinderCardIds?.has(binderCard.id)}
           isSelectionMode={isSelectionMode}
           noImageLabel={noImageLabel}

@@ -226,11 +226,11 @@ export const BinderPageSearchFilters = ({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="contents md:flex md:min-w-0 md:items-center md:gap-2">
       <InputSearch
         aria-label={t("binder:filter.search_label")}
         className="h-9"
-        containerClassName="min-w-0 sm:w-72 xl:w-80"
+        containerClassName="col-span-full row-start-1 min-w-0 md:col-auto md:row-auto md:w-72 xl:w-80"
         placeholder={t("binder:filter.search_placeholder")}
         value={filterState.query}
         onChange={handleSearchChange}
@@ -238,6 +238,7 @@ export const BinderPageSearchFilters = ({
       <BinderCardFilters
         activeFilterCount={activeFilterCount}
         filterState={filterState}
+        filterButtonClassName="max-w-full px-2 md:px-3"
         idPrefix="binder-filter"
         isMobile={isMobile}
         onClearFilters={onClearFilters}

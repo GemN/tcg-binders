@@ -18,6 +18,7 @@ interface BinderCardPricingFieldsProps {
   applyLabel: string;
   ckdMultiplierInput: string;
   ckdMultiplierInputId: string;
+  ckdMarketPriceLabel: string;
   currencyLabel: string;
   dynamicPriceStrategy: DynamicPriceStrategy;
   priceCurrency: CurrencyCode;
@@ -45,6 +46,7 @@ export const BinderCardPricingFields = ({
   applyLabel,
   ckdMultiplierInput,
   ckdMultiplierInputId,
+  ckdMarketPriceLabel,
   currencyLabel,
   dynamicPriceStrategy,
   priceCurrency,
@@ -67,37 +69,29 @@ export const BinderCardPricingFields = ({
   onPresetCkd,
   onDynamicPriceStrategyChange,
 }: BinderCardPricingFieldsProps) => (
-  <div className="grid gap-3 border-t border-border pt-4">
+  <div className="grid gap-3 border-t border-dashed border-border pt-4">
     <h3 className="text-sm font-semibold text-foreground">{titleLabel}</h3>
 
     <ToggleGroup
       type="single"
       value={priceMode}
-      size="sm"
-      className="w-full border border-border bg-muted p-1 text-foreground sm:w-fit"
+      variant="outline"
+      className="w-fit"
       onValueChange={(value) => {
         if (!value) return;
         onPriceModeChange(value as PriceMode);
       }}
     >
-      <ToggleGroupItem
-        value="manual"
-        size="sm"
-        className="h-8 flex-1 px-3 text-foreground hover:bg-accent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
-      >
+      <ToggleGroupItem value="manual">
         {priceModeLabels.manual}
       </ToggleGroupItem>
-      <ToggleGroupItem
-        value="dynamic"
-        size="sm"
-        className="h-8 flex-1 px-3 text-foreground hover:bg-accent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground sm:flex-none"
-      >
+      <ToggleGroupItem value="dynamic">
         {priceModeLabels.dynamic}
       </ToggleGroupItem>
     </ToggleGroup>
 
     <div className="grid gap-3 sm:grid-cols-[10rem_1fr]">
-      <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+      <label className="grid gap-1 font-display text-[12px] font-normal text-black">
         {currencyLabel}
         <Select
           value={priceCurrency}
@@ -105,7 +99,7 @@ export const BinderCardPricingFields = ({
             onPriceCurrencyChange(nextCurrency as CurrencyCode)
           }
         >
-          <SelectTrigger className="w-full bg-input text-foreground">
+          <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -119,7 +113,7 @@ export const BinderCardPricingFields = ({
       </label>
 
       {priceMode === "dynamic" ? (
-        <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+        <label className="grid gap-1 font-display text-[12px] font-normal text-black">
           {priceStrategyLabel}
           <Select
             value={dynamicPriceStrategy}
@@ -127,7 +121,7 @@ export const BinderCardPricingFields = ({
               onDynamicPriceStrategyChange(strategy as DynamicPriceStrategy)
             }
           >
-            <SelectTrigger className="w-full border-primary bg-primary text-primary-foreground hover:bg-primary/90 [&_svg]:!text-primary-foreground">
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -136,14 +130,13 @@ export const BinderCardPricingFields = ({
           </Select>
         </label>
       ) : (
-        <div className="grid gap-1 text-xs font-medium text-muted-foreground">
+        <div className="grid gap-1 font-display text-[12px] font-normal text-black">
           <label htmlFor={priceInputId}>{priceLabel}</label>
           <div className="flex flex-wrap gap-2">
             <Input
               id={priceInputId}
               value={priceInput}
               placeholder={pricePlaceholder}
-              className="bg-input text-foreground placeholder:text-muted-foreground"
               onChange={(event) => onPriceInputChange(event.target.value)}
               onBlur={onManualPriceCommit}
               onKeyDown={(event) => {
@@ -153,58 +146,67 @@ export const BinderCardPricingFields = ({
               }}
             />
             {priceCurrency === CurrencyCode.Thb && (
-              <div className="flex h-9 shrink-0 overflow-hidden rounded-md border text-xs font-medium ">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 rounded-none border-r  px-2 text-xs "
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => onPresetCkd(25)}
-                >
-                  CKD 25
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 rounded-none border-r px-2 text-xs "
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => onPresetCkd(30)}
-                >
-                  CKD 30
-                </Button>
-                <label htmlFor={ckdMultiplierInputId} className="sr-only">
-                  {ckdMultiplierLabel}
-                </label>
-                <span className="flex h-9 items-center px-2">CKD</span>
-                <Input
-                  id={ckdMultiplierInputId}
-                  inputMode="decimal"
-                  value={ckdMultiplierInput}
-                  className="h-9 w-14 rounded-none border-0 bg-input px-2 text-xs text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-                  placeholder="X"
-                  onChange={(event) =>
-                    onCkdMultiplierChange(event.target.value)
-                  }
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      onCustomCkdCommit();
+              <div className="flex w-fit max-w-full shrink-0 gap-2 overflow-x-auto text-xs font-medium">
+                <div className="flex h-9 shrink-0 overflow-hidden rounded-md border">
+                  <span className="flex h-9 shrink-0 items-center border-r bg-[#E1DDFA] px-2 text-black">
+                    CKD {ckdMarketPriceLabel}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 rounded-none border-r px-2 text-xs"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => onPresetCkd(25)}
+                  >
+                    ×25
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 rounded-none px-2 text-xs"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => onPresetCkd(30)}
+                  >
+                    ×30
+                  </Button>
+                </div>
+                <div className="flex h-9 shrink-0 overflow-hidden rounded-md border">
+                  <label htmlFor={ckdMultiplierInputId} className="sr-only">
+                    {ckdMultiplierLabel}
+                  </label>
+                  <span className="flex h-9 items-center bg-[#E1DDFA] px-2 text-black">
+                    ×
+                  </span>
+                  <Input
+                    id={ckdMultiplierInputId}
+                    inputMode="decimal"
+                    value={ckdMultiplierInput}
+                    className="h-9 w-14 rounded-none border-y-0 border-r-0 border-l px-2 text-xs"
+                    placeholder="X"
+                    onChange={(event) =>
+                      onCkdMultiplierChange(event.target.value)
                     }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={!ckdMultiplierInput.trim()}
-                  className="h-9 rounded-none border-l px-3 text-xs  disabled:opacity-40"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={onCustomCkdCommit}
-                >
-                  {applyLabel}
-                </Button>
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        onCustomCkdCommit();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={!ckdMultiplierInput.trim()}
+                    className="h-9 rounded-none border-l px-3 text-xs disabled:opacity-40"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={onCustomCkdCommit}
+                  >
+                    {applyLabel}
+                  </Button>
+                </div>
               </div>
             )}
           </div>

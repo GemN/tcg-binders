@@ -85,8 +85,8 @@ export const BinderPageControls = ({
       });
 
   return (
-    <div className="-mt-2 flex shrink-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
-      <p className="shrink-0 text-sm text-muted-foreground">
+    <div className="flex shrink-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
+      <p className="order-2 shrink-0 text-sm text-muted-foreground md:order-none">
         {isMobile
           ? cardCountLabel
           : t("binder:page_progress", {
@@ -95,7 +95,7 @@ export const BinderPageControls = ({
               pageCount: totalPages,
             })}
       </p>
-      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:ml-auto xl:flex-nowrap">
+      <div className="order-1 grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 md:order-none md:flex md:flex-wrap md:items-center xl:ml-auto xl:flex-nowrap">
         <BinderPageSearchFilters
           activeFilterCount={activeFilterCount}
           filterState={filterState}
@@ -104,7 +104,7 @@ export const BinderPageControls = ({
           onFilterStateChange={onFilterStateChange}
         />
         {canEditBinder && (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="col-span-full row-start-3 flex flex-wrap items-center gap-2 md:col-auto md:row-auto">
             {isSelectionMode ? (
               <>
                 <span className="flex h-9 items-center text-sm text-muted-foreground">
@@ -192,12 +192,12 @@ export const BinderPageControls = ({
         )}
         {canEditBinder && (
           <div
-            className="h-px w-full bg-border sm:h-9 sm:w-px"
+            className="hidden bg-border md:block md:h-9 md:w-px"
             aria-hidden="true"
           />
         )}
         <Select value={sortMode} onValueChange={onSortChange}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="col-start-2 row-start-2 min-w-0 w-full px-2 md:col-auto md:row-auto md:w-48 md:px-3">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -222,7 +222,8 @@ export const BinderPageControls = ({
         <ToggleGroup
           type="single"
           value={viewMode}
-          className="w-full sm:w-auto"
+          variant="outline"
+          className="col-start-3 row-start-2 w-fit shrink-0 md:col-auto md:row-auto"
           onValueChange={(value) => {
             if (!value) return;
             onViewChange(value as BinderCardViewMode);
@@ -230,7 +231,6 @@ export const BinderPageControls = ({
         >
           <ToggleGroupItem
             value="grid"
-            variant="outline"
             className="w-9"
             aria-label={t("binder:view.grid")}
           >
@@ -238,7 +238,6 @@ export const BinderPageControls = ({
           </ToggleGroupItem>
           <ToggleGroupItem
             value="list"
-            variant="outline"
             className="w-9"
             aria-label={t("binder:view.list")}
           >

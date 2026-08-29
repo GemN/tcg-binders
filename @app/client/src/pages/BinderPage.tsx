@@ -42,7 +42,10 @@ import { useBinderCardSelection } from "@/hooks/useBinderCardSelection";
 import { useBinderCartActions } from "@/hooks/useBinderCartActions";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useMobile";
-import type { BinderCardRecord } from "@/lib/binderCardPricing";
+import type {
+  BinderCardDetailRecord,
+  BinderCardRecord,
+} from "@/lib/binderCardPricing";
 import {
   type BinderEditingBulkOutcome,
   isBinderEditingCoherenceError,
@@ -70,7 +73,7 @@ import {
   getBinderCardOrderBy,
   getBinderCardsFilter,
   getBinderCardsPerPage,
-  MOBILE_CARD_LIMIT,
+  MOBILE_PAGE_SIZE,
   PRELOAD_PAGE_COUNT,
 } from "@/lib/binderPage";
 import type { CartSellerSnapshot } from "@/lib/cart";
@@ -84,6 +87,10 @@ import { createBinderPageSeoMetadata } from "./BinderPage.seo";
 const BINDER_VIEW_COOLDOWN_MS = 30 * 60 * 1000;
 const BINDER_VIEW_STORAGE_KEY_PREFIX = "tcgbinder:binder-view:";
 
+const isBinderCardViewMode = (
+  value: string | null
+): value is BinderCardViewMode => value === "grid" || value === "list";
+
 export const BinderPage = () => {
   const { t } = useTranslation(["binder", "checkout", "common"]);
   const { isLoading: isSessionLoading, session } = useSession();
@@ -92,6 +99,10 @@ export const BinderPage = () => {
   const { shortId = "" } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const isPublicPreview = searchParams.get("public") === "true";
+  const viewParam = searchParams.get("view");
+  const viewMode: BinderCardViewMode = isBinderCardViewMode(viewParam)
+    ? viewParam
+    : "grid";
   const isMobile = useIsMobile();
   const searchParamFilterState = useMemo(
     () => getBinderCardFilterStateFromSearchParams(searchParams),
@@ -117,7 +128,6 @@ export const BinderPage = () => {
   );
   const isFiltered = debouncedActiveFilterCount > 0;
   const [sortMode, setSortMode] = useState<BinderSortMode>("seller_order");
-  const [viewMode, setViewMode] = useState<BinderCardViewMode>("grid");
   const [pageIndex, setPageIndex] = useState(0);
   const [isBulkPriceOpen, setIsBulkPriceOpen] = useState(false);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
@@ -134,11 +144,20 @@ export const BinderPage = () => {
   const handleCoherenceFailure = useCallback(() => {
     setRequiresReload(true);
   }, []);
-  const cardsPerPage = getBinderCardsPerPage(viewMode);
-  const cardOffset = isMobile ? 0 : pageIndex * cardsPerPage;
-  const cardFirst = isMobile
-    ? MOBILE_CARD_LIMIT
-    : (PRELOAD_PAGE_COUNT + 1) * cardsPerPage;
+
+  useEffect(() => {
+    if (viewParam === viewMode) return;
+
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set("view", viewMode);
+    setSearchParams(nextSearchParams, { replace: true });
+  }, [searchParams, setSearchParams, viewMode, viewParam]);
+
+  const cardsPerPage = isMobile
+    ? MOBILE_PAGE_SIZE
+    : getBinderCardsPerPage(viewMode);
+  const cardOffset = pageIndex * cardsPerPage;
+  const cardFirst = (PRELOAD_PAGE_COUNT + 1) * cardsPerPage;
   const cardOrderBy = useMemo(() => getBinderCardOrderBy(sortMode), [sortMode]);
   const binderQuery = useBinderByShortIdQuery({
     variables: {
@@ -252,9 +271,7 @@ export const BinderPage = () => {
       ),
     [locallyDeletedBinderCardIds, remoteBinderCards]
   );
-  const visibleBinderCards = isMobile
-    ? binderCards
-    : binderCards.slice(0, cardsPerPage);
+  const visibleBinderCards = binderCards.slice(0, cardsPerPage);
   const seoMetadata = createBinderPageSeoMetadata({
     binderQuery,
     isPublicPreview,
@@ -300,10 +317,8 @@ export const BinderPage = () => {
     remoteTotalBinderCardCount,
   ]);
   const canTurnNextPage =
-    !isMobile &&
     pageIndex + 1 < Math.max(Math.ceil(totalBinderCards / cardsPerPage), 1);
-  const isPageLoading =
-    !isMobile && networkStatus === NetworkStatus.setVariables;
+  const isPageLoading = networkStatus === NetworkStatus.setVariables;
   const {
     clearCardSelection,
     handleSelectBinderCards,
@@ -335,10 +350,24 @@ export const BinderPage = () => {
     shortId,
     totalBinderCards,
   });
+
+  useEffect(() => {
+    setPageIndex(0);
+    clearSelectedBinderCard();
+  }, [clearSelectedBinderCard, viewMode]);
+
   const selectedBinderCardIdRef = useRef<string | null>(null);
+  selectedBinderCardIdRef.current = selectedBinderCard?.id ?? null;
+  const handleSelectedBinderCardUpdated = useCallback(
+    (updatedBinderCard: BinderCardDetailRecord) => {
+      if (selectedBinderCardIdRef.current !== updatedBinderCard.id) return;
+      setSelectedBinderCard(updatedBinderCard);
+    },
+    [setSelectedBinderCard]
+  );
   const savedBinderEditing = useSavedBinderEditing({
     binderId: binder?.id || "",
-    onCardUpdated: setSelectedBinderCard,
+    onCardUpdated: handleSelectedBinderCardUpdated,
     refresh: refetch,
     tcgId: binder?.tcgId || "mtg",
   });
@@ -356,10 +385,6 @@ export const BinderPage = () => {
     resetCardSelection,
     shortId,
   ]);
-
-  useEffect(() => {
-    selectedBinderCardIdRef.current = selectedBinderCard?.id ?? null;
-  }, [selectedBinderCard?.id]);
 
   const handleDeleteCard = useCallback(
     async (binderCard: BinderCardRecord) => {
@@ -469,6 +494,7 @@ export const BinderPage = () => {
     typeof window === "undefined"
       ? `/binder/${binder.shortId}`
       : `${window.location.origin}/binder/${binder.shortId}`;
+  const handleOpenSettings = () => setIsSettingsDialogOpen(true);
   const shareDropdown = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -503,7 +529,7 @@ export const BinderPage = () => {
           variant="outline"
           size="icon"
           aria-label={t("binder:settings.button")}
-          onClick={() => setIsSettingsDialogOpen(true)}
+          onClick={handleOpenSettings}
         >
           <Settings className="size-4" />
         </Button>
@@ -523,6 +549,8 @@ export const BinderPage = () => {
   ) : (
     shareDropdown
   );
+  const mobileHeaderAction =
+    isOwner && isPublicPreview ? undefined : shareDropdown;
   const ownerProfileLink =
     isPublicView && ownerProfile ? (
       <BinderOwnerLink
@@ -690,7 +718,7 @@ export const BinderPage = () => {
   const handleDetailOpenChange = (nextOpen: boolean) => {
     if (nextOpen) return;
 
-    if (selectedCardIndex !== null && !isMobile) {
+    if (selectedCardIndex !== null) {
       setPageIndex(Math.floor(selectedCardIndex / cardsPerPage));
     }
 
@@ -704,9 +732,11 @@ export const BinderPage = () => {
   };
 
   const handleViewChange = (value: BinderCardViewMode) => {
-    setViewMode(value);
-    setPageIndex(0);
-    clearSelectedBinderCard();
+    if (value === viewMode) return;
+
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set("view", value);
+    setSearchParams(nextSearchParams);
   };
 
   const handlePreviousPage = () => {
@@ -746,6 +776,7 @@ export const BinderPage = () => {
         isPageLoading={isPageLoading}
         isSelectionMode={canSelectBinderCards}
         isBulkPriceOpen={canMutateBinder && isBulkPriceOpen}
+        mobileHeaderAction={mobileHeaderAction}
         ownerByline={ownerProfileLink}
         pageIndex={pageIndex}
         requiresReload={requiresReload}
@@ -781,6 +812,7 @@ export const BinderPage = () => {
         onNextPage={handleNextPage}
         onOpenBulkPrice={() => setIsBulkPriceOpen(true)}
         onOpenCard={handleOpenCard}
+        onOpenSettings={canEditBinder ? handleOpenSettings : undefined}
         onPreviousPage={handlePreviousPage}
         onSelectVisibleBinderCards={handleSelectVisibleBinderCards}
         onSelectionModeChange={handleSelectionModeChange}

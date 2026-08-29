@@ -8,11 +8,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/Tooltip";
+import { cn } from "@/lib/utils";
 
 const MAXIMUM_TOOLTIP_DURATION_MS = 1500;
 
 interface CartQuantityControlProps {
   availableQuantity: number;
+  className?: string;
+  itemName?: string;
   onRemove?: () => void;
   quantity: number;
   onQuantityChange: (quantity: number) => void;
@@ -20,6 +23,8 @@ interface CartQuantityControlProps {
 
 export const CartQuantityControl = ({
   availableQuantity,
+  className,
+  itemName,
   onRemove,
   quantity,
   onQuantityChange,
@@ -30,6 +35,19 @@ export const CartQuantityControl = ({
     null
   );
   const isMaximumReached = quantity >= availableQuantity;
+  const decreaseLabel = itemName
+    ? t(
+        quantity <= 1 && onRemove
+          ? "checkout:remove_item"
+          : "checkout:decrease_quantity",
+        { name: itemName }
+      )
+    : quantity <= 1 && onRemove
+      ? t("checkout:remove")
+      : t("common:previous");
+  const increaseLabel = itemName
+    ? t("checkout:increase_quantity", { name: itemName })
+    : t("common:next");
 
   useEffect(
     () => () => {
@@ -65,18 +83,19 @@ export const CartQuantityControl = ({
   };
 
   return (
-    <div className="inline-flex h-8 w-28 items-center rounded-none border border-border bg-card">
+    <div
+      className={cn(
+        "inline-flex h-8 w-28 items-center rounded-none border border-border bg-card",
+        className
+      )}
+    >
       <Button
         type="button"
         variant="ghost"
         size="icon"
         className="h-full w-9 rounded-none"
         disabled={quantity <= 1 && !onRemove}
-        aria-label={
-          quantity <= 1 && onRemove
-            ? t("checkout:remove")
-            : t("common:previous")
-        }
+        aria-label={decreaseLabel}
         onClick={handleDecrease}
       >
         <Minus className="size-4" />
@@ -92,7 +111,7 @@ export const CartQuantityControl = ({
             size="icon"
             className="h-full w-9 rounded-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             aria-disabled={isMaximumReached}
-            aria-label={t("common:next")}
+            aria-label={increaseLabel}
             onClick={handleIncrease}
           >
             <Plus className="size-4" />

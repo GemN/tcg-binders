@@ -29,6 +29,10 @@
   "unique_card_count_one": "{{count}} unique card",
   "unique_card_count_other": "{{count}} unique cards",
   "page_progress": "{{cardCount}} - Page {{page}}/{{pageCount}}",
+  "pagination": {
+    "label": "Binder pages",
+    "page": "Page {{page}}/{{pageCount}}"
+  },
   "share": {
     "button": "Share",
     "description": "Share \"{{name}}\" with this URL.",
@@ -107,6 +111,7 @@
   },
   "actions": {
     "open": "Open actions for {{name}}",
+    "more": "More binder actions",
     "delete": "Delete"
   },
   "selection": {
@@ -189,7 +194,8 @@
     "image_alt": "{{name}} card image",
     "binder_card": "Binder card",
     "listed_at": "Listed at",
-    "add_to_basket": "Add to basket",
+    "add_to_cart": "Add to cart",
+    "add_card_to_cart": "Add {{name}} to cart",
     "available_one": "{{count}} available",
     "available_other": "{{count}} available",
     "text": "Card text",

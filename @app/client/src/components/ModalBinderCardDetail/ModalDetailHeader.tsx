@@ -21,7 +21,13 @@ export const ModalDetailHeader = ({
   titleLabel,
 }: ModalDetailHeaderProps) => (
   <div className="flex shrink-0 items-center gap-2 border-b border-foreground/10 px-4 py-3 text-primary-foreground">
-    <p className="mr-auto text-xs font-semibold uppercase">
+    <p
+      className={
+        currentIndex === null
+          ? "mr-auto text-xs font-semibold uppercase"
+          : "mr-auto font-display text-[20px] font-medium text-primary"
+      }
+    >
       {currentIndex === null ? titleLabel : positionLabel}
     </p>
     {isSaving && (
@@ -35,7 +41,7 @@ export const ModalDetailHeader = ({
         variant="ghost"
         size="icon"
         aria-label={cancelLabel}
-        className="text-primary-foreground hover:bg-foreground/10 hover:text-primary-foreground"
+        className="text-black hover:bg-foreground/10 hover:text-black"
       >
         <X className="size-4" />
       </Button>

@@ -9,7 +9,7 @@ export const BinderCardGridSkeleton = ({ count }: { count: number }) => {
   );
 
   return (
-    <div className="grid h-full grid-cols-2 place-items-start content-start gap-3 gap-y-6 sm:grid-cols-4 lg:grid-cols-7">
+    <div className="grid h-auto grid-cols-2 place-items-start content-start gap-3 gap-y-6 sm:grid-cols-4 md:h-full lg:grid-cols-7">
       {skeletonItems.map((skeletonItem) => (
         <div key={skeletonItem} className="grid w-full max-w-[12rem] gap-2">
           <Skeleton className="aspect-[63/88] w-full rounded-md bg-binder-toolbar/25" />
@@ -34,8 +34,8 @@ export const BinderCardListSkeleton = ({ count }: { count: number }) => {
   );
 
   return (
-    <div className="rounded-md border border-border bg-card shadow-sm">
-      <div className="grid grid-cols-[5rem_5rem_minmax(15rem,1fr)_4rem_6rem_repeat(4,minmax(7rem,1fr))] gap-0 bg-muted/70 px-3 py-3">
+    <div className="overflow-x-auto rounded-md border border-[#D8D3CC] bg-card md:overflow-visible">
+      <div className="grid grid-cols-[5rem_5rem_minmax(15rem,1fr)_4rem_6rem_repeat(4,minmax(7rem,1fr))] gap-0 bg-[#ECE9E4] px-3 py-3">
         {skeletonColumns.map((skeletonColumn) => (
           <Skeleton
             key={skeletonColumn}
@@ -47,7 +47,7 @@ export const BinderCardListSkeleton = ({ count }: { count: number }) => {
         {skeletonRows.map((skeletonRow) => (
           <div
             key={skeletonRow}
-            className="grid grid-cols-[5rem_5rem_minmax(15rem,1fr)_4rem_6rem_repeat(4,minmax(7rem,1fr))] gap-0 border-t border-border px-3 py-3 odd:bg-card even:bg-muted/25"
+            className="grid grid-cols-[5rem_5rem_minmax(15rem,1fr)_4rem_6rem_repeat(4,minmax(7rem,1fr))] gap-0 border-t border-dashed border-[#D8D3CC] px-3 py-3 odd:bg-white even:bg-[#F4F1EC]"
           >
             {skeletonColumns.map((skeletonColumn) => (
               <Skeleton

@@ -37,10 +37,10 @@ export interface BinderCardFilterState {
 
 export const GRID_PAGE_SIZE = 14;
 export const LIST_PAGE_SIZE = 100;
+export const MOBILE_PAGE_SIZE = 50;
 export const PRELOAD_PAGE_COUNT = 1;
 export const DETAIL_WINDOW_BEFORE_COUNT = 1;
 export const DETAIL_WINDOW_CARD_COUNT = 3;
-export const MOBILE_CARD_LIMIT = 500;
 export const BINDER_CARD_EMPTY_FILTER_VALUE: BinderCardEmptyFilterValue = "all";
 export const binderCardConditionFilterOptions = Object.values(
   CardCondition

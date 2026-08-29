@@ -9,6 +9,7 @@ import {
   BinderCardGridSkeleton,
   BinderCardListSkeleton,
 } from "@/components/BinderCardViewSkeletons";
+import { Button } from "@/components/ui/Button";
 import type { BinderCardRecord } from "@/lib/binderCardPricing";
 import {
   shouldIgnoreBinderViewFocus,
@@ -22,13 +23,14 @@ interface BinderCardViewPanelProps {
   cardsPerPage: number;
   emptyLabel: string;
   isDeletingCard?: boolean;
-  isCartPreview?: boolean;
   isDetailOpen: boolean;
   isMobile: boolean;
   isPageLoading: boolean;
   isSelectionMode?: boolean;
+  pageIndex: number;
   selectedBinderCardIds?: Set<string>;
   showConvertedMarketPrices: boolean;
+  totalPages: number;
   viewMode: BinderCardViewMode;
   onAddToCart?: (binderCard: BinderCardRecord) => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
@@ -45,13 +47,14 @@ export const BinderCardViewPanel = ({
   cardsPerPage,
   emptyLabel,
   isDeletingCard,
-  isCartPreview,
   isDetailOpen,
   isMobile,
   isPageLoading,
   isSelectionMode,
+  pageIndex,
   selectedBinderCardIds,
   showConvertedMarketPrices,
+  totalPages,
   viewMode,
   onAddToCart,
   onDeleteCard,
@@ -140,7 +143,7 @@ export const BinderCardViewPanel = ({
         }
       }}
       onKeyDown={handleBinderViewKeyDown}
-      className="relative -mx-4 min-h-0 flex-1 px-4 pb-4 outline-none sm:-mx-6 sm:px-6 md:pb-0 lg:-mx-20 lg:px-20"
+      className="relative -mx-4 min-h-0 flex-1 px-4 pb-4 outline-none sm:-mx-6 sm:px-6 md:pb-0 lg:-mx-[60px] lg:px-[60px]"
     >
       {!isMobile && (
         <>
@@ -148,7 +151,7 @@ export const BinderCardViewPanel = ({
             type="button"
             aria-label={t("common:previous")}
             disabled={!canTurnPreviousPage}
-            className="group/page-zone absolute inset-y-0 left-0 z-20 hidden w-4 cursor-pointer items-center justify-center bg-transparent transition-colors hover:bg-linear-to-r hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-r focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
+            className="group/page-zone absolute inset-y-0 left-0 z-20 hidden w-4 cursor-pointer items-center justify-center bg-transparent transition-colors hover:bg-linear-to-r hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-r focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-[60px]"
             onClick={() => {
               onPreviousPage();
               focusBinderView();
@@ -162,7 +165,7 @@ export const BinderCardViewPanel = ({
             type="button"
             aria-label={t("common:next")}
             disabled={!canTurnNextPage}
-            className="group/page-zone absolute inset-y-0 right-0 z-20 hidden w-4 cursor-pointer items-center justify-center bg-transparent transition-colors hover:bg-linear-to-l hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-l focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-20"
+            className="group/page-zone absolute inset-y-0 right-0 z-20 hidden w-4 cursor-pointer items-center justify-center bg-transparent transition-colors hover:bg-linear-to-l hover:from-primary/25 hover:via-primary/5 hover:to-transparent focus-visible:bg-linear-to-l focus-visible:from-primary/25 focus-visible:via-primary/5 focus-visible:to-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-0 sm:w-6 md:flex lg:w-[60px]"
             onClick={() => {
               onNextPage();
               focusBinderView();
@@ -183,8 +186,7 @@ export const BinderCardViewPanel = ({
       ) : viewMode === "grid" ? (
         <BinderCardGrid
           binderCards={binderCards}
-          className="min-h-full"
-          isCartPreview={isCartPreview}
+          className="md:min-h-full"
           isDeletingCard={isDeletingCard}
           isSelectionMode={isSelectionMode}
           noImageLabel={t("binder:no_image")}
@@ -201,12 +203,49 @@ export const BinderCardViewPanel = ({
           className="w-full"
           isDeletingCard={isDeletingCard}
           isSelectionMode={isSelectionMode}
+          onAddToCart={onAddToCart}
           onDeleteCard={onDeleteCard}
           onOpenCard={onOpenCard}
           onToggleCardSelection={onToggleCardSelection}
           selectedBinderCardIds={selectedBinderCardIds}
           showConvertedMarketPrices={showConvertedMarketPrices}
         />
+      )}
+      {isMobile && totalPages > 1 && (
+        <nav
+          aria-label={t("binder:pagination.label")}
+          className="mt-6 flex items-center justify-center gap-4"
+        >
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label={t("common:previous")}
+            disabled={!canTurnPreviousPage || isPageLoading}
+            onClick={onPreviousPage}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <p
+            aria-live="polite"
+            className="min-w-20 text-center text-sm tabular-nums text-muted-foreground"
+          >
+            {t("binder:pagination.page", {
+              page: pageIndex + 1,
+              pageCount: totalPages,
+            })}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label={t("common:next")}
+            disabled={!canTurnNextPage || isPageLoading}
+            onClick={onNextPage}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </nav>
       )}
     </div>
   );

@@ -279,6 +279,7 @@ const CardListingRow = ({
         {cartItem ? (
           <CartQuantityControl
             availableQuantity={cartItem.availableQuantity}
+            itemName={card?.name ?? t("common:not_available")}
             onRemove={handleRemoveFromCart}
             quantity={cartItem.quantity}
             onQuantityChange={handleQuantityChange}

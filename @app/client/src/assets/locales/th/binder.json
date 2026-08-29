@@ -29,6 +29,10 @@
   "unique_card_count_one": "{{count}} การ์ดไม่ซ้ำ",
   "unique_card_count_other": "{{count}} การ์ดไม่ซ้ำ",
   "page_progress": "{{cardCount}} - หน้า {{page}}/{{pageCount}}",
+  "pagination": {
+    "label": "หน้าแฟ้ม",
+    "page": "หน้า {{page}}/{{pageCount}}"
+  },
   "share": {
     "button": "แชร์",
     "description": "แชร์ \"{{name}}\" ด้วย URL นี้",
@@ -107,6 +111,7 @@
   },
   "actions": {
     "open": "เปิดเมนูการทำงานของ {{name}}",
+    "more": "การทำงานเพิ่มเติมของแฟ้ม",
     "delete": "ลบ"
   },
   "selection": {
@@ -189,7 +194,8 @@
     "image_alt": "รูปการ์ด {{name}}",
     "binder_card": "การ์ดในแฟ้ม",
     "listed_at": "ลงขายที่",
-    "add_to_basket": "เพิ่มลงตะกร้า",
+    "add_to_cart": "เพิ่มลงตะกร้า",
+    "add_card_to_cart": "เพิ่ม {{name}} ลงตะกร้า",
     "available_one": "มี {{count}} ใบ",
     "available_other": "มี {{count}} ใบ",
     "text": "ข้อความการ์ด",

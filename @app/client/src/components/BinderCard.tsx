@@ -1,17 +1,19 @@
 import { type LanguageCode, MarketPriceSource } from "@app/graphql";
 import { ShoppingCart } from "lucide-react";
-import { memo, type MouseEvent, useCallback } from "react";
+import { memo, type MouseEvent, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
 import { CardConditionBadge } from "@/components/CardConditionBadge";
 import { CardImage } from "@/components/CardImage";
+import { CartQuantityControl } from "@/components/Cart/CartQuantityControl";
 import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { PriceComparisonBadge } from "@/components/PriceComparisonBadge";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { cardLanguageFlagCodes } from "@/config/card";
+import { marketPriceSourceClassNames } from "@/config/marketPriceSource";
 import {
   type BinderCardRecord,
   formatBinderCardPrice,
@@ -23,6 +25,7 @@ import {
   type PriceComparison,
 } from "@/lib/priceComparison";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/providers/CartContext";
 import {
   type ConvertAmountToLocalCurrency,
   type SupportedPriceSource,
@@ -42,13 +45,16 @@ const BinderCardMarketPriceOverlay = ({
   priceSource,
   priceSourceLabel,
 }: BinderCardMarketPriceOverlayProps) => (
-  <span className="absolute right-0 bottom-7 z-10 flex max-w-[82%] items-center gap-1 overflow-hidden rounded-l-sm bg-[#22262A]/80 px-1 py-0.5 text-white">
-    <MarketPriceSourceIcon source={priceSource} className="size-4.5" />
+  <span className="absolute right-0 bottom-10 z-10 flex max-w-[82%] items-center gap-1 overflow-hidden rounded-l-sm border border-r-0 border-border/80 bg-white/90 px-1 py-0.5 text-foreground shadow-sm backdrop-blur-sm">
+    <MarketPriceSourceIcon
+      source={priceSource}
+      className={cn("size-4.5", marketPriceSourceClassNames[priceSource])}
+    />
     <span className="grid min-w-0 text-left">
-      <span className="truncate text-[11px] text-[#C7C1BA] leading-[13px]">
+      <span className="truncate text-[11px] leading-[13px] text-muted-foreground">
         {priceSourceLabel}
       </span>
-      <span className="truncate text-xs font-bold tabular-nums text-white leading-[16px]">
+      <span className="truncate text-xs font-bold leading-[16px] tabular-nums text-foreground">
         {marketPriceLabel}
       </span>
     </span>
@@ -80,7 +86,7 @@ const BinderCardStatusStack = ({
         label={languageLabel}
       />
     </span>
-    <span className="flex h-5 w-full items-center justify-center rounded-r-[4px] bg-[#22262A]/60 text-xs leading-none tabular-nums text-white">
+    <span className="flex h-5 w-full items-center justify-center rounded-r-[4px] border border-l-0 border-border/80 bg-white/90 text-xs leading-none tabular-nums text-foreground shadow-sm backdrop-blur-sm">
       x{quantityLabel}
     </span>
   </span>
@@ -162,9 +168,9 @@ const BinderCardPriceSummary = ({
   <span className="grid items-start justify-items-end text-right gap-0.5">
     <span
       className={cn(
-        "flex max-w-full items-center justify-end gap-1.5 overflow-hidden text-base font-bold leading-tight tabular-nums",
-        valueDelta?.direction === "below" && "text-success",
-        valueDelta?.direction === "above" && "text-error",
+        "flex max-w-full items-center justify-end gap-1.5 overflow-hidden text-base font-bold leading-tight tabular-nums text-foreground",
+        valueDelta?.direction === "below" && "md:text-success",
+        valueDelta?.direction === "above" && "md:text-error",
         (!valueDelta || valueDelta.direction === "even") && "text-foreground"
       )}
     >
@@ -291,7 +297,6 @@ interface BinderCardProps {
   isSelectionMode?: boolean;
   noImageLabel: string;
   showConvertedMarketPrices: boolean;
-  isCartPreview?: boolean;
   onAddToCart?: (binderCard: BinderCardRecord) => void;
   onDelete?: (binderCard: BinderCardRecord) => void;
   onOpen: (binderCard: BinderCardRecord, index: number) => void;
@@ -305,13 +310,23 @@ const BinderCardComponent = ({
   isSelectionMode = false,
   noImageLabel,
   showConvertedMarketPrices,
-  isCartPreview,
   onAddToCart,
   onDelete,
   onOpen,
   onToggleSelection,
 }: BinderCardProps) => {
-  const { t } = useTranslation(["binder", "checkout", "common"]);
+  const { t } = useTranslation(["binder", "common"]);
+  const {
+    items,
+    reconcileCartItemAvailability,
+    removeCartItem,
+    updateCartItemQuantity,
+    updateCartItemQuantityWithNotification,
+  } = useCart();
+  const cartItem = onAddToCart
+    ? items.find((item) => item.binderCardId === binderCard.id)
+    : undefined;
+  const cartItemAvailableQuantity = cartItem?.availableQuantity;
   const {
     listedPriceLabel,
     marketPriceLabel,
@@ -348,9 +363,46 @@ const BinderCardComponent = ({
     },
     [binderCard, onAddToCart]
   );
-  const addToCartLabel = isCartPreview
-    ? t("checkout:add_preview_item")
-    : t("binder:detail.add_to_basket");
+  const handleQuantityChange = useCallback(
+    (quantity: number) => {
+      if (cartItem && quantity > cartItem.quantity) {
+        updateCartItemQuantityWithNotification(binderCard.id, quantity);
+        return;
+      }
+
+      updateCartItemQuantity(binderCard.id, quantity);
+    },
+    [
+      binderCard.id,
+      cartItem,
+      updateCartItemQuantity,
+      updateCartItemQuantityWithNotification,
+    ]
+  );
+  const handleRemoveFromCart = useCallback(() => {
+    removeCartItem(binderCard.id);
+  }, [binderCard.id, removeCartItem]);
+  const handleCartControlClick = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+    },
+    []
+  );
+  const addToCartLabel = t("binder:detail.add_to_cart");
+  const addCardToCartLabel = t("binder:detail.add_card_to_cart", {
+    name: cardName,
+  });
+
+  useEffect(() => {
+    if (cartItemAvailableQuantity === undefined) return;
+
+    reconcileCartItemAvailability(binderCard.id, binderCard.quantity);
+  }, [
+    binderCard.id,
+    binderCard.quantity,
+    cartItemAvailableQuantity,
+    reconcileCartItemAvailability,
+  ]);
 
   return (
     <div className="group/card-image relative w-full max-w-[12rem] text-left text-foreground">
@@ -392,18 +444,34 @@ const BinderCardComponent = ({
           </button>
           {onAddToCart && !isSelectionMode && (
             <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[4.75%_/_3.5%]">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                aria-label={addToCartLabel}
-                title={addToCartLabel}
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-9 translate-y-full overflow-hidden rounded-t-none rounded-b-[inherit] border-x-0 border-t border-b-0 border-white/80 bg-white px-2 text-slate-950 opacity-0 shadow-lg shadow-black/20 transition-[opacity,transform,background-color,color,border-color] duration-200 ease-out hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:border-primary focus-visible:bg-primary focus-visible:text-primary-foreground group-hover/card-image:pointer-events-auto group-hover/card-image:translate-y-0 group-hover/card-image:opacity-100 group-focus-within/card-image:pointer-events-auto group-focus-within/card-image:translate-y-0 group-focus-within/card-image:opacity-100"
-                onClick={handleAddToCartClick}
-              >
-                <ShoppingCart className="size-4" />
-                <span className="min-w-0 truncate">{addToCartLabel}</span>
-              </Button>
+              {cartItem ? (
+                <div
+                  className="pointer-events-auto absolute inset-x-0 bottom-0"
+                  onClick={handleCartControlClick}
+                >
+                  <CartQuantityControl
+                    availableQuantity={cartItem.availableQuantity}
+                    className="h-9 w-full border-x-0 border-b-0"
+                    itemName={cardName}
+                    onRemove={handleRemoveFromCart}
+                    quantity={cartItem.quantity}
+                    onQuantityChange={handleQuantityChange}
+                  />
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label={addCardToCartLabel}
+                  title={addToCartLabel}
+                  className="pointer-events-auto absolute inset-x-0 bottom-0 h-9 translate-y-0 overflow-hidden rounded-t-none rounded-b-[inherit] border-x-0 border-t border-b-0 border-white/80 bg-white px-2 text-slate-950 opacity-100 shadow-lg shadow-black/20 transition-[opacity,transform,background-color,color,border-color] duration-200 ease-out hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:border-primary focus-visible:bg-primary focus-visible:text-primary-foreground md:pointer-events-none md:translate-y-full md:opacity-0 md:group-hover/card-image:pointer-events-auto md:group-hover/card-image:translate-y-0 md:group-hover/card-image:opacity-100 md:group-focus-within/card-image:pointer-events-auto md:group-focus-within/card-image:translate-y-0 md:group-focus-within/card-image:opacity-100"
+                  onClick={handleAddToCartClick}
+                >
+                  <ShoppingCart className="size-4" />
+                  <span className="min-w-0 truncate">{addToCartLabel}</span>
+                </Button>
+              )}
             </div>
           )}
         </div>
