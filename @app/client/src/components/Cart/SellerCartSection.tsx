@@ -51,8 +51,8 @@ export const SellerCartSection = ({
 
   return (
     <section className="overflow-hidden rounded-md border border-border bg-card text-card-foreground">
-      <div className="flex flex-col gap-3 border-b border-border px-3 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-4">
-        <div className="flex min-w-0 items-center gap-4">
+      <div className="flex items-start justify-between gap-2 border-b border-border px-3 py-4 lg:items-center lg:px-4">
+        <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-4">
           <Checkbox
             aria-label={t("checkout:select_seller", {
               seller: group.seller.nickname,
@@ -92,9 +92,9 @@ export const SellerCartSection = ({
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+        <div className="flex shrink-0 items-center gap-3 lg:justify-end">
           {totals.length > 0 && (
-            <p className="text-sm font-semibold tabular-nums text-foreground">
+            <p className="hidden text-sm font-semibold tabular-nums text-foreground lg:block">
               {formatTotals({ locale, totals })}
             </p>
           )}
@@ -102,11 +102,14 @@ export const SellerCartSection = ({
             type="button"
             variant="ghost"
             size="sm"
-            className="text-destructive hover:text-destructive"
+            className="size-8 p-0 text-destructive hover:text-destructive lg:w-auto lg:px-3"
+            aria-label={t("checkout:empty_seller_cart")}
             onClick={() => onClearSeller(group.seller.id)}
           >
             <Trash2 className="size-4" />
-            {t("checkout:empty_seller_cart")}
+            <span className="hidden lg:inline">
+              {t("checkout:empty_seller_cart")}
+            </span>
           </Button>
         </div>
       </div>

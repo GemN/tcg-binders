@@ -514,7 +514,7 @@ export const Cart = () => {
           title: t("checkout:seo.title"),
         }}
       />
-      <div className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col px-4 pb-28 sm:px-6 lg:px-8 lg:pb-8 pt-6">
+      <div className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col px-4 pb-28 sm:px-6 lg:px-[60px] lg:pb-8">
         {cartStep === "completed" ? (
           <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
             <div className="animate-in zoom-in-95 flex size-20 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -549,7 +549,7 @@ export const Cart = () => {
         ) : items.length === 0 ? (
           <CartEmptyState />
         ) : isMessageStep ? (
-          <div className="grid flex-1 content-start gap-5 py-5">
+          <div className="grid flex-1 content-start gap-5 pb-5 pt-2 sm:py-6">
             <div>
               <Button
                 type="button"
@@ -565,7 +565,7 @@ export const Cart = () => {
                 <h1
                   ref={messagesHeadingRef}
                   tabIndex={-1}
-                  className="font-display text-3xl font-bold outline-none"
+                  className="font-display text-[32px] font-semibold leading-[1.3] tracking-normal text-primary outline-none md:text-[40px]"
                 >
                   {t("checkout:messages_title")}
                 </h1>
@@ -589,11 +589,11 @@ export const Cart = () => {
             </div>
           </div>
         ) : (
-          <div className="grid flex-1 gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <div className="grid flex-1 gap-5 pb-5 pt-2 sm:py-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
             <div className="grid min-w-0 content-start gap-5">
               <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h1 className="font-display text-3xl font-bold">
+                  <h1 className="font-display text-[32px] font-semibold leading-[1.3] tracking-normal text-primary md:text-[40px]">
                     {t("checkout:title")}
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -661,10 +661,13 @@ export const Cart = () => {
       {items.length > 0 && cartStep === "review" && (
         <CartMobileSummaryBar
           isGenerateDisabled={selectedItems.length === 0}
-          itemCount={selectedItemCount}
           locale={i18n.language}
+          selectionState={allSelectionState}
           totals={selectedTotals}
           onGenerateMessages={handleCreateOrderMessages}
+          onSelectionChange={(isSelected) =>
+            handleGroupSelectionChange(cartItemIds, isSelected)
+          }
         />
       )}
     </div>

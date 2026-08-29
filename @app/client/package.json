@@ -7,7 +7,7 @@
     "dev": "cross-env NODE_OPTIONS=\"${NODE_OPTIONS:-} -r @app/config/env\" vite",
     "build": "tsc -b && vite build",
     "lint": "eslint",
-    "test": "node --test && cross-env TSX_TSCONFIG_PATH=tsconfig.app.json node --import tsx --experimental-loader ./src/test/assetLoader.mjs --experimental-test-module-mocks --test src/components/BinderGallery.integration.tsx src/components/BinderPageView.identity.integration.tsx src/components/CardListingsTable.integration.tsx src/components/PriceSourceSwitcher.integration.tsx src/lib/import/index.filter.integration.ts src/pages/Home.import.integration.tsx",
+    "test": "node --test && cross-env TSX_TSCONFIG_PATH=tsconfig.app.json node --import tsx --experimental-loader ./src/test/assetLoader.mjs --experimental-test-module-mocks --test src/components/BinderGallery.integration.tsx src/components/BinderPageView.identity.integration.tsx src/components/CardListingsTable.integration.tsx src/components/Cart/CartItemRow.integration.tsx src/components/Cart/CartMobileSummaryBar.integration.tsx src/components/PriceSourceSwitcher.integration.tsx src/lib/import/index.filter.integration.ts src/pages/Home.import.integration.tsx",
     "test:seo": "node --test src/lib/seoMetadata.test.ts src/pages/BinderPage.seo.test.ts src/pages/CardPage.seo.test.ts src/pages/PageJsonLd.test.ts",
     "preview": "vite preview"
   },

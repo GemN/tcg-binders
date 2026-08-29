@@ -42,6 +42,7 @@
   "completion_description_other": "{{count}} selected cards were cleared from your cart.",
   "completion_hint": "Your order messages are complete.",
   "no_selected_items": "Select at least one card to generate messages.",
+  "all": "All",
   "select_all": "Select all",
   "select_seller": "Select all cards from {{seller}}",
   "select_binder": "Select all cards from {{binder}}",

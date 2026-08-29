@@ -41,8 +41,8 @@ export const CartBinderSection = ({
 
   return (
     <section className="m-3 overflow-hidden rounded-md border border-border first:mt-3 lg:m-4 lg:first:mt-4">
-      <div className="flex flex-col gap-2 border-b border-border bg-muted/20 px-3 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-4">
-        <div className="flex min-w-0 items-start gap-4">
+      <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/20 px-3 py-3 lg:px-4">
+        <div className="flex min-w-0 flex-1 items-start gap-3 lg:gap-4">
           <Checkbox
             aria-label={t("checkout:select_binder", {
               binder: binderGroup.binder.name,
@@ -61,8 +61,8 @@ export const CartBinderSection = ({
             <span className="truncate">{binderGroup.binder.name}</span>
           </Link>
         </div>
-        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex shrink-0 items-center gap-3 lg:justify-end">
+          <p className="hidden text-sm text-muted-foreground lg:block">
             {t("checkout:item_count", {
               count: getCartItemCount(binderGroup.items),
             })}
@@ -71,11 +71,14 @@ export const CartBinderSection = ({
             type="button"
             variant="ghost"
             size="sm"
-            className="text-destructive hover:text-destructive"
+            className="size-8 p-0 text-destructive hover:text-destructive lg:w-auto lg:px-3"
+            aria-label={t("checkout:empty_binder_cart")}
             onClick={() => onClearBinder(binderGroup.binder.id)}
           >
             <Trash2 className="size-4" />
-            {t("checkout:empty_binder_cart")}
+            <span className="hidden lg:inline">
+              {t("checkout:empty_binder_cart")}
+            </span>
           </Button>
         </div>
       </div>

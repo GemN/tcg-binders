@@ -71,7 +71,7 @@ export const CartItemRow = ({
 
   return (
     <div className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3 gap-y-3 border-t border-border px-3 py-4 first:border-t-0 lg:grid-cols-[2rem_minmax(0,1fr)_8rem_9rem_8rem_5rem] lg:items-center lg:px-4">
-      <div className="flex pt-1 lg:pt-0">
+      <div className="flex h-[4.2rem] items-center self-start lg:h-auto lg:self-auto">
         <Checkbox
           aria-label={t("checkout:select_card", { card: item.card.name })}
           checked={isSelected}
@@ -81,10 +81,10 @@ export const CartItemRow = ({
         />
       </div>
 
-      <div className="grid min-w-0 grid-cols-[3.75rem_minmax(0,1fr)] gap-3">
+      <div className="grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] gap-2 lg:grid-cols-[3.75rem_minmax(0,1fr)] lg:gap-3">
         <CardImage
           alt={item.card.name}
-          className="w-[3.75rem] rounded-[4px] border border-border bg-background shadow-sm"
+          className="w-12 rounded-[4px] border border-border bg-background shadow-sm lg:w-[3.75rem]"
           finish={item.finish}
           imageSize="thumbnail"
           imageUrl={item.card.imageUrl}
@@ -93,23 +93,47 @@ export const CartItemRow = ({
           scryfallId={item.card.scryfallId}
         />
         <div className="min-w-0">
-          <p className="line-clamp-2 font-semibold leading-tight text-foreground">
-            {item.card.name}
-          </p>
+          <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-start gap-1.5 lg:block">
+            <p className="line-clamp-2 font-semibold leading-tight text-foreground">
+              {item.card.name}
+            </p>
+            <CartQuantityControl
+              availableQuantity={item.availableQuantity}
+              className="h-7 w-[4.5rem] [&_button]:w-6 [&>span]:px-0 lg:hidden"
+              itemName={item.card.name}
+              quantity={item.quantity}
+              onQuantityChange={(quantity) =>
+                onQuantityChange(item.binderCardId, quantity)
+              }
+              onRemove={() => onRemove(item.binderCardId)}
+            />
+          </div>
           {printLabel && (
             <p className="mt-1 text-sm text-muted-foreground">{printLabel}</p>
           )}
           <div className="mt-2">
             <CartItemBadges item={item} />
           </div>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 lg:hidden">
+            <span
+              className={cn(
+                "font-semibold tabular-nums",
+                !hasListedPrice && "text-warning"
+              )}
+            >
+              {unitPriceLabel}
+            </span>
+            {convertedUnitPriceLabel && (
+              <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+                ~ {convertedUnitPriceLabel}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="col-span-2 grid grid-cols-2 items-center gap-2 lg:col-span-1 lg:block">
-        <span className="text-xs font-semibold uppercase text-muted-foreground lg:hidden">
-          {t("checkout:unit_price")}
-        </span>
-        <div className="flex justify-end lg:justify-start">
+      <div className="hidden lg:col-span-1 lg:block">
+        <div className="flex justify-start">
           <div className="relative inline-flex flex-col items-end lg:block">
             <span
               className={cn(
@@ -128,11 +152,8 @@ export const CartItemRow = ({
         </div>
       </div>
 
-      <div className="col-span-2 grid grid-cols-2 items-center gap-2 lg:col-span-1 lg:block">
-        <span className="text-xs font-semibold uppercase text-muted-foreground lg:hidden">
-          {t("checkout:quantity")}
-        </span>
-        <div className="flex justify-end lg:justify-start">
+      <div className="hidden lg:col-span-1 lg:block">
+        <div className="flex justify-start">
           <div className="relative inline-flex">
             <CartQuantityControl
               availableQuantity={item.availableQuantity}
@@ -149,10 +170,7 @@ export const CartItemRow = ({
         </div>
       </div>
 
-      <div className="col-span-2 grid grid-cols-2 items-center gap-2 lg:col-span-1 lg:block">
-        <span className="text-xs font-semibold uppercase text-muted-foreground lg:hidden">
-          {t("checkout:total_price")}
-        </span>
+      <div className="hidden lg:col-span-1 lg:block">
         <span
           className={cn(
             "text-right font-bold tabular-nums text-foreground lg:block",
@@ -163,7 +181,7 @@ export const CartItemRow = ({
         </span>
       </div>
 
-      <div className="col-span-2 flex justify-end lg:col-span-1">
+      <div className="hidden lg:col-span-1 lg:flex lg:justify-end">
         <Button
           type="button"
           variant="ghost"
