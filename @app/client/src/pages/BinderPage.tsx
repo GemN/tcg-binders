@@ -765,7 +765,6 @@ export const BinderPage = () => {
         canGoPreviousDetailCard={canGoPreviousDetailCard}
         cardsPerPage={cardsPerPage}
         headerAction={headerAction}
-        isCartPreview={isCartPreview}
         isDeletingCard={isDeletingCard}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
         isDetailLoading={isDetailLoading}

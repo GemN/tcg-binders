@@ -71,7 +71,7 @@ export const MyBinders = () => {
       <div className={cn("bg-surface", NAVBAR_CONTENT_OFFSET_CLASS_NAME)}>
         <div
           className={cn(
-            "mx-auto w-full max-w-[1608px] px-4 pb-6 sm:px-6 lg:px-8 pt-6"
+            "w-full px-4 pb-4 pt-2 sm:px-6 sm:py-6 lg:px-[60px]"
           )}
         >
           <h1 className="text-[40px] font-medium leading-[48px]">
@@ -81,7 +81,7 @@ export const MyBinders = () => {
       </div>
       <div
         className={cn(
-          "mx-auto flex w-full max-w-[1608px] flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8"
+          "flex w-full flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-[60px]"
         )}
       >
         {loading ? (

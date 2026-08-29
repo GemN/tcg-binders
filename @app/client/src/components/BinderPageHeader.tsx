@@ -93,9 +93,7 @@ export const BinderPageHeader = ({
   };
 
   return (
-    <div
-      className="relative z-30 grid shrink-0 grid-cols-1 gap-4 text-binder-toolbar-foreground lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-start lg:gap-2"
-    >
+    <div className="relative z-30 grid shrink-0 grid-cols-1 gap-4 text-binder-toolbar-foreground lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-start lg:gap-2">
       <div className="row-start-1 min-w-0 lg:col-start-1 lg:row-start-1">
         <div className="flex min-w-0 items-center gap-2">
           {isOwnerView && (
@@ -114,7 +112,7 @@ export const BinderPageHeader = ({
         </div>
         {((isOwnerView && viewCount !== undefined) ||
           (!ownerByline && titleAction)) && (
-          <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
+          <div className="mt-2 sm:mt-0.5 flex min-w-0 items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-3">
               {isOwnerView && viewCount !== undefined && (
                 <Tooltip>
@@ -206,9 +204,7 @@ export const BinderPageHeader = ({
                     aria-label={t("binder:actions.more")}
                   >
                     {binderEditing && !requiresReload && (
-                      <DropdownMenuItem
-                        onSelect={() => setIsImportOpen(true)}
-                      >
+                      <DropdownMenuItem onSelect={() => setIsImportOpen(true)}>
                         <Upload className="size-4" />
                         {t("binder:import.button")}
                       </DropdownMenuItem>

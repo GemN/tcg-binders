@@ -181,7 +181,12 @@ export const BinderCardViewPanel = ({
         viewMode === "grid" ? (
           <BinderCardGridSkeleton count={cardsPerPage} />
         ) : (
-          <BinderCardListSkeleton count={cardsPerPage} />
+          <BinderCardListSkeleton
+            count={cardsPerPage}
+            isOwnerView={!!onDeleteCard}
+            isSelectionMode={isSelectionMode}
+            showBuyerCartAction={!!onAddToCart && !onDeleteCard}
+          />
         )
       ) : viewMode === "grid" ? (
         <BinderCardGrid
@@ -202,6 +207,7 @@ export const BinderCardViewPanel = ({
           binderCards={binderCards}
           className="w-full"
           isDeletingCard={isDeletingCard}
+          isMobile={isMobile}
           isSelectionMode={isSelectionMode}
           onAddToCart={onAddToCart}
           onDeleteCard={onDeleteCard}

@@ -83,7 +83,10 @@ const SettingsUserProfileForm = ({
 
   return (
     <Form {...form}>
-      <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
+      <form
+        className="space-y-4 sm:space-y-6"
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <FormField
           control={form.control}
           name="nickname"
@@ -161,22 +164,22 @@ export const SettingsUserProfile = () => {
   return (
     <div
       className={cn(
-        "mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8",
+        "flex w-full flex-1 flex-col gap-4 px-4 pb-4 sm:gap-6 sm:px-6 sm:pb-6 lg:px-[60px]",
         NAVBAR_CONTENT_OFFSET_CLASS_NAME
       )}
     >
       <Seo metadata={seoMetadata} />
-      <div className="pt-6">
+      <div className="pt-2 sm:pt-6">
         <h1 className="h1">{t("settings:profile.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {t("settings:profile.subtitle")}
         </p>
       </div>
-      <Card className="max-w-xl">
-        <CardHeader>
+      <Card className="max-w-xl gap-4 py-4 sm:gap-6 sm:py-6">
+        <CardHeader className="px-4 sm:px-6">
           <CardTitle>{t("settings:profile.details")}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           {profile && (
             <SettingsUserProfileForm
               key={profile.id}

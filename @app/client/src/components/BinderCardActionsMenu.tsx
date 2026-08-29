@@ -15,7 +15,7 @@ interface BinderCardActionsMenuProps {
   className?: string;
   disabled?: boolean;
   onDelete: () => void;
-  triggerVariant?: "card" | "overlay" | "inline";
+  triggerVariant?: "card" | "overlay" | "inline" | "outline";
 }
 
 export const BinderCardActionsMenu = ({
@@ -37,10 +37,11 @@ export const BinderCardActionsMenu = ({
         <DropdownMenuTrigger asChild disabled={disabled}>
           <Button
             type="button"
-            variant="ghost"
+            variant={triggerVariant === "outline" ? "outline" : "ghost"}
             size="icon"
             className={cn(
               "size-8",
+              triggerVariant === "outline" && "size-9",
               triggerVariant === "inline" &&
                 "bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground focus-visible:ring-ring/30 data-[state=open]:bg-transparent data-[state=open]:text-foreground",
               triggerVariant === "overlay" &&

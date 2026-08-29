@@ -423,7 +423,6 @@ export const BinderDraft = () => {
             {t("binder:draft.share")}
           </Button>
         }
-        isCartPreview={false}
         isDeletingCard={isDeletingCard}
         isDeletingSelectedBinderCards={isDeletingSelectedBinderCards}
         isDetailLoading={false}

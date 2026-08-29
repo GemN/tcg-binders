@@ -28,7 +28,6 @@ interface BinderPageViewProps {
   canGoPreviousDetailCard: boolean;
   cardsPerPage: number;
   headerAction?: ReactNode;
-  isCartPreview: boolean;
   isDeletingCard?: boolean;
   isDeletingSelectedBinderCards: boolean;
   isDetailLoading: boolean;
@@ -93,7 +92,6 @@ export const BinderPageView = ({
   canGoPreviousDetailCard,
   cardsPerPage,
   headerAction,
-  isCartPreview,
   isDeletingCard,
   isDeletingSelectedBinderCards,
   isDetailLoading,
@@ -170,7 +168,7 @@ export const BinderPageView = ({
         NAVBAR_CONTENT_OFFSET_CLASS_NAME
       )}
     >
-      <div className="relative z-10 w-full shrink-0 bg-surface px-4 py-6 sm:px-6 lg:px-[60px]">
+      <div className="relative z-10 w-full shrink-0 bg-surface px-4 pb-4 pt-2 sm:px-6 lg:px-[60px] sm:py-6">
         <BinderPageHeader
           key={`header-${binderIdentity}`}
           binderEditing={binderEditing}
@@ -259,7 +257,6 @@ export const BinderPageView = ({
         canGoNext={canGoNextDetailCard}
         canGoPrevious={canGoPreviousDetailCard}
         currentIndex={selectedCardIndex}
-        isCartPreview={isCartPreview}
         isLoading={isDetailLoading}
         open={selectedCardIndex !== null}
         showConvertedMarketPrices={showConvertedMarketPrices}

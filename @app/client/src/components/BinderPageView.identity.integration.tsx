@@ -122,7 +122,6 @@ const renderBinderPageView = async ({
           cardsPerPage: 20,
           filterState: {} as never,
           isBulkPriceOpen: false,
-          isCartPreview: false,
           isDeletingSelectedBinderCards: false,
           isDetailLoading: false,
           isFiltered: false,

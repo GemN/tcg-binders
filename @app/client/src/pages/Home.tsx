@@ -12,7 +12,6 @@ import { CardImage } from "@/components/CardImage";
 import { CardSearchPicker } from "@/components/CardSearchPicker";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/Button";
-import { NAVBAR_CONTENT_OFFSET_CLASS_NAME } from "@/config/layout";
 import { useDraftBinder } from "@/hooks/useDraftBinder";
 import {
   type BinderEditingCardSnapshot,
@@ -20,7 +19,6 @@ import {
 } from "@/lib/binderEditing";
 import { getCardScryfallId } from "@/lib/cardImageUrl";
 import { SEO_BRAND, type SeoMetadata } from "@/lib/seoMetadata";
-import { cn } from "@/lib/utils";
 
 import { createHomeJsonLd } from "./Home.jsonLd";
 import { createThreeShuffledStreams } from "./homeCardStreams";
@@ -334,19 +332,14 @@ export const Home = () => {
   return (
     <div
       className={
-        "relative isolate min-h-[calc(100svh-3.5rem)] w-screen max-w-[100vw] lg:min-h-svh " +
+        "relative isolate -mt-14 min-h-svh w-screen max-w-[100vw] lg:mt-0 " +
         "overflow-hidden bg-background bg-[url('/bg-home.jpg')] " +
         "bg-cover bg-center"
       }
     >
       <Seo metadata={seoMetadata} />
       <HomeCardStreams cards={homeCards} />
-      <div
-        className={cn(
-          "pointer-events-none relative z-[2] box-border flex min-h-[calc(100svh-3.5rem)] w-full max-w-[100vw] min-w-0 px-4 sm:px-8 lg:min-h-svh",
-          NAVBAR_CONTENT_OFFSET_CLASS_NAME
-        )}
-      >
+      <div className="pointer-events-none relative z-[2] box-border flex min-h-svh w-full max-w-[100vw] min-w-0 px-4 pt-18 sm:px-8">
         <div className="grid w-full min-w-0 items-start max-w-[671px] pt-10 sm:items-center sm:pt-0">
           <div className="pointer-events-auto">
             <div className="mb-6 flex items-center sm:hidden">

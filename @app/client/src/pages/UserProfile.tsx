@@ -68,9 +68,9 @@ export const UserProfile = () => {
     <>
       <Seo metadata={seoMetadata} />
       <div className={cn("bg-surface", NAVBAR_CONTENT_OFFSET_CLASS_NAME)}>
-        <div className="flex w-full items-center gap-4 px-4 py-6 sm:px-6 lg:px-[60px]">
+        <div className="flex w-full items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-[60px]">
           <UserAvatar className="size-12 text-base" name={profile.nickname} />
-          <div className="flex min-w-0 items-center gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <h1 className="font-display truncate text-3xl font-medium tracking-normal text-foreground sm:text-[40px] sm:leading-[48px]">
               {profile.nickname}
             </h1>
@@ -84,8 +84,8 @@ export const UserProfile = () => {
           </div>
         </div>
       </div>
-      <section className="flex w-full flex-1 flex-col px-4 py-6 sm:px-6 lg:px-[60px]">
-        <h2 className="mb-5 font-display text-[24px] font-medium leading-8">
+      <section className="flex w-full flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6 lg:px-[60px]">
+        <h2 className="mb-4 font-display text-[24px] font-medium leading-8 sm:mb-5">
           {t("common:user_profile.collection")}
         </h2>
         {areBindersLoading ? (

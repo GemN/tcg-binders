@@ -65,7 +65,6 @@ interface ModalBinderCardDetailProps {
   canGoNext: boolean;
   canGoPrevious: boolean;
   currentIndex: number | null;
-  isCartPreview: boolean;
   isLoading: boolean;
   open: boolean;
   showConvertedMarketPrices: boolean;
@@ -84,7 +83,6 @@ export const ModalBinderCardDetail = ({
   canGoNext,
   canGoPrevious,
   currentIndex,
-  isCartPreview,
   isLoading,
   open,
   showConvertedMarketPrices,
@@ -95,7 +93,7 @@ export const ModalBinderCardDetail = ({
   onGoPrevious,
   onOpenChange,
 }: ModalBinderCardDetailProps) => {
-  const { i18n, t } = useTranslation(["binder", "checkout", "common"]);
+  const { i18n, t } = useTranslation(["binder", "common"]);
   const {
     convertAmountToLocalCurrency,
     convertAmountToTargetCurrency,
@@ -776,7 +774,6 @@ export const ModalBinderCardDetail = ({
                         count: binderCard.quantity,
                       })}
                       binderCard={binderCard}
-                      cartPreviewNoticeLabel={t("checkout:preview_notice")}
                       convertedPriceValue={
                         showConvertedMarketPrices &&
                         binderCard.priceCurrency &&
@@ -790,14 +787,12 @@ export const ModalBinderCardDetail = ({
                             })
                           : null
                       }
-                      isCartPreview={isCartPreview}
                       notAvailableLabel={t("common:not_available")}
                       priceValue={formatPrice({
                         amount: binderCard.priceAmount,
                         shouldConvert: false,
                         sourceCurrency: binderCard.priceCurrency,
                       })}
-                      titleLabel={t("binder:detail.listed_at")}
                       onAddToCart={canUseCommerce ? handleAddToCart : undefined}
                       translateCardOption={translateCardOption}
                     />

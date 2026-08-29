@@ -1,11 +1,5 @@
 import { LanguageCode, MarketPriceSource } from "@app/graphql";
-import {
-  memo,
-  type MouseEvent,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { memo, type MouseEvent, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BinderCardActionsMenu } from "@/components/BinderCardActionsMenu";
@@ -17,14 +11,6 @@ import { CountryFlag } from "@/components/CountryFlag";
 import { MarketPriceSourceIcon } from "@/components/MarketPriceSourceIcon";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/Table";
 import { cardLanguageFlagCodes } from "@/config/card";
 import { marketPriceSourceClassNames } from "@/config/marketPriceSource";
 import {
@@ -48,6 +34,7 @@ interface BinderCardListProps {
   binderCards: BinderCardRecord[];
   className?: string;
   isDeletingCard?: boolean;
+  isMobile: boolean;
   isSelectionMode?: boolean;
   onAddToCart?: (binderCard: BinderCardRecord) => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
@@ -57,179 +44,85 @@ interface BinderCardListProps {
   showConvertedMarketPrices: boolean;
 }
 
-interface CardPreviewState {
-  binderCard: BinderCardRecord;
-  left: number;
-  top: number;
-}
-
-interface MarketPriceHeaderProps {
-  label: string;
-  source: MarketPriceSource;
-}
-
-interface BinderCardPreviewProps {
-  cardPreview: CardPreviewState | null;
-  noImageLabel: string;
-}
-
 type FormatListPrice = (priceInput: BinderCardPriceInput) => string;
-type UpdateCardPreview = (
-  binderCard: BinderCardRecord,
-  event: MouseEvent<HTMLTableRowElement>
-) => void;
 
-interface MarketPriceCellProps {
+interface MarketPriceValueProps {
   cheapestMarketPriceSources: Set<MarketPriceSource>;
   formatPrice: FormatListPrice;
   marketPrice: ComparableMarketPriceInput | null;
   shouldConvert: boolean;
   source: MarketPriceSource;
+  sourceLabel: string;
 }
 
-interface BinderCardListRowProps {
+interface BinderCardListItemProps {
   binderCard: BinderCardRecord;
   convertAmountToLocalCurrency: ConvertAmountToLocalCurrency;
   formatPrice: FormatListPrice;
   index: number;
   isDeletingCard?: boolean;
+  isMobileView: boolean;
   isSelected?: boolean;
   isSelectionMode?: boolean;
   onAddToCart?: (binderCard: BinderCardRecord) => void;
-  onClearCardPreview: () => void;
   onDeleteCard?: (binderCard: BinderCardRecord) => void;
   onOpenCard: (binderCard: BinderCardRecord, index: number) => void;
   onToggleCardSelection?: (binderCard: BinderCardRecord) => void;
-  onUpdateCardPreview: UpdateCardPreview;
   showConvertedMarketPrices: boolean;
 }
 
-const CARD_PREVIEW_WIDTH = 180;
-const CARD_PREVIEW_HEIGHT = Math.round((CARD_PREVIEW_WIDTH * 88) / 63);
-const CARD_PREVIEW_OFFSET = 18;
-const CARD_PREVIEW_MARGIN = 12;
 const fallbackPrice = "-";
 const highlightedMarketPriceClassName = "font-bold";
+const desktopGridClassName =
+  "grid-cols-[minmax(18rem,2fr)_minmax(10rem,1fr)_4rem_minmax(8rem,0.8fr)_minmax(16rem,1.5fr)_8rem]";
+const selectableDesktopGridClassName =
+  "grid-cols-[2.5rem_minmax(18rem,2fr)_minmax(10rem,1fr)_4rem_minmax(8rem,0.8fr)_minmax(16rem,1.5fr)_8rem]";
 
-const getCardPreviewPosition = (
-  event: MouseEvent
-): Pick<CardPreviewState, "left" | "top"> => {
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  const nextLeft =
-    event.clientX +
-      CARD_PREVIEW_OFFSET +
-      CARD_PREVIEW_WIDTH +
-      CARD_PREVIEW_MARGIN >
-    viewportWidth
-      ? event.clientX - CARD_PREVIEW_OFFSET - CARD_PREVIEW_WIDTH
-      : event.clientX + CARD_PREVIEW_OFFSET;
-  const nextTop = Math.min(
-    event.clientY + CARD_PREVIEW_OFFSET,
-    viewportHeight - CARD_PREVIEW_HEIGHT - CARD_PREVIEW_MARGIN
-  );
-
-  return {
-    left: Math.max(CARD_PREVIEW_MARGIN, nextLeft),
-    top: Math.max(CARD_PREVIEW_MARGIN, nextTop),
-  };
-};
-
-const useBinderCardPreview = () => {
-  const [cardPreview, setCardPreview] = useState<CardPreviewState | null>(null);
-
-  const updateCardPreview = useCallback<UpdateCardPreview>(
-    (binderCard, event) => {
-      const { left, top } = getCardPreviewPosition(event);
-      setCardPreview({ binderCard, left, top });
-    },
-    []
-  );
-
-  const clearCardPreview = useCallback(() => setCardPreview(null), []);
-
-  return { cardPreview, clearCardPreview, updateCardPreview };
-};
-
-const MarketPriceHeader = ({ label, source }: MarketPriceHeaderProps) => (
-  <span
-    className={cn(
-      "flex items-center justify-end gap-1.5",
-      marketPriceSourceClassNames[source]
-    )}
-  >
-    <MarketPriceSourceIcon source={source} className="size-3.5" />
-    <span>{label}</span>
-  </span>
-);
-
-const BinderCardPreview = ({
-  cardPreview,
-  noImageLabel,
-}: BinderCardPreviewProps) => {
-  if (!cardPreview) return null;
-
-  const previewCard = cardPreview.binderCard.card;
-
-  return (
-    <CardImage
-      alt=""
-      className="pointer-events-none fixed z-40 overflow-hidden rounded-md border border-border bg-foreground shadow-2xl shadow-foreground/30"
-      finish={cardPreview.binderCard.finish}
-      imageSize="grid"
-      imageUrl={getCardImageBaseUrl(previewCard)}
-      loading="eager"
-      noImageLabel={noImageLabel}
-      scryfallId={getCardScryfallId(previewCard)}
-      style={{
-        left: cardPreview.left,
-        top: cardPreview.top,
-        width: CARD_PREVIEW_WIDTH,
-        height: CARD_PREVIEW_HEIGHT,
-      }}
-    />
-  );
-};
-
-const MarketPriceCell = ({
+const MarketPriceValue = ({
   cheapestMarketPriceSources,
   formatPrice,
   marketPrice,
   shouldConvert,
   source,
-}: MarketPriceCellProps) => (
-  <TableCell
+  sourceLabel,
+}: MarketPriceValueProps) => (
+  <span
     className={cn(
-      "cursor-pointer px-3 py-2 text-right font-medium tabular-nums",
+      "flex min-w-0 items-center gap-1.5 whitespace-nowrap tabular-nums",
       marketPriceSourceClassNames[source],
-      cheapestMarketPriceSources.has(source) && highlightedMarketPriceClassName
+      cheapestMarketPriceSources.has(source)
+        ? highlightedMarketPriceClassName
+        : "font-medium"
     )}
   >
-    {formatPrice({
-      amount: marketPrice?.amount,
-      shouldConvert,
-      sourceCurrency: marketPrice?.currency,
-    })}
-  </TableCell>
+    <MarketPriceSourceIcon source={source} className="size-4 shrink-0" />
+    <span className="sr-only">{sourceLabel}</span>
+    <span className="min-w-0 truncate">
+      {formatPrice({
+        amount: marketPrice?.amount,
+        shouldConvert,
+        sourceCurrency: marketPrice?.currency,
+      })}
+    </span>
+  </span>
 );
 
-const BinderCardListRowComponent = ({
+const BinderCardListItemComponent = ({
   binderCard,
   convertAmountToLocalCurrency,
   formatPrice,
   index,
   isDeletingCard,
+  isMobileView,
   isSelected,
   isSelectionMode,
   onAddToCart,
-  onClearCardPreview,
   onDeleteCard,
   onOpenCard,
   onToggleCardSelection,
-  onUpdateCardPreview,
   showConvertedMarketPrices,
-}: BinderCardListRowProps) => {
-  const { t } = useTranslation(["binder", "common"]);
+}: BinderCardListItemProps) => {
+  const { t } = useTranslation(["binder", "card", "common"]);
   const {
     items,
     reconcileCartItemAvailability,
@@ -237,7 +130,9 @@ const BinderCardListRowComponent = ({
     updateCartItemQuantity,
     updateCartItemQuantityWithNotification,
   } = useCart();
-  const cartItem = onAddToCart
+  const isOwnerView = !!onDeleteCard;
+  const canAddToCart = !!onAddToCart && !isOwnerView;
+  const cartItem = canAddToCart
     ? items.find((item) => item.binderCardId === binderCard.id)
     : undefined;
   const cartItemAvailableQuantity = cartItem?.availableQuantity;
@@ -266,6 +161,15 @@ const BinderCardListRowComponent = ({
     convertAmountToLocalCurrency
   );
   const cardName = binderCard.card?.name || t("common:not_available");
+  const setCode = binderCard.card?.cardSet?.code?.trim();
+  const collectorNumber = binderCard.card?.collectorNumber?.trim();
+  const setName = binderCard.card?.cardSet?.name?.trim();
+  const cardMetadataParts = [
+    setCode?.toUpperCase(),
+    collectorNumber ? `#${collectorNumber}` : null,
+  ].filter(Boolean);
+  const cardMetadata =
+    cardMetadataParts.length > 0 ? cardMetadataParts.join(" ") : null;
   const selectCardLabel = t("binder:selection.select_card", {
     name: cardName,
   });
@@ -274,31 +178,35 @@ const BinderCardListRowComponent = ({
   });
   const imageUrl = getCardImageBaseUrl(binderCard.card);
   const scryfallId = getCardScryfallId(binderCard.card);
+  const listedPrice = formatPrice({
+    amount: binderCard.priceAmount,
+    shouldConvert: false,
+    sourceCurrency: binderCard.priceCurrency,
+  });
+  const convertedPrice = formatPrice({
+    amount: binderCard.priceAmount,
+    shouldConvert: true,
+    sourceCurrency: binderCard.priceCurrency,
+  });
+  const shouldShowConvertedPrice =
+    listedPrice !== fallbackPrice &&
+    convertedPrice !== fallbackPrice &&
+    convertedPrice !== listedPrice;
   const preloadBinderCardImage = useCallback(() => {
     preloadImage(imageUrl, "grid", scryfallId);
   }, [imageUrl, scryfallId]);
-  const openCard = useCallback(() => {
-    onOpenCard(binderCard, index);
-  }, [binderCard, index, onOpenCard]);
-  const activateCard = useCallback(() => {
+  const handleActivateCard = useCallback(() => {
     if (isSelectionMode) {
       onToggleCardSelection?.(binderCard);
       return;
     }
 
-    openCard();
-  }, [binderCard, isSelectionMode, onToggleCardSelection, openCard]);
-  const updateCardPreview = useCallback(
-    (event: MouseEvent<HTMLTableRowElement>) => {
-      preloadBinderCardImage();
-      onUpdateCardPreview(binderCard, event);
-    },
-    [binderCard, onUpdateCardPreview, preloadBinderCardImage]
-  );
-  const toggleSelection = useCallback(() => {
+    onOpenCard(binderCard, index);
+  }, [binderCard, index, isSelectionMode, onOpenCard, onToggleCardSelection]);
+  const handleToggleSelection = useCallback(() => {
     onToggleCardSelection?.(binderCard);
   }, [binderCard, onToggleCardSelection]);
-  const deleteCard = useCallback(() => {
+  const handleDeleteCard = useCallback(() => {
     onDeleteCard?.(binderCard);
   }, [binderCard, onDeleteCard]);
   const handleAddToCart = useCallback(() => {
@@ -323,11 +231,18 @@ const BinderCardListRowComponent = ({
   const handleRemoveFromCart = useCallback(() => {
     removeCartItem(binderCard.id);
   }, [binderCard.id, removeCartItem]);
-  const stopCheckboxClickPropagation = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
+  const handleInteractiveClick = useCallback(
+    (event: MouseEvent<HTMLElement>) => {
       event.stopPropagation();
     },
     []
+  );
+  const handleTitleClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      handleActivateCard();
+    },
+    [handleActivateCard]
   );
 
   useEffect(() => {
@@ -341,102 +256,264 @@ const BinderCardListRowComponent = ({
     reconcileCartItemAvailability,
   ]);
 
-  return (
-    <TableRow
-      className="cursor-pointer border-[#D8D3CC] border-dashed odd:bg-white even:bg-[#F4F1EC] hover:bg-accent/30"
-      data-state={isSelectionMode && isSelected ? "selected" : undefined}
-      onClick={activateCard}
-      onMouseEnter={updateCardPreview}
-      onMouseMove={updateCardPreview}
-      onMouseLeave={onClearCardPreview}
-      onPointerDown={preloadBinderCardImage}
-    >
-      {isSelectionMode && (
-        <TableCell className="px-3 py-2">
-          <Checkbox
-            checked={isSelected}
-            aria-label={selectCardLabel}
-            className="cursor-pointer"
-            onClick={stopCheckboxClickPropagation}
-            onCheckedChange={toggleSelection}
-          />
-        </TableCell>
+  const information = (
+    <span className="flex flex-wrap items-center gap-2">
+      <CardConditionBadge
+        condition={binderCard.condition}
+        className="rounded-sm py-0.5"
+        showTooltip
+      />
+      <CountryFlag
+        code={cardLanguageFlagCodes[binderCard.language as LanguageCode]}
+        className="aspect-[4/3] w-5"
+        label={languageLabel}
+        showTooltip
+      />
+      <CardFinishBadge finish={binderCard.finish} display="icon" />
+    </span>
+  );
+  const marketPriceValues = (
+    <span
+      className={cn(
+        "flex flex-wrap items-center gap-x-4 gap-y-1 text-sm",
+        isMobileView && "w-full justify-between"
       )}
-      <TableCell className="cursor-pointer px-3 py-2 font-medium uppercase tabular-nums text-muted-foreground">
-        {binderCard.card?.cardSet?.code || "MTG"}
-      </TableCell>
-      <TableCell className="cursor-pointer px-3 py-2 tabular-nums text-muted-foreground">
-        {binderCard.card?.collectorNumber || "-"}
-      </TableCell>
-      <TableCell className="max-w-96 whitespace-normal px-3 py-2 font-medium text-foreground">
-        <button
-          type="button"
-          className="w-full cursor-pointer border-0 bg-transparent p-0 text-left font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          aria-label={
-            isSelectionMode
-              ? selectCardLabel
-              : t("binder:detail.open_card", { name: cardName })
-          }
-          onFocus={preloadBinderCardImage}
-        >
-          {cardName}
-        </button>
-      </TableCell>
-      <TableCell className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground">
-        {binderCard.quantity}
-      </TableCell>
-      <TableCell className="cursor-pointer px-3 py-2">
-        <span className="flex items-center gap-2">
-          <CardConditionBadge
-            condition={binderCard.condition}
-            className="rounded-sm py-0.5"
-            showTooltip
-          />
-          <CountryFlag
-            code={cardLanguageFlagCodes[binderCard.language as LanguageCode]}
-            className="aspect-[4/3] w-5"
-            label={languageLabel}
-            showTooltip
-          />
-          <CardFinishBadge finish={binderCard.finish} display="icon" />
-        </span>
-      </TableCell>
-      <TableCell className="cursor-pointer px-3 py-2 text-right font-medium tabular-nums text-foreground">
-        {formatPrice({
-          amount: binderCard.priceAmount,
-          shouldConvert: true,
-          sourceCurrency: binderCard.priceCurrency,
-        })}
-      </TableCell>
-      <MarketPriceCell
+    >
+      <MarketPriceValue
         cheapestMarketPriceSources={cheapestMarketPriceSources}
         formatPrice={formatPrice}
         marketPrice={cardkingdomPrice}
         shouldConvert={showConvertedMarketPrices}
         source={MarketPriceSource.Cardkingdom}
+        sourceLabel={t("binder:list.cardkingdom_price")}
       />
-      <MarketPriceCell
+      <MarketPriceValue
         cheapestMarketPriceSources={cheapestMarketPriceSources}
         formatPrice={formatPrice}
         marketPrice={tcgplayerPrice}
         shouldConvert={showConvertedMarketPrices}
         source={MarketPriceSource.Tcgplayer}
+        sourceLabel={t("binder:list.tcgplayer_price")}
       />
-      <MarketPriceCell
+      <MarketPriceValue
         cheapestMarketPriceSources={cheapestMarketPriceSources}
         formatPrice={formatPrice}
         marketPrice={cardmarketPrice}
         shouldConvert={showConvertedMarketPrices}
         source={MarketPriceSource.Cardmarket}
+        sourceLabel={t("binder:list.cardmarket_price")}
       />
-      {onAddToCart && (
-        <TableCell
-          className="px-3 py-2 text-right"
-          onClick={(event) => event.stopPropagation()}
+    </span>
+  );
+  const action = isSelectionMode ? null : isOwnerView ? (
+    <BinderCardActionsMenu
+      cardName={cardName}
+      disabled={isDeletingCard}
+      onDelete={handleDeleteCard}
+      triggerVariant={isMobileView ? "outline" : "inline"}
+    />
+  ) : canAddToCart ? (
+    cartItem ? (
+      <CartQuantityControl
+        availableQuantity={cartItem.availableQuantity}
+        itemName={cardName}
+        onRemove={handleRemoveFromCart}
+        quantity={cartItem.quantity}
+        onQuantityChange={handleQuantityChange}
+      />
+    ) : (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        aria-label={t("binder:detail.add_card_to_cart", { name: cardName })}
+        className="w-28"
+        disabled={binderCard.quantity < 1}
+        onClick={handleAddToCart}
+      >
+        {t("binder:detail.add_to_cart")}
+      </Button>
+    )
+  ) : null;
+
+  if (!isMobileView) {
+    return (
+      <div
+        role="row"
+        className={cn(
+          "hidden min-w-[62rem] cursor-pointer items-center border-b border-dashed border-[#D8D3CC] px-3 py-3 last:border-b-0 hover:bg-accent/30 data-[state=selected]:bg-accent/50 md:grid",
+          index % 2 === 0 ? "bg-white" : "bg-[#F4F1EC]",
+          isSelectionMode
+            ? selectableDesktopGridClassName
+            : desktopGridClassName
+        )}
+        data-state={isSelectionMode && isSelected ? "selected" : undefined}
+        onClick={handleActivateCard}
+        onPointerDown={preloadBinderCardImage}
+      >
+        {isSelectionMode && (
+          <div role="cell" className="pr-3" onClick={handleInteractiveClick}>
+            <Checkbox
+              checked={isSelected}
+              aria-label={selectCardLabel}
+              className="cursor-pointer"
+              onCheckedChange={handleToggleSelection}
+            />
+          </div>
+        )}
+        <div role="cell" className="flex min-w-0 items-center gap-3 pr-3">
+          <CardImage
+            alt=""
+            className="w-[70px] shrink-0 border border-[#D8D3CC]"
+            finish={binderCard.finish}
+            imageSize="grid"
+            imageUrl={imageUrl}
+            noImageLabel={t("binder:no_image")}
+            scryfallId={scryfallId}
+          />
+          <span className="grid min-w-0 gap-1">
+            {(cardMetadata || setName) && (
+              <span className="flex min-w-0 items-baseline gap-2 overflow-hidden text-xs font-normal">
+                {cardMetadata && (
+                  <span className="shrink-0 text-muted-foreground">
+                    {cardMetadata}
+                  </span>
+                )}
+                {setName && (
+                  <span className="truncate text-secondary">{setName}</span>
+                )}
+              </span>
+            )}
+            <button
+              type="button"
+              className="min-w-0 cursor-pointer truncate border-0 bg-transparent p-0 text-left text-sm font-medium text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label={
+                isSelectionMode
+                  ? selectCardLabel
+                  : t("binder:detail.open_card", { name: cardName })
+              }
+            >
+              {cardName}
+            </button>
+          </span>
+        </div>
+        <div role="cell" className="pr-3">
+          {information}
+        </div>
+        <div
+          role="cell"
+          className="pr-3 text-sm font-medium tabular-nums text-primary"
         >
+          {binderCard.quantity}
+        </div>
+        <div role="cell" className="grid min-w-0 gap-0.5 pr-3 tabular-nums">
+          <span className="truncate text-base font-display font-medium text-primary">
+            {listedPrice}
+          </span>
+          {shouldShowConvertedPrice && (
+            <span className="truncate text-xs text-muted-foreground">
+              ≈ {convertedPrice}
+            </span>
+          )}
+        </div>
+        <div role="cell" className="min-w-0 pr-3">
+          {marketPriceValues}
+        </div>
+        <div
+          role="cell"
+          className="flex justify-end"
+          onClick={handleInteractiveClick}
+        >
+          {action}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <article
+      className="relative grid cursor-pointer gap-2 rounded-sm border border-dashed border-[#D8D3CC] bg-white p-4 text-primary data-[state=selected]:border-secondary data-[state=selected]:bg-accent/50"
+      data-state={isSelectionMode && isSelected ? "selected" : undefined}
+      onClick={handleActivateCard}
+      onPointerDown={preloadBinderCardImage}
+    >
+      {(isSelectionMode || isOwnerView) && (
+        <div
+          className="absolute top-4 right-4 z-10"
+          onClick={handleInteractiveClick}
+        >
+          {isSelectionMode ? (
+            <Checkbox
+              checked={isSelected}
+              aria-label={selectCardLabel}
+              className="cursor-pointer"
+              onCheckedChange={handleToggleSelection}
+            />
+          ) : (
+            action
+          )}
+        </div>
+      )}
+      <div className="flex min-w-0 items-start gap-4">
+        <CardImage
+          alt=""
+          className="w-20 shrink-0 border border-[#D8D3CC]"
+          finish={binderCard.finish}
+          imageSize="grid"
+          imageUrl={imageUrl}
+          noImageLabel={t("binder:no_image")}
+          scryfallId={scryfallId}
+        />
+        <div
+          className={cn(
+            "grid min-w-0 flex-1 content-start gap-2",
+            isSelectionMode && "pr-10"
+          )}
+        >
+          <div className="grid min-w-0 gap-1">
+            {cardMetadata && (
+              <span className="text-xs text-muted-foreground">
+                {cardMetadata}
+              </span>
+            )}
+            <button
+              type="button"
+              className="min-w-0 cursor-pointer border-0 bg-transparent p-0 text-left text-base font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label={
+                isSelectionMode
+                  ? selectCardLabel
+                  : t("binder:detail.open_card", { name: cardName })
+              }
+              onClick={handleTitleClick}
+            >
+              <span>{cardName}</span>
+            </button>
+          </div>
+          {information}
+          <span className="flex min-w-0 items-baseline justify-between gap-2 tabular-nums">
+            <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="text-base font-display font-medium text-primary">
+                {listedPrice}
+              </span>
+              {shouldShowConvertedPrice && (
+                <span className="text-sm text-muted-foreground">
+                  ≈ {convertedPrice}
+                </span>
+              )}
+            </span>
+            <span className="shrink-0 text-xs font-normal text-secondary">
+              {t("binder:detail.available", { count: binderCard.quantity })}
+            </span>
+          </span>
+          {marketPriceValues}
+        </div>
+      </div>
+      {!isSelectionMode && canAddToCart && (
+        <div className="mt-2" onClick={handleInteractiveClick}>
           {cartItem ? (
             <CartQuantityControl
               availableQuantity={cartItem.availableQuantity}
+              className="h-9 w-full"
               itemName={cardName}
               onRemove={handleRemoveFromCart}
               quantity={cartItem.quantity}
@@ -450,35 +527,26 @@ const BinderCardListRowComponent = ({
               aria-label={t("binder:detail.add_card_to_cart", {
                 name: cardName,
               })}
-              className="w-28"
+              className="h-9 w-full"
               disabled={binderCard.quantity < 1}
               onClick={handleAddToCart}
             >
               {t("binder:detail.add_to_cart")}
             </Button>
           )}
-        </TableCell>
+        </div>
       )}
-      {onDeleteCard && (
-        <TableCell className="px-3 py-2 text-right">
-          <BinderCardActionsMenu
-            cardName={cardName}
-            disabled={isDeletingCard}
-            onDelete={deleteCard}
-            triggerVariant="inline"
-          />
-        </TableCell>
-      )}
-    </TableRow>
+    </article>
   );
 };
 
-const BinderCardListRow = memo(BinderCardListRowComponent);
+const BinderCardListItem = memo(BinderCardListItemComponent);
 
 export const BinderCardList = ({
   binderCards,
   className,
   isDeletingCard,
+  isMobile,
   isSelectionMode,
   onAddToCart,
   onDeleteCard,
@@ -487,11 +555,8 @@ export const BinderCardList = ({
   selectedBinderCardIds,
   showConvertedMarketPrices,
 }: BinderCardListProps) => {
-  const { i18n, t } = useTranslation(["binder", "common"]);
+  const { i18n, t } = useTranslation(["binder", "card", "common"]);
   const { convertAmountToLocalCurrency, currency } = usePricingSettings();
-  const { cardPreview, clearCardPreview, updateCardPreview } =
-    useBinderCardPreview();
-
   const formatPrice = useCallback(
     ({ amount, shouldConvert, sourceCurrency }: BinderCardPriceInput) =>
       formatBinderCardPrice({
@@ -504,97 +569,71 @@ export const BinderCardList = ({
       }) || fallbackPrice,
     [convertAmountToLocalCurrency, currency, i18n.language]
   );
+  const listItems = binderCards.map((binderCard, index) => (
+    <BinderCardListItem
+      key={binderCard.id}
+      binderCard={binderCard}
+      convertAmountToLocalCurrency={convertAmountToLocalCurrency}
+      formatPrice={formatPrice}
+      index={index}
+      isDeletingCard={isDeletingCard}
+      isMobileView={isMobile}
+      isSelected={selectedBinderCardIds?.has(binderCard.id)}
+      isSelectionMode={isSelectionMode}
+      onAddToCart={onDeleteCard ? undefined : onAddToCart}
+      onDeleteCard={onDeleteCard}
+      onOpenCard={onOpenCard}
+      onToggleCardSelection={onToggleCardSelection}
+      showConvertedMarketPrices={showConvertedMarketPrices}
+    />
+  ));
+
+  if (isMobile) {
+    return <div className={cn("grid gap-4", className)}>{listItems}</div>;
+  }
 
   return (
     <div
+      role="table"
       className={cn(
-        "rounded-md border border-[#D8D3CC] bg-card text-card-foreground",
+        "hidden overflow-x-auto rounded-md border border-[#D8D3CC] bg-card text-card-foreground md:block md:overflow-visible",
         className
       )}
     >
-      <Table
-        className="text-sm"
-        containerClassName="overflow-x-auto md:overflow-visible"
+      <div
+        role="row"
+        className={cn(
+          "sticky top-[calc(env(safe-area-inset-top)+5.5rem)] z-20 grid min-w-[62rem] items-center bg-[#ECE9E4] px-3 py-3 text-xs font-medium text-primary",
+          isSelectionMode
+            ? selectableDesktopGridClassName
+            : desktopGridClassName
+        )}
       >
-        <TableHeader className="bg-[#ECE9E4] [&_th]:sticky [&_th]:top-[calc(env(safe-area-inset-top)+5.5rem)] [&_th]:z-20 [&_th]:bg-[#ECE9E4]">
-          <TableRow className="border-[#D8D3CC] hover:bg-transparent">
-            {isSelectionMode && (
-              <TableHead className="h-10 w-10 px-3">
-                <span className="sr-only">{t("binder:detail.selected")}</span>
-              </TableHead>
-            )}
-            <TableHead className="h-10 w-20 px-3 text-xs font-medium text-primary">
-              {t("binder:list.set")}
-            </TableHead>
-            <TableHead className="h-10 w-20 px-3 text-xs font-medium text-primary">
-              {t("binder:list.collector_number")}
-            </TableHead>
-            <TableHead className="h-10 min-w-60 px-3 text-xs font-medium text-primary">
-              {t("binder:list.name")}
-            </TableHead>
-            <TableHead className="h-10 w-16 px-3 text-right text-xs font-medium text-primary">
-              {t("binder:list.quantity")}
-            </TableHead>
-            <TableHead className="h-10 w-24 px-3 text-xs font-medium text-primary">
-              {t("binder:list.condition")}
-            </TableHead>
-            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
-              {t("binder:list.user_price")}
-            </TableHead>
-            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
-              <MarketPriceHeader
-                label={t("binder:list.cardkingdom_price")}
-                source={MarketPriceSource.Cardkingdom}
-              />
-            </TableHead>
-            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
-              <MarketPriceHeader
-                label={t("binder:list.tcgplayer_price")}
-                source={MarketPriceSource.Tcgplayer}
-              />
-            </TableHead>
-            <TableHead className="h-10 px-3 text-right text-xs font-medium text-primary">
-              <MarketPriceHeader
-                label={t("binder:list.cardmarket_price")}
-                source={MarketPriceSource.Cardmarket}
-              />
-            </TableHead>
-            {onAddToCart && (
-              <TableHead className="h-10 w-34 px-3">
-                <span className="sr-only">
-                  {t("binder:detail.add_to_cart")}
-                </span>
-              </TableHead>
-            )}
-            {onDeleteCard && <TableHead className="h-10 w-12 px-3" />}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {binderCards.map((binderCard, index) => (
-            <BinderCardListRow
-              key={binderCard.id}
-              binderCard={binderCard}
-              convertAmountToLocalCurrency={convertAmountToLocalCurrency}
-              formatPrice={formatPrice}
-              index={index}
-              isDeletingCard={isDeletingCard}
-              isSelected={selectedBinderCardIds?.has(binderCard.id)}
-              isSelectionMode={isSelectionMode}
-              onAddToCart={onAddToCart}
-              onClearCardPreview={clearCardPreview}
-              onDeleteCard={onDeleteCard}
-              onOpenCard={onOpenCard}
-              onToggleCardSelection={onToggleCardSelection}
-              onUpdateCardPreview={updateCardPreview}
-              showConvertedMarketPrices={showConvertedMarketPrices}
-            />
-          ))}
-        </TableBody>
-      </Table>
-      <BinderCardPreview
-        cardPreview={cardPreview}
-        noImageLabel={t("binder:no_image")}
-      />
+        {isSelectionMode && (
+          <span role="columnheader">
+            <span className="sr-only">{t("binder:detail.selected")}</span>
+          </span>
+        )}
+        <span role="columnheader" className="pr-3">
+          {t("card:printings.table.card")}
+        </span>
+        <span role="columnheader" className="pr-3">
+          {t("card:information")}
+        </span>
+        <span role="columnheader" className="pr-3">
+          {t("binder:list.quantity")}
+        </span>
+        <span role="columnheader" className="pr-3">
+          {t("binder:list.user_price")}
+        </span>
+        <span role="columnheader" className="pr-3">
+          {t("binder:detail.market_prices")}
+        </span>
+        <span role="columnheader" className="text-right">
+          <span className="sr-only">{t("binder:actions.more")}</span>
+        </span>
+      </div>
+      <div role="rowgroup">{listItems}</div>
     </div>
   );
 };

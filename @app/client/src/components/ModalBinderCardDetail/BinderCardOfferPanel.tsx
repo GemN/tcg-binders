@@ -1,10 +1,12 @@
-import { Info, PackageCheck, ShoppingBasket } from "lucide-react";
+import { useCallback, useEffect } from "react";
 
 import { CardConditionBadge } from "@/components/CardConditionBadge";
+import { CardFinishBadge } from "@/components/CardFinishBadge";
+import { CartQuantityControl } from "@/components/Cart/CartQuantityControl";
 import { CountryFlag } from "@/components/CountryFlag";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { cardLanguageFlagCodes, isFoilCardFinish } from "@/config/card";
+import { cardLanguageFlagCodes } from "@/config/card";
+import { useCart } from "@/providers/CartContext";
 
 import type { ModalBinderCardRecord } from "./types";
 
@@ -12,12 +14,9 @@ interface BinderCardOfferPanelProps {
   addToCartLabel: string;
   availableLabel: string;
   binderCard: ModalBinderCardRecord;
-  cartPreviewNoticeLabel: string;
   convertedPriceValue: string | null;
-  isCartPreview: boolean;
   notAvailableLabel: string;
   priceValue: string;
-  titleLabel: string;
   onAddToCart?: () => void;
   translateCardOption: (
     group: "condition" | "finish" | "language",
@@ -29,89 +28,109 @@ export const BinderCardOfferPanel = ({
   addToCartLabel,
   availableLabel,
   binderCard,
-  cartPreviewNoticeLabel,
   convertedPriceValue,
-  isCartPreview,
   notAvailableLabel,
   priceValue,
-  titleLabel,
   onAddToCart,
   translateCardOption,
 }: BinderCardOfferPanelProps) => {
-  const conditionValue =
-    translateCardOption("condition", binderCard.condition) || notAvailableLabel;
-  const finishValue =
-    translateCardOption("finish", binderCard.finish) || notAvailableLabel;
-  const shouldShowFinish = isFoilCardFinish(binderCard.finish);
+  const {
+    items,
+    reconcileCartItemAvailability,
+    removeCartItem,
+    updateCartItemQuantity,
+    updateCartItemQuantityWithNotification,
+  } = useCart();
+  const cartItem = onAddToCart
+    ? items.find((item) => item.binderCardId === binderCard.id)
+    : undefined;
+  const cartItemAvailableQuantity = cartItem?.availableQuantity;
   const languageValue =
     translateCardOption("language", binderCard.language) || notAvailableLabel;
+  const cardName = binderCard.card?.name || notAvailableLabel;
+  const handleQuantityChange = useCallback(
+    (quantity: number) => {
+      if (cartItem && quantity > cartItem.quantity) {
+        updateCartItemQuantityWithNotification(binderCard.id, quantity);
+        return;
+      }
+
+      updateCartItemQuantity(binderCard.id, quantity);
+    },
+    [
+      binderCard.id,
+      cartItem,
+      updateCartItemQuantity,
+      updateCartItemQuantityWithNotification,
+    ]
+  );
+  const handleRemoveFromCart = useCallback(() => {
+    removeCartItem(binderCard.id);
+  }, [binderCard.id, removeCartItem]);
+
+  useEffect(() => {
+    if (cartItemAvailableQuantity === undefined) return;
+
+    reconcileCartItemAvailability(binderCard.id, binderCard.quantity);
+  }, [
+    binderCard.id,
+    binderCard.quantity,
+    cartItemAvailableQuantity,
+    reconcileCartItemAvailability,
+  ]);
 
   return (
-    <section className="rounded-md border border-border bg-card text-card-foreground shadow-sm">
-      <div className="grid gap-5 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">
-            {titleLabel}
-          </p>
-          <Badge variant="success" size="md">
-            <PackageCheck className="size-4" />
-            {availableLabel}
-          </Badge>
-        </div>
-
-        <div className="grid max-w-sm gap-3">
-          <div>
-            <p className="text-4xl font-semibold leading-none tracking-normal text-foreground">
+    <section className="rounded-sm border border-[#D8D3CC] bg-[#F4F1EC] p-4 text-primary">
+      <div className="grid gap-4 md:max-w-[18.5rem]">
+        <div className="grid gap-3">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="text-xl font-display font-medium tabular-nums">
               {priceValue}
-            </p>
+            </span>
             {convertedPriceValue && (
-              <p className="mt-1 text-sm font-medium text-muted-foreground">
-                ~ {convertedPriceValue}
-              </p>
+              <span className="text-sm text-muted-foreground tabular-nums">
+                ≈ {convertedPriceValue}
+              </span>
             )}
           </div>
+          <p className="text-xs font-normal text-secondary">{availableLabel}</p>
+        </div>
 
-          {isCartPreview && (
-            <p className="flex items-start gap-2 rounded-md border border-warning/30 bg-yellow-100 px-3 py-2 text-sm leading-5 text-yellow-900">
-              <Info className="mt-0.5 size-4 shrink-0" />
-              <span>{cartPreviewNoticeLabel}</span>
-            </p>
-          )}
-
-          {onAddToCart && (
+        {onAddToCart &&
+          (cartItem ? (
+            <CartQuantityControl
+              availableQuantity={cartItem.availableQuantity}
+              className="h-11 w-full"
+              itemName={cardName}
+              onRemove={handleRemoveFromCart}
+              quantity={cartItem.quantity}
+              onQuantityChange={handleQuantityChange}
+            />
+          ) : (
             <Button
               type="button"
               size="lg"
-              className="w-full"
+              className="h-11 w-full"
+              disabled={binderCard.quantity < 1}
               onClick={onAddToCart}
             >
-              <ShoppingBasket className="size-4" />
               {addToCartLabel}
             </Button>
-          )}
-        </div>
+          ))}
 
-        <div className="flex flex-wrap gap-2 border-t border-border pt-4">
-          <span className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5 text-sm font-semibold text-foreground">
-            <CardConditionBadge
-              condition={binderCard.condition}
-              className="rounded-sm py-0.5"
-            />
-            {conditionValue}
-          </span>
-          {shouldShowFinish && (
-            <span className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5 text-sm font-semibold text-foreground">
-              {finishValue}
-            </span>
-          )}
-          <span className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5 text-sm font-semibold text-foreground">
-            <CountryFlag
-              code={cardLanguageFlagCodes[binderCard.language]}
-              className="h-3.5 w-5"
-              label={languageValue}
-            />
-            {languageValue}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <CardConditionBadge
+            condition={binderCard.condition}
+            className="rounded-sm py-0.5"
+            showTooltip
+          />
+          <CountryFlag
+            code={cardLanguageFlagCodes[binderCard.language]}
+            className="aspect-[4/3] w-5"
+            label={languageValue}
+            showTooltip
+          />
+          <CardFinishBadge finish={binderCard.finish} display="icon" />
         </div>
       </div>
     </section>
